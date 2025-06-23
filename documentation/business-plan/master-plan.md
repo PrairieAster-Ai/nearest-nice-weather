@@ -89,7 +89,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 ### Technical Foundation (Implementation-Ready)
 
-**Completed Architecture** ([$140K development value](../technical/architecture-overview.md)):
+**Completed Architecture** ([$140K development value](../architecture-overview.md)):
 - ✅ FastAPI + PostgreSQL/PostGIS backend for geographic calculations
 - ✅ Directus CMS for content management and user administration
 - ✅ Docker deployment configuration with development environment
@@ -115,7 +115,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 **Primary Persona**: [Andrea "Bass Pro" Thompson](../appendices/user-personas.md#andrea-bass-pro-thompson) & [Mark Johnson - Ice Fishing Guide](../appendices/user-personas.md#mark-johnson-rural-business-leader)
 - **Demographics**: 1.2M active Minnesota outdoor recreation participants
-- **Key Characteristic**: 95% of ice fishing guides also do open-water guiding; 80% of hunting guides offer fishing services
+- **Key Business Assumption** ⚠️: Based on industry observation, estimated 95% of ice fishing guides also do open-water guiding; 80% of hunting guides offer fishing services (*requires customer discovery validation*)
 - **Critical Pain Point**: Weather ruins outdoor plans across multiple seasons, costs $5,000-20,000 annually in equipment and trips
 - **Solution Value**: Year-round weather intelligence for cross-seasonal activity planning
 - **Pricing Model**: $25-50/month annual subscriptions for all-season planning
@@ -139,18 +139,18 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 **Target Market**: Multi-season guides and outfitters who operate year-round or across multiple seasons
 
 **Business Types & Seasonal Operations**:
-- **Ice fishing guides** (winter) → **Open-water fishing guides** (summer): 95% overlap
-- **BWCA outfitters** (summer) → **Winter wilderness services** (winter): Year-round operations
-- **Hunting guides** (fall) → **Fishing services** (spring/summer): 80% overlap
+- **Ice fishing guides** (winter) → **Open-water fishing guides** (summer): Estimated 95% overlap ⚠️ (*assumption requiring validation*)
+- **BWCA outfitters** (summer) → **Winter wilderness services** (winter): Growing trend toward year-round operations ⚠️ (*requires market research*)
+- **Hunting guides** (fall) → **Fishing services** (spring/summer): Estimated 80% overlap ⚠️ (*assumption requiring validation*)
 - **Resort operators**: Year-round accommodation with seasonal activity focus
 
 **Primary Persona**: [Sarah Kowalski - BWCA Outfitter](../appendices/user-personas.md#sarah-kowalski-bwca-outfitter)
 - **Business Profile**: $450K annual revenue, 15-year wilderness outfitting operation
 - **Seasonal Distribution**: 60% summer BWCA trips, 40% winter/spring activities
-- **Critical Pain Point**: Weather-related cancellations cost $10K-25K daily revenue loss across all seasons
+- **Critical Pain Point**: Weather-related cancellations estimated to cost $10K-25K daily revenue loss across all seasons ⚠️ (*requires operator interview validation*)
 - **Solution Value**: Year-round weather intelligence + consumer-proven demand validation
-- **Pricing Model**: $400-800/month annual SaaS subscription for comprehensive weather intelligence
-- **Market Size**: 500+ multi-season operators in Minnesota, 2,000+ regional Upper Midwest
+- **Pricing Model**: $400-800/month annual SaaS subscription for comprehensive weather intelligence ⚠️ (*pricing assumptions require customer discovery validation*)
+- **Market Size**: Estimated 500+ multi-season operators in Minnesota, 2,000+ regional Upper Midwest ⚠️ (*requires licensing data verification*)
 
 **Year-Round Value Proposition**:
 - **Proven consumer demand** through 2,500+ active B2C users across all seasons
@@ -438,7 +438,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 - Quarterly strategy adjustments based on risk indicator changes
 - Emergency response procedures for service disruptions or competitive threats
 
-*Complete risk analysis methodology and scenario planning available in [Risk Assessment appendix](../appendices/risk-analysis.md)*
+*Complete risk analysis methodology and scenario planning will be developed during customer discovery phase*
 
 ---
 
@@ -640,7 +640,7 @@ Our accelerated timeline: 6 weeks implementation + customer validation focus
 - **API Security**: Rate limiting, input validation, SQL injection prevention
 - **Compliance Readiness**: GDPR and CCPA data protection framework implementation
 
-*Complete technical architecture documentation available in [Technical Architecture appendix](../technical/architecture-overview.md)*
+*Complete technical architecture documentation available in [Technical Architecture appendix](../architecture-overview.md)*
 
 ---
 
@@ -741,7 +741,7 @@ Our accelerated timeline: 6 weeks implementation + customer validation focus
 - Strategic acquisition opportunity after establishing market leadership
 - IPO consideration with $50M+ annual revenue and national market presence
 
-*Complete investment analysis and scenarios available in [Investment Strategy appendix](../appendices/investment-strategy.md)*
+*Complete investment analysis and scenarios will be developed following customer validation and revenue traction*
 
 ---
 
@@ -812,6 +812,9 @@ Founder & CEO, PrairieAster.Ai
 
 *This business plan contains confidential and proprietary information. Distribution is limited to authorized stakeholders including potential investors, partners, and team members. All financial projections and strategic analysis are based on conservative methodology with verifiable data sources documented in appendices.*
 
-**Document Version**: 1.0  
-**Last Updated**: June 12, 2025  
-**Next Review**: Monthly during implementation phase, quarterly during scaling phase
+**Document Version**: 1.1  
+**Last Updated**: December 23, 2024  
+**Document Status**: Customer Discovery Phase - Contains business assumptions requiring validation  
+**Next Review**: Weekly during customer discovery, monthly during implementation phase
+
+**⚠️ VALIDATION NOTICE**: This business plan contains critical assumptions marked with ⚠️ that require customer discovery validation. See [Source Verification Status](../appendices/source-verification-status.md) for complete tracking of sourced vs. unsourced claims.

@@ -4,6 +4,8 @@
 
 This appendix provides comprehensive analysis of Minnesota's outdoor recreation activities ranked by lucrative opportunity for the Nearest Nice Weather platform, with emphasis on year-round user engagement and cross-seasonal activity participation.
 
+**⚠️ IMPORTANT NOTE**: Cross-seasonal activity participation percentages (95%, 80%, 75%) are business assumptions based on industry observation and require customer discovery validation. Government economic data is properly sourced, but behavioral assumptions about guide service overlap need verification through direct operator interviews.
+
 ## Research Methodology
 
 **Data Sources**:
@@ -145,11 +147,11 @@ This appendix provides comprehensive analysis of Minnesota's outdoor recreation 
 
 **Primary Finding**: Minnesota outdoor enthusiasts participate in multiple weather-dependent activities across all seasons, creating year-round engagement opportunity.
 
-**Key Overlaps**:
-- **95% of ice fishing guides** also provide open-water fishing services
-- **80% of hunting guides** also offer fishing services
-- **75% of BWCA outfitters** expanding to winter wilderness services
-- **60% of serious anglers** also hunt during fall/winter seasons
+**Key Business Assumptions** ⚠️ (*All percentages require customer discovery validation*):
+- **Estimated 95% of ice fishing guides** also provide open-water fishing services
+- **Estimated 80% of hunting guides** also offer fishing services  
+- **Estimated 75% of BWCA outfitters** expanding to winter wilderness services
+- **Estimated 60% of serious anglers** also hunt during fall/winter seasons
 
 ### Seasonal Revenue Distribution
 

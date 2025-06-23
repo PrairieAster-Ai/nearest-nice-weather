@@ -44,7 +44,7 @@ User Location + Preferences → AI Weather Analysis → Perfect Destinations + L
 
 ### 🎣 Primary B2C MVP: Year-Round Outdoor Enthusiasts
 - **Market**: 1.2M Minnesota outdoor recreation participants across all seasons
-- **Key Insight**: 95% of ice fishing guides also do open-water guiding; 80% of hunting guides offer fishing services
+- **Key Business Assumption** ⚠️: Estimated 95% of ice fishing guides also do open-water guiding; 80% of hunting guides offer fishing services (*requires customer discovery validation*)
 - **Pain Point**: Weather ruins outdoor plans across multiple seasons, costs $5,000-20,000 annually
 - **Solution**: Year-round weather intelligence for cross-seasonal activity planning
 - **Pricing**: $25-50/month annual subscriptions for all-season planning
@@ -53,8 +53,8 @@ User Location + Preferences → AI Weather Analysis → Perfect Destinations + L
 
 ### 🎯 Growth B2B: Year-Round Tourism Operators (B2C-Proven Demand)
 - **Market**: 500+ Minnesota multi-season guides/outfitters
-- **Key Insight**: Same operators provide services across seasons (ice fishing→open water, BWCA→winter wilderness)
-- **Pain Point**: Weather cancellations cost $10K-25K daily across all seasons
+- **Key Business Assumption** ⚠️: Same operators estimated to provide services across seasons (ice fishing→open water, BWCA→winter wilderness) (*requires validation*)
+- **Pain Point**: Weather cancellations estimated to cost $10K-25K daily across all seasons ⚠️ (*requires operator interview validation*)
 - **Solution**: Year-round weather intelligence + proven consumer demand validation
 - **Pricing**: $400-800/month annual SaaS subscription for comprehensive intelligence
 - **B2C Conversion**: Leverage 2,500+ year-round consumer users demonstrating cross-seasonal demand
@@ -211,5 +211,7 @@ User Location + Preferences → AI Weather Analysis → Perfect Destinations + L
 
 *This executive summary provides scanning-optimized overview for busy stakeholders. Complete analysis available in [Master Business Plan](./master-plan.md) with comprehensive appendices for detailed due diligence.*
 
-**Last Updated**: June 12, 2025  
-**Document Status**: Investment Ready
+**Last Updated**: December 23, 2024  
+**Document Status**: Customer Discovery Phase - Contains business assumptions requiring validation
+
+**⚠️ Important Note**: This business plan contains critical assumptions marked with ⚠️ that require customer discovery validation before Series A fundraising. Key assumptions include cross-seasonal activity participation rates, weather revenue impact claims, and pricing assumptions. See [Source Verification Status](../appendices/source-verification-status.md) for complete validation tracking.
