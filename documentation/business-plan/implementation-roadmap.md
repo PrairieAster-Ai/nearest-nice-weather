@@ -66,11 +66,11 @@
   - Document pain points, revenue impact, and current solutions
   - **Deliverable**: B2B customer problem validation data
 
-- [ ] **Mayo Medical Tourism Research**
-  - Interview 10+ hospitality providers serving Mayo patients
-  - Survey 25+ medical tourism families about weather stress
-  - Research Rochester activity options and weather dependencies
-  - **Deliverable**: Medical tourism market validation
+- [ ] **Lake Recreation Market Research**
+  - Interview 10+ lake resort and campground operators
+  - Survey 25+ families about weather impact on summer lake activities
+  - Research Minnesota lake recreation options and weather dependencies
+  - **Deliverable**: Summer recreation market validation
 
 #### Week 4 Tasks
 - [ ] **Competitive Analysis**

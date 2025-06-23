@@ -49,12 +49,9 @@ User Location + Preferences → AI Weather Analysis → Perfect Destinations + L
 - **Pricing**: $200-500/month SaaS subscription
 - **LTV/CAC**: 36:1 ratio
 
-### 🏥 High-Value B2C: Mayo Medical Tourism
-- **Market**: 1.3M annual patients + families
-- **Pain Point**: Weather stress amplifies medical stress
-- **Solution**: Rochester-specific activity optimization  
-- **Pricing**: $15-30/month during treatment
-- **Opportunity**: Year-round revenue stability
+### 🏥 Secondary Market: Medical Tourism (Appendix Detail)
+- **Market**: Mayo patient families (see [Medical Tourism Analysis](../appendices/medical-tourism-segment.md))
+- **Opportunity**: Year-round revenue stability from healthcare sector
 
 ### 🎣 Engaged B2C: Tournament Competitors
 - **Market**: $144B hunting/fishing industry

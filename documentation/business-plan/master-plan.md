@@ -66,7 +66,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 **Progressive Web App Features**:
 - **Real-time weather intelligence** across 700-mile radius from central Minnesota
-- **Activity-specific recommendations** (ice fishing, hiking, BWCA trips, tournament fishing)
+- **Activity-specific recommendations** (ice fishing, summer lake activities, BWCA canoe trips, hunting/fishing, camping, water recreation, skiing, jet ski activities, hiking, tournament fishing)
 - **Local operator connections** with instant booking capabilities
 - **Offline functionality** for remote outdoor locations without cellular coverage
 - **Community features** for social proof, experience sharing, and viral growth
@@ -104,22 +104,11 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 - Customer behavior analytics and retention optimization
 - Equipment and staffing optimization based on weather patterns
 
-### Segment 2: Medical Tourism Families (B2C High-Value)
+### Segment 2: Medical Tourism Families (B2C Secondary Market)
 
-**Target Market**: Mayo Clinic patient families seeking stress relief during treatment
+**Target Market**: Mayo Clinic patient families (see [Medical Tourism Analysis](../appendices/medical-tourism-segment.md) for detailed analysis)
 
-**Primary Persona**: [Jennifer Martinez - Healthcare Coordinator](../appendices/user-personas.md#jennifer-martinez-healthcare-coordinator)
-- **Context**: 6-week Mayo treatment period, Phoenix resident unfamiliar with Minnesota
-- **Critical Pain Point**: Weather stress amplifies medical treatment stress for entire family
-- **Solution Value**: Rochester-specific activity optimization for multi-generational families
-- **Pricing Model**: $15-30/month during medical stay (6-week average)
-- **Market Size**: 1.3M annual Mayo patients + families (2.8M total people)
-
-**Value Proposition**:
-- Weather-assured activity planning reducing family stress
-- Indoor/outdoor backup options for unpredictable medical schedules
-- Local expertise for non-Minnesota residents
-- Multi-generational activity coordination tools
+**Summary**: Secondary market opportunity serving 1.3M annual Mayo patients + families during treatment periods. Detailed market analysis, personas, and implementation strategy available in dedicated appendix.
 
 ### Segment 3: Tournament Competitors (B2C Engaged Users)
 
@@ -283,11 +272,11 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 ### Phase 1: Minnesota Market Development (Months 1-9)
 
-**Primary Focus**: Ice fishing guides + Mayo area tourism + MVP development completion
+**Primary Focus**: Outdoor recreation operators + lake/water activities + MVP development completion
 
 **Customer Acquisition Channels**:
 - **Direct outreach**: 200+ Minnesota tourism operators through structured sales process
-- **Mayo Clinic partnerships**: Hospitality and accommodation provider relationships
+- **Outdoor recreation partnerships**: Lake resorts, campgrounds, and activity provider relationships
 - **Content marketing**: Minnesota-specific weather guides and outdoor activity optimization
 - **Local tourism board relationships**: Explore Minnesota Tourism and regional CVBs
 
@@ -361,7 +350,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 **Mitigation Strategy**:
 - **Rapid Geographic Expansion**: Wisconsin/Iowa entry by month 12 for weather pattern diversification
-- **Year-Round Activities**: Mayo medical tourism provides winter revenue stability
+- **Year-Round Activities**: Winter skiing, ice fishing + summer lake activities provide seasonal balance
 - **Subscription Model**: Annual subscriptions with advance payment incentives
 - **Cash Flow Management**: Line of credit for seasonal smoothing, advance customer payments
 
@@ -424,7 +413,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 **Week 3-4: Customer Discovery**
 - [ ] 25 tourism operator interviews with structured problem validation
-- [ ] Mayo Clinic area hospitality provider outreach and relationship building
+- [ ] Lake resort and campground provider outreach and relationship building
 - [ ] Competitive analysis completion and market positioning refinement
 - [ ] Landing page deployment with email capture for demand validation
 
@@ -490,7 +479,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 **Week 23-24: Beta Testing Program**
 - [ ] 10+ tourism operator pilot program with real weather recommendations
-- [ ] Beta user recruitment from Mayo Clinic area hospitality providers
+- [ ] Beta user recruitment from lake resort and outdoor recreation providers
 - [ ] Feedback collection and analysis with platform optimization
 - [ ] Customer success story documentation for marketing and sales
 
