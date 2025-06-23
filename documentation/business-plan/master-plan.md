@@ -40,7 +40,7 @@
 
 1. **Technical Foundation**: $140K in completed FastAPI + Directus + PostGIS architecture
 2. **Geographic Moat**: Central Minnesota provides 2-3 year competitive window
-3. **Market Validation**: Direct customer research with 25+ Minnesota tourism operators
+3. **Market Validation**: Planned customer discovery with Minnesota tourism operators
 4. **Conservative Projections**: 75% of optimistic industry estimates
 5. **Experienced Leadership**: 10 years technical + 10 years product management
 
@@ -348,7 +348,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 **Mitigation Strategy**:
 - **Speed to Market**: 18-month head start through existing technical foundation
 - **Deep Integration**: Tourism operator workflow integration creating switching costs
-- **Geographic Expertise**: Local Minnesota market knowledge and relationships
+- **Geographic Focus**: Targeted Minnesota market research and customer discovery
 - **Data Moat**: Proprietary weather-booking correlation dataset strengthening with scale
 
 **Monitoring Indicators**: Product announcements from major platforms, competitive feature releases, customer acquisition cost trends.

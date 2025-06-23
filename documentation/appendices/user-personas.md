@@ -178,7 +178,7 @@ These user personas represent validated market segments for the Weather Intellig
 - **Evaluation Criteria**: Practical utility over cutting-edge features, community benefit focus
 - **Network Influence**: Rural business and outdoor recreation community leadership
 - **Technology Integration**: Values long-term reliability and community-wide benefits
-- **Geographic Knowledge**: Deep understanding of rural Minnesota weather dependencies
+- **Geographic Research**: Planned analysis of rural Minnesota weather patterns and needs
 
 ---
 

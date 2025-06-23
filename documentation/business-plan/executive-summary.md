@@ -174,7 +174,7 @@ User Location + Preferences → AI Weather Analysis → Perfect Destinations + L
 **Robert H. Speer** - Founder & CEO
 - **Technical Background**: 10 years software development, rapid FastAPI + PostGIS learning (implementation completed)
 - **Product Management**: 10+ years Agile Product Owner experience  
-- **Industry Knowledge**: Minnesota tourism relationships and market understanding
+- **Market Research**: Targeted customer discovery and Minnesota market analysis (planned)
 - **Investment Ready**: Technical foundation complete, conservative projections validated
 
 ---
