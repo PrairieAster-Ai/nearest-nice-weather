@@ -42,7 +42,7 @@
 2. **Geographic Moat**: Central Minnesota provides 2-3 year competitive window
 3. **Market Validation**: Direct customer research with 25+ Minnesota tourism operators
 4. **Conservative Projections**: 75% of optimistic industry estimates
-5. **Experienced Leadership**: 20 years technical + 10 years product management
+5. **Experienced Leadership**: 10 years technical + 10 years product management
 
 ---
 
@@ -737,7 +737,7 @@ This business plan demonstrates **investment readiness** through:
 - Complete technical architecture reducing execution risk
 - Conservative financial projections with detailed methodology
 - Validated market opportunity with specific customer segments
-- Experienced product leadership with 20+ years delivery track record
+- Experienced product leadership with 10 years delivery track record
 - Clear path to profitability with multiple revenue streams and expansion opportunities
 
 **Contact for Investment Discussion**:
