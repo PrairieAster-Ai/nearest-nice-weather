@@ -42,43 +42,47 @@ User Location + Preferences → AI Weather Analysis → Perfect Destinations + L
 
 ## 👥 Target Market Segments
 
-### 🎯 Primary B2B: Tourism Operators
-- **Market**: 500+ Minnesota guides/outfitters
-- **Pain Point**: Weather cancellations cost $10K-25K daily
-- **Solution**: Predictive demand + safety intelligence
-- **Pricing**: $200-500/month SaaS subscription
-- **LTV/CAC**: 36:1 ratio
+### 🎣 Primary B2C MVP: Year-Round Outdoor Enthusiasts
+- **Market**: 1.2M Minnesota outdoor recreation participants across all seasons
+- **Key Insight**: 95% of ice fishing guides also do open-water guiding; 80% of hunting guides offer fishing services
+- **Pain Point**: Weather ruins outdoor plans across multiple seasons, costs $5,000-20,000 annually
+- **Solution**: Year-round weather intelligence for cross-seasonal activity planning
+- **Pricing**: $25-50/month annual subscriptions for all-season planning
+- **MVP Strategy**: Build year-round user base demonstrating cross-seasonal demand to B2B market
+- **Sample Target**: 2,500+ active users (statistically reliable feedback sample)
+
+### 🎯 Growth B2B: Year-Round Tourism Operators (B2C-Proven Demand)
+- **Market**: 500+ Minnesota multi-season guides/outfitters
+- **Key Insight**: Same operators provide services across seasons (ice fishing→open water, BWCA→winter wilderness)
+- **Pain Point**: Weather cancellations cost $10K-25K daily across all seasons
+- **Solution**: Year-round weather intelligence + proven consumer demand validation
+- **Pricing**: $400-800/month annual SaaS subscription for comprehensive intelligence
+- **B2C Conversion**: Leverage 2,500+ year-round consumer users demonstrating cross-seasonal demand
 
 ### 🏥 Secondary Market: Medical Tourism (Appendix Detail)
 - **Market**: Mayo patient families (see [Medical Tourism Analysis](../appendices/medical-tourism-segment.md))
 - **Opportunity**: Year-round revenue stability from healthcare sector
 
-### 🎣 Engaged B2C: Tournament Competitors
-- **Market**: $144B hunting/fishing industry
-- **Pain Point**: Competition success depends on weather
-- **Solution**: Competitive advantage through weather intelligence
-- **Pricing**: $50-100/month during season
-- **Network Effect**: Community-driven viral growth
-
 ---
 
 ## 📊 Financial Projections
 
-### Revenue Growth (Conservative Estimates)
+### Revenue Growth (Year-Round Conservative Estimates)
 
 | Stream | Month 6 | Month 12 | Month 24 |
 |--------|---------|----------|----------|
-| **B2B SaaS Tourism** | $2,500 | $15,000 | $45,000 |
-| **B2C Subscriptions** | $1,000 | $8,000 | $25,000 |
-| **Affiliate Revenue** | $500 | $5,000 | $15,000 |
-| **API/Data Licensing** | $0 | $2,000 | $10,000 |
-| **TOTAL Monthly** | **$4,000** | **$30,000** | **$95,000** |
+| **B2C Annual Subscriptions** | $3,500 | $15,000 | $40,000 |
+| **B2B Annual SaaS Tourism** | $1,500 | $15,000 | $45,000 |
+| **Affiliate Revenue** | $600 | $6,000 | $18,000 |
+| **API/Data Licensing** | $0 | $2,500 | $12,000 |
+| **TOTAL Monthly** | **$5,600** | **$38,500** | **$115,000** |
 
-### Unit Economics
-- **B2B LTV/CAC**: 36:1 (vs. 15:1 industry standard)
-- **B2C LTV/CAC**: 36:1 (vs. 8:1 consumer standard)  
-- **Gross Margin**: 85%+ (software delivery model)
-- **Break-Even**: Month 12 with multiple revenue streams
+### Unit Economics (Year-Round Model)
+- **B2C LTV/CAC**: 53:1 (vs. 8:1 consumer standard) - Annual subscriptions with year-round engagement
+- **B2B LTV/CAC**: 60:1 (vs. 15:1 industry standard) - Multi-season operations with annual contracts
+- **Gross Margin**: 87%+ (annual subscription model with minimal variable costs)
+- **Revenue Stability**: Year-round revenue vs. seasonal fluctuation
+- **Break-Even**: Month 12 with predictable annual contract revenue
 
 ---
 
@@ -110,10 +114,17 @@ User Location + Preferences → AI Weather Analysis → Perfect Destinations + L
 - ✅ **Authentication system** with JWT and user management
 - ✅ **Weather API integrations** designed and documented
 
+### Progressive Web App Strategic Advantage
+- **No App Store Barriers**: Instant deployment, no 30% platform fees, zero download friction
+- **Offline-First Design**: Weather data cached for BWCA wilderness and remote locations without cell coverage
+- **Native App Features**: GPS, push notifications, camera integration without app store gatekeepers
+- **Universal Compatibility**: Single codebase serves iOS, Android, desktop simultaneously
+- **Viral Growth**: Users share URLs instead of "download this app" barriers
+
 ### Competitive Timeline Advantage
-- **Traditional Development**: 6 months + $140K investment
-- **Our Approach**: 6 weeks implementation + customer validation
-- **Result**: 2-3 months faster time-to-market than competitors
+- **Traditional Development**: 6 months + $140K investment + app store approval cycles
+- **Our Approach**: 6 weeks PWA implementation + instant deployment + immediate customer validation
+- **Result**: 3-4 months faster time-to-market with 20-30% higher conversion rates
 
 ---
 
