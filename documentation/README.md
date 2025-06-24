@@ -31,6 +31,7 @@ Progressive Web App that matches users' location and preferences to destinations
 ### **Market Research & Analysis**
 - **[📈 Market Research Sources](./appendices/market-research.md)** - Verified data sources and methodology
 - **[👥 User Personas](./appendices/user-personas.md)** - Detailed customer profiles
+- **[🏥 Medical Tourism Segment](./appendices/medical-tourism-segment.md)** - Mayo Clinic market analysis and opportunity
 - **[💰 Financial Assumptions](./appendices/financial-assumptions.md)** - Conservative projection methodology
 
 ### **Technical Foundation**
@@ -48,18 +49,21 @@ Progressive Web App that matches users' location and preferences to destinations
 
 ### **For Investors**
 1. Start with **[Executive Summary](./business-plan/executive-summary.md)** (5-minute read)
-2. Review **[Market Research](./appendices/market-research.md)** for data validation
-3. Examine **[Financial Projections](./appendices/financial-assumptions.md)** for methodology
+2. **Source Verification**: [Complete Validation Status](./appendices/source-verification-status.md#verification-status-legend) with assumption tracking
+3. **Financial Methodology**: [Conservative Projection Analysis](./appendices/financial-assumptions.md#conservative-projection-methodology)
+4. **Risk Assessment**: [Comprehensive Risk Analysis](./appendices/risk-analysis.md) with mitigation strategies
 
 ### **For Technical Review**
-1. Check **[Technical Architecture](./technical/architecture-overview.md)** for system design
-2. Run **[Development Environment](./technical/docker-compose.yml)** for hands-on evaluation
-3. Review **[Implementation Roadmap](./business-plan/implementation-roadmap.md)** for delivery timeline
+1. **Technical Validation**: [Architecture Implementation Status](./technical/architecture-overview.md#implementation-status-update)
+2. **Database Design**: [Complete Schema Documentation](./technical/database-schema.sql) with PostGIS implementation
+3. **Development Environment**: [Docker Deployment Setup](./technical/docker-compose.yml) for hands-on evaluation
+4. **Implementation Plan**: [Sprint-Level Execution](./business-plan/implementation-roadmap.md#detailed-sprint-planning-26-week-mvp-development)
 
 ### **For Partners**
-1. Read **[User Personas](./appendices/user-personas.md)** to understand target market
-2. Review **[Market Research](./appendices/market-research.md)** for opportunity validation
-3. Check **[Master Business Plan](./business-plan/master-plan.md)** for partnership opportunities
+1. **Target Market**: [Validated User Profiles](./appendices/user-personas.md#strategic-implications) with interview data
+2. **Market Opportunity**: [Cross-Seasonal Activity Research](./appendices/minnesota-outdoor-activities-analysis.md) 
+3. **Partnership Strategy**: [Investment Strategy](./appendices/investment-strategy.md) for strategic partnership terms
+4. **Business Model**: [Master Business Plan](./business-plan/master-plan.md#go-to-market-strategy) partnership opportunities
 
 ---
 

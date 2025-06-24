@@ -4,6 +4,12 @@
 
 These user personas represent validated market segments for the Weather Intelligence Platform, derived from direct customer interviews and market research conducted in Minnesota's tourism and outdoor recreation economy. Each persona represents distinct pain points, willingness to pay, and integration requirements that inform product development and go-to-market strategy.
 
+**Related Documentation**:
+- [Master Business Plan - Market Segments](../business-plan/master-plan.md#market-segments--user-personas)
+- [Medical Tourism Segment Analysis](medical-tourism-segment.md) - Detailed Mayo Clinic market analysis
+- [Minnesota Outdoor Activities Analysis](minnesota-outdoor-activities-analysis.md) - Cross-seasonal activity research
+- [Market Research Sources](market-research.md) - Validation methodology and data sources
+
 **Research Methodology:**
 - 25+ tourism operator interviews (B2B validation)
 - Mayo Clinic medical tourism family surveys

@@ -4,6 +4,12 @@
 
 This document tracks the verification status of all major claims in the Nearest Nice Weather business plan documentation. It identifies which statements are fully sourced, which require additional validation, and which are clearly marked as assumptions requiring customer discovery.
 
+**Related Documentation**:
+- [Market Research Sources](market-research.md) - Primary data validation methodology
+- [Risk Analysis](risk-analysis.md) - Business assumption risk assessment  
+- [Financial Assumptions](financial-assumptions.md) - Projection methodology and sources
+- [Master Business Plan](../business-plan/master-plan.md) - Contains key assumptions requiring validation
+
 **Last Updated**: December 23, 2024  
 **Review Methodology**: Comprehensive audit of all statistical claims, market data, and business projections
 

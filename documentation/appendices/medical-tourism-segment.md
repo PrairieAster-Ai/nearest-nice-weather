@@ -4,6 +4,11 @@
 
 This appendix contains detailed analysis of the medical tourism market segment, which represents a secondary opportunity for the Nearest Nice Weather platform. While the primary focus remains on outdoor recreation and tourism operators, the Mayo Clinic patient family market presents additional revenue potential.
 
+**Related Documentation**:
+- [Master Business Plan - Medical Tourism Strategy](../business-plan/master-plan.md#segment-3-medical-tourism-families-b2c-secondary-market)
+- [User Personas - Jennifer Martinez Healthcare Coordinator](user-personas.md#jennifer-martinez-healthcare-coordinator)
+- [Financial Assumptions - Medical Tourism Revenue Model](financial-assumptions.md#medical-tourism-revenue-assumptions)
+
 ## Segment 2: Medical Tourism Families (B2C High-Value)
 
 **Target Market**: Mayo Clinic patient families seeking stress relief during treatment

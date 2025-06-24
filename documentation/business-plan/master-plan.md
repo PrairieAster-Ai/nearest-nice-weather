@@ -27,7 +27,7 @@
 
 | Metric | Value | Validation Source |
 |--------|-------|-------------------|
-| **Market Size** | $1.2T outdoor recreation annually | [U.S. Bureau of Economic Analysis 2024](../appendices/market-research.md#outdoor-recreation-economy) |
+| **Market Size** | $1.2T outdoor recreation annually | [Complete Market Research Verification](../appendices/market-research.md#primary-market-data-verification) |
 | **MVP Timeline** | 90 days to revenue | Technical foundation complete |
 | **Initial Investment** | $25,000 for 6-month runway | Conservative bootstrapping approach |
 | **Target Year 1 Revenue** | $125,000 | B2B SaaS + affiliate model |
@@ -38,7 +38,7 @@
 
 ### Key Competitive Advantages
 
-1. **Technical Foundation**: $140K in completed FastAPI + Directus + PostGIS architecture
+1. **Technical Foundation**: $140K in completed FastAPI + Directus + PostGIS architecture - [Technical Implementation Details](../technical/architecture-overview.md#development-cost-analysis)
 2. **Geographic Moat**: Central Minnesota provides 2-3 year competitive window
 3. **Market Validation**: Planned customer discovery with Minnesota tourism operators
 4. **Conservative Projections**: 75% of optimistic industry estimates
@@ -89,7 +89,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 ### Technical Foundation (Implementation-Ready)
 
-**Completed Architecture** ([$140K development value](../architecture-overview.md)):
+**Completed Architecture** ([$140K development value](../technical/architecture-overview.md)):
 - ✅ FastAPI + PostgreSQL/PostGIS backend for geographic calculations
 - ✅ Directus CMS for content management and user administration
 - ✅ Docker deployment configuration with development environment
@@ -163,7 +163,7 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 
 **Target Market**: Mayo Clinic patient families (see [Medical Tourism Analysis](../appendices/medical-tourism-segment.md) for detailed analysis)
 
-**Summary**: Secondary market opportunity serving 1.3M annual Mayo patients + families during treatment periods. Detailed market analysis, personas, and implementation strategy available in dedicated appendix.
+**Summary**: Secondary market opportunity serving 1.3M annual Mayo patients + families during treatment periods. Detailed market analysis, personas, and implementation strategy available in [Medical Tourism Segment Analysis](../appendices/medical-tourism-segment.md).
 
 ---
 
@@ -304,9 +304,9 @@ User Location + Preferences → AI Weather Analysis → Optimal Destinations + L
 **Revenue Growth**: Conservative timeline with 25% buffer vs. best-case scenarios
 **Churn Rates**: Upper quartile assumptions accounting for seasonal business factors
 
-*Complete methodology documentation available in [Financial Assumptions appendix](../appendices/financial-assumptions.md)*
+*Complete methodology documentation available in [Financial Assumptions - Conservative Projection Methodology](../appendices/financial-assumptions.md#conservative-projection-methodology)*
 
-*Detailed analysis of Minnesota outdoor activities and cross-seasonal user overlap available in [Minnesota Outdoor Activities Analysis appendix](../appendices/minnesota-outdoor-activities-analysis.md)*
+*Detailed analysis of Minnesota outdoor activities and cross-seasonal user overlap available in [Minnesota Outdoor Activities Analysis - Cross-Seasonal Activity Research](../appendices/minnesota-outdoor-activities-analysis.md)*
 
 ---
 
@@ -807,6 +807,30 @@ Founder & CEO, PrairieAster.Ai
 📍 Nowthen, Minnesota
 
 *Available for immediate investor meetings, technical demonstrations, and customer reference discussions.*
+
+---
+
+## Related Documents
+
+### **Executive Summary & Planning**
+- [Executive Summary](./executive-summary.md) - Investor-focused 5-minute overview
+- [Implementation Roadmap](./implementation-roadmap.md) - Detailed 26-week sprint planning
+
+### **Market Research & Validation**
+- [Market Research Sources](../appendices/market-research.md) - Primary data validation methodology
+- [User Personas](../appendices/user-personas.md) - Detailed customer profiles with interview data
+- [Medical Tourism Segment](../appendices/medical-tourism-segment.md) - Mayo Clinic market analysis
+- [Minnesota Outdoor Activities Analysis](../appendices/minnesota-outdoor-activities-analysis.md) - Cross-seasonal research
+- [Source Verification Status](../appendices/source-verification-status.md) - Assumption tracking and validation
+
+### **Financial Analysis**
+- [Financial Assumptions](../appendices/financial-assumptions.md) - Conservative projection methodology  
+- [Risk Analysis](../appendices/risk-analysis.md) - Comprehensive risk assessment and mitigation
+- [Investment Strategy](../appendices/investment-strategy.md) - Funding strategy and investor targeting
+
+### **Technical Foundation**
+- [Technical Architecture](../technical/architecture-overview.md) - $140K implementation and system design
+- [Database Schema](../technical/database-schema.sql) - PostgreSQL + PostGIS complete schema
 
 ---
 
