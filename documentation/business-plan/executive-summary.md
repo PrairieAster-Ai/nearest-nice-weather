@@ -1,6 +1,6 @@
 # Executive Summary - Nearest Nice Weather
 
-**Progressive Web App for Weather-Driven Outdoor Recreation Optimization**
+**Simple Progressive Web App: Find the Nearest Nice Weather for Your Outdoor Activities**
 
 ---
 
@@ -9,34 +9,46 @@
 | Metric | Value | Confidence |
 |--------|-------|------------|
 | **Market Size** | $1.2T outdoor recreation annually | Government verified |
-| **Year 1 Revenue Target** | $125,000 | Conservative model |
+| **Year 1 Revenue Target** | $75,000 | Ad-supported B2C model |
 | **Break-Even Timeline** | Month 12 | Multiple revenue streams |
 | **Initial Investment** | $25,000 | Technical foundation complete |
 | **Series A Target** | Month 19 | $400K for national expansion |
 
-**Bottom Line**: First-mover advantage in weather-tourism optimization with $140K technical foundation already built.
+**Bottom Line**: Viral B2C Progressive Web App targeting year-round outdoor enthusiasts with simple "nearest nice weather" search and ad-supported revenue model.
 
 ---
 
 ## 💡 Business Concept
 
 ### The Problem
-- Outdoor enthusiasts waste $2,000+ annually on weather-ruined trips
-- Tourism operators lose 30-40% revenue to weather unpredictability
-- No existing solutions provide activity-specific weather intelligence
+- **"Where is the nearest weather that matches my preferences today?"**
+- People have different weather preferences: some prefer cold, others warm; some like rain, others avoid it
+- Weather apps only show local conditions, don't suggest better locations nearby
+- No simple tool exists to find preferred weather conditions within driving distance
 
 ### The Solution
-**Smart Weather-Destination Matching Engine** connecting users to optimal conditions:
+**Ultra-Simple Weather Filter Progressive Web App**:
 
 ```
-User Location + Preferences → AI Weather Analysis → Perfect Destinations + Local Operators
+Your Location + Weather Preferences → Nearest Matching Weather → User Data + Premium Features
 ```
+
+**MVP Features (Free-Only Launch)**: 
+- **Simple Filters**: Radio buttons for Temperature, Precipitation, Wind preferences
+- **Unlimited Saves**: Create account to save unlimited custom filter combinations ("Perfect Day", "Cozy Weather")
+- **Time-Based Voting**: Monthly 48-hour voting rounds on next features to build (creates urgency and engagement)
+- **Ad-Supported**: Free tier with competitor-neutral ad networks, premium features determined post-launch
+
+**Post-MVP Features** (Based on User Voting):
+- **Email Newsletter**: Weekly weather updates based on saved filter preferences
+- **Premium Features**: Interactive maps, historical trends, custom algorithms (user-determined priorities)
 
 ### Competitive Advantage
-1. **Technical Foundation**: $140K FastAPI + PostGIS architecture complete
-2. **Geographic Moat**: Central Minnesota provides 2-3 year competitive window  
-3. **Market Validation**: Direct research with 25+ Minnesota tourism operators
-4. **Conservative Projections**: 75% of optimistic industry estimates
+1. **Ultra-Simple Interface**: Just 3 radio button filters - anyone can use immediately
+2. **User-Driven Development**: Feature voting system ensures building what users actually want
+3. **Filter Usage Analytics**: Identify premium feature demand through actual user behavior patterns
+4. **Freemium Conversion**: Free users become premium based on demonstrated value, not assumptions
+5. **Progressive Web App**: No app store barriers, instant access, works offline
 
 ---
 

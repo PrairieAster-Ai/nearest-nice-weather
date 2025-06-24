@@ -1,43 +1,112 @@
-# Appendix B-F: Complete Technical Architecture & Implementation Design
+# Simple Progressive Web App Technical Architecture
 
-## Appendix B: FastAPI + Directus Integration Architecture
+## MVP Technical Architecture for "Nearest Nice Weather" App
 
-### Backend Implementation Design (Implementation-Ready)
+### Simple Progressive Web App Design (MVP Focus)
 
-Complete technical architecture designed for weather data, user management, and content delivery through Directus CMS. This represents detailed system design eliminating typical startup architecture phase.
+Streamlined technical architecture for B2C Progressive Web App focusing on simplicity, viral growth, and ad-supported revenue model. This represents a lean implementation designed for rapid deployment and user acquisition.
 
-**Business Context**: This technical architecture directly supports the [Master Business Plan Weather Intelligence Strategy](../business-plan/master-plan.md#progressive-web-app-concept) and provides the foundation for [Conservative Financial Projections](../appendices/financial-assumptions.md#technical-foundation-value).
+**Business Context**: This simplified technical architecture directly supports the [B2C Primary Market Strategy](../business-plan/master-plan.md#primary-market-year-round-outdoor-enthusiasts-b2c-mvp-focus) and enables the [Ad-Supported Revenue Model](../appendices/financial-assumptions.md#b2c-ad-supported-model-primary-revenue-stream).
 
-**Designed Features**:
-- 📋 JWT authentication with Directus integration
-- 📋 Weather recommendation endpoints
-- 📋 User preference management
-- 📋 Content management system
-- 📋 Support ticket system
-- 📋 Background task processing
-- 📋 API rate limiting and security
+**MVP Core Features**:
+- 📋 Simple weather filter interface with radio buttons
+- 📋 Location-based results matching weather preferences
+- 📋 User accounts for saving and naming custom filters
+- 📋 Feature request and voting system for development guidance
+- 📋 Social sharing integration for viral growth
+- 📋 Progressive Web App installation
 
-**FastAPI Application Architecture**:
+**Ultra-Simplified FastAPI Application Architecture**:
 ```python
-# Core application with weather intelligence
-from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
-from fastapi.security import HTTPBearer
+# MVP application focused on weather filter matching
+from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel
 import httpx
-import redis
-from sqlalchemy.orm import Session
+from geopy.distance import geodesic
 
 app = FastAPI(
-    title="Weather Intelligence API",
-    description="AI-powered weather-destination matching",
+    title="Nearest Nice Weather API",
+    description="Find nearest weather matching your preferences",
     version="1.0.0"
 )
 
-# Weather recommendation engine
-@app.post("/weather/recommendations")
-async def get_weather_recommendations(
-    query: WeatherQuery,
-    current_user: User = Depends(get_current_user)
+class WeatherFilters(BaseModel):
+    temperature: str  # "coldest", "comfortable", "hottest"
+    precipitation: str  # "likely", "sporadic", "unlikely"  
+    wind: str  # "high", "medium", "low"
+
+# Simple weather filter search endpoint
+@app.post("/search/weather-filters")
+async def find_weather_by_filters(
+    filters: WeatherFilters,
+    latitude: float,
+    longitude: float,
+    radius_miles: int = 100
 ):
+    # Filter matching algorithm
+    nearby_locations = get_locations_within_radius(latitude, longitude, radius_miles)
+    weather_data = await fetch_weather_for_locations(nearby_locations)
+    matching_locations = filter_by_preferences(weather_data, filters)
+    
+    return {
+        "filters_used": filters,
+        "matching_locations": matching_locations[:5],  # Top 5 results
+        "total_found": len(matching_locations)
+    }
+
+# User filter management
+@app.post("/filters/save")
+async def save_user_filter(
+    filter_name: str,
+    filters: WeatherFilters,
+    user_id: str = Depends(get_current_user)
+):
+    # Save named filter combination for user
+    return {"message": f"Filter '{filter_name}' saved successfully"}
+
+# Time-based feature voting system with scarcity
+@app.post("/feedback/feature-request")
+async def submit_feature_request(
+    title: str,
+    description: str,
+    feature_type: str,  # "free" or "premium"
+    user_id: str = Depends(get_current_user)
+):
+    # Store feature request with timestamp for voting rounds
+    return {"message": "Feature request submitted for next voting round"}
+
+@app.get("/feedback/voting-round")
+async def get_current_voting_round():
+    # Return current voting round with time remaining
+    return {
+        "round_number": 3,
+        "features_to_vote_on": 5,
+        "time_remaining_hours": 48,
+        "total_votes_cast": 1247,
+        "next_round_starts": "2024-01-15T00:00:00Z"
+    }
+
+@app.post("/feedback/vote")
+async def vote_on_feature(
+    feature_id: int,
+    vote_type: str,  # "upvote" or "downvote"
+    user_id: str = Depends(get_current_user)
+):
+    # Record user vote with time validation
+    # Users can only vote during active voting periods
+    return {"message": "Vote recorded", "votes_remaining": 3}
+
+# Post-MVP: Email newsletter based on saved filters
+@app.post("/newsletter/subscribe")
+async def subscribe_to_newsletter(
+    filter_names: List[str],  # User's saved filter names to track
+    email: str,
+    frequency: str,  # "weekly", "bi-weekly"
+    user_id: str = Depends(get_current_user)
+):
+    # Subscribe user to personalized weather newsletter
+    return {"message": "Subscribed to personalized weather updates"}
+```
     # Location-weather matching algorithm
     weather_data = await fetch_weather_data(query.location)
     activities = analyze_activity_suitability(weather_data, query.activities)

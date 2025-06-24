@@ -1,6 +1,6 @@
 # Nearest Nice Weather - Business Plan Repository
 
-**Weather-Intelligence Platform Connecting Outdoor Enthusiasts with Optimal Conditions**
+**Simple Progressive Web App for Year-Round Outdoor Enthusiasts - Find the Nearest Nice Weather**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Business Plan](https://img.shields.io/badge/Status-In%20Development-orange)](./business-plan/master-plan.md)
@@ -10,11 +10,11 @@
 
 ## 🎯 Executive Summary
 
-Progressive Web App that matches users' location and preferences to destinations with optimal weather conditions. Built on proven FastAPI + Directus + PostGIS architecture with focus on Minnesota tourism market and conservative growth projections.
+Ultra-simple Progressive Web App solving a daily problem: "Where is the nearest weather that matches my preferences?" Features 3 basic radio button filters, unlimited saved combinations, time-based feature voting with scarcity, and ad-supported MVP with post-launch premium features determined by user voting.
 
 **Key Metrics**:
 - 📊 **Market Size**: $1.2T outdoor recreation annually
-- 💰 **Year 1 Target**: $125,000 revenue
+- 💰 **MVP Year 1 Target**: $240,000 ad revenue
 - ⏱️ **MVP Timeline**: 90 days to revenue
 - 🎯 **Break-Even**: Month 12
 - 🏗️ **Technical Value**: $140K architecture already built
@@ -79,25 +79,20 @@ Progressive Web App that matches users' location and preferences to destinations
 
 ---
 
-## 🎯 Target Market Segments
+## 🎯 Target Market
 
-### **Primary B2B**: Tourism Operators
-- **Market**: 500+ Minnesota guides/outfitters  
-- **Pain Point**: Weather cancellations cost $10K-25K daily
-- **Solution**: Predictive demand + safety intelligence
-- **Pricing**: $200-500/month SaaS subscription
+### **Primary B2C**: Year-Round Outdoor Enthusiasts
+- **Market**: 500K+ active Minnesota outdoor recreation participants who use smartphone apps
+- **Pain Point**: "Where can I find good weather for fishing/hiking/camping today?"
+- **Current Behavior**: Checks multiple weather apps, spends 30+ minutes researching conditions
+- **Solution**: One-click discovery of nearest optimal weather for specific activities
+- **Revenue Model**: Ad-supported free usage with relevant outdoor gear and travel advertisements
 
-### **High-Value B2C**: Mayo Medical Tourism  
-- **Market**: 1.3M annual patients + families
-- **Pain Point**: Weather stress amplifies medical stress
-- **Solution**: Rochester-specific activity optimization
-- **Pricing**: $15-30/month during medical stay
-
-### **Engaged B2C**: Tournament Competitors
-- **Market**: $144B hunting/fishing market
-- **Pain Point**: Tournament success depends on weather
-- **Solution**: Competitive advantage through weather intelligence  
-- **Pricing**: $50-100/month during season
+### **Viral Growth Strategy**
+- **Social Sharing**: Users share weather discoveries: "Perfect camping weather in Brainerd!"
+- **Activity Communities**: Integration with outdoor Facebook groups and forums  
+- **Weather Success Stories**: Users post photos from great weather trips they found via app
+- **Year-Round Engagement**: All-season outdoor activities maintain consistent usage
 
 ---
 

@@ -14,40 +14,71 @@ All financial projections follow conservative methodology aligned with Great Nor
 
 ## Revenue Model Assumptions
 
-### B2B Tourism Operator SaaS (Primary Revenue Stream)
+### B2C Ad-Supported Model (Primary Revenue Stream)
 
-**Customer Acquisition Cost (CAC) Calculation**:
+**User Acquisition Cost (CAC) Calculation**:
 ```
-Direct Sales Approach:
-- Sales rep cost (part-time): $3,000/month
-- Marketing materials & events: $1,000/month  
-- Travel & customer meetings: $1,500/month
-- Total monthly sales cost: $5,500
+Viral/Organic Growth Strategy:
+- Content marketing & social media: $1,500/month
+- Influencer partnerships (outdoor bloggers): $1,000/month
+- Referral incentives & viral features: $500/month
+- Total monthly acquisition cost: $3,000
 
-Conversion Metrics (Conservative):
-- Prospects contacted per month: 40
-- Qualified leads: 20 (50% qualification rate)
-- Demos scheduled: 12 (60% demo rate)
-- Customers closed: 2 (17% close rate)
+User Acquisition Metrics (Conservative B2C):
+- Social media reach per month: 50,000 impressions
+- Website visitors: 5,000 (10% conversion from social)
+- App trial users: 500 (10% website conversion)
+- Active monthly users: 150 (30% retention)
 
-CAC = $5,500 ÷ 2 customers = $2,750 per customer
+CAC = $3,000 ÷ 150 active users = $20 per active user
 
-**Conservative CAC Assumption: $500** (assumes improved efficiency)
+**Conservative CAC Assumption: $25** (includes paid acquisition buffer)
 ```
 
-**Annual Contract Value (ACV) Calculation**:
+**MVP Revenue Model (Free-Only with Ad Support)**:
 ```
-Pricing Tiers (Minnesota Market Research):
-- Basic (small guides): $200/month × 12 = $2,400
-- Professional (outfitters): $350/month × 12 = $4,200  
-- Enterprise (resorts): $600/month × 12 = $7,200
+MVP Free Tier: Complete Basic Experience
+- Temperature: coldest/comfortable/hottest
+- Precipitation: likely/sporadic/unlikely  
+- Wind: high/medium/low
+- Unlimited saved filter combinations with custom names
+- Time-based feature voting system with scarcity mechanics
+- Basic ad-supported revenue: $2.00/month per active user
 
-Weighted Average:
-- 50% Basic tier customers: $2,400 × 0.5 = $1,200
-- 35% Professional tier: $4,200 × 0.35 = $1,470
-- 15% Enterprise tier: $7,200 × 0.15 = $1,080
+Post-MVP: Email Newsletter Feature
+- Users can subscribe to weekly weather updates based on saved filters
+- "Perfect Camping Day forecast for this weekend in your area"
+- Additional premium features determined by user voting results
 
-**Conservative ACV: $3,600** (below weighted average)
+MVP Revenue Model (Ad-Supported Only):
+- 100% Free users: $2.00 × 10,000 users = $20,000/month
+- **Total MVP Monthly Revenue: $20,000**
+- **MVP Annual Target: $240,000**
+
+Post-MVP Premium Development:
+- Features determined by user voting and usage analytics
+- Market research conducted with live MVP for user feedback
+- Email newsletter and premium tiers added based on demonstrated demand
+
+**Conservative MVP Annual RPU: $24** (ad-supported only)
+```
+
+**Competitor-Neutral Ad Network Strategy**:
+```
+Independent Ad Networks (avoiding Google/Amazon/Weather company conflicts):
+- Media.net: Microsoft/Yahoo network, outdoor recreation friendly
+- Sovrn: Independent publisher network with outdoor verticals
+- RevContent: Native advertising platform for content discovery
+- Outbrain: Content recommendation ads suitable for weather/travel
+- Carbon Ads: Developer-focused network, tech-savvy outdoor audience
+- BuySellAds: Direct publisher relationships, premium outdoor brands
+
+Benefits of Independent Networks:
+- No competitive conflicts with Google Ads/Amazon DSP
+- Better revenue sharing rates (70-85% vs 68% Google)
+- Direct relationships with outdoor recreation advertisers
+- Less algorithm dependency and account suspension risk
+- Specialized audience targeting for outdoor enthusiasts
 ```
 
 **Customer Lifetime Value (LTV) Calculation**:
