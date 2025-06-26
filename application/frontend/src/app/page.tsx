@@ -1,220 +1,106 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useState } from "react"
+import { WeatherFiltersComponent } from "@/components/weather-filters"
+import { WeatherResultsComponent } from "@/components/weather-results"
+import { AppHeader } from "@/components/app-header"
 
-interface InfrastructureStatus {
-  api: string
-  database: string
-  redis: string
-  sample_locations?: number
-  timestamp: string
+interface WeatherResult {
+  id: string
+  locationName: string
+  distance: string
+  temperature: number
+  precipitation: string
+  wind: string
+  description: string
 }
 
-interface Location {
-  name: string
-  state: string
-  longitude: number
-  latitude: number
-}
-
-interface Operator {
-  business_name: string
-  business_type: string
-  contact_email: string
-  longitude: number
-  latitude: number
-}
+// Mock data for prototype demonstration
+const mockResults: WeatherResult[] = [
+  {
+    id: "1",
+    locationName: "Brainerd Lakes Area",
+    distance: "92 miles N",
+    temperature: 72,
+    precipitation: "unlikely",
+    wind: "low",
+    description: "Perfect conditions for lake activities with calm winds and clear skies. Ideal for fishing, kayaking, and outdoor camping."
+  },
+  {
+    id: "2", 
+    locationName: "Duluth North Shore",
+    distance: "156 miles NE",
+    temperature: 68,
+    precipitation: "sporadic",
+    wind: "medium",
+    description: "Great weather for hiking and sightseeing along Lake Superior. Light afternoon breeze with occasional clouds."
+  },
+  {
+    id: "3",
+    locationName: "Grand Rapids",
+    distance: "124 miles N",
+    temperature: 75,
+    precipitation: "unlikely",
+    wind: "low",
+    description: "Excellent conditions for BWCA entry point activities. Calm, warm weather perfect for canoe trips and wilderness camping."
+  }
+]
 
 export default function Home() {
-  const [status, setStatus] = useState<InfrastructureStatus | null>(null)
-  const [locations, setLocations] = useState<Location[]>([])
-  const [operators, setOperators] = useState<Operator[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [showResults, setShowResults] = useState(true) // Show results by default
+  const [resultsLoading, setResultsLoading] = useState(false)
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch infrastructure status
-        const statusRes = await fetch(`${apiUrl}/infrastructure`)
-        const statusData = await statusRes.json()
-        setStatus(statusData)
-
-        // Fetch locations
-        const locationsRes = await fetch(`${apiUrl}/locations`)
-        const locationsData = await locationsRes.json()
-        if (locationsData.locations) {
-          setLocations(locationsData.locations)
-        }
-
-        // Fetch operators
-        const operatorsRes = await fetch(`${apiUrl}/operators`)
-        const operatorsData = await operatorsRes.json()
-        if (operatorsData.operators) {
-          setOperators(operatorsData.operators)
-        }
-
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [apiUrl])
-
-  const getStatusColor = (status: string) => {
-    if (status === 'running' || status === 'connected') return 'text-green-600'
-    if (status.includes('error')) return 'text-red-600'
-    return 'text-yellow-600'
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-blue-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">Loading infrastructure status...</p>
-        </div>
-      </div>
-    )
+  // This would be called by the WeatherFiltersComponent when filters change
+  const handleSearch = async (filters: any) => {
+    setResultsLoading(true)
+    setShowResults(true)
+    
+    console.log('Auto-searching with filters:', filters)
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      setResultsLoading(false)
+    }, 1500)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            🌤️ Nearest Nice Weather
-          </h1>
-          <p className="text-xl text-gray-600">
-            Weather Intelligence Platform - Infrastructure Validation
-          </p>
-          {status && (
-            <p className="text-sm text-gray-500 mt-2">
-              Last updated: {new Date(status.timestamp).toLocaleString()}
-            </p>
-          )}
-        </header>
+    <div className="min-h-screen bg-gray-50">
+      <AppHeader />
+      
+      {/* Main Content Area */}
+      <main className="pb-12">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8" style={{paddingTop: '5px'}}>
+          {/* Filters Section */}
+          <section className="mb-6">
+            <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4">
+              <WeatherFiltersComponent onSearch={handleSearch} />
+            </div>
+          </section>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
-            Error: {error}
-          </div>
-        )}
+          {/* Weather Results */}
+          <section>
+            <WeatherResultsComponent 
+              results={resultsLoading ? [] : mockResults}
+              loading={resultsLoading}
+            />
+          </section>
+        </div>
+      </main>
 
-        {/* Infrastructure Status */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">🚀 API Status</h2>
-            {status && (
-              <div className="space-y-2">
-                <div className={`font-medium ${getStatusColor(status.api)}`}>
-                  FastAPI: {status.api}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">🗄️ Database</h2>
-            {status && (
-              <div className="space-y-2">
-                <div className={`font-medium ${getStatusColor(status.database)}`}>
-                  PostgreSQL: {status.database}
-                </div>
-                {status.sample_locations && (
-                  <div className="text-sm text-gray-600">
-                    Sample locations: {status.sample_locations}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">⚡ Cache</h2>
-            {status && (
-              <div className="space-y-2">
-                <div className={`font-medium ${getStatusColor(status.redis)}`}>
-                  Redis: {status.redis}
-                </div>
-              </div>
-            )}
+      {/* PWA Install Banner */}
+      <div className="hidden fixed bottom-4 left-4 right-4 lg:left-84 max-w-sm mx-auto lg:mx-0">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary-blue rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg">☀️</span>
+            </div>
+            <div className="flex-1">
+              <div className="font-medium text-gray-800">Install App</div>
+              <div className="text-sm text-gray-600">Add to home screen for easy access</div>
+            </div>
+            <button className="text-primary-blue font-medium text-sm">Add</button>
           </div>
         </div>
-
-        {/* Sample Data */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Locations */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">📍 Sample Locations</h2>
-            {locations.length > 0 ? (
-              <div className="space-y-3">
-                {locations.map((location, index) => (
-                  <div key={index} className="border-l-4 border-blue-500 pl-4">
-                    <div className="font-medium text-gray-800">{location.name}, {location.state}</div>
-                    <div className="text-sm text-gray-600">
-                      {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500">No locations found</p>
-            )}
-          </div>
-
-          {/* Tourism Operators */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">🏕️ Tourism Operators</h2>
-            {operators.length > 0 ? (
-              <div className="space-y-3">
-                {operators.map((operator, index) => (
-                  <div key={index} className="border-l-4 border-green-500 pl-4">
-                    <div className="font-medium text-gray-800">{operator.business_name}</div>
-                    <div className="text-sm text-gray-600 capitalize">
-                      {operator.business_type.replace('_', ' ')}
-                    </div>
-                    <div className="text-sm text-blue-600">{operator.contact_email}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500">No operators found</p>
-            )}
-          </div>
-        </div>
-
-        {/* Technology Stack */}
-        <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">🛠️ Technology Stack</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="p-4 bg-gray-50 rounded">
-              <div className="font-medium">FastAPI</div>
-              <div className="text-sm text-gray-600">Backend API</div>
-            </div>
-            <div className="p-4 bg-gray-50 rounded">
-              <div className="font-medium">Next.js</div>
-              <div className="text-sm text-gray-600">Frontend PWA</div>
-            </div>
-            <div className="p-4 bg-gray-50 rounded">
-              <div className="font-medium">PostgreSQL + PostGIS</div>
-              <div className="text-sm text-gray-600">Geographic Database</div>
-            </div>
-            <div className="p-4 bg-gray-50 rounded">
-              <div className="font-medium">Redis</div>
-              <div className="text-sm text-gray-600">Cache & Sessions</div>
-            </div>
-          </div>
-        </div>
-
-        <footer className="text-center mt-12 text-gray-500">
-          <p>🚀 Ready for Minnesota tourism operators and outdoor enthusiasts</p>
-        </footer>
       </div>
     </div>
   )

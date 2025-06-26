@@ -1,8 +1,18 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { MaterialThemeProvider } from '@/components/theme-provider'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Nearest Nice Weather - Infrastructure Validation',
-  description: 'Weather intelligence platform for outdoor enthusiasts',
+  title: 'Nearest Nice Weather - Find Your Perfect Weather',
+  description: 'A PrairieAster.Ai Product - Find the nearest nice weather that matches your preferences',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icon-192.png',
+  },
 }
 
 export default function RootLayout({
@@ -13,9 +23,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="theme-color" content="#4A90E2" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Nice Weather" />
       </head>
-      <body>{children}</body>
+      <body className={`${inter.className} font-primary`}>
+        <MaterialThemeProvider>
+          {children}
+        </MaterialThemeProvider>
+      </body>
     </html>
   )
 }
