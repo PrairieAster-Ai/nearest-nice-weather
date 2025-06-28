@@ -4,14 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:stable": "next dev --hostname 127.0.0.1 --port 3000",
+    "dev:test": "next dev --hostname 127.0.0.1 --port 3003",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "analyze": "madge --circular src/",
+    "lint:deps": "dependency-cruiser src/",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
+    "test:watch": "playwright test --watch tests/manual-browser-accessibility.spec.ts tests/weather-app-simple.spec.ts --project=chromium",
+    "test:fast": "playwright test tests/weather-app-fast.spec.ts --project=chromium",
+    "test:critical": "playwright test tests/manual-browser-accessibility.spec.ts tests/weather-app-simple.spec.ts --project=chromium",
     "test:report": "playwright show-report",
     "validate": "../../scripts/validate-website.sh",
-    "watch": "../../scripts/watch-changes.sh"
+    "watch": "../../scripts/watch-changes.sh",
+    "prepare": "husky"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -23,14 +31,17 @@
     "@radix-ui/react-toast": "^1.2.14",
     "@tailwindcss/postcss": "^4.1.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/leaflet": "^1.9.19",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.523.0",
     "next": "14.0.4",
     "postcss": "^8.5.6",
     "react": "^18",
     "react-dom": "^18",
+    "react-leaflet": "^4.2.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.10"
   },
@@ -39,8 +50,12 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dependency-cruiser": "^16.10.3",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
+    "glob": "^11.0.3",
+    "husky": "^9.1.7",
+    "madge": "^8.0.0",
     "typescript": "^5"
   }
 }

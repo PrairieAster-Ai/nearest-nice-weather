@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { WeatherFiltersComponent } from "@/components/weather-filters"
 import { WeatherResultsComponent } from "@/components/weather-results"
+import { FabFilterGroups } from "@/components/fab-filter-groups"
 import { AppHeader } from "@/components/app-header"
+import { AppFooter } from "@/components/app-footer"
 
 interface WeatherResult {
   id: string
@@ -49,18 +50,50 @@ const mockResults: WeatherResult[] = [
 export default function Home() {
   const [showResults, setShowResults] = useState(true) // Show results by default
   const [resultsLoading, setResultsLoading] = useState(false)
+  const [currentResults, setCurrentResults] = useState(mockResults) // Start with default results
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false)
+  
+  // Weather filter state
+  const [filters, setFilters] = useState({
+    temperature: "comfortable",
+    precipitation: "unlikely", 
+    wind: "low"
+  })
 
-  // This would be called by the WeatherFiltersComponent when filters change
-  const handleSearch = async (filters: any) => {
+  // Handle filter changes from FAB groups
+  const handleFilterChange = (category: keyof typeof filters, value: string) => {
+    const newFilters = { ...filters, [category]: value }
+    setFilters(newFilters)
+    handleSearch(newFilters)
+  }
+
+  // This would be called when filters change
+  const handleSearch = async (searchFilters: any) => {
+    // console.log('handleSearch called with:', searchFilters)
+    
+    // Skip animation ONLY for the very first automatic load
+    if (!hasInitiallyLoaded) {
+      setHasInitiallyLoaded(true)
+      // console.log('Initial load - skipping loading animation')
+      // But still set the results without animation
+      setCurrentResults([...mockResults])
+      return
+    }
+    
+    // ALWAYS trigger loading animation for user-initiated searches
+    // console.log('User-initiated search - showing loading animation')
     setResultsLoading(true)
     setShowResults(true)
     
-    console.log('Auto-searching with filters:', filters)
+    // console.log('Auto-searching with filters:', searchFilters)
     
-    // Simulate API call delay
+    // Simulate API call delay - always show animation for user feedback
     setTimeout(() => {
+      // console.log('Search completed, setting results')
+      // Always set results (even if they're the same) to provide consistent UX
+      setCurrentResults([...mockResults]) // Create new array reference to force re-render
       setResultsLoading(false)
-    }, 1500)
+    }, 4000)
   }
 
   return (
@@ -69,20 +102,21 @@ export default function Home() {
       
       {/* Main Content Area */}
       <main className="pb-12">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8" style={{paddingTop: '5px'}}>
-          {/* Filters Section */}
-          <section className="mb-6">
-            <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4">
-              <WeatherFiltersComponent onSearch={handleSearch} />
-            </div>
-          </section>
-
-          {/* Weather Results */}
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          {/* Weather Results with Larger Map */}
           <section>
-            <WeatherResultsComponent 
-              results={resultsLoading ? [] : mockResults}
-              loading={resultsLoading}
-            />
+            <div className="relative">
+              <WeatherResultsComponent 
+                results={currentResults}
+                loading={resultsLoading}
+              />
+              
+              {/* FAB Filter Groups positioned over the map */}
+              <FabFilterGroups 
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
+            </div>
           </section>
         </div>
       </main>
@@ -102,6 +136,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <AppFooter />
     </div>
   )
 }
