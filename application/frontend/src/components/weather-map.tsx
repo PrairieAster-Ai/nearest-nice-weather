@@ -19,10 +19,10 @@ interface WeatherMapProps {
 }
 
 // Dynamically import the simple map component
-const DynamicMap = dynamic(() => import('./simple-map'), {
+const DynamicMap = dynamic(() => import('./simple-map.simple'), {
   ssr: false,
   loading: () => (
-    <div className="h-96 bg-gray-100 rounded-2xl flex items-center justify-center">
+    <div className="flex-1 bg-gray-100 rounded-2xl flex items-center justify-center">
       <div className="prairie-aster-float">
         <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 100 100" className="prairie-aster-loading">
           <g transform="scale(1.0) translate(0, 0)">
@@ -34,7 +34,7 @@ const DynamicMap = dynamic(() => import('./simple-map'), {
   )
 })
 
-// Minnesota coordinates as default center
+// Minnesota coordinates as default center  
 const DEFAULT_CENTER: [number, number] = [46.7296, -94.6859]
 const DEFAULT_ZOOM = 8
 
@@ -43,9 +43,28 @@ export function WeatherMap({ results, loading = false }: WeatherMapProps) {
   const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER)
   const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM)
 
-  // console.log('WeatherMap render: loading =', loading, 'results =', results.length)
+  // Auto-detect user location on component mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords: [number, number] = [
+            position.coords.latitude,
+            position.coords.longitude
+          ]
+          setUserLocation(coords)
+          setMapCenter(coords)
+          setMapZoom(9)
+        },
+        (error) => {
+          // If location access denied, keep default center
+          console.log("Location access denied, using default Minnesota center")
+        }
+      )
+    }
+  }, []) // Run once on mount
 
-  // Get user's current location - only when requested by user
+  // Get user's current location - for manual refresh
   const requestUserLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -59,7 +78,7 @@ export function WeatherMap({ results, loading = false }: WeatherMapProps) {
           setMapZoom(9)
         },
         (error) => {
-          // console.log("Location access denied, using default center")
+          console.log("Location access denied, using default center")
         }
       )
     }
@@ -68,7 +87,7 @@ export function WeatherMap({ results, loading = false }: WeatherMapProps) {
 
   if (results.length === 0 && !loading) {
     return (
-      <div className="h-[32rem] bg-gray-100 rounded-2xl flex items-center justify-center">
+      <div className="flex-1 bg-gray-100 rounded-2xl flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">🗺️</div>
           <h3 className="text-lg font-medium text-gray-700 mb-2">
@@ -83,13 +102,31 @@ export function WeatherMap({ results, loading = false }: WeatherMapProps) {
   }
 
   return (
-    <div className="h-[32rem] rounded-2xl overflow-hidden border border-gray-200" data-testid="weather-map">
-      <DynamicMap
-        results={results}
-        userLocation={userLocation}
-        mapCenter={mapCenter}
-        mapZoom={mapZoom}
-      />
-    </div>
+    <>
+      <style jsx>{`
+        .weather-map-container {
+          flex: 1 1 auto !important;
+          display: flex !important;
+          flex-direction: column !important;
+          border-radius: 1rem !important;
+          overflow: hidden !important;
+          min-height: 500px !important;
+          height: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+      `}</style>
+      <div 
+        className="flex-1 rounded-2xl overflow-hidden flex weather-map-container" 
+        data-testid="weather-map"
+      >
+        <DynamicMap
+          results={results}
+          userLocation={userLocation}
+          mapCenter={mapCenter}
+          mapZoom={mapZoom}
+        />
+      </div>
+    </>
   )
 }
