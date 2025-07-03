@@ -1,0 +1,22 @@
+{
+  "name": "nearest-nice-weather",
+  "version": "1.0.0",
+  "description": "Weather Intelligence Platform - Monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@nearest-nice-weather/web",
+    "dev:api": "npm run dev --workspace=@nearest-nice-weather/api",
+    "build:web": "npm run build --workspace=@nearest-nice-weather/web",
+    "deploy:web": "npm run deploy --workspace=@nearest-nice-weather/web",
+    "deploy:api": "npm run deploy --workspace=@nearest-nice-weather/api",
+    "test:web": "npm run test --workspace=@nearest-nice-weather/web",
+    "lint:web": "npm run lint --workspace=@nearest-nice-weather/web"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

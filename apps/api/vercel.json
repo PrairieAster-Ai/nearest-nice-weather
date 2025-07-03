@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "*.ts": {
+      "runtime": "@vercel/node@3.0.0"
+    }
+  },
+  "regions": ["cle1", "iad1"]
+}
