@@ -110,6 +110,65 @@ docker-compose down
 
 **Live Demo Available**: Infrastructure validation dashboard demonstrates full-stack integration, database connectivity, and real-time monitoring capabilities.
 
+## Deployment & Build System Guidelines
+
+**CRITICAL: Build/deployment changes are HIGH-RISK and require the same careful process as UI changes.**
+
+### Before Making Any Build/Deployment Changes:
+1. **Always start from known working baseline**: `git checkout ui-working-baseline`
+2. **Make ONE minimal change at a time** - never bundle multiple fixes
+3. **Test locally first**: `npm run build && npm run preview` 
+4. **Verify the specific fix works** before deploying
+5. **Deploy incrementally**: One change → test → verify → proceed
+
+### High-Risk Change Categories:
+- **Build configuration** (vite.config.ts, webpack, etc.)
+- **Package updates** (especially React, build tools)
+- **CSS/styling system changes** (Tailwind, imports)
+- **Bundle splitting modifications**
+- **Target platform changes** (ES version, browser support)
+
+### Red Flags - Stop and Use Baseline:
+- Multiple simultaneous config changes
+- "Force deployment" commits
+- Panic-driven additional changes
+- Deployment troubleshooting without visibility
+
+### Required Process for Build Changes:
+1. **Identify the minimal fix** (usually one line/setting)
+2. **Test locally with build preview**
+3. **Verify specific error is resolved**
+4. **Deploy with commit message explaining the single change**
+5. **Wait for deployment feedback before proceeding**
+
+### Deployment Feedback Requirements:
+- **Never deploy blind** - always need build status visibility
+- **Implement health checks** for production verification
+- **Use deployment webhooks** for real-time status
+- **Monitor console errors** after deployment
+
+## Recovery Protocols
+
+### When Build/Deployment Changes Go Wrong:
+1. **STOP making more changes**
+2. **Revert to ui-working-baseline**: `git checkout ui-working-baseline`
+3. **Analyze what went wrong** before attempting fixes
+4. **Implement deployment feedback** before retry
+5. **Make only the minimal fix** identified through analysis
+
+### Git Safety Tags:
+- `ui-working-baseline` - Known working UI state with all features
+- Create new baseline tags after major successful deployments
+- Always test rollback to baseline before making risky changes
+
+### Emergency Rollback:
+```bash
+# Return to known working state
+git checkout ui-working-baseline
+git checkout -b emergency-rollback
+git push origin emergency-rollback --force
+```
+
 ## Development Workflow Memories
 
 - Always quickly verify localhost sites are available in the browser before indicating they are done and/or ready for review
