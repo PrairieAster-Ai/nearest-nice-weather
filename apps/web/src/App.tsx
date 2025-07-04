@@ -28,8 +28,6 @@ const theme = createTheme({
   },
 })
 
-// Force deployment rebuild
-
 interface WeatherFilters {
   temperature: string
   precipitation: string  

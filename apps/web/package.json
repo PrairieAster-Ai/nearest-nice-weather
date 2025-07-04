@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3002",
-    "build": "vite build",
+    "build": "node deployment/health-check.cjs && vite build",
     "build:analyze": "ANALYZE=true vite build",
     "preview": "vite preview",
     "test": "vitest",

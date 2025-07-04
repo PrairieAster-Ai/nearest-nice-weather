@@ -6,6 +6,10 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/health.json",
+      "destination": "/health.json"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
