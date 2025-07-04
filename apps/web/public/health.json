@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-07-04T23:00:00.000Z",
+  "status": "healthy",
+  "version": "ui-working-baseline",
+  "buildInfo": {
+    "buildTarget": "esnext",
+    "reactVersion": "18.3.1",
+    "viteVersion": "6.0.0"
+  },
+  "checks": {
+    "frontend": {
+      "status": "ok",
+      "message": "Application running"
+    },
+    "api": {
+      "status": "ok", 
+      "message": "Dev API server available"
+    }
+  }
+}
