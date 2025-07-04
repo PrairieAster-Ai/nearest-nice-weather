@@ -140,9 +140,6 @@ export default defineConfig({
     // Performance budgets
     chunkSizeWarningLimit: 1000, // 1MB warning for chunks
   },
-  css: {
-    postcss: './postcss.config.js'
-  },
   resolve: {
     alias: {
       '@': '/src'

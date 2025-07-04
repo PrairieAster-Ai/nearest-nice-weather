@@ -1,11 +1,48 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import Leaflet CSS directly */
+@import url("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css");
 
-/* Custom styles */
-.app {
+/* Basic reset and layout */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: Inter, system-ui, sans-serif;
 }
+
+/* Utility classes we actually need */
+.h-screen { height: 100vh; }
+.w-screen { width: 100vw; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-1 { flex: 1; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.top-6 { top: 1.5rem; }
+.right-6 { right: 1.5rem; }
+.bottom-6 { bottom: 1.5rem; }
+.z-1000 { z-index: 1000; }
+.z-1001 { z-index: 1001; }
+
+/* Header styles */
+.bg-white { background-color: white; }
+.shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+.border-b { border-bottom-width: 1px; }
+.border-purple-200 { border-color: rgb(196 181 253); }
+.px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.flex { display: flex; }
+.items-start { align-items: flex-start; }
+.h-8 { height: 2rem; }
+.w-8 { width: 2rem; }
+.text-sm { font-size: 0.875rem; }
+.font-semibold { font-weight: 600; }
+.text-purple-800 { color: rgb(91 33 182); }
+.mb-0 { margin-bottom: 0; }
+.text-xs { font-size: 0.75rem; }
+.mt-0 { margin-top: 0; }
 
 /* Purple aster branding */
 .text-aster {
