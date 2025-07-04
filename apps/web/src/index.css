@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+.app {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Purple aster branding */
+.text-aster {
+  color: #7563A8;
+}
+
+.bg-aster {
+  background-color: #7563A8;
+}
+
+.border-aster {
+  border-color: #7563A8;
+}
