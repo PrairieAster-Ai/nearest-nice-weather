@@ -48,14 +48,14 @@ docker-compose down
 
 ## Technical Architecture
 
-**Technology Stack** (as specified in architecture documentation):
+**Technology Stack** (aligned implementation):
 - **Backend**: FastAPI with async support
 - **Database**: PostgreSQL with PostGIS extension for geographic calculations
-- **CMS**: Directus for content and user management
+- **CMS**: Directus for content and user management (optional)
 - **Cache**: Redis for sessions and weather data caching
-- **Frontend**: Next.js Progressive Web App
+- **Frontend**: Vite + React Progressive Web App with Material-UI
 - **Background Tasks**: Celery with Redis broker
-- **Deployment**: Docker containers with Kubernetes configuration
+- **Deployment**: Vercel serverless functions + Docker containers
 
 **Key Integrations**:
 - Weather APIs: OpenWeather, Weather API, Visual Crossing, NOAA
@@ -109,3 +109,7 @@ docker-compose down
 **Value Delivered**: $120,000 worth of technical foundation completed and operational. Platform ready for weather API integration and customer-facing feature development.
 
 **Live Demo Available**: Infrastructure validation dashboard demonstrates full-stack integration, database connectivity, and real-time monitoring capabilities.
+
+## Development Workflow Memories
+
+- Always quickly verify localhost sites are available in the browser before indicating they are done and/or ready for review

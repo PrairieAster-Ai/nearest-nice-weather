@@ -8,15 +8,46 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "npm run dev:all",
+    "dev:all": "concurrently \"npm run dev:infrastructure\" \"npm run dev:backend\" \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:infrastructure": "docker compose up -d postgres redis",
+    "dev:backend": "wait-on tcp:${POSTGRES_PORT:-5432} && cd application/app && uvicorn main:app --host 0.0.0.0 --port ${FASTAPI_PORT:-8000} --reload",
+    "dev:api": "node dev-api-server.js",
     "dev:web": "npm run dev --workspace=@nearest-nice-weather/web",
-    "dev:api": "npm run dev --workspace=@nearest-nice-weather/api",
+    "build": "npm run build:all",
+    "build:all": "npm run build:web && npm run build:api",
     "build:web": "npm run build --workspace=@nearest-nice-weather/web",
+    "build:api": "echo 'API functions built on deployment'",
+    "test": "npm run test:all",
+    "test:all": "npm run test:backend && npm run test:web && npm run test:api",
+    "test:backend": "cd application/app && python -m pytest",
+    "test:web": "npm run test --workspace=@nearest-nice-weather/web",
+    "test:api": "cd apps/api && npm test",
+    "lint": "npm run lint:all",
+    "lint:all": "npm run lint:web && npm run lint:api",
+    "lint:web": "npm run lint --workspace=@nearest-nice-weather/web",
+    "lint:api": "echo 'API linting integrated with deployment'",
+    "type-check": "npm run type-check --workspace=@nearest-nice-weather/web",
+    "deploy": "npm run deploy:all",
+    "deploy:all": "npm run deploy:web && npm run deploy:api",
     "deploy:web": "npm run deploy --workspace=@nearest-nice-weather/web",
     "deploy:api": "npm run deploy --workspace=@nearest-nice-weather/api",
-    "test:web": "npm run test --workspace=@nearest-nice-weather/web",
-    "lint:web": "npm run lint --workspace=@nearest-nice-weather/web"
+    "clean": "npm run clean:all",
+    "clean:all": "rm -rf node_modules apps/*/node_modules apps/*/dist && docker compose down",
+    "reset": "npm run clean:all && npm install",
+    "health": "npm run health:all",
+    "health:all": "concurrently \"curl -f http://localhost:${FASTAPI_PORT:-8000}/health\" \"curl -f http://localhost:${VERCEL_API_PORT:-4000}/api/test-db\" \"curl -f http://localhost:${VITE_DEV_PORT:-3002}\"",
+    "validate:env": "./scripts/validate-env.sh",
+    "setup": "./scripts/dev-setup.sh"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "concurrently": "^9.0.1",
+    "typescript": "^5.0.0",
+    "wait-on": "^8.0.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
   }
 }

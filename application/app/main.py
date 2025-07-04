@@ -1,21 +1,70 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import asyncpg
 import redis.asyncio as redis
 import os
+import logging
 from datetime import datetime
+from typing import Optional
 
+# Environment configuration with validation
+def get_required_env(key: str) -> str:
+    """Get required environment variable or raise error"""
+    value = os.getenv(key)
+    if not value:
+        raise ValueError(f"Required environment variable {key} is not set")
+    return value
+
+def get_cors_origins() -> list[str]:
+    """Get CORS origins from environment"""
+    origins_str = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3002")
+    return [origin.strip() for origin in origins_str.split(",") if origin.strip()]
+
+# Production-ready configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+LOG_LEVEL = os.getenv("LOG_LEVEL", "info").upper()
+API_PREFIX = os.getenv("API_PREFIX", "")
+
+# Set up logging
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Database configuration
+try:
+    DATABASE_URL = get_required_env("DATABASE_URL")
+except ValueError as e:
+    logger.error(f"Database configuration error: {e}")
+    raise
+
+# Redis configuration
+try:
+    REDIS_URL = get_required_env("REDIS_URL")
+except ValueError as e:
+    logger.error(f"Redis configuration error: {e}")
+    raise
+
+# FastAPI app configuration
 app = FastAPI(
     title="Nearest Nice Weather API",
     description="Weather intelligence platform for outdoor enthusiasts",
-    version="0.1.0"
+    version="0.1.0",
+    debug=DEBUG,
+    root_path=API_PREFIX
 )
+
+# CORS configuration
+cors_origins = get_cors_origins()
+logger.info(f"Configuring CORS for origins: {cors_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -42,7 +91,6 @@ async def infrastructure_status():
     
     # Test database connection
     try:
-        DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@postgres:5432/weather_intelligence")
         conn = await asyncpg.connect(DATABASE_URL)
         
         # Test sample query
@@ -56,7 +104,6 @@ async def infrastructure_status():
     
     # Test Redis connection
     try:
-        REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
         r = redis.from_url(REDIS_URL)
         await r.ping()
         await r.aclose()
@@ -70,7 +117,6 @@ async def infrastructure_status():
 @app.get("/locations")
 async def get_locations():
     try:
-        DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@postgres:5432/weather_intelligence")
         conn = await asyncpg.connect(DATABASE_URL)
         
         query = """
@@ -103,7 +149,6 @@ async def get_locations():
 @app.get("/operators")
 async def get_operators():
     try:
-        DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@postgres:5432/weather_intelligence")
         conn = await asyncpg.connect(DATABASE_URL)
         
         query = """

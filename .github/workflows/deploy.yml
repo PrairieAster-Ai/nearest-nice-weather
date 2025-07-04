@@ -1,0 +1,164 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_DB: weather_intelligence_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd application/app && pip install -r requirements.txt
+          cd ../../apps/web && npm ci
+
+      - name: Lint and type check
+        run: |
+          npm run lint
+          npm run type-check
+
+      - name: Test backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/weather_intelligence_test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          cd application/app
+          python -m pytest --cov=. --cov-report=xml
+
+      - name: Test frontend
+        run: |
+          cd apps/web
+          npm run test
+
+      - name: Build frontend
+        run: npm run build:web
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./application/app/coverage.xml
+          flags: backend
+          
+  deploy-api:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (API)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_API_PROJECT_ID }}
+          working-directory: ./apps/api
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-args: '--prod'
+
+  deploy-web:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd apps/web && npm ci
+
+      - name: Build frontend
+        run: npm run build:web
+
+      - name: Deploy to Vercel (Web)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
+          working-directory: ./apps/web
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-args: '--prod'
+
+  health-check:
+    needs: [deploy-api, deploy-web]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Health check API
+        run: |
+          sleep 30  # Wait for deployment
+          curl -f ${{ secrets.API_URL }}/api/test-db || exit 1
+
+      - name: Health check Web
+        run: |
+          curl -f ${{ secrets.WEB_URL }} || exit 1
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Deployment successful"
+          echo "API: ${{ secrets.API_URL }}"
+          echo "Web: ${{ secrets.WEB_URL }}"
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "❌ Health check failed - manual rollback required"
+          exit 1

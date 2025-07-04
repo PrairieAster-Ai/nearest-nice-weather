@@ -1,14 +1,32 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { Pool } from 'pg'
 
-// Initialize PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
+// Environment configuration
+const getRequiredEnv = (key: string): string => {
+  const value = process.env[key]
+  if (!value) {
+    throw new Error(`Required environment variable ${key} is not set`)
+  }
+  return value
+}
+
+const getCorsOrigins = (): string => {
+  return process.env.CORS_ALLOWED_ORIGINS || '*'
+}
+
+// Database configuration
+const DB_CONFIG = {
+  connectionString: getRequiredEnv('DATABASE_URL'),
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-})
+  max: parseInt(process.env.DB_POOL_MAX || '10'),
+  idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE_TIMEOUT || '30000'),
+  connectionTimeoutMillis: parseInt(process.env.DB_POOL_CONNECTION_TIMEOUT || '2000'),
+  statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT || '30000'),
+  query_timeout: parseInt(process.env.DB_QUERY_TIMEOUT || '30000'),
+}
+
+// Initialize PostgreSQL connection pool
+const pool = new Pool(DB_CONFIG)
 
 interface AnalyticsEvent {
   event_type: string
@@ -19,10 +37,12 @@ interface AnalyticsEvent {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  // Production-ready CORS configuration
+  const corsOrigin = getCorsOrigins()
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin)
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  res.setHeader('Access-Control-Max-Age', '86400') // 24 hours
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end()

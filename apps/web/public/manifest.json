@@ -1,0 +1,16 @@
+{
+  "name": "Nearest Nice Weather",
+  "short_name": "Nice Weather",
+  "description": "Find the nearest locations with your perfect weather conditions",
+  "theme_color": "#7563A8",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
