@@ -242,7 +242,7 @@ export default function App() {
             <img src="/aster-official.svg" alt="Nearest Nice Weather" className="h-8 w-8" />
             <div style={{marginLeft: '2px', lineHeight: '1'}}>
               <h1 className="text-sm font-semibold text-purple-800 mb-0">Nearest Nice Weather</h1>
-              <p className="text-xs mb-0" style={{color: '#7fa4cf', marginTop: '-10px'}}>by PrairieAster.Ai</p>
+              <p className="text-xs mb-0" style={{color: '#7fa4cf', marginTop: '-5px'}}>by PrairieAster.Ai</p>
             </div>
           </div>
         </header>
