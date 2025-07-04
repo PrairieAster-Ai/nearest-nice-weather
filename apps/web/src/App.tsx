@@ -239,7 +239,7 @@ export default function App() {
         {/* Header */}
         <header className="bg-white shadow-sm px-1 py-1 border-b border-purple-200 z-[1001] relative">
           <div className="flex items-start" style={{marginLeft: '-10px'}}>
-            <img src="/aster-official.svg" alt="Nearest Nice Weather" className="h-8 w-8" />
+            <img src="/aster-official.svg" alt="Nearest Nice Weather" className="h-8 w-8" style={{marginTop: '-15px', marginRight: '-11px'}} />
             <div style={{marginLeft: '2px', lineHeight: '1'}}>
               <h1 className="text-sm font-semibold text-purple-800 mb-0">Nearest Nice Weather</h1>
               <p className="text-xs mb-0" style={{color: '#7fa4cf', marginTop: '-5px'}}>by PrairieAster.Ai</p>
