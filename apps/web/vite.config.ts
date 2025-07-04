@@ -5,7 +5,10 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Fix for React AsyncMode compatibility
+      jsxRuntime: 'automatic'
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
@@ -63,7 +66,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: process.env.NODE_ENV === 'development',
-    target: 'esnext',
+    target: 'es2020',
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -76,8 +79,8 @@ export default defineConfig({
         manualChunks: (id) => {
           // Vendor chunks
           if (id.includes('node_modules')) {
-            // React ecosystem
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React ecosystem - keep together to avoid AsyncMode issues
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
               return 'react-vendor'
             }
             // Material-UI ecosystem
