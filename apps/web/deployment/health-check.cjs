@@ -11,7 +11,7 @@ function updateHealthCheck() {
     status: "healthy", 
     version: process.env.VERCEL_GIT_COMMIT_SHA || "local",
     buildInfo: {
-      buildTarget: "esnext", // Will be updated by deployment pipeline
+      buildTarget: "es2020", // Updated to match vite.config.ts
       reactVersion: "18.3.1",
       viteVersion: "6.0.0",
       deploymentId: process.env.VERCEL_URL || "localhost"
