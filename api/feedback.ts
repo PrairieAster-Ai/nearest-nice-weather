@@ -1,13 +1,19 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { Pool } from 'pg'
 
-// Initialize PostgreSQL connection pool  
-const connectionString = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_URL;
-console.log('Database connection attempt:', {
-  hasDatabase: !!connectionString,
-  length: connectionString?.length || 0,
-  nodeEnv: process.env.NODE_ENV
+// Initialize PostgreSQL connection pool - Debug all environment variables
+console.log('Environment variable debug:', {
+  NODE_ENV: process.env.NODE_ENV,
+  VERCEL: process.env.VERCEL,
+  DATABASE_URL_exists: !!process.env.DATABASE_URL,
+  DATABASE_URL_length: process.env.DATABASE_URL?.length || 0,
+  DATABASE_URL_start: process.env.DATABASE_URL?.substring(0, 30) || 'not set',
+  POSTGRES_URL_exists: !!process.env.POSTGRES_URL,
+  POSTGRES_URL_length: process.env.POSTGRES_URL?.length || 0,
+  all_env_keys: Object.keys(process.env).filter(key => key.includes('DATABASE') || key.includes('POSTGRES')),
 });
+
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
 const pool = new Pool({
   connectionString: connectionString,
@@ -96,11 +102,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         error: dbError.message,
         code: dbError.code,
         detail: dbError.detail,
-        environment: process.env.NODE_ENV,
-        hasDatabase: !!process.env.DATABASE_URL,
-        hasPgUrl: !!process.env.POSTGRES_URL,
-        dbUrlLength: process.env.DATABASE_URL?.length || 0,
-        dbUrlStart: process.env.DATABASE_URL?.substring(0, 20) || 'not set'
+        hint: dbError.hint,
+        stack: dbError.stack?.split('\n').slice(0, 3),
+        connectionString_redacted: connectionString?.replace(/:[^:@]*@/, ':***@'),
+        ssl_config: connectionString?.includes('neon.tech') ? 'rejectUnauthorized: false' : 'false',
+        pool_config: {
+          max: 10,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 2000
+        }
       });
       
       // Log feedback and return success with debug info
@@ -121,9 +131,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Feedback received successfully',
         debug: {
           database_error: dbError.message,
+          database_code: dbError.code,
           has_database_url: !!process.env.DATABASE_URL,
+          has_postgres_url: !!process.env.POSTGRES_URL,
           db_url_length: process.env.DATABASE_URL?.length || 0,
-          environment: process.env.NODE_ENV
+          connection_string_start: connectionString?.substring(0, 20) || 'not set',
+          ssl_detected: connectionString?.includes('neon.tech'),
+          environment: process.env.NODE_ENV,
+          vercel_env: process.env.VERCEL
         },
         timestamp: new Date().toISOString()
       })
