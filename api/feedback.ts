@@ -84,8 +84,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         client.release()
       }
     } catch (dbError) {
-      // Database unavailable - log feedback and return success
-      console.log('Database unavailable, logging feedback:', {
+      // Database connection failed - provide detailed error for debugging
+      console.error('Database connection failed:', {
+        error: dbError.message,
+        code: dbError.code,
+        detail: dbError.detail,
+        environment: process.env.NODE_ENV,
+        hasDatabase: !!process.env.DATABASE_URL
+      });
+      
+      // Log feedback and return success with debug info
+      console.log('Logging feedback to console:', {
         email: email || 'anonymous',
         feedback: feedback.trim(),
         rating,
@@ -100,6 +109,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         success: true,
         feedback_id: `logged_${Date.now()}`,
         message: 'Feedback received successfully',
+        debug: process.env.NODE_ENV === 'development' ? {
+          database_error: dbError.message,
+          has_database_url: !!process.env.DATABASE_URL
+        } : undefined,
         timestamp: new Date().toISOString()
       })
     }
