@@ -76,6 +76,9 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
+        // Disable chunking temporarily to fix initialization issues
+        manualChunks: undefined,
+        /*
         manualChunks: (id) => {
           // Vendor chunks
           if (id.includes('node_modules')) {
@@ -117,6 +120,7 @@ export default defineConfig({
             return 'hooks'
           }
         },
+        */
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
           if (facadeModuleId) {
