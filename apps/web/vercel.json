@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build",
+  "buildCommand": "node deployment/health-check.cjs && vite build",
   "outputDirectory": "dist",
   "framework": "vite",
   "installCommand": "npm install",
