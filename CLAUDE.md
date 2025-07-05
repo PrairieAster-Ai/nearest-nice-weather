@@ -18,33 +18,28 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 ## Development Commands
 
-**Environment Setup** (COMPLETED - Ready to Use):
+**Environment Setup** (SIMPLIFIED - Neon Database Only):
 ```bash
-# Start core infrastructure (PostgreSQL + Redis)
-docker-compose up -d postgres redis
+# Set Neon database connection (get this from Neon Dashboard)
+export DATABASE_URL="postgresql://[username]:[password]@[hostname]/weather?sslmode=require"
 
-# Run FastAPI application locally
-export PATH="$HOME/.local/bin:$PATH"
-export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/weather_intelligence"
-export REDIS_URL="redis://localhost:6379"
-cd application/app && uvicorn main:app --host 0.0.0.0 --port 8000 --reload &
+# Start Redis cache only (local)
+docker-compose up -d redis
 
 # Run Next.js frontend locally  
-cd application/frontend && export NEXT_PUBLIC_API_URL="http://localhost:8000" && npm run dev &
+cd apps/web && npm run dev
 
-# View service logs
-docker-compose logs -f postgres redis
-
-# Stop all services
-docker-compose down
+# Production deployment uses Vercel with Neon database
+# No local PostgreSQL required - all data in Neon cloud
 ```
 
-**Development Tools** (LIVE & OPERATIONAL):
-- ✅ PostgreSQL with PostGIS on port 5432 (with sample data)
-- ✅ Redis cache on port 6379 (connected)
-- ⏳ Directus CMS on port 8055 (optional - large download)
-- ✅ **FastAPI application on port 8000** (LIVE with docs at /docs)
-- ✅ **Frontend (Next.js PWA) on port 3000** (LIVE infrastructure dashboard)
+**Development Tools** (SIMPLIFIED STACK):
+- ✅ **Neon PostgreSQL Database** (cloud-hosted, no local setup required)
+- ✅ Redis cache on port 6379 (local for sessions only)
+- ✅ **Vercel API Functions** (serverless, connected to Neon)
+- ✅ **Frontend (Next.js PWA) on port 3000** (LIVE with Neon integration)
+- 🗑️ Local PostgreSQL removed (eliminated complexity)
+- 🗑️ FastAPI backend removed (replaced with Vercel functions)
 
 ## Technical Architecture
 

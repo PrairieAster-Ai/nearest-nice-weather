@@ -1,32 +1,10 @@
-# Nearest Nice Weather - Complete Development Environment
-# FastAPI + Directus + PostgreSQL/PostGIS + Redis
-# Ready for immediate development and testing
+# Nearest Nice Weather - Simplified Development Environment
+# Redis cache only - Database hosted on Neon cloud
 
 version: '3.8'
 
 services:
-  # PostgreSQL with PostGIS extension for geographic calculations
-  postgres:
-    image: postgis/postgis:${POSTGRES_VERSION:-15-3.3}
-    container_name: ${PROJECT_NAME:-weather}_postgres
-    environment:
-      POSTGRES_DB: weather_intelligence
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./application/database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    networks:
-      - weather_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  # Redis for caching and session management
+  # Redis for caching and session management (local only)
   redis:
     image: redis:${REDIS_VERSION:-7-alpine}
     container_name: ${PROJECT_NAME:-weather}_redis
@@ -34,8 +12,6 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - weather_network
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -43,225 +19,12 @@ services:
       timeout: 10s
       retries: 5
 
-  # Directus CMS for content and user management
-  directus:
-    image: directus/directus:${DIRECTUS_VERSION:-10.10.4}
-    container_name: ${PROJECT_NAME:-weather}_directus
-    ports:
-      - "8055:8055"
-    volumes:
-      - directus_uploads:/directus/uploads
-      - directus_extensions:/directus/extensions
-    environment:
-      # Security Keys (CHANGE IN PRODUCTION!)
-      KEY: "replace-with-random-32-char-string"
-      SECRET: "replace-with-random-32-char-string"
-      
-      # Database Configuration
-      DB_CLIENT: "pg"
-      DB_HOST: "postgres"
-      DB_PORT: "5432"
-      DB_DATABASE: "weather_intelligence"
-      DB_USER: "postgres"
-      DB_PASSWORD: "postgres"
-      
-      # Admin User (First Time Setup)
-      ADMIN_EMAIL: "admin@nearestnice.weather"
-      ADMIN_PASSWORD: "change-this-password"
-      
-      # Cache & Session Configuration
-      CACHE_ENABLED: "true"
-      CACHE_STORE: "redis"
-      CACHE_REDIS: "redis://redis:6379"
-      
-      # Email Configuration (Configure with your SMTP)
-      EMAIL_FROM: "noreply@nearestnice.weather"
-      EMAIL_TRANSPORT: "smtp"
-      EMAIL_SMTP_HOST: "smtp.gmail.com"
-      EMAIL_SMTP_PORT: "587"
-      EMAIL_SMTP_USER: "your-email@gmail.com"
-      EMAIL_SMTP_PASSWORD: "your-app-password"
-      
-      # Security & CORS
-      CORS_ENABLED: "true"
-      CORS_ORIGIN: "http://localhost:3000,http://localhost:8000"
-      
-      # File Storage
-      STORAGE_LOCATIONS: "local"
-      STORAGE_LOCAL_DRIVER: "local"
-      STORAGE_LOCAL_ROOT: "./uploads"
-      
-      # Public URL
-      PUBLIC_URL: "http://localhost:8055"
-      
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    networks:
-      - weather_network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8055/server/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  # FastAPI Application (Weather Intelligence Engine)
-  fastapi:
-    build:
-      context: .
-      dockerfile: Dockerfile.fastapi
-    container_name: weather_fastapi
-    ports:
-      - "8000:8000"
-    environment:
-      # Database Connection
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/weather_intelligence"
-      
-      # Directus Integration
-      DIRECTUS_URL: "http://directus:8055"
-      DIRECTUS_ADMIN_TOKEN: "your-directus-admin-token"
-      
-      # Authentication
-      JWT_SECRET: "your-jwt-secret-here"
-      
-      # Redis Cache
-      REDIS_URL: "redis://redis:6379"
-      
-      # Weather API Keys (Get from providers)
-      OPENWEATHER_API_KEY: "your-openweather-api-key"
-      WEATHER_API_KEY: "your-weather-api-key"
-      VISUAL_CROSSING_API_KEY: "your-visual-crossing-api-key"
-      
-      # Geographic Services
-      GOOGLE_MAPS_API_KEY: "your-google-maps-api-key"
-      MAPBOX_ACCESS_TOKEN: "your-mapbox-token"
-      
-      # Email Configuration
-      SMTP_HOST: "smtp.gmail.com"
-      SMTP_PORT: "587"
-      SMTP_USER: "your-email@gmail.com"
-      SMTP_PASSWORD: "your-app-password"
-      EMAIL_FROM: "noreply@nearestnice.weather"
-      
-      # Development Settings
-      ENVIRONMENT: "development"
-      DEBUG: "true"
-      LOG_LEVEL: "info"
-      
-    volumes:
-      - ./application/app:/app
-      - ./application/logs:/app/logs
-    depends_on:
-      postgres:
-        condition: service_healthy
-      directus:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    networks:
-      - weather_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-
-  # Frontend Application (Next.js PWA)
-  frontend:
-    build:
-      context: ./application/frontend
-      dockerfile: Dockerfile
-    container_name: weather_frontend
-    ports:
-      - "3000:3000"
-    environment:
-      # API Configuration
-      NEXT_PUBLIC_API_URL: "http://localhost:8000"
-      NEXT_PUBLIC_DIRECTUS_URL: "http://localhost:8055"
-      
-      # Map Services
-      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "your-google-maps-api-key"
-      NEXT_PUBLIC_MAPBOX_TOKEN: "your-mapbox-token"
-      
-      # Analytics (Optional)
-      NEXT_PUBLIC_GA_MEASUREMENT_ID: "your-google-analytics-id"
-      
-      # Development Settings
-      NODE_ENV: "development"
-      
-    volumes:
-      - ./application/frontend:/app
-      - /app/node_modules
-      - /app/.next
-    depends_on:
-      - fastapi
-      - directus
-    networks:
-      - weather_network
-    command: npm run dev
-
-  # Background Task Processing (Celery)
-  celery:
-    build:
-      context: .
-      dockerfile: Dockerfile.fastapi
-    container_name: weather_celery
-    environment:
-      # Same environment as FastAPI
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/weather_intelligence"
-      DIRECTUS_URL: "http://directus:8055"
-      REDIS_URL: "redis://redis:6379"
-      OPENWEATHER_API_KEY: "your-openweather-api-key"
-      WEATHER_API_KEY: "your-weather-api-key"
-    volumes:
-      - ./application/app:/app
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - weather_network
-    command: celery -A app.celery worker --loglevel=info
-
-  # Celery Beat Scheduler (for periodic tasks)
-  celery-beat:
-    build:
-      context: .
-      dockerfile: Dockerfile.fastapi
-    container_name: weather_celery_beat
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/weather_intelligence"
-      REDIS_URL: "redis://redis:6379"
-      OPENWEATHER_API_KEY: "your-openweather-api-key"
-    volumes:
-      - ./application/app:/app
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - weather_network
-    command: celery -A app.celery beat --loglevel=info
-
 # Persistent Data Storage
 volumes:
-  postgres_data:
-    driver: local
   redis_data:
     driver: local
-  directus_uploads:
-    driver: local
-  directus_extensions:
-    driver: local
 
-# Network Configuration
+# Simple network
 networks:
-  weather_network:
+  default:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-
-# Development Commands (use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml)
-# For production deployment, use docker-compose.prod.yml instead

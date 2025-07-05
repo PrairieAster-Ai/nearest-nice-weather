@@ -9,9 +9,8 @@
   ],
   "scripts": {
     "dev": "npm run dev:all",
-    "dev:all": "concurrently \"npm run dev:infrastructure\" \"npm run dev:backend\" \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:infrastructure": "docker compose up -d postgres redis",
-    "dev:backend": "wait-on tcp:${POSTGRES_PORT:-5432} && cd application/app && uvicorn main:app --host 0.0.0.0 --port ${FASTAPI_PORT:-8000} --reload",
+    "dev:all": "concurrently \"npm run dev:redis\" \"npm run dev:web\"",
+    "dev:redis": "docker compose up -d redis",
     "dev:api": "node dev-api-server.js",
     "dev:web": "npm run dev --workspace=@nearest-nice-weather/web",
     "build": "npm run build:all",
@@ -36,7 +35,7 @@
     "clean:all": "rm -rf node_modules apps/*/node_modules apps/*/dist && docker compose down",
     "reset": "npm run clean:all && npm install",
     "health": "npm run health:all",
-    "health:all": "concurrently \"curl -f http://localhost:${FASTAPI_PORT:-8000}/health\" \"curl -f http://localhost:${VERCEL_API_PORT:-4000}/api/test-db\" \"curl -f http://localhost:${VITE_DEV_PORT:-3002}\"",
+    "health:all": "curl -f http://localhost:3000 && curl -f https://www.nearestniceweather.com/api/feedback",
     "validate:env": "./scripts/validate-env.sh",
     "setup": "./scripts/dev-setup.sh"
   },
