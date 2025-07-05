@@ -38,6 +38,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
+  // Always return debug info to help track down DATABASE_URL issues
+  const debugInfo = {
+    timestamp: new Date().toISOString(),
+    has_database_url: !!process.env.DATABASE_URL,
+    has_postgres_url: !!process.env.POSTGRES_URL,
+    db_url_length: process.env.DATABASE_URL?.length || 0,
+    connection_string_start: (process.env.DATABASE_URL || process.env.POSTGRES_URL)?.substring(0, 20) || 'not set',
+    environment: process.env.NODE_ENV,
+    vercel_env: process.env.VERCEL
+  };
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end()
   }
@@ -90,7 +101,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           success: true,
           feedback_id: feedbackRecord.id,
           message: 'Feedback received successfully',
-          timestamp: feedbackRecord.created_at.toISOString()
+          timestamp: feedbackRecord.created_at.toISOString(),
+          debug: debugInfo
         })
 
       } finally {
@@ -130,15 +142,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         feedback_id: `logged_${Date.now()}`,
         message: 'Feedback received successfully',
         debug: {
+          ...debugInfo,
           database_error: dbError.message,
           database_code: dbError.code,
-          has_database_url: !!process.env.DATABASE_URL,
-          has_postgres_url: !!process.env.POSTGRES_URL,
-          db_url_length: process.env.DATABASE_URL?.length || 0,
-          connection_string_start: connectionString?.substring(0, 20) || 'not set',
-          ssl_detected: connectionString?.includes('neon.tech'),
-          environment: process.env.NODE_ENV,
-          vercel_env: process.env.VERCEL
+          ssl_detected: connectionString?.includes('neon.tech')
         },
         timestamp: new Date().toISOString()
       })
