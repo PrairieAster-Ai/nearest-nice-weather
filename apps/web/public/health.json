@@ -1,11 +1,12 @@
 {
-  "timestamp": "2025-07-04T23:00:00.000Z",
+  "timestamp": "2025-07-05T00:14:42.561Z",
   "status": "healthy",
-  "version": "ui-working-baseline",
+  "version": "local",
   "buildInfo": {
     "buildTarget": "esnext",
     "reactVersion": "18.3.1",
-    "viteVersion": "6.0.0"
+    "viteVersion": "6.0.0",
+    "deploymentId": "localhost"
   },
   "checks": {
     "frontend": {
@@ -13,7 +14,7 @@
       "message": "Application running"
     },
     "api": {
-      "status": "ok", 
+      "status": "ok",
       "message": "Dev API server available"
     }
   }
