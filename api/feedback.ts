@@ -90,7 +90,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         code: dbError.code,
         detail: dbError.detail,
         environment: process.env.NODE_ENV,
-        hasDatabase: !!process.env.DATABASE_URL
+        hasDatabase: !!process.env.DATABASE_URL,
+        hasPgUrl: !!process.env.POSTGRES_URL,
+        dbUrlLength: process.env.DATABASE_URL?.length || 0,
+        dbUrlStart: process.env.DATABASE_URL?.substring(0, 20) || 'not set'
       });
       
       // Log feedback and return success with debug info
@@ -109,10 +112,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         success: true,
         feedback_id: `logged_${Date.now()}`,
         message: 'Feedback received successfully',
-        debug: process.env.NODE_ENV === 'development' ? {
+        debug: {
           database_error: dbError.message,
-          has_database_url: !!process.env.DATABASE_URL
-        } : undefined,
+          has_database_url: !!process.env.DATABASE_URL,
+          db_url_length: process.env.DATABASE_URL?.length || 0,
+          environment: process.env.NODE_ENV
+        },
         timestamp: new Date().toISOString()
       })
     }
