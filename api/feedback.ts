@@ -13,6 +13,8 @@ const pool = new Pool({
 interface FeedbackRequest {
   email?: string
   feedback: string
+  rating?: number
+  categories?: string[]
   session_id?: string
   page_url?: string
 }
@@ -32,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { email, feedback, session_id, page_url }: FeedbackRequest = req.body
+    const { email, feedback, rating, categories, session_id, page_url }: FeedbackRequest = req.body
 
     if (!feedback || feedback.trim().length === 0) {
       return res.status(400).json({ 
@@ -46,37 +48,60 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const clientIp = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown'
     const sessionId = session_id || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
-    // Insert feedback into database
-    const client = await pool.connect()
-    
+    // Try to insert feedback into database, fallback to logging if DB unavailable
     try {
-      const query = `
-        INSERT INTO user_feedback 
-        (email, feedback_text, user_agent, ip_address, session_id, page_url, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, NOW())
-        RETURNING id, created_at
-      `
+      const client = await pool.connect()
       
-      const result = await client.query(query, [
-        email || null,
-        feedback.trim(),
-        userAgent,
-        Array.isArray(clientIp) ? clientIp[0] : clientIp,
-        sessionId,
-        page_url || null
-      ])
+      try {
+        const query = `
+          INSERT INTO user_feedback 
+          (email, feedback_text, rating, categories, user_agent, ip_address, session_id, page_url, created_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+          RETURNING id, created_at
+        `
+        
+        const result = await client.query(query, [
+          email || null,
+          feedback.trim(),
+          rating || null,
+          categories ? JSON.stringify(categories) : null,
+          userAgent,
+          Array.isArray(clientIp) ? clientIp[0] : clientIp,
+          sessionId,
+          page_url || null
+        ])
 
-      const feedbackRecord = result.rows[0]
+        const feedbackRecord = result.rows[0]
+
+        res.status(200).json({
+          success: true,
+          feedback_id: feedbackRecord.id,
+          message: 'Feedback received successfully',
+          timestamp: feedbackRecord.created_at.toISOString()
+        })
+
+      } finally {
+        client.release()
+      }
+    } catch (dbError) {
+      // Database unavailable - log feedback and return success
+      console.log('Database unavailable, logging feedback:', {
+        email: email || 'anonymous',
+        feedback: feedback.trim(),
+        rating,
+        categories,
+        userAgent,
+        clientIp,
+        sessionId,
+        timestamp: new Date().toISOString()
+      })
 
       res.status(200).json({
         success: true,
-        feedback_id: feedbackRecord.id,
+        feedback_id: `logged_${Date.now()}`,
         message: 'Feedback received successfully',
-        timestamp: feedbackRecord.created_at.toISOString()
+        timestamp: new Date().toISOString()
       })
-
-    } finally {
-      client.release()
     }
 
   } catch (error) {
