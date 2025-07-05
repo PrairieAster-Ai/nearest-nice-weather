@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      disable: true,
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         skipWaiting: true,
@@ -17,7 +18,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/api\./,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'api-cache',
+              cacheName: 'api-cache-v3',
               networkTimeoutSeconds: 10,
               cacheableResponse: {
                 statuses: [0, 200]
