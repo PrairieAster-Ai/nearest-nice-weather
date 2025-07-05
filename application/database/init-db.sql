@@ -85,10 +85,26 @@ CREATE TABLE IF NOT EXISTS analytics.weather_requests (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- User feedback collection
+CREATE TABLE IF NOT EXISTS user_feedback (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255),
+    feedback_text TEXT NOT NULL,
+    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+    categories JSONB,
+    user_agent TEXT,
+    ip_address VARCHAR(45),
+    session_id VARCHAR(100),
+    page_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_forecasts_location_date ON weather.forecasts(location_id, forecast_date);
 CREATE INDEX IF NOT EXISTS idx_operators_coordinates ON tourism.operators USING GIST (coordinates);
 CREATE INDEX IF NOT EXISTS idx_analytics_operator_time ON analytics.weather_requests(operator_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_user_feedback_created_at ON user_feedback(created_at);
+CREATE INDEX IF NOT EXISTS idx_user_feedback_rating ON user_feedback(rating);
 
 -- Insert sample Minnesota locations for development
 INSERT INTO weather.locations (name, state, country, coordinates, timezone) VALUES
