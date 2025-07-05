@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "echo 'No build needed - pure HTML'",
-  "outputDirectory": "apps/web",
-  "framework": null,
-  "installCommand": "echo 'No install needed'",
+  "buildCommand": "cd apps/web && node deployment/health-check.cjs && vite build",
+  "outputDirectory": "apps/web/dist",
+  "framework": "vite",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/health.json",
