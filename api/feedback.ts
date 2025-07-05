@@ -2,9 +2,16 @@ import { VercelRequest, VercelResponse } from '@vercel/node'
 import { Pool } from 'pg'
 
 // Initialize PostgreSQL connection pool
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+console.log('Database connection attempt:', {
+  hasDatabase: !!connectionString,
+  length: connectionString?.length || 0,
+  nodeEnv: process.env.NODE_ENV
+});
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionString: connectionString,
+  ssl: connectionString?.includes('neon.tech') ? { rejectUnauthorized: false } : false,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
