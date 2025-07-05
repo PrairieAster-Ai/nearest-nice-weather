@@ -237,7 +237,7 @@ export default function App() {
       <CssBaseline />
       <div className="h-screen w-screen flex flex-col">
         {/* Header */}
-        <header className="bg-white shadow-sm px-1 py-1 border-b border-purple-200 z-[1001] relative">
+        <header className="bg-white shadow-sm border-b border-purple-200 z-[1001] relative">
           <div className="flex items-start" style={{marginLeft: '-10px'}}>
             <img src="/aster-official.svg" alt="Nearest Nice Weather" className="h-8 w-8" style={{marginTop: '-15px', marginRight: '-11px'}} />
             <div style={{marginLeft: '2px', lineHeight: '1'}}>
