@@ -236,6 +236,11 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="h-screen w-screen flex flex-col">
+        {/* VISIBLE TEST BANNER */}
+        <div style={{backgroundColor: 'red', color: 'white', padding: '20px', textAlign: 'center', fontSize: '24px', fontWeight: 'bold'}}>
+          🚨 DEPLOYMENT TEST - COMMIT 7c7fbb2 - {new Date().toISOString()} 🚨
+        </div>
+        
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-purple-200 z-[1001] relative" style={{marginTop: '4px', marginBottom: '-8px'}}>
           <div className="flex items-start" style={{marginLeft: '-10px'}}>
