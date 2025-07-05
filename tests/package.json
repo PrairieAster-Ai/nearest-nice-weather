@@ -1,0 +1,37 @@
+{
+  "name": "nearest-nice-weather-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive test suite for preventing regression of debugging issues",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:deployment": "jest tests/deployment",
+    "test:database": "jest tests/database",
+    "test:api": "jest tests/api",
+    "test:environment": "jest tests/environment"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "../api/**/*.{js,ts}",
+      "../apps/web/src/**/*.{js,ts,tsx}",
+      "!**/node_modules/**",
+      "!**/coverage/**"
+    ],
+    "setupFilesAfterEnv": ["./jest.setup.js"],
+    "testTimeout": 30000
+  },
+  "dependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "@types/supertest": "^6.0.0"
+  }
+}
