@@ -1,0 +1,152 @@
+name: Comprehensive Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-infrastructure:
+    runs-on: ubuntu-latest
+    
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      API_BASE_URL: https://www.nearestniceweather.com
+      
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm install
+        cd tests && npm install
+    
+    - name: Validate Vercel Configuration
+      run: cd tests && npm run test:deployment
+    
+    - name: Validate Environment Configuration
+      run: cd tests && npm run test:environment
+    
+    - name: Test Database Connection
+      run: cd tests && npm run test:database
+      if: env.DATABASE_URL != ''
+    
+    - name: Test API Endpoints
+      run: cd tests && npm run test:api
+    
+    - name: Run Full Test Suite
+      run: cd tests && npm test
+    
+    - name: Check for Technical Debt
+      run: |
+        echo "🔍 Checking for technical debt indicators..."
+        
+        # Check for Next.js residue in Vite app
+        if find apps/web/src -name "*.tsx" -o -name "*.ts" | xargs grep -l "from \"next/" 2>/dev/null; then
+          echo "❌ Found Next.js imports in Vite app"
+          exit 1
+        fi
+        
+        # Check for Tailwind in Material-UI app
+        if grep -q "tailwindcss" apps/web/package.json 2>/dev/null; then
+          echo "❌ Found Tailwind CSS in Material-UI app"
+          exit 1
+        fi
+        
+        # Check for debugging console.log in production code
+        if find apps/web/src api -name "*.ts" -o -name "*.tsx" | xargs grep -n "console\.log" | grep -v debug | head -5; then
+          echo "⚠️ Found console.log statements in production code"
+        fi
+        
+        # Check for hardcoded localhost URLs
+        if find apps/web/src api -name "*.ts" -o -name "*.tsx" | xargs grep -n "localhost:" | grep -v test; then
+          echo "⚠️ Found hardcoded localhost URLs"
+        fi
+        
+        echo "✅ Technical debt check completed"
+
+  validate-deployment:
+    runs-on: ubuntu-latest
+    needs: test-infrastructure
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate vercel.json syntax
+      run: |
+        echo "🔍 Validating Vercel configuration..."
+        
+        # Check JSON syntax
+        if ! jq empty vercel.json; then
+          echo "❌ vercel.json has invalid JSON syntax"
+          exit 1
+        fi
+        
+        # Check for trailing commas (common issue)
+        if grep -E ',\s*[}\]]' vercel.json; then
+          echo "❌ Found trailing commas in vercel.json"
+          exit 1
+        fi
+        
+        # Check for duplicate vercel.json files
+        find . -name "vercel.json" -not -path "./vercel.json" | while read file; do
+          echo "⚠️ Found duplicate vercel.json at: $file"
+        done
+        
+        echo "✅ Vercel configuration validation passed"
+    
+    - name: Test API endpoints accessibility
+      run: |
+        echo "🔍 Testing API endpoint accessibility..."
+        
+        # Test feedback endpoint
+        if curl -s -o /dev/null -w "%{http_code}" https://www.nearestniceweather.com/api/feedback -X OPTIONS | grep -q "200"; then
+          echo "✅ Feedback API endpoint accessible"
+        else
+          echo "❌ Feedback API endpoint not accessible"
+          exit 1
+        fi
+        
+        # Test database setup endpoint
+        if curl -s -o /dev/null -w "%{http_code}" https://www.nearestniceweather.com/api/setup-database -X POST | grep -q "200"; then
+          echo "✅ Setup API endpoint accessible"
+        else
+          echo "❌ Setup API endpoint not accessible"
+          exit 1
+        fi
+
+  security-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check for exposed secrets
+      run: |
+        echo "🔍 Checking for exposed secrets and tokens..."
+        
+        # Check for GitHub tokens
+        if grep -r "ghp_" . --exclude-dir=.git; then
+          echo "❌ Found potential GitHub token"
+          exit 1
+        fi
+        
+        # Check for database URLs in code
+        if find . -name "*.ts" -o -name "*.js" | xargs grep -l "postgresql://.*@" | grep -v test; then
+          echo "❌ Found hardcoded database URLs"
+          exit 1
+        fi
+        
+        # Check for API keys
+        if grep -r "api.key\|apikey\|api_key" . --exclude-dir=node_modules --exclude-dir=.git | grep -v test | grep -v example; then
+          echo "⚠️ Found potential API keys (review manually)"
+        fi
+        
+        echo "✅ Security check completed"
