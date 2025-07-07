@@ -257,7 +257,9 @@ export default function App() {
           />
           
           {filteredLocations.map((location) => (
-            <Marker {...({ key: location.id, position: [location.lat, location.lng] as LatLngExpression, icon: asterIcon } as any)}>
+            <Marker 
+              key={location.id}
+              {...({ position: [location.lat, location.lng] as LatLngExpression, icon: asterIcon } as any)}>
               <Popup {...({ maxWidth: 280, className: "custom-popup" } as any)}>
                 <div className="p-2 text-xs leading-tight">
                   {/* Header */}
