@@ -12,9 +12,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // Test database connection
+    const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
     const pool = new Pool({
-      connectionString: process.env.POSTGRES_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      connectionString: connectionString,
+      ssl: connectionString?.includes('neon.tech') ? { rejectUnauthorized: false } : false,
     })
 
     const client = await pool.connect()
