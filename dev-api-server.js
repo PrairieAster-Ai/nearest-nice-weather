@@ -8,7 +8,7 @@ const port = 4000
 
 // Configure PostgreSQL connection
 const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL || 'postgresql://postgres:postgres@localhost:5432/weather_intelligence',
+  connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
   ssl: false,
   max: 10,
   idleTimeoutMillis: 30000,
@@ -35,7 +35,7 @@ app.get('/api/test-db', async (req, res) => {
       client.release()
     }
   } catch (error) {
-    console.error('Database connection error:', error)
+    console.debug('Database connection error:', error)
     res.status(500).json({
       success: false,
       error: 'Database connection failed',
@@ -120,7 +120,7 @@ app.post('/api/feedback', async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Feedback submission error:', error)
+    console.debug('Feedback submission error:', error)
     
     res.status(500).json({
       success: false,
@@ -142,15 +142,15 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 app.listen(port, () => {
-  console.log(`🚀 Development API server running on http://localhost:${port}`)
-  console.log(`📝 Feedback endpoint: http://localhost:${port}/api/feedback`)
-  console.log(`🏥 Health check: http://localhost:${port}/api/health`)
-  console.log(`🗄️  Database test: http://localhost:${port}/api/test-db`)
+  console.debug(`🚀 Development API server running on http://localhost:${port}`)
+  console.debug(`📝 Feedback endpoint: http://localhost:${port}/api/feedback`)
+  console.debug(`🏥 Health check: http://localhost:${port}/api/health`)
+  console.debug(`🗄️  Database test: http://localhost:${port}/api/test-db`)
 })
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('\n🛑 Shutting down gracefully...')
+  console.debug('\n🛑 Shutting down gracefully...')
   await pool.end()
   process.exit(0)
 })
