@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -6,7 +6,7 @@ import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
-import L from 'leaflet'
+import L, { LatLngExpression } from 'leaflet'
 
 // Create custom purple aster marker icon with white background
 const asterIcon = new L.Icon({
@@ -121,7 +121,7 @@ export default function App() {
     let filtered = [...locations]
 
     // Temperature filtering - relative to current conditions
-    if (filters.temperature && filters.temperature !== '') {
+    if (filters.temperature && filters.temperature.length > 0) {
       const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
       const tempCount = temps.length
       
@@ -142,7 +142,7 @@ export default function App() {
     }
 
     // Precipitation filtering - relative to current conditions
-    if (filters.precipitation && filters.precipitation !== '') {
+    if (filters.precipitation && filters.precipitation.length > 0) {
       const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b)
       const precipCount = precips.length
       
@@ -163,7 +163,7 @@ export default function App() {
     }
 
     // Wind filtering - relative to current conditions
-    if (filters.wind && filters.wind !== '') {
+    if (filters.wind && filters.wind.length > 0) {
       const winds = locations.map(loc => loc.windSpeed).sort((a, b) => a - b)
       const windCount = winds.length
       
@@ -261,7 +261,7 @@ export default function App() {
           />
           
           {filteredLocations.map((location) => (
-            <Marker key={location.id} position={[location.lat, location.lng]} icon={asterIcon}>
+            <Marker key={location.id} position={[location.lat, location.lng] as LatLngExpression} icon={asterIcon}>
               <Popup maxWidth={280} className="custom-popup">
                 <div className="p-2 text-xs leading-tight">
                   {/* Header */}

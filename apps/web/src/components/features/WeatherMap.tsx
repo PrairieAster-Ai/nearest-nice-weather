@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box, Typography } from '@mui/material'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { LatLngExpression } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 export interface Location {
@@ -59,7 +60,7 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({
           attribution={import.meta.env.VITE_MAP_ATTRIBUTION || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}
         />
         {locations.map((location) => (
-          <Marker key={location.id} position={[location.lat, location.lng]}>
+          <Marker key={location.id} position={[location.lat, location.lng] as LatLngExpression}>
             <Popup>
               <div>
                 <strong>{location.name}</strong>

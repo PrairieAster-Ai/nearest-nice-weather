@@ -66,7 +66,7 @@ export function FabFilterSystem({ filters, onFilterChange }: FabFilterSystemProp
       {/* Main Filter Categories */}
       {(Object.keys(filterConfigs) as Array<keyof WeatherFilters>).map((category) => {
         const config = filterConfigs[category]
-        const isSelected = filters[category] !== ''
+        const isSelected = Boolean(filters[category] && filters[category].length > 0)
         const isOpen = openCategory === category
         const selectedOption = config.options.find(opt => opt.value === filters[category])
 

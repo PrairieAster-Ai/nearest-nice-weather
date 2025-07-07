@@ -6,7 +6,9 @@ export interface ErrorContext {
   sessionId?: string
   userAgent?: string
   url?: string
+  context?: string
   additionalContext?: Record<string, any>
+  [key: string]: any  // Allow additional properties
 }
 
 export interface PerformanceMetric {
