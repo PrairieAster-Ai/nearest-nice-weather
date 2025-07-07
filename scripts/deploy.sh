@@ -101,6 +101,7 @@ if [ "$HTTP_CODE" = "200" ]; then
     echo "======================================"
     
     # Check if GitHub CLI is available
+    export PATH="$HOME/.local/bin:$PATH"
     if command -v gh &> /dev/null; then
         echo "⏳ Fetching latest deployment status..."
         
