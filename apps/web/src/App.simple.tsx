@@ -71,11 +71,11 @@ function App() {
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-4">Quick Links</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <a href="http://localhost:8000/docs" target="_blank" 
+              <a href="/api/docs" target="_blank" 
                  className="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 text-center block">
                 📖 API Documentation
               </a>
-              <a href="http://localhost:4000/api/health" target="_blank"
+              <a href="/api/health" target="_blank"
                  className="bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 text-center block">
                 🏥 API Health Check
               </a>

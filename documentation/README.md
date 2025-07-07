@@ -27,6 +27,7 @@ Ultra-simple Progressive Web App solving a daily problem: "Where is the nearest 
 - **[📊 Master Business Plan](./business-plan/master-plan.md)** - Comprehensive business strategy and implementation
 - **[⚡ Executive Summary](./business-plan/executive-summary.md)** - Investor-focused overview
 - **[🚀 Implementation Roadmap](./business-plan/implementation-roadmap.md)** - Sprint-level execution plan
+- **[🏗️ Innovation Infrastructure Advantage](./business-plan/innovation-velocity-principles.md)** - Core competitive strategy through rapid experimentation
 
 ### **Market Research & Analysis**
 - **[📈 Market Research Sources](./appendices/market-research.md)** - Verified data sources and methodology

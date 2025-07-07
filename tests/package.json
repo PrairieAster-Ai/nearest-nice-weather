@@ -22,16 +22,19 @@
       "!**/node_modules/**",
       "!**/coverage/**"
     ],
-    "setupFilesAfterEnv": ["./jest.setup.js"],
+    "setupFilesAfterEnv": [
+      "./jest.setup.js"
+    ],
     "testTimeout": 30000
   },
   "dependencies": {
     "jest": "^29.7.0",
-    "supertest": "^6.3.3",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "supertest": "^6.3.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",
-    "@types/supertest": "^6.0.0"
+    "@types/supertest": "^6.0.0",
+    "dotenv": "^17.0.1"
   }
 }

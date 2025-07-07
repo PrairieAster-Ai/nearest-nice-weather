@@ -1,17 +1,19 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { Pool } from 'pg'
 
-// Initialize PostgreSQL connection pool - Debug all environment variables
-console.log('Environment variable debug:', {
-  NODE_ENV: process.env.NODE_ENV,
-  VERCEL: process.env.VERCEL,
-  DATABASE_URL_exists: !!process.env.DATABASE_URL,
-  DATABASE_URL_length: process.env.DATABASE_URL?.length || 0,
-  DATABASE_URL_start: process.env.DATABASE_URL?.substring(0, 30) || 'not set',
-  POSTGRES_URL_exists: !!process.env.POSTGRES_URL,
-  POSTGRES_URL_length: process.env.POSTGRES_URL?.length || 0,
-  all_env_keys: Object.keys(process.env).filter(key => key.includes('DATABASE') || key.includes('POSTGRES')),
-});
+// Initialize PostgreSQL connection pool - Debug in development only
+if (process.env.NODE_ENV !== 'production') {
+  console.log('Environment variable debug:', {
+    NODE_ENV: process.env.NODE_ENV,
+    VERCEL: process.env.VERCEL,
+    DATABASE_URL_exists: !!process.env.DATABASE_URL,
+    DATABASE_URL_length: process.env.DATABASE_URL?.length || 0,
+    DATABASE_URL_start: process.env.DATABASE_URL?.substring(0, 30) || 'not set',
+    POSTGRES_URL_exists: !!process.env.POSTGRES_URL,
+    POSTGRES_URL_length: process.env.POSTGRES_URL?.length || 0,
+    all_env_keys: Object.keys(process.env).filter(key => key.includes('DATABASE') || key.includes('POSTGRES')),
+  });
+}
 
 const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
@@ -125,17 +127,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       });
       
-      // Log feedback and return success with debug info
-      console.log('Logging feedback to console:', {
-        email: email || 'anonymous',
-        feedback: feedback.trim(),
-        rating,
-        categories,
-        userAgent,
-        clientIp,
-        sessionId,
-        timestamp: new Date().toISOString()
-      })
+      // Log feedback in development only
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Logging feedback to console:', {
+          email: email || 'anonymous',
+          feedback: feedback.trim(),
+          rating,
+          categories,
+          userAgent,
+          clientIp,
+          sessionId,
+          timestamp: new Date().toISOString()
+        })
+      }
 
       res.status(200).json({
         success: true,

@@ -20,20 +20,25 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 ## Development Commands
 
-**Environment Setup** (SIMPLIFIED - Neon Database Only):
+**Environment Setup** (SIMPLIFIED - Environment Variables):
 ```bash
-# Set Neon database connection (get this from Neon Dashboard)
-export DATABASE_URL="postgresql://[username]:[password]@[hostname]/weather?sslmode=require"
+# 1. Copy environment template and configure
+cp .env.example .env
 
-# Start Redis cache only (local)
-docker-compose up -d redis
+# 2. Edit .env with your Neon database URL (get from Neon Dashboard)
+# DATABASE_URL="postgresql://[username]:[password]@[hostname]/weather?sslmode=require"
 
-# Run Next.js frontend locally  
+# 3. Run development environment
 cd apps/web && npm run dev
 
-# Production deployment uses Vercel with Neon database
-# No local PostgreSQL required - all data in Neon cloud
+# The development server will proxy API calls to production automatically
+# No local API server needed - all configuration via .env files
 ```
+
+**Environment Variables** (Required):
+- `DATABASE_URL`: Neon PostgreSQL connection string
+- `POSTGRES_URL`: Alternative name for Vercel compatibility
+- Development vs production managed automatically
 
 **Development Tools** (SIMPLIFIED STACK):
 - ✅ **Neon PostgreSQL Database** (cloud-hosted, no local setup required)
@@ -45,14 +50,12 @@ cd apps/web && npm run dev
 
 ## Technical Architecture
 
-**Technology Stack** (aligned implementation):
-- **Backend**: FastAPI with async support
-- **Database**: PostgreSQL with PostGIS extension for geographic calculations
-- **CMS**: Directus for content and user management (optional)
-- **Cache**: Redis for sessions and weather data caching
+**Technology Stack** (current implementation):
+- **Backend**: Vercel Edge Functions (Node.js serverless)
+- **Database**: Neon PostgreSQL (serverless, geo-enabled)
 - **Frontend**: Vite + React Progressive Web App with Material-UI
-- **Background Tasks**: Celery with Redis broker
-- **Deployment**: Vercel serverless functions + Docker containers
+- **Deployment**: Vercel (frontend + serverless functions)
+- **Authentication**: GitHub SSH keys, secure environment variables
 
 **Key Integrations**:
 - Weather APIs: OpenWeather, Weather API, Visual Crossing, NOAA

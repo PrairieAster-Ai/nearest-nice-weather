@@ -57,9 +57,17 @@ export default defineConfig({
     host: process.env.VITE_DEV_HOST || '0.0.0.0',
     proxy: {
       '/api': {
-        target: process.env.VITE_API_PROXY_URL || 'http://localhost:4000',
+        target: process.env.VITE_API_PROXY_URL || 'https://www.nearestniceweather.com',
         changeOrigin: true,
-        secure: process.env.VITE_API_PROXY_SECURE === 'true'
+        secure: true,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('Proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req) => {
+            console.log('Proxying API request:', req.method, req.url);
+          });
+        }
       }
     }
   },

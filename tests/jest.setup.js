@@ -4,6 +4,9 @@
  * Global test configuration and utilities
  */
 
+// Load environment variables from .env file
+require('dotenv').config({ path: '../.env' });
+
 // Set test timeout for database operations
 jest.setTimeout(30000);
 
