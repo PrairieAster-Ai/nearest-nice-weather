@@ -45,7 +45,7 @@
     "wait-on": "^8.0.1"
   },
   "dependencies": {
-    "@vercel/node": "^3.0.0",
+    "@vercel/node": "^2.3.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "leaflet": "^1.9.4",
