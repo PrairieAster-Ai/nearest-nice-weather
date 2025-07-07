@@ -138,8 +138,8 @@ jobs:
           exit 1
         fi
         
-        # Check for database URLs in code
-        if find . -name "*.ts" -o -name "*.js" -not -path "*/node_modules/*" -not -path "*/test*" -not -path "*/__tests__/*" | xargs grep -l "postgresql://.*@"; then
+        # Check for database URLs in code (excluding test files)
+        if find . -name "*.ts" -o -name "*.js" -not -path "*/node_modules/*" -not -path "*/tests/*" -not -path "*/__tests__/*" -not -path "*/*.test.*" -not -path "*/*.spec.*" | xargs grep -l "postgresql://.*@"; then
           echo "❌ Found hardcoded database URLs"
           exit 1
         fi
