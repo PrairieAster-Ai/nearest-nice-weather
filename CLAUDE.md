@@ -42,9 +42,9 @@ cd apps/web && npm run dev
 
 **Development Tools** (SIMPLIFIED STACK):
 - ✅ **Neon PostgreSQL Database** (cloud-hosted, no local setup required)
-- ✅ Redis cache on port 6379 (local for sessions only)
 - ✅ **Vercel API Functions** (serverless, connected to Neon)
-- ✅ **Frontend (Next.js PWA) on port 3000** (LIVE with Neon integration)
+- ✅ **Frontend (Vite + React + Material-UI)** on port 3002 (LIVE with API proxy)
+- 🗑️ PostCSS/Tailwind CSS removed (Material-UI only)
 - 🗑️ Local PostgreSQL removed (eliminated complexity)
 - 🗑️ FastAPI backend removed (replaced with Vercel functions)
 
