@@ -16,9 +16,9 @@ beforeAll(() => {
   process.env.NODE_ENV = 'test';
   
   // Log test environment info
-  console.log('🧪 Test Environment Setup');
-  console.log(`Database URL configured: ${!!process.env.DATABASE_URL}`);
-  console.log(`API Base URL: ${process.env.API_BASE_URL || 'https://www.nearestniceweather.com'}`);
+  console.debug('🧪 Test Environment Setup');
+  console.debug(`Database URL configured: ${!!process.env.DATABASE_URL}`);
+  console.debug(`API Base URL: ${process.env.API_BASE_URL || 'https://www.nearestniceweather.com'}`);
 });
 
 // Global cleanup
@@ -61,5 +61,5 @@ expect.extend({
 
 // Global error handler for unhandled promises
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  console.debug('Unhandled Rejection at:', promise, 'reason:', reason);
 });
