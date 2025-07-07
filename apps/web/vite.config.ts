@@ -84,35 +84,8 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // Enable optimized chunking for faster loading and caching
-        manualChunks: (id) => {
-          // Vendor chunks for better caching
-          if (id.includes('node_modules')) {
-            // React ecosystem (changes infrequently)
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor'
-            }
-            // Material-UI ecosystem (large, changes infrequently)
-            if (id.includes('@mui') || id.includes('@emotion')) {
-              return 'mui-vendor'
-            }
-            // Map libraries (large, rarely changes)
-            if (id.includes('leaflet')) {
-              return 'map-vendor'
-            }
-            // Query and state management
-            if (id.includes('@tanstack/react-query')) {
-              return 'query-vendor'
-            }
-            // Everything else
-            return 'vendor'
-          }
-          
-          // App chunks - optimize for development iteration speed
-          if (id.includes('/components/features/')) {
-            return 'features'
-          }
-        },
+        // Disable chunking temporarily to fix MUI initialization issues
+        manualChunks: undefined,
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
           if (facadeModuleId) {
