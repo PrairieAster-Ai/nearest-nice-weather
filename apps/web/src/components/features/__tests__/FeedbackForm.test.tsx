@@ -92,8 +92,9 @@ describe('FeedbackForm Component', () => {
   })
 
   it('handles loading state', () => {
-    const { useFeedbackSubmission } = require('../../../hooks/useFeedbackSubmission')
-    vi.mocked(useFeedbackSubmission).mockReturnValue({
+    // Use the existing mock from the top level
+    const mockUseFeedbackSubmission = vi.mocked(require('../../../hooks/useFeedbackSubmission').useFeedbackSubmission)
+    mockUseFeedbackSubmission.mockReturnValue({
       mutate: vi.fn(),
       isPending: true,
     } as any)
