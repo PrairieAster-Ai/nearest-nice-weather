@@ -8,6 +8,8 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 **Core Business Philosophy**: [The Innovation Infrastructure Advantage](documentation/business-plan/innovation-velocity-principles.md) - we optimize technical architecture for rapid experimentation and learning speed, creating competitive advantage through faster market discovery.
 
+**🚀 RAPID DEVELOPMENT WORKFLOW**: [Optimized for High-Speed Experimentation](RAPID-DEVELOPMENT.md) - Idea to production in 2-5 minutes with automated quality gates and instant rollback capabilities.
+
 **Target Market**: Minnesota tourism operators (ice fishing guides, BWCA outfitters, resorts) and outdoor recreation enthusiasts.
 
 ## Repository Structure
