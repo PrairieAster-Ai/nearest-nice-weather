@@ -38,7 +38,7 @@ function App() {
       } else {
         setMessage('❌ ' + (data.error || 'Failed to submit feedback'))
       }
-    } catch (error) {
+    } catch {
       setMessage('❌ Failed to submit feedback. Please try again.')
     } finally {
       setSubmitting(false)

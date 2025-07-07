@@ -76,7 +76,7 @@ export function FeedbackFab() {
         setMessage(data.error || 'Failed to submit feedback')
         setMessageType('error')
       }
-    } catch (error) {
+    } catch {
       setMessage('Failed to submit feedback. Please try again.')
       setMessageType('error')
     } finally {
