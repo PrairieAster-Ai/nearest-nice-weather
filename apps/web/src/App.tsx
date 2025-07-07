@@ -250,19 +250,15 @@ export default function App() {
         {/* Map Container */}
         <div className="flex-1 relative">
           <MapContainer
-          center={mapCenter}
-          zoom={mapZoom}
-          style={{ height: '100%', width: '100%' }}
-          scrollWheelZoom={true}
+          {...({ center: mapCenter as LatLngExpression, zoom: mapZoom, style: { height: '100%', width: '100%' }, scrollWheelZoom: true } as any)}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            {...({ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any)}
           />
           
           {filteredLocations.map((location) => (
-            <Marker key={location.id} position={[location.lat, location.lng] as LatLngExpression} icon={asterIcon}>
-              <Popup maxWidth={280} className="custom-popup">
+            <Marker {...({ key: location.id, position: [location.lat, location.lng] as LatLngExpression, icon: asterIcon } as any)}>
+              <Popup {...({ maxWidth: 280, className: "custom-popup" } as any)}>
                 <div className="p-2 text-xs leading-tight">
                   {/* Header */}
                   <div className="mb-1">

@@ -89,7 +89,7 @@ export const useWeatherSearchResults = (filters: WeatherFilter | null) => {
   return useQuery({
     queryKey: filters ? queryKeys.weather.search(filters) : ['weather', 'search', 'disabled'],
     queryFn: () => weatherApi.searchLocations(filters!),
-    enabled: !!filters && Object.values(filters).every(value => value !== ''),
+    enabled: !!filters && Object.values(filters).every(value => value && value.length > 0),
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error) => {

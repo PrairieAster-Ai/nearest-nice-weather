@@ -32,7 +32,7 @@ const mockLocations = [
 export const weatherHandlers = [
   // Weather search endpoint
   http.post('http://localhost:8000/api/weather/search', async ({ request }) => {
-    const body = await (request as RequestWithJson).json()
+    await (request as RequestWithJson).json() // Parse body but don't use it
     
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500))
@@ -68,7 +68,7 @@ export const weatherHandlers = [
 
   // Feedback submission endpoint
   http.post('http://localhost:8000/api/feedback', async ({ request }) => {
-    const body = await (request as RequestWithJson).json()
+    await (request as RequestWithJson).json() // Parse body but don't use it
     
     return HttpResponse.json({
       success: true,

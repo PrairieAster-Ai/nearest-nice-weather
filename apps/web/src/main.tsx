@@ -1,4 +1,4 @@
-import React from 'react'
+// React 19 with the new JSX transform doesn't require React import
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
