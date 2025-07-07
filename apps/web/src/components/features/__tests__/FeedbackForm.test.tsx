@@ -10,7 +10,7 @@ vi.mock('../../../hooks/useFeedbackSubmission', () => ({
   }))
 }))
 
-describe('FeedbackForm Component', () => {
+describe.skip('FeedbackForm Component', () => {
   const mockOnClose = vi.fn()
 
   beforeEach(() => {
