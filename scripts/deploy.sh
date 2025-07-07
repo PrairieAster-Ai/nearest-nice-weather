@@ -94,6 +94,61 @@ echo "  - Completed: $(date)"
 
 if [ "$HTTP_CODE" = "200" ]; then
     echo "🎉 Deployment successful!"
+    
+    # Step 6: Get GitHub Actions deployment feedback
+    echo ""
+    echo "📋 GitHub Actions Deployment Feedback:"
+    echo "======================================"
+    
+    # Check if GitHub CLI is available
+    if command -v gh &> /dev/null; then
+        echo "⏳ Fetching latest deployment status..."
+        
+        # Wait a moment for GitHub Actions to start
+        sleep 10
+        
+        # Get the latest workflow run
+        echo "🔍 Latest workflow runs:"
+        gh run list --limit 3 --json status,conclusion,name,createdAt,url | jq -r '.[] | "- \(.name): \(.status) (\(.conclusion // "in progress")) - \(.createdAt) - \(.url)"'
+        
+        echo ""
+        echo "⏰ Waiting for GitHub Actions to complete (60 seconds)..."
+        sleep 60
+        
+        echo "📊 Final status check:"
+        LATEST_RUN=$(gh run list --limit 1 --json id,status,conclusion,name,url | jq -r '.[0]')
+        RUN_ID=$(echo "$LATEST_RUN" | jq -r '.id')
+        RUN_STATUS=$(echo "$LATEST_RUN" | jq -r '.status')
+        RUN_CONCLUSION=$(echo "$LATEST_RUN" | jq -r '.conclusion')
+        RUN_NAME=$(echo "$LATEST_RUN" | jq -r '.name')
+        RUN_URL=$(echo "$LATEST_RUN" | jq -r '.url')
+        
+        echo "Latest run: $RUN_NAME (ID: $RUN_ID)"
+        echo "Status: $RUN_STATUS"
+        echo "Conclusion: $RUN_CONCLUSION"
+        echo "URL: $RUN_URL"
+        
+        if [ "$RUN_STATUS" = "completed" ]; then
+            if [ "$RUN_CONCLUSION" = "success" ]; then
+                echo "✅ GitHub Actions completed successfully!"
+            else
+                echo "❌ GitHub Actions failed with conclusion: $RUN_CONCLUSION"
+                echo ""
+                echo "📄 Failure logs:"
+                gh run view "$RUN_ID" --log-failed
+            fi
+        else
+            echo "⏳ GitHub Actions still running. Check status at: $RUN_URL"
+        fi
+        
+    else
+        echo "⚠️ GitHub CLI not installed. Install with:"
+        echo "   brew install gh  # macOS"
+        echo "   sudo apt install gh  # Ubuntu"
+        echo ""
+        echo "📄 Manual check: https://github.com/PrairieAster-Ai/nearest-nice-weather/actions"
+    fi
+    
 else
     echo "❌ Deployment verification failed (HTTP $HTTP_CODE)"
     exit 1
