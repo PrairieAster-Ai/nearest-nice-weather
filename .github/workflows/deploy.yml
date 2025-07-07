@@ -53,8 +53,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          cd application/app && pip install -r requirements.txt
-          cd ../../apps/web && npm ci
+          cd apps/web && npm ci
 
       - name: Lint and type check
         run: |
@@ -66,8 +65,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/weather_intelligence_test
           REDIS_URL: redis://localhost:6379
         run: |
-          cd application/app
-          python -m pytest --cov=. --cov-report=xml
+          echo "Backend tests integrated with test-suite.yml workflow"
 
       - name: Test frontend
         run: |
@@ -78,10 +76,8 @@ jobs:
         run: npm run build:web
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./application/app/coverage.xml
-          flags: backend
+        run: |
+          echo "Coverage integrated with test-suite.yml workflow"
           
   deploy-api:
     needs: test
