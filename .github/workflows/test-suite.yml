@@ -133,7 +133,7 @@ jobs:
         echo "🔍 Checking for exposed secrets and tokens..."
         
         # Check for GitHub tokens
-        if grep -r "ghp_" . --exclude-dir=.git; then
+        if grep -r "ghp_" . --exclude-dir=.git --exclude-dir=.github; then
           echo "❌ Found potential GitHub token"
           exit 1
         fi
