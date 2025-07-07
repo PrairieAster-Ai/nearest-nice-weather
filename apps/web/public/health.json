@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-07-05T18:58:00.000Z",
+  "timestamp": "2025-07-07T14:59:31.942Z",
   "status": "healthy",
   "version": "local",
   "buildInfo": {
-    "buildTarget": "esnext",
+    "buildTarget": "es2020",
     "reactVersion": "18.3.1",
     "viteVersion": "6.0.0",
     "deploymentId": "localhost"

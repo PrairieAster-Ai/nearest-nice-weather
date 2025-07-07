@@ -84,21 +84,19 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // Disable chunking temporarily to fix initialization issues
-        manualChunks: undefined,
-        /*
+        // Enable optimized chunking for faster loading and caching
         manualChunks: (id) => {
-          // Vendor chunks
+          // Vendor chunks for better caching
           if (id.includes('node_modules')) {
-            // React ecosystem
+            // React ecosystem (changes infrequently)
             if (id.includes('react') || id.includes('react-dom')) {
               return 'react-vendor'
             }
-            // Material-UI ecosystem
+            // Material-UI ecosystem (large, changes infrequently)
             if (id.includes('@mui') || id.includes('@emotion')) {
               return 'mui-vendor'
             }
-            // Map libraries
+            // Map libraries (large, rarely changes)
             if (id.includes('leaflet')) {
               return 'map-vendor'
             }
@@ -106,29 +104,15 @@ export default defineConfig({
             if (id.includes('@tanstack/react-query')) {
               return 'query-vendor'
             }
-            // Validation libraries
-            if (id.includes('zod')) {
-              return 'validation-vendor'
-            }
             // Everything else
             return 'vendor'
           }
           
-          // App chunks
-          if (id.includes('/components/ui/')) {
-            return 'ui-components'
-          }
+          // App chunks - optimize for development iteration speed
           if (id.includes('/components/features/')) {
-            return 'feature-components'
-          }
-          if (id.includes('/services/')) {
-            return 'services'
-          }
-          if (id.includes('/hooks/')) {
-            return 'hooks'
+            return 'features'
           }
         },
-        */
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
           if (facadeModuleId) {

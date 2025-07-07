@@ -1,12 +1,40 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { useWeatherSearch } from '../useWeatherSearch'
-import { render } from '../../test/utils/test-utils'
 import type { WeatherFilter } from '../../types/weather'
 
-// Mock the QueryProvider wrapper for hooks
-const wrapper = ({ children }: { children: React.ReactNode }) => {
-  return render(<div>{children}</div>).container.firstChild as any
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#7563A8',
+    },
+  },
+})
+
+// Create test wrapper with proper providers
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: 0,
+        gcTime: 0,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  })
+
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        {children}
+      </ThemeProvider>
+    </QueryClientProvider>
+  )
 }
 
 describe('useWeatherSearch Hook', () => {
@@ -16,8 +44,10 @@ describe('useWeatherSearch Hook', () => {
     wind: 'calm'
   }
 
+  let wrapper: ReturnType<typeof createWrapper>
+
   beforeEach(() => {
-    // Reset any state between tests
+    wrapper = createWrapper()
   })
 
   it('initializes with default state', () => {
