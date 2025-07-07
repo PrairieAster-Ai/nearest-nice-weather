@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 
 // Initialize PostgreSQL connection pool - Debug in development only
 if (process.env.NODE_ENV !== 'production') {
-  console.log('Environment variable debug:', {
+  console.debug('Environment variable debug:', {
     NODE_ENV: process.env.NODE_ENV,
     VERCEL: process.env.VERCEL,
     DATABASE_URL_exists: !!process.env.DATABASE_URL,
@@ -129,7 +129,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       // Log feedback in development only
       if (process.env.NODE_ENV !== 'production') {
-        console.log('Logging feedback to console:', {
+        console.debug('Logging feedback to console:', {
           email: email || 'anonymous',
           feedback: feedback.trim(),
           rating,

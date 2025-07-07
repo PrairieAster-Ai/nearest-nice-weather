@@ -26,23 +26,23 @@ jobs:
     - name: Install dependencies
       run: |
         npm install
-        cd tests && npm install
+        npm install --prefix tests
     
     - name: Validate Vercel Configuration
-      run: cd tests && npm run test:deployment
+      run: npm run test:deployment --prefix tests
     
     - name: Validate Environment Configuration
-      run: cd tests && npm run test:environment
+      run: npm run test:environment --prefix tests
     
     - name: Test Database Connection
-      run: cd tests && npm run test:database
+      run: npm run test:database --prefix tests
       if: env.DATABASE_URL != ''
     
     - name: Test API Endpoints
-      run: cd tests && npm run test:api
+      run: npm run test:api --prefix tests
     
     - name: Run Full Test Suite
-      run: cd tests && npm test
+      run: npm test --prefix tests
     
     - name: Check for Technical Debt
       run: |

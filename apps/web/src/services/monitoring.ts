@@ -55,7 +55,7 @@ class MonitoringService {
     }
 
     if (!this.isProduction) {
-      console.log('📊 Performance metric:', performanceData)
+      console.debug('📊 Performance metric:', performanceData)
     }
 
     if (this.isProduction) {
@@ -73,7 +73,7 @@ class MonitoringService {
     }
 
     if (!this.isProduction) {
-      console.log('👤 User action:', actionData)
+      console.debug('👤 User action:', actionData)
     }
 
     if (this.isProduction) {
