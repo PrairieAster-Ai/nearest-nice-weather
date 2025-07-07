@@ -165,7 +165,7 @@ describe('Environment Configuration Validation', () => {
       );
       
       if (productionIssues.length > 0) {
-        console.warn('Console.log statements found in production code:', productionIssues);
+        console.debug('Console.log statements found in production code:', productionIssues);
       }
     });
   });
