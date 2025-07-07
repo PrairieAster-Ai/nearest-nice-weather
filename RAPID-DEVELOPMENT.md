@@ -100,6 +100,13 @@ git push origin main
 - **API error rate spike**
 - **Performance regression** (> 3s load time)
 - **Bundle size bloat** (> 1MB)
+- **JavaScript initialization errors** (detected via console monitoring)
+
+### Bundle Optimization Lessons Learned:
+- **Material-UI chunking**: Can cause circular dependency issues
+- **Vite manualChunks**: Test thoroughly in production environment
+- **Emergency rollback**: Disable chunking first, optimize later
+- **Monitoring**: Console errors in production are critical alerts
 
 ## ⚙️ Configuration Files
 
