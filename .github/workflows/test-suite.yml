@@ -5,14 +5,52 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  schedule:
+    # Daily at 6 AM UTC (midnight CST) - catch environment drift
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      test_environment:
+        description: 'Target environment for testing'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+        - preview
+      test_scope:
+        description: 'Scope of tests to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - api-only
+        - security-only
+        - performance-only
+      verbose_output:
+        description: 'Enable verbose test output'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   test-infrastructure:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'workflow_dispatch' || 
+      inputs.test_scope == 'all' || 
+      inputs.test_scope == 'api-only'
     
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      API_BASE_URL: https://www.nearestniceweather.com
+      API_BASE_URL: ${{ 
+        github.event_name == 'workflow_dispatch' && inputs.test_environment == 'staging' && 'https://staging.nearestniceweather.com' ||
+        github.event_name == 'workflow_dispatch' && inputs.test_environment == 'preview' && 'https://preview.nearestniceweather.com' ||
+        'https://www.nearestniceweather.com' 
+      }}
+      VERBOSE_OUTPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.verbose_output || false }}
       
     steps:
     - uses: actions/checkout@v4
@@ -124,6 +162,10 @@ jobs:
 
   security-check:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'workflow_dispatch' || 
+      inputs.test_scope == 'all' || 
+      inputs.test_scope == 'security-only'
     
     steps:
     - uses: actions/checkout@v4
@@ -150,3 +192,163 @@ jobs:
         fi
         
         echo "✅ Security check completed"
+
+  preview-deployment-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [test-infrastructure, validate-deployment]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm install
+        npm install --prefix tests
+    
+    - name: Wait for Vercel Preview Deployment
+      uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
+      id: wait-for-vercel-preview
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        max_timeout: 300
+    
+    - name: Test Preview Deployment
+      run: |
+        echo "🔍 Testing preview deployment at: ${{ steps.wait-for-vercel-preview.outputs.url }}"
+        
+        # Test health endpoint
+        if curl -f "${{ steps.wait-for-vercel-preview.outputs.url }}/health.json"; then
+          echo "✅ Health endpoint accessible"
+        else
+          echo "❌ Health endpoint failed"
+          exit 1
+        fi
+        
+        # Test API endpoint CORS
+        if curl -s -o /dev/null -w "%{http_code}" "${{ steps.wait-for-vercel-preview.outputs.url }}/api/feedback" -X OPTIONS | grep -q "200"; then
+          echo "✅ API CORS configured correctly"
+        else
+          echo "❌ API CORS misconfigured"
+          exit 1
+        fi
+        
+        # Test security headers
+        HEADERS=$(curl -s -I "${{ steps.wait-for-vercel-preview.outputs.url }}")
+        if echo "$HEADERS" | grep -q "Content-Security-Policy"; then
+          echo "✅ CSP headers present"
+        else
+          echo "❌ CSP headers missing"
+          exit 1
+        fi
+        
+        # Test performance (Core Web Vitals simulation)
+        echo "🚀 Testing page load performance..."
+        LOAD_TIME=$(curl -s -o /dev/null -w "%{time_total}" "${{ steps.wait-for-vercel-preview.outputs.url }}")
+        if (( $(echo "$LOAD_TIME < 3.0" | bc -l) )); then
+          echo "✅ Page loads in ${LOAD_TIME}s (< 3s target)"
+        else
+          echo "⚠️ Page loads in ${LOAD_TIME}s (> 3s target)"
+        fi
+    
+    - name: Run API Integration Tests Against Preview
+      run: |
+        echo "🧪 Running API tests against preview deployment..."
+        export API_BASE_URL="${{ steps.wait-for-vercel-preview.outputs.url }}"
+        cd tests && npm run test:api
+    
+    - name: Comment PR with Test Results
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 🚀 Preview Deployment Test Results
+            
+            **Preview URL**: ${{ steps.wait-for-vercel-preview.outputs.url }}
+            
+            ✅ Health endpoint accessible  
+            ✅ API CORS configured correctly  
+            ✅ Security headers present  
+            ✅ API integration tests passed  
+            
+            **Ready for review!** 🎉`
+          })
+
+  performance-monitoring:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && (inputs.test_scope == 'all' || inputs.test_scope == 'performance-only'))
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Performance Baseline Check
+      run: |
+        echo "🚀 Testing performance baseline..."
+        
+        # Test bundle size
+        npm run build
+        BUNDLE_SIZE=$(du -sh apps/web/dist/assets/*.js | awk '{print $1}')
+        echo "Bundle size: $BUNDLE_SIZE"
+        
+        # Fail if bundle is over 1MB
+        BUNDLE_SIZE_BYTES=$(du -sb apps/web/dist/assets/*.js | awk '{sum += $1} END {print sum}')
+        if [ $BUNDLE_SIZE_BYTES -gt 1048576 ]; then
+          echo "❌ Bundle size exceeds 1MB limit"
+          exit 1
+        else
+          echo "✅ Bundle size within limits"
+        fi
+        
+        # Test API response times
+        echo "⏱️ Testing API response times..."
+        API_URL="${{ env.API_BASE_URL || 'https://www.nearestniceweather.com' }}"
+        RESPONSE_TIME=$(curl -o /dev/null -s -w "%{time_total}" "$API_URL/health.json")
+        
+        if (( $(echo "$RESPONSE_TIME > 2.0" | bc -l) )); then
+          echo "⚠️ API response time: ${RESPONSE_TIME}s (> 2s threshold)"
+        else
+          echo "✅ API response time: ${RESPONSE_TIME}s"
+        fi
+    
+    - name: Lighthouse Performance Audit
+      uses: treosh/lighthouse-ci-action@v12
+      with:
+        configPath: './.github/lighthouse/ci.json'
+        temporaryPublicStorage: true
+        urls: |
+          https://www.nearestniceweather.com
+        uploadArtifacts: true
+    
+    - name: Report Performance Results
+      if: github.event_name == 'schedule'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Create performance issue if thresholds exceeded
+          const title = '🚨 Performance Regression Detected'
+          const body = `Performance monitoring detected potential regressions in the daily check.
+          
+          Please review the Lighthouse reports and bundle size metrics.`
+          
+          // Only create issue if performance degraded significantly
+          // This would be expanded with actual threshold logic
