@@ -29,7 +29,7 @@ interface AllTheProvidersProps {
   children: React.ReactNode
 }
 
-const AllTheProviders = ({ children }: AllTheProvidersProps) => {
+const AllTheProviders: React.FC<AllTheProvidersProps> = ({ children }) => {
   const queryClient = createTestQueryClient()
   
   return (
