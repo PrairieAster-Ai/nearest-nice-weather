@@ -53,8 +53,12 @@ export default defineConfig({
     })
   ].filter(Boolean),
   server: {
-    port: parseInt(process.env.VITE_DEV_PORT || '3003'),
+    port: parseInt(process.env.VITE_DEV_PORT || '3002'),
     host: process.env.VITE_DEV_HOST || '0.0.0.0',
+    hmr: {
+      port: parseInt(process.env.VITE_HMR_PORT || '3002'),
+      host: 'localhost'
+    },
     proxy: {
       '/api': {
         target: process.env.VITE_API_PROXY_URL || 'https://www.nearestniceweather.com',
@@ -66,6 +70,9 @@ export default defineConfig({
           });
           proxy.on('proxyReq', (proxyReq, req) => {
             console.log('Proxying API request:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req) => {
+            proxyRes.headers['Access-Control-Allow-Origin'] = '*';
           });
         }
       }

@@ -79,9 +79,17 @@ if ! npm run build > /dev/null 2>&1; then
 fi
 print_status "Build validation passed"
 
-print_info "Step 5: Starting development server"
+print_info "Step 5: Development server configuration"
+# Set environment variables for stable WebSocket connections
+export VITE_DEV_PORT=3002
+export VITE_HMR_PORT=3002
+export VITE_DEV_HOST="0.0.0.0"
+
+print_status "Environment configured: Port $VITE_DEV_PORT, HMR $VITE_HMR_PORT"
+
+print_info "Step 6: Starting development server"
 echo ""
-echo "🌐 Development server will start on http://localhost:3002"
+echo "🌐 Development server will start on http://localhost:$VITE_DEV_PORT"
 echo "📝 Common issues and solutions:"
 echo "   • WebSocket errors: Hard refresh browser (Ctrl+F5)"
 echo "   • Port conflicts: This script cleans up automatically"
@@ -99,7 +107,7 @@ echo "   • aria-hidden warnings: Material-UI modal behavior (safe to ignore)"
 echo "   • Frontend tests skipped: React 19 compatibility (non-blocking)"
 echo "   • npm audit warnings: Development dependencies only"
 echo ""
-echo "🛑 To stop: Ctrl+C or run 'pkill -f \"vite --port 3002\"'"
+echo "🛑 To stop: Ctrl+C or run 'pkill -f \"vite --port $VITE_DEV_PORT\"'"
 echo ""
 
 # Start the development server
