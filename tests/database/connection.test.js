@@ -37,7 +37,7 @@ describe('Database Connection Validation', () => {
     const connectionString = process.env.DATABASE_URL;
     
     if (!connectionString) {
-      console.debug('DATABASE_URL not set, skipping connection test');
+      console.log('DATABASE_URL not set, skipping connection test');
       return;
     }
 
@@ -59,7 +59,7 @@ describe('Database Connection Validation', () => {
       
     } catch (error) {
       // Expected failure for test database URL - connection will fail but that's OK
-      console.debug('Expected database connection failure (test environment):', error.message);
+      console.log('Expected database connection failure (test environment):', error.message);
       expect(error).toBeDefined();
     } finally {
       if (client) client.release();
@@ -71,7 +71,7 @@ describe('Database Connection Validation', () => {
     const connectionString = process.env.DATABASE_URL;
     
     if (!connectionString) {
-      console.debug('DATABASE_URL not set, skipping table test');
+      console.log('DATABASE_URL not set, skipping table test');
       return;
     }
 
@@ -115,7 +115,7 @@ describe('Database Connection Validation', () => {
       
     } catch (error) {
       // Expected failure for test database URL - table won't exist but that's OK
-      console.debug('Expected table validation failure (test environment):', error.message);
+      console.log('Expected table validation failure (test environment):', error.message);
       expect(error).toBeDefined();
     } finally {
       if (client) client.release();
