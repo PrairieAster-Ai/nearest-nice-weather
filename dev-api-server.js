@@ -35,7 +35,7 @@ app.get('/api/test-db', async (req, res) => {
       client.release()
     }
   } catch (error) {
-    console.debug('Database connection error:', error)
+    console.log('Database connection error:', error)
     res.status(500).json({
       success: false,
       error: 'Database connection failed',
@@ -120,7 +120,7 @@ app.post('/api/feedback', async (req, res) => {
     }
 
   } catch (error) {
-    console.debug('Feedback submission error:', error)
+    console.log('Feedback submission error:', error)
     
     res.status(500).json({
       success: false,
@@ -142,15 +142,15 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 app.listen(port, () => {
-  console.debug(`🚀 Development API server running on http://localhost:${port}`)
-  console.debug(`📝 Feedback endpoint: http://localhost:${port}/api/feedback`)
-  console.debug(`🏥 Health check: http://localhost:${port}/api/health`)
-  console.debug(`🗄️  Database test: http://localhost:${port}/api/test-db`)
+  console.log(`🚀 Development API server running on http://localhost:${port}`)
+  console.log(`📝 Feedback endpoint: http://localhost:${port}/api/feedback`)
+  console.log(`🏥 Health check: http://localhost:${port}/api/health`)
+  console.log(`🗄️  Database test: http://localhost:${port}/api/test-db`)
 })
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.debug('\n🛑 Shutting down gracefully...')
+  console.log('\n🛑 Shutting down gracefully...')
   await pool.end()
   process.exit(0)
 })

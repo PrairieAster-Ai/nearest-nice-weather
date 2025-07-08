@@ -115,7 +115,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       // Log feedback in development only
       if (process.env.NODE_ENV !== 'production') {
-        console.debug('Logging feedback to console:', {
+        console.log('Logging feedback to console:', {
           email: email || 'anonymous',
           feedback: feedback.trim(),
           rating,

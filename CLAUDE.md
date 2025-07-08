@@ -174,3 +174,5 @@ git push origin emergency-rollback --force
 ## Development Workflow Memories
 
 - Always quickly verify localhost sites are available in the browser before indicating they are done and/or ready for review
+
+- Use ./dev-startup.sh to startup localhost and maintain to document and mitigate common issues
