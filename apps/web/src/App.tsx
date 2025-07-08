@@ -4,6 +4,7 @@ import { CssBaseline } from '@mui/material'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
+import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L, { LatLngExpression } from 'leaflet'
@@ -236,19 +237,9 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="h-screen w-screen flex flex-col">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b border-purple-200 z-[1001] relative" style={{marginTop: '4px', marginBottom: '-8px'}}>
-          <div className="flex items-start" style={{marginLeft: '-10px'}}>
-            <img src="/aster-official.svg" alt="Nearest Nice Weather" className="h-8 w-8" style={{marginTop: '-15px', marginRight: '-11px'}} />
-            <div style={{marginLeft: '2px', lineHeight: '1'}}>
-              <h1 className="text-sm font-semibold text-purple-800 mb-0">Nearest Nice Weather</h1>
-              <p className="text-xs mb-0" style={{color: '#7fa4cf', marginTop: '-5px'}}>by PrairieAster.Ai</p>
-            </div>
-          </div>
-        </header>
 
-        {/* Map Container */}
-        <div className="flex-1 relative">
+        {/* Map Container - Full height with bottom padding for sticky footer */}
+        <div className="flex-1 relative" style={{ paddingBottom: '120px' }}>
           <MapContainer
           {...({ center: mapCenter as LatLngExpression, zoom: mapZoom, style: { height: '100%', width: '100%' }, scrollWheelZoom: true } as any)}
         >
@@ -330,18 +321,14 @@ export default function App() {
             />
           </div>
 
-          {/* Feedback FAB - bottom right */}
-          <div className="absolute bottom-6 right-6 z-[1000]">
+          {/* Feedback FAB - adjusted for sticky footer */}
+          <div className="absolute bottom-32 right-6 z-[1000]">
             <FeedbackFab />
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="bg-purple-50 px-4 py-2 border-t border-purple-200 z-[1001] relative">
-          <div className="text-center">
-            <span className="text-xs text-purple-600">© 2024 PrairieAster.Ai</span>
-          </div>
-        </footer>
+        {/* Unified Sticky Footer */}
+        <UnifiedStickyFooter />
       </div>
     </ThemeProvider>
   )
