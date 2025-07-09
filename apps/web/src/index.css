@@ -10,6 +10,11 @@
 
 body {
   font-family: Inter, system-ui, sans-serif;
+  overflow: hidden; /* Disable scroll bars */
+}
+
+html {
+  overflow: hidden; /* Disable scroll bars on html element too */
 }
 
 /* Utility classes we actually need */

@@ -176,3 +176,7 @@ git push origin emergency-rollback --force
 - Always quickly verify localhost sites are available in the browser before indicating they are done and/or ready for review
 
 - Use ./dev-startup.sh to startup localhost and maintain to document and mitigate common issues
+
+- Ask for feedback before adding or editing end user facing content
+
+- Request content review before adding or editing content

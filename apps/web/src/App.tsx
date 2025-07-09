@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
+import { DraggableUserMarker } from './components/DraggableUserMarker'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L, { LatLngExpression } from 'leaflet'
@@ -109,13 +110,15 @@ const locations: Location[] = [
 export default function App() {
   const [filters, setFilters] = useState<WeatherFilters>({
     temperature: 'mild',
-    precipitation: 'none',
+    precipitation: 'light', // More inclusive for nice weather
     wind: 'calm'
   })
   
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
-  const [mapCenter, setMapCenter] = useState<[number, number]>([46.7296, -94.6859])
+  const [mapCenter, setMapCenter] = useState<[number, number]>([46.7296, -94.6859]) // Default to Minnesota
   const [mapZoom, setMapZoom] = useState(7)
+  const [mapReady, setMapReady] = useState(false)
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
 
   // Helper function to apply relative filtering
   const applyRelativeFilters = (locations: Location[], filters: WeatherFilters): Location[] => {
@@ -193,35 +196,76 @@ export default function App() {
     return filtered
   }
 
-  // Helper function to update map view
+  // Helper function to update map view - fits user location and all markers
   const updateMapView = (filtered: Location[]) => {
     if (filtered.length > 0) {
-      const avgLat = filtered.reduce((sum, loc) => sum + loc.lat, 0) / filtered.length
-      const avgLng = filtered.reduce((sum, loc) => sum + loc.lng, 0) / filtered.length
-      setMapCenter([avgLat, avgLng])
+      // Calculate bounds to fit all markers
+      const lats = filtered.map(loc => loc.lat)
+      const lngs = filtered.map(loc => loc.lng)
       
-      // Adjust zoom based on number of results
-      if (filtered.length === 1) {
-        setMapZoom(10)
-      } else if (filtered.length <= 3) {
-        setMapZoom(8)
-      } else {
-        setMapZoom(7)
+      // Include user location in bounds if available
+      if (userLocation) {
+        lats.push(userLocation[0])
+        lngs.push(userLocation[1])
       }
+      
+      const minLat = Math.min(...lats)
+      const maxLat = Math.max(...lats)
+      const minLng = Math.min(...lngs)
+      const maxLng = Math.max(...lngs)
+      
+      // Calculate center
+      const centerLat = (minLat + maxLat) / 2
+      const centerLng = (minLng + maxLng) / 2
+      setMapCenter([centerLat, centerLng])
+      
+      // Calculate zoom to fit all markers + user location with padding
+      const latRange = maxLat - minLat
+      const lngRange = maxLng - minLng
+      const maxRange = Math.max(latRange, lngRange)
+      
+      // Dynamic zoom based on geographic spread (more zoomed in as shown in screenshot)
+      let zoom = 9 // default higher zoom
+      if (maxRange < 0.1) zoom = 12      // Very close
+      else if (maxRange < 0.5) zoom = 10  // Close
+      else if (maxRange < 1.0) zoom = 9   // Medium spread (matches screenshot)
+      else if (maxRange < 2.0) zoom = 8   // Wide spread
+      else if (maxRange < 5.0) zoom = 7   // Very wide spread
+      else zoom = 6                       // Continental spread
+      
+      setMapZoom(zoom)
     }
   }
+
+  // Get user's current location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos: [number, number] = [position.coords.latitude, position.coords.longitude]
+          setUserLocation(userPos)
+          setMapCenter(userPos)
+        },
+        (error) => {
+          console.log('Location access denied or unavailable:', error)
+          // Keep default Minnesota center
+        }
+      )
+    }
+  }, [])
 
   // Apply initial filters and calculate center on component mount
   useEffect(() => {
     const filtered = applyRelativeFilters(locations, {
       temperature: 'mild',
-      precipitation: 'none', 
+      precipitation: 'light', // More inclusive for nice weather
       wind: 'calm'
     })
     
     setFilteredLocations(filtered)
-    updateMapView(filtered)
-  }, [])
+    updateMapView(filtered) // Always update view to include user location in bounds
+    setMapReady(true)
+  }, [userLocation])
 
   const handleFilterChange = (category: keyof WeatherFilters, value: string) => {
     const newFilters = { ...filters, [category]: value }
@@ -233,20 +277,36 @@ export default function App() {
     updateMapView(filtered)
   }
 
+  const handleUserLocationChange = (newPosition: [number, number]) => {
+    setUserLocation(newPosition)
+    // Re-apply current filters with new user location
+    const filtered = applyRelativeFilters(locations, filters)
+    setFilteredLocations(filtered)
+    updateMapView(filtered)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className="h-screen w-screen flex flex-col">
+      <div className="h-screen w-screen flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
 
-        {/* Map Container - Full height with bottom padding for sticky footer */}
-        <div className="flex-1 relative" style={{ paddingBottom: '120px' }}>
+        {/* Map Container - Full height, no padding, seamless with footer */}
+        <div className="flex-1 relative">
           <MapContainer
-          {...({ center: mapCenter as LatLngExpression, zoom: mapZoom, style: { height: '100%', width: '100%' }, scrollWheelZoom: true } as any)}
+          {...({ center: mapCenter as LatLngExpression, zoom: mapZoom, style: { height: '100%', width: '100%' }, scrollWheelZoom: true, zoomControl: false } as any)}
         >
           <TileLayer
             {...({ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any)}
           />
           
+          {/* User location marker - draggable */}
+          {userLocation && (
+            <DraggableUserMarker 
+              position={userLocation}
+              onLocationChange={handleUserLocationChange}
+            />
+          )}
+
           {filteredLocations.map((location) => (
             <Marker 
               key={location.id}
@@ -321,8 +381,10 @@ export default function App() {
             />
           </div>
 
-          {/* Feedback FAB - adjusted for sticky footer */}
-          <div className="absolute bottom-32 right-6 z-[1000]">
+          {/* Feedback FAB - positioned above footer, responsive to footer size */}
+          <div className="absolute right-6 z-[1000]" style={{ 
+            bottom: window.innerWidth < 600 ? 'max(calc(5.6vh + 8px), 50px)' : 'max(calc(6vh + 8px), 58px)'
+          }}>
             <FeedbackFab />
           </div>
         </div>

@@ -14,143 +14,84 @@ export function UnifiedStickyFooter() {
         zIndex: 1002, // Above map and FABs
         backdropFilter: 'blur(8px)',
         boxShadow: '0 -4px 20px rgba(117, 99, 168, 0.15)',
+        margin: 0,
+        padding: 0,
       }}
     >
-      <Container maxWidth="lg" sx={{ py: 2 }}>
-        {/* Main Footer Content */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 2 }}>
+      <Box sx={{ 
+        height: { xs: 'max(5.6vh, 42px)', sm: 'max(6vh, 50px)', md: 'max(5vh, 45px)' }, // iPhone reduced by 30%
+        minHeight: { xs: '32px', sm: '45px', md: '45px' }, // iPhone min reduced by 30%
+        maxHeight: { xs: '56px', sm: '80px', md: '80px' }, // iPhone max reduced by 30%
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+        px: 0,
+        py: 0,
+        margin: 0
+      }}>
+        {/* Tight Brand Layout - Purple Aster fills footer height, pinned to left */}
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          height: '100%',
+          gap: 0.5, // Minimal gap between aster and text
+          pl: 1, // Small padding from left edge only
+          pr: 0 // No right padding to stay left-aligned
+        }}>
           
-          {/* Brand Section - Header elements merged */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+          {/* Purple Aster - Full height, touching top/bottom */}
+          <Box sx={{ 
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            flexShrink: 0
+          }}>
             <img 
               src="/aster-official.svg" 
               alt="Nearest Nice Weather" 
-              style={{ height: 32, width: 32 }}
+              style={{ 
+                height: 'calc(100% - 4px)', // Nearly full height with 2px margin top/bottom
+                width: 'auto', // Maintain aspect ratio
+                maxWidth: '60px' // Reasonable max width
+              }}
             />
-            <Box>
-              <Typography variant="h6" sx={{ 
-                fontWeight: 'bold', 
-                color: '#7563A8', 
-                lineHeight: 1.2,
-                mb: 0.5
-              }}>
-                Nearest Nice Weather
-              </Typography>
-              <Typography variant="caption" sx={{ 
-                color: '#7fa4cf', 
-                lineHeight: 1,
-                display: 'block'
-              }}>
-                by PrairieAster.Ai
-              </Typography>
-            </Box>
           </Box>
-
-          {/* Quick Links */}
-          <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link 
-              href="#" 
-              sx={{ 
-                color: '#7563A8', 
-                textDecoration: 'none', 
-                fontSize: '0.875rem',
-                '&:hover': { color: '#5a4a87' }
-              }}
-            >
-              How It Works
-            </Link>
-            <Link 
-              href="#" 
-              sx={{ 
-                color: '#7563A8', 
-                textDecoration: 'none', 
-                fontSize: '0.875rem',
-                '&:hover': { color: '#5a4a87' }
-              }}
-            >
-              Weather Data
-            </Link>
-            <Link 
-              href="#" 
-              sx={{ 
-                color: '#7563A8', 
-                textDecoration: 'none', 
-                fontSize: '0.875rem',
-                '&:hover': { color: '#5a4a87' }
-              }}
-            >
-              BWCA Conditions
-            </Link>
-            <Link 
-              href="#" 
-              sx={{ 
-                color: '#7563A8', 
-                textDecoration: 'none', 
-                fontSize: '0.875rem',
-                '&:hover': { color: '#5a4a87' }
-              }}
-            >
-              API Access
-            </Link>
-          </Box>
-
-          {/* Right Section - Legal & Contact */}
+          
+          {/* Text Block - Scales with footer, no flex-grow to avoid centering */}
           <Box sx={{ 
-            display: 'flex', 
-            gap: 2, 
-            alignItems: 'center', 
-            ml: { md: 'auto' },
-            flexWrap: 'wrap'
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            minWidth: 0 // Allow text to shrink
           }}>
-            <Link 
-              href="#" 
-              sx={{ 
-                color: '#666', 
-                textDecoration: 'none', 
-                fontSize: '0.75rem',
-                '&:hover': { color: '#333' }
-              }}
-            >
-              Privacy
-            </Link>
-            <Link 
-              href="#" 
-              sx={{ 
-                color: '#666', 
-                textDecoration: 'none', 
-                fontSize: '0.75rem',
-                '&:hover': { color: '#333' }
-              }}
-            >
-              Terms
-            </Link>
-            <Link 
-              href="#" 
-              sx={{ 
-                color: '#666', 
-                textDecoration: 'none', 
-                fontSize: '0.75rem',
-                '&:hover': { color: '#333' }
-              }}
-            >
-              Contact
-            </Link>
+            <Typography sx={{ 
+              fontWeight: 'bold', 
+              color: '#7563A8', 
+              lineHeight: 1.1,
+              fontSize: { 
+                xs: 'clamp(0.63rem, 2.1vw, 0.77rem)', // iPhone reduced by 30%
+                sm: 'clamp(1rem, 2.5vw, 1.2rem)',
+                md: 'clamp(1.1rem, 2vw, 1.3rem)'
+              }
+            }}>
+              Nearest Nice Weather
+            </Typography>
+            <Typography sx={{ 
+              color: '#7fa4cf', 
+              lineHeight: 1,
+              fontSize: { 
+                xs: 'clamp(0.49rem, 1.4vw, 0.56rem)', // iPhone reduced by 30%
+                sm: 'clamp(0.75rem, 1.8vw, 0.85rem)',
+                md: 'clamp(0.8rem, 1.5vw, 0.9rem)'
+              },
+              mt: 0.2
+            }}>
+              by PrairieAster.Ai
+            </Typography>
           </Box>
         </Box>
 
-        {/* Bottom Copyright */}
-        <Box sx={{ 
-          borderTop: '1px solid #e0d4f7', 
-          pt: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <Typography variant="caption" sx={{ color: '#666', textAlign: 'center' }}>
-            © 2024 PrairieAster.Ai • Connecting outdoor enthusiasts with optimal weather conditions across Minnesota
-          </Typography>
-        </Box>
-      </Container>
+      </Box>
     </Box>
   )
 }
