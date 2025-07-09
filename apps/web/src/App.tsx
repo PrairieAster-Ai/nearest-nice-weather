@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -197,7 +197,7 @@ export default function App() {
   }
 
   // Helper function to update map view - fits user location and all markers
-  const updateMapView = (filtered: Location[]) => {
+  const updateMapView = useCallback((filtered: Location[]) => {
     if (filtered.length > 0) {
       // Calculate bounds to fit all markers
       const lats = filtered.map(loc => loc.lat)
@@ -235,7 +235,7 @@ export default function App() {
       
       setMapZoom(zoom)
     }
-  }
+  }, [userLocation])
 
   // Get user's current location
   useEffect(() => {

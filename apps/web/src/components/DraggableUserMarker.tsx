@@ -44,7 +44,7 @@ export function DraggableUserMarker({ position, onLocationChange }: DraggableUse
     <Marker
       ref={markerRef}
       position={position}
-      icon={userIcon}
+      {...({ icon: userIcon } as any)}
       draggable={true}
     >
       <Popup>
