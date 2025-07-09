@@ -71,7 +71,7 @@ export default defineConfig({
           proxy.on('proxyReq', (proxyReq, req) => {
             console.log('Proxying API request:', req.method, req.url);
           });
-          proxy.on('proxyRes', (proxyRes, req) => {
+          proxy.on('proxyRes', (proxyRes, _req) => {
             proxyRes.headers['Access-Control-Allow-Origin'] = '*';
           });
         }

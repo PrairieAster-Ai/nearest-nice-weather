@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Marker, Popup, useMap } from 'react-leaflet'
+import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 
 // Create user location marker using standard sunglasses emoji
@@ -22,7 +22,6 @@ interface DraggableUserMarkerProps {
 
 export function DraggableUserMarker({ position, onLocationChange }: DraggableUserMarkerProps) {
   const markerRef = useRef<L.Marker>(null)
-  const map = useMap()
 
   useEffect(() => {
     const marker = markerRef.current

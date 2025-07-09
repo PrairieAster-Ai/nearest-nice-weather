@@ -180,3 +180,5 @@ git push origin emergency-rollback --force
 - Ask for feedback before adding or editing end user facing content
 
 - Request content review before adding or editing content
+
+- Only deploy to live or production with explicit authorization from the human partner

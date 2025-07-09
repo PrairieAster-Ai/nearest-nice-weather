@@ -117,7 +117,7 @@ export default function App() {
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
   const [mapCenter, setMapCenter] = useState<[number, number]>([46.7296, -94.6859]) // Default to Minnesota
   const [mapZoom, setMapZoom] = useState(7)
-  const [mapReady, setMapReady] = useState(false)
+  const [, setMapReady] = useState(false)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
 
   // Helper function to apply relative filtering
@@ -265,7 +265,7 @@ export default function App() {
     setFilteredLocations(filtered)
     updateMapView(filtered) // Always update view to include user location in bounds
     setMapReady(true)
-  }, [userLocation])
+  }, [userLocation, updateMapView])
 
   const handleFilterChange = (category: keyof WeatherFilters, value: string) => {
     const newFilters = { ...filters, [category]: value }

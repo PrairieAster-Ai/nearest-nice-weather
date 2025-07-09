@@ -1,4 +1,4 @@
-import { Box, Typography, Container, Link } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
 export function UnifiedStickyFooter() {
   return (
