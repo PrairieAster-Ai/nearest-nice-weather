@@ -2,34 +2,12 @@ import { useEffect, useRef } from 'react'
 import { Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 
-// Create user location marker as heart shape (same size as result markers)
+// Create user location marker using standard sunglasses emoji
 const userIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Simple Cool Face -->
-      
-      <!-- Face circle in brand color -->
-      <circle cx="20" cy="20" r="18" fill="#7563A8" stroke="#fff" stroke-width="2"/>
-      
-      <!-- Oversized Aviator Sunglasses -->
-      <!-- Left aviator lens (teardrop shape) -->
-      <path d="M4 18 Q4 10 14 10 Q21 10 21 18 Q21 24 14 26 Q6 24 4 18 Z" fill="#000" stroke="#333" stroke-width="0.5"/>
-      <!-- Right aviator lens (teardrop shape) -->  
-      <path d="M19 18 Q19 10 28 10 Q36 10 36 18 Q36 24 28 26 Q21 24 19 18 Z" fill="#000" stroke="#333" stroke-width="0.5"/>
-      
-      <!-- Bridge between lenses -->
-      <rect x="19" y="16" width="2" height="2" fill="#333" rx="1"/>
-      
-      <!-- Aviator reflections -->
-      <ellipse cx="10" cy="14" rx="2" ry="3" fill="#666" opacity="0.7"/>
-      <ellipse cx="29" cy="14" rx="2" ry="3" fill="#666" opacity="0.7"/>
-      
-      <!-- Lens highlights -->
-      <ellipse cx="8" cy="12" rx="1" ry="1.5" fill="#999" opacity="0.5"/>
-      <ellipse cx="31" cy="12" rx="1" ry="1.5" fill="#999" opacity="0.5"/>
-      
-      <!-- Cool smile -->
-      <path d="M14 26 Q20 30 26 26" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="15" fill="white" stroke="#ddd" stroke-width="1"/>
+      <text x="20" y="28" text-anchor="middle" font-size="24" font-family="Arial, sans-serif">😎</text>
     </svg>
   `),
   iconSize: [40, 40],
