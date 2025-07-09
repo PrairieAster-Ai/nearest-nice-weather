@@ -37,6 +37,26 @@ cd apps/web && npm run dev
 # No local API server needed - all configuration via .env files
 ```
 
+**Deployment Commands** (PRODUCTION SAFETY):
+```bash
+# Preview deployment (safe, no confirmation needed)
+npm run deploy:preview
+
+# Production deployment (requires explicit confirmation)
+npm run deploy:prod                    # Shows deployment info, requires --confirm flag
+npm run deploy:prod -- --confirm       # Deploys to production after safety checks
+
+# Legacy deploy command (disabled for safety)
+npm run deploy                         # Returns error message with correct commands
+```
+
+**Deployment Safety Features**:
+- 🛡️ **Confirmation Required**: Production deployments require explicit `--confirm` flag
+- 📋 **Pre-deployment Info**: Shows git status, commit details, and recent deployments
+- ⚠️ **Uncommitted Changes Warning**: Alerts if there are uncommitted changes
+- 🔍 **Pre-deployment Checks**: Runs lint, type-check, and build before deployment
+- 🚫 **Accidental Deployment Prevention**: Legacy `npm run deploy` command disabled
+
 **Environment Variables** (Required):
 - `DATABASE_URL`: Neon PostgreSQL connection string
 - `POSTGRES_URL`: Alternative name for Vercel compatibility

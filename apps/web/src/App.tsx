@@ -6,6 +6,7 @@ import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
 import { DraggableUserMarker } from './components/DraggableUserMarker'
+import { MapController } from './components/MapController'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L, { LatLngExpression } from 'leaflet'
@@ -263,7 +264,17 @@ export default function App() {
     })
     
     setFilteredLocations(filtered)
-    updateMapView(filtered) // Always update view to include user location in bounds
+    
+    // Only update map view if we don't have a user location yet
+    // When user location is available, keep it centered on the user
+    if (!userLocation) {
+      updateMapView(filtered)
+    } else {
+      // Keep centered on user location with appropriate zoom
+      const userCenteredZoom = 8 // Zoom level that shows good local area
+      setMapZoom(userCenteredZoom)
+    }
+    
     setMapReady(true)
   }, [userLocation, updateMapView])
 
@@ -274,15 +285,24 @@ export default function App() {
     // Apply relative filtering logic
     const filtered = applyRelativeFilters(locations, newFilters)
     setFilteredLocations(filtered)
-    updateMapView(filtered)
+    
+    // If user location exists, keep map centered on user; otherwise fit all markers
+    if (!userLocation) {
+      updateMapView(filtered)
+    }
+    // If user location exists, keep the current center and zoom
   }
 
   const handleUserLocationChange = (newPosition: [number, number]) => {
     setUserLocation(newPosition)
+    setMapCenter(newPosition) // Keep map centered on new user location
+    
     // Re-apply current filters with new user location
     const filtered = applyRelativeFilters(locations, filters)
     setFilteredLocations(filtered)
-    updateMapView(filtered)
+    
+    // Don't call updateMapView here - keep map centered on user location
+    // Just maintain the current zoom level
   }
 
   return (
@@ -298,6 +318,9 @@ export default function App() {
           <TileLayer
             {...({ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any)}
           />
+          
+          {/* Map controller to handle programmatic centering */}
+          <MapController center={mapCenter} zoom={mapZoom} />
           
           {/* User location marker - draggable */}
           {userLocation && (
