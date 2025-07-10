@@ -99,7 +99,7 @@ app.post('/api/feedback', async (req, res) => {
         feedback.trim(),
         rating || null,
         finalCategory,
-        finalCategories,
+        JSON.stringify(finalCategories),
         userAgent,
         Array.isArray(clientIp) ? clientIp[0] : clientIp,
         sessionId,
@@ -125,6 +125,112 @@ app.post('/api/feedback', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to submit feedback. Please try again.',
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+
+// Weather locations endpoint
+app.get('/api/weather-locations', async (req, res) => {
+  try {
+    const { lat, lng, radius = '50', limit = '40' } = req.query
+
+    const client = await pool.connect()
+    
+    try {
+      let query
+      let queryParams
+
+      if (lat && lng) {
+        // Query locations within radius of user location, ordered by distance
+        query = `
+          SELECT 
+            wl.id,
+            wl.name,
+            ST_Y(wl.coordinates) as lat,
+            ST_X(wl.coordinates) as lng,
+            wd.temperature,
+            wd.condition,
+            COALESCE(wd.description, wl.name || ' area weather') as description,
+            wd.precipitation,
+            wd.wind_speed,
+            ST_Distance(
+              ST_Transform(wl.coordinates, 3857),
+              ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 3857)
+            ) / 1609.34 as distance_miles
+          FROM weather.locations wl
+          INNER JOIN weather.current_data wd ON wl.id = wd.location_id
+          WHERE ST_DWithin(
+            ST_Transform(wl.coordinates, 3857),
+            ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 3857),
+            $3 * 1609.34
+          )
+          ORDER BY distance_miles ASC
+          LIMIT $4
+        `
+        queryParams = [parseFloat(lng), parseFloat(lat), parseFloat(radius), parseInt(limit)]
+      } else {
+        // Query all Minnesota locations with actual weather data
+        query = `
+          SELECT 
+            wl.id,
+            wl.name,
+            ST_Y(wl.coordinates) as lat,
+            ST_X(wl.coordinates) as lng,
+            wd.temperature,
+            wd.condition,
+            COALESCE(wd.description, wl.name || ' area weather') as description,
+            wd.precipitation,
+            wd.wind_speed
+          FROM weather.locations wl
+          INNER JOIN weather.current_data wd ON wl.id = wd.location_id
+          WHERE wl.state = 'MN'
+          ORDER BY wl.name ASC
+          LIMIT $1
+        `
+        queryParams = [parseInt(limit)]
+      }
+
+      const result = await client.query(query, queryParams)
+
+      // Transform results to match frontend interface
+      const locations = result.rows.map(row => ({
+        id: row.id.toString(),
+        name: row.name,
+        lat: parseFloat(row.lat),
+        lng: parseFloat(row.lng),
+        temperature: parseInt(row.temperature),
+        condition: row.condition,
+        description: row.description,
+        precipitation: parseInt(row.precipitation),
+        windSpeed: parseInt(row.wind_speed)
+      }))
+
+      res.json({
+        success: true,
+        data: locations,
+        count: locations.length,
+        timestamp: new Date().toISOString(),
+        debug: {
+          query_type: lat && lng ? 'proximity' : 'all_minnesota',
+          user_location: lat && lng ? { lat, lng } : null,
+          radius: radius,
+          limit: limit,
+          data_source: 'database'
+        }
+      })
+
+    } finally {
+      client.release()
+    }
+
+  } catch (error) {
+    console.error('Weather locations API error:', error)
+    
+    res.status(500).json({
+      success: false,
+      error: 'Database connection required - no fallback data available',
       debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
