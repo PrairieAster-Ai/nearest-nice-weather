@@ -65,8 +65,72 @@ const weatherDB = new Pool({ connectionString: process.env.WEATHER_DB })
 3. **Post-Change**: Validate ALL previously working features still work
 4. **Ready for Review**: Localhost fully validated and functional
 
+### Git Commit Messages as Project Log
+
+**Purpose**: Each commit message serves as historical context and project narrative.
+
+**Required Format**:
+```
+<type>: <summary of change>
+
+- <bullet point of what was added/changed>
+- <bullet point of why this change was needed>
+- <bullet point of what this enables for future development>
+
+**Status**: <current working features>
+**Next**: <what this enables for next incremental step>
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Types**: 
+- `feat`: New feature that builds foundation
+- `fix`: Bug fix that restores working functionality  
+- `enhance`: Improvement to existing working feature
+- `infra`: Infrastructure/database changes
+- `refactor`: Code improvement without functional changes
+
+**Examples**:
+```
+feat: Add weather location database integration
+
+- Extends existing PostgreSQL database with weather.locations table
+- Integrates PostGIS for spatial proximity queries  
+- Builds on feedback form database foundation
+- Replaces mock data with persistent, queryable weather data
+
+**Status**: Frontend ✅, Weather DB ✅, Feedback form ❌ (regression)
+**Next**: Fix feedback regression, then add user preference storage
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### Project Log Commands
+
+**View Recent Project History**:
+```bash
+git log --oneline -10                    # Last 10 commits summary
+git log --oneline --since="1 week ago"   # Recent week's progress  
+git show HEAD                            # Latest commit details
+git log --grep="Status:" -5              # Find status updates
+```
+
+**Project Context Recovery**:
+```bash
+# Get full context of recent development
+git log --since="1 week ago" --pretty=format:"%h - %s%n%b%n"
+
+# See what features were working at specific point
+git log --grep="Status.*✅" -3 --pretty=format:"%s%n%b%n"
+```
+
 ### Context Preservation
 - This charter is checked into version control
+- Git commits serve as running project narrative
+- Each commit message documents incremental progress
+- Status tracking in commits enables quick context recovery
 - Reference this document before any infrastructure changes
 - Update this document when learning new patterns/failures
 - Treat working features as sacred foundation for future development
