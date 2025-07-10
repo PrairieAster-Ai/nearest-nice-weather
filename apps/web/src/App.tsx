@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { CssBaseline } from '@mui/material'
+import { CssBaseline, CircularProgress, Alert } from '@mui/material'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
 import { DraggableUserMarker } from './components/DraggableUserMarker'
 import { MapController } from './components/MapController'
+import { useWeatherLocations } from './hooks/useWeatherLocations'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L, { LatLngExpression } from 'leaflet'
@@ -49,64 +50,7 @@ interface Location {
   windSpeed: number     // mph
 }
 
-// Sample Minnesota locations
-const locations: Location[] = [
-  {
-    id: '1',
-    name: 'Brainerd Lakes Area',
-    lat: 46.3581,
-    lng: -94.2003,
-    temperature: 72,
-    condition: 'Sunny',
-    description: 'Perfect for lake activities',
-    precipitation: 5,   // Light chance
-    windSpeed: 8        // Calm
-  },
-  {
-    id: '2', 
-    name: 'Duluth',
-    lat: 46.7867,
-    lng: -92.1005,
-    temperature: 68,
-    condition: 'Partly Cloudy',
-    description: 'Great for North Shore adventures',
-    precipitation: 25,  // Light rain
-    windSpeed: 15       // Breezy
-  },
-  {
-    id: '3',
-    name: 'Grand Rapids',
-    lat: 47.2372,
-    lng: -93.5308,
-    temperature: 75,
-    condition: 'Clear',
-    description: 'Ideal for BWCA entry',
-    precipitation: 0,   // No precipitation
-    windSpeed: 5        // Very calm
-  },
-  {
-    id: '4',
-    name: 'Ely',
-    lat: 47.9034,
-    lng: -91.8673,
-    temperature: 70,
-    condition: 'Overcast',
-    description: 'BWCA gateway',
-    precipitation: 60,  // Heavy chance
-    windSpeed: 22       // Windy
-  },
-  {
-    id: '5',
-    name: 'Alexandria',
-    lat: 45.8852,
-    lng: -95.3775,
-    temperature: 74,
-    condition: 'Sunny',
-    description: 'Lake country',
-    precipitation: 10,  // Very light
-    windSpeed: 12       // Light breeze
-  }
-]
+// Weather locations now fetched from database via API
 
 export default function App() {
   const [filters, setFilters] = useState<WeatherFilters>({
@@ -120,6 +64,20 @@ export default function App() {
   const [mapZoom, setMapZoom] = useState(7)
   const [, setMapReady] = useState(false)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [showLocationPrompt, setShowLocationPrompt] = useState(false)
+  const locationInitialized = useRef(false)
+
+  // Fetch weather locations from API
+  const { 
+    locations: apiLocations, 
+    loading: locationsLoading, 
+    error: locationsError, 
+    refetch: refetchLocations 
+  } = useWeatherLocations({ 
+    userLocation, 
+    radius: 50, 
+    limit: 40 
+  })
 
   // Helper function to apply relative filtering
   const applyRelativeFilters = (locations: Location[], filters: WeatherFilters): Location[] => {
@@ -197,18 +155,87 @@ export default function App() {
     return filtered
   }
 
-  // Helper function to update map view - fits user location and all markers
+  // Helper function to calculate dynamic center and zoom from user location + closest 5 results
+  const calculateDynamicMapView = useCallback((filtered: Location[], userPos: [number, number] | null): { center: [number, number], zoom: number } => {
+    if (!userPos || filtered.length === 0) {
+      return { center: [46.7296, -94.6859], zoom: 15 } // Default Minnesota center (12 + 30% = ~15)
+    }
+    
+    // Calculate distances from user location to all results
+    const distancesWithLocations = filtered.map(location => {
+      const latDiff = location.lat - userPos[0]
+      const lngDiff = location.lng - userPos[1]
+      return {
+        distance: Math.sqrt(latDiff * latDiff + lngDiff * lngDiff),
+        location
+      }
+    })
+    
+    // Sort by distance (closest first)
+    distancesWithLocations.sort((a, b) => a.distance - b.distance)
+    
+    // Get the closest 5 results (or all if less than 5)
+    const targetCount = Math.min(5, filtered.length)
+    const closestResults = distancesWithLocations.slice(0, targetCount)
+    
+    // Calculate bounds including user location and closest 5 results
+    const allLats = [userPos[0], ...closestResults.map(r => r.location.lat)]
+    const allLngs = [userPos[1], ...closestResults.map(r => r.location.lng)]
+    
+    const minLat = Math.min(...allLats)
+    const maxLat = Math.max(...allLats)
+    const minLng = Math.min(...allLngs)
+    const maxLng = Math.max(...allLngs)
+    
+    // Calculate dynamic center that optimizes the view of user + closest results
+    const centerLat = (minLat + maxLat) / 2
+    const centerLng = (minLng + maxLng) / 2
+    
+    // Calculate the geographic spread for zoom optimization
+    const latRange = maxLat - minLat
+    const lngRange = maxLng - minLng
+    const maxRange = Math.max(latRange, lngRange)
+    
+    // Minimal padding factor for edge visibility - maximum zoom while keeping all points visible
+    const paddedRange = maxRange * 1.1
+    
+    // Convert range to zoom level - granular increments for precise control
+    let zoom = 18 // Start with maximum zoom
+    if (paddedRange > 0.008) zoom = 17.5   // Ultra-fine adjustment
+    if (paddedRange > 0.012) zoom = 17     // Extremely close grouping
+    if (paddedRange > 0.018) zoom = 16.5   // Fine adjustment
+    if (paddedRange > 0.025) zoom = 16     // Very close grouping
+    if (paddedRange > 0.035) zoom = 15.5   // Fine adjustment
+    if (paddedRange > 0.050) zoom = 15     // Close grouping
+    if (paddedRange > 0.070) zoom = 14.5   // Fine adjustment
+    if (paddedRange > 0.095) zoom = 14     // Medium-close grouping
+    if (paddedRange > 0.125) zoom = 13.5   // Fine adjustment
+    if (paddedRange > 0.165) zoom = 13     // Medium grouping
+    if (paddedRange > 0.220) zoom = 12.5   // Fine adjustment
+    if (paddedRange > 0.290) zoom = 12     // Medium-wide grouping
+    if (paddedRange > 0.380) zoom = 11.5   // Fine adjustment
+    if (paddedRange > 0.500) zoom = 11     // Wide grouping
+    if (paddedRange > 0.650) zoom = 10.5   // Fine adjustment
+    if (paddedRange > 0.850) zoom = 10     // Very wide grouping
+    if (paddedRange > 1.100) zoom = 9.5    // Fine adjustment
+    if (paddedRange > 1.450) zoom = 9      // Extra wide grouping
+    if (paddedRange > 1.900) zoom = 8.5    // Fine adjustment
+    if (paddedRange > 2.500) zoom = 8      // Continental grouping
+    
+    return { center: [centerLat, centerLng], zoom }
+  }, [])
+
+  // Helper function to update map view - uses dynamic center calculation
   const updateMapView = useCallback((filtered: Location[]) => {
-    if (filtered.length > 0) {
-      // Calculate bounds to fit all markers
+    if (userLocation) {
+      // When user location exists, use dynamic center calculation
+      const { center, zoom } = calculateDynamicMapView(filtered, userLocation)
+      setMapCenter(center)
+      setMapZoom(zoom)
+    } else if (filtered.length > 0) {
+      // No user location - fit all markers with geographic bounds
       const lats = filtered.map(loc => loc.lat)
       const lngs = filtered.map(loc => loc.lng)
-      
-      // Include user location in bounds if available
-      if (userLocation) {
-        lats.push(userLocation[0])
-        lngs.push(userLocation[1])
-      }
       
       const minLat = Math.min(...lats)
       const maxLat = Math.max(...lats)
@@ -220,95 +247,250 @@ export default function App() {
       const centerLng = (minLng + maxLng) / 2
       setMapCenter([centerLat, centerLng])
       
-      // Calculate zoom to fit all markers + user location with padding
+      // Calculate zoom to fit all markers with padding
       const latRange = maxLat - minLat
       const lngRange = maxLng - minLng
       const maxRange = Math.max(latRange, lngRange)
       
-      // Dynamic zoom based on geographic spread (more zoomed in as shown in screenshot)
+      // Dynamic zoom based on geographic spread
       let zoom = 9 // default higher zoom
       if (maxRange < 0.1) zoom = 12      // Very close
       else if (maxRange < 0.5) zoom = 10  // Close
-      else if (maxRange < 1.0) zoom = 9   // Medium spread (matches screenshot)
+      else if (maxRange < 1.0) zoom = 9   // Medium spread
       else if (maxRange < 2.0) zoom = 8   // Wide spread
       else if (maxRange < 5.0) zoom = 7   // Very wide spread
       else zoom = 6                       // Continental spread
       
       setMapZoom(zoom)
     }
-  }, [userLocation])
+  }, [userLocation, calculateDynamicMapView])
 
-  // Get user's current location
+  // Comprehensive location strategy: geolocation → IP → fallback position
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPos: [number, number] = [position.coords.latitude, position.coords.longitude]
-          setUserLocation(userPos)
-          setMapCenter(userPos)
-        },
-        (error) => {
-          console.log('Location access denied or unavailable:', error)
-          // Keep default Minnesota center
-        }
-      )
+    // Prevent re-initialization if already done
+    if (locationInitialized.current) {
+      return
     }
-  }, [])
 
-  // Apply initial filters and calculate center on component mount
+    // Wait for initial API data before attempting location initialization
+    if (apiLocations.length === 0) {
+      return
+    }
+
+    locationInitialized.current = true
+
+    const getLocationFromIP = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/')
+        const data = await response.json()
+        if (data.latitude && data.longitude) {
+          const ipLocation: [number, number] = [data.latitude, data.longitude]
+          setUserLocation(ipLocation)
+          setMapCenter(ipLocation)
+          setShowLocationPrompt(false)
+          console.log('Location set from IP:', data.city, data.region)
+          return true
+        }
+      } catch (error) {
+        console.log('IP location failed:', error)
+      }
+      return false
+    }
+
+    const setFallbackLocation = () => {
+      // Center on available results and place marker there with popup open
+      const lats = apiLocations.map(loc => loc.lat)
+      const lngs = apiLocations.map(loc => loc.lng)
+      const centerLat = lats.reduce((a, b) => a + b, 0) / lats.length
+      const centerLng = lngs.reduce((a, b) => a + b, 0) / lngs.length
+      const fallbackLocation: [number, number] = [centerLat, centerLng]
+      setUserLocation(fallbackLocation)
+      setMapCenter(fallbackLocation)
+      setShowLocationPrompt(true) // Show popup to prompt user to move marker
+      console.log('Location set to results center (fallback)')
+    }
+
+    const initializeLocation = async () => {
+      // Try geolocation first
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userPos: [number, number] = [position.coords.latitude, position.coords.longitude]
+            setUserLocation(userPos)
+            setMapCenter(userPos)
+            setShowLocationPrompt(false)
+            console.log('Location set from geolocation')
+          },
+          async (error) => {
+            console.log('Geolocation failed:', error.message)
+            // Try IP location
+            const ipSuccess = await getLocationFromIP()
+            if (!ipSuccess) {
+              // Use fallback location
+              setFallbackLocation()
+            }
+          },
+          { timeout: 10000, enableHighAccuracy: false }
+        )
+      } else {
+        // No geolocation support, try IP
+        const ipSuccess = await getLocationFromIP()
+        if (!ipSuccess) {
+          setFallbackLocation()
+        }
+      }
+    }
+
+    initializeLocation()
+  }, [apiLocations])
+
+  // Apply filters when user location or API data changes
   useEffect(() => {
-    const filtered = applyRelativeFilters(locations, {
-      temperature: 'mild',
-      precipitation: 'light', // More inclusive for nice weather
-      wind: 'calm'
-    })
-    
-    setFilteredLocations(filtered)
-    
-    // Only update map view if we don't have a user location yet
-    // When user location is available, keep it centered on the user
-    if (!userLocation) {
-      updateMapView(filtered)
+    if (apiLocations.length === 0) {
+      return
+    }
+
+    if (userLocation === null) {
+      // No user location yet - apply default filters and use smart zoom for markers only
+      const defaultFilters = {
+        temperature: 'mild',
+        precipitation: 'light', 
+        wind: 'calm'
+      }
+      const filtered = applyRelativeFilters(apiLocations, defaultFilters)
+      setFilteredLocations(filtered)
+      
+      // Use smarter zoom calculation for filtered markers
+      if (filtered.length > 0) {
+        // For initial view, focus on clustered markers rather than all scattered markers
+        const targetCount = Math.min(3, filtered.length)
+        const markersToShow = filtered.slice(0, targetCount)
+        
+        const lats = markersToShow.map(loc => loc.lat)
+        const lngs = markersToShow.map(loc => loc.lng)
+        
+        const minLat = Math.min(...lats)
+        const maxLat = Math.max(...lats)
+        const minLng = Math.min(...lngs)
+        const maxLng = Math.max(...lngs)
+        
+        // Calculate center of the closest markers
+        const centerLat = (minLat + maxLat) / 2
+        const centerLng = (minLng + maxLng) / 2
+        setMapCenter([centerLat, centerLng])
+        
+        // Use tighter zoom calculation for initial view focused on marker cluster
+        const latRange = maxLat - minLat
+        const lngRange = maxLng - minLng
+        const maxRange = Math.max(latRange, lngRange)
+        
+        // Use much tighter padding for better initial zoom
+        const paddedRange = Math.max(maxRange * 1.5, 0.01) // Ensure minimum range for single markers
+        
+        // Use same granular zoom levels as calculateDynamicMapView
+        let zoom = 18
+        if (paddedRange > 0.008) zoom = 17.5
+        if (paddedRange > 0.012) zoom = 17
+        if (paddedRange > 0.018) zoom = 16.5
+        if (paddedRange > 0.025) zoom = 16
+        if (paddedRange > 0.035) zoom = 15.5
+        if (paddedRange > 0.050) zoom = 15
+        if (paddedRange > 0.070) zoom = 14.5
+        if (paddedRange > 0.095) zoom = 14
+        if (paddedRange > 0.125) zoom = 13.5
+        if (paddedRange > 0.165) zoom = 13
+        if (paddedRange > 0.220) zoom = 12.5
+        if (paddedRange > 0.290) zoom = 12
+        if (paddedRange > 0.380) zoom = 11.5
+        if (paddedRange > 0.500) zoom = 11
+        if (paddedRange > 0.650) zoom = 10.5
+        if (paddedRange > 0.850) zoom = 10
+        if (paddedRange > 1.100) zoom = 9.5
+        if (paddedRange > 1.450) zoom = 9
+        if (paddedRange > 1.900) zoom = 8.5
+        if (paddedRange > 2.500) zoom = 8
+        
+        setMapZoom(zoom)
+      }
     } else {
-      // Keep centered on user location with appropriate zoom
-      const userCenteredZoom = 8 // Zoom level that shows good local area
-      setMapZoom(userCenteredZoom)
+      // User location available - use current filters with dynamic center calculation
+      const filtered = applyRelativeFilters(apiLocations, filters)
+      setFilteredLocations(filtered)
+      const { center, zoom } = calculateDynamicMapView(filtered, userLocation)
+      setMapCenter(center)
+      setMapZoom(zoom)
     }
     
     setMapReady(true)
-  }, [userLocation, updateMapView])
+  }, [userLocation, filters, apiLocations, calculateDynamicMapView])
 
   const handleFilterChange = (category: keyof WeatherFilters, value: string) => {
     const newFilters = { ...filters, [category]: value }
     setFilters(newFilters)
     
     // Apply relative filtering logic
-    const filtered = applyRelativeFilters(locations, newFilters)
+    const filtered = applyRelativeFilters(apiLocations, newFilters)
     setFilteredLocations(filtered)
     
-    // If user location exists, keep map centered on user; otherwise fit all markers
-    if (!userLocation) {
+    // Use consistent dynamic center calculation for all scenarios
+    if (userLocation) {
+      // User location exists - use dynamic center for optimal view of results
+      const { center, zoom } = calculateDynamicMapView(filtered, userLocation)
+      setMapCenter(center)
+      setMapZoom(zoom)
+    } else {
+      // No user location - fit all markers using geographic bounds
       updateMapView(filtered)
     }
-    // If user location exists, keep the current center and zoom
   }
 
   const handleUserLocationChange = (newPosition: [number, number]) => {
     setUserLocation(newPosition)
-    setMapCenter(newPosition) // Keep map centered on new user location
+    setShowLocationPrompt(false) // User has moved the marker, so hide the prompt
     
     // Re-apply current filters with new user location
-    const filtered = applyRelativeFilters(locations, filters)
+    const filtered = applyRelativeFilters(apiLocations, filters)
     setFilteredLocations(filtered)
     
-    // Don't call updateMapView here - keep map centered on user location
-    // Just maintain the current zoom level
+    // Use dynamic center calculation for optimal view of user + closest results
+    const { center, zoom } = calculateDynamicMapView(filtered, newPosition)
+    setMapCenter(center)
+    setMapZoom(zoom)
   }
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="h-screen w-screen flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+
+        {/* Loading State */}
+        {locationsLoading && (
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-[2000]">
+            <div className="flex flex-col items-center space-y-4">
+              <CircularProgress size={48} sx={{ color: '#7563A8' }} />
+              <div className="text-lg font-medium text-gray-700">Loading weather locations...</div>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {locationsError && !locationsLoading && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[2000] max-w-md">
+            <Alert 
+              severity="error" 
+              action={
+                <button 
+                  onClick={refetchLocations}
+                  className="text-sm font-medium underline text-red-800 hover:text-red-900"
+                >
+                  Retry
+                </button>
+              }
+            >
+              Failed to load weather data: {locationsError}
+            </Alert>
+          </div>
+        )}
 
         {/* Map Container - Full height, no padding, seamless with footer */}
         <div className="flex-1 relative">
@@ -327,6 +509,7 @@ export default function App() {
             <DraggableUserMarker 
               position={userLocation}
               onLocationChange={handleUserLocationChange}
+              showLocationPrompt={showLocationPrompt}
             />
           )}
 
