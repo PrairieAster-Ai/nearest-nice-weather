@@ -53,10 +53,10 @@ export default defineConfig({
     })
   ].filter(Boolean),
   server: {
-    port: parseInt(process.env.VITE_DEV_PORT || '3002'),
-    host: process.env.VITE_DEV_HOST || '0.0.0.0',
+    port: parseInt(process.env.DEV_PORT || process.env.VITE_DEV_PORT || '3001'),
+    host: process.env.DEV_HOST || process.env.VITE_DEV_HOST || '0.0.0.0',
     hmr: {
-      port: parseInt(process.env.VITE_HMR_PORT || '3002'),
+      port: parseInt(process.env.DEV_PORT || process.env.VITE_HMR_PORT || '3001'),
       host: 'localhost'
     },
     proxy: {
@@ -91,28 +91,33 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // Disable chunking temporarily to fix MUI initialization issues
-        manualChunks: undefined,
+        // Enhanced cache busting with build-time timestamp
+        entryFileNames: (_chunkInfo) => {
+          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || Math.random().toString(36).slice(2, 10)
+          return `assets/[name]-[hash]-${buildId}.js`
+        },
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
+          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || Math.random().toString(36).slice(2, 10)
           if (facadeModuleId) {
             if (facadeModuleId.includes('components/features/')) {
-              return 'assets/features/[name]-[hash].js'
+              return `assets/features/[name]-[hash]-${buildId}.js`
             }
             if (facadeModuleId.includes('components/ui/')) {
-              return 'assets/ui/[name]-[hash].js'
+              return `assets/ui/[name]-[hash]-${buildId}.js`
             }
           }
-          return 'assets/[name]-[hash].js'
+          return `assets/[name]-[hash]-${buildId}.js`
         },
         assetFileNames: (assetInfo) => {
+          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || Math.random().toString(36).slice(2, 10)
           if (assetInfo.name?.endsWith('.css')) {
-            return 'assets/styles/[name]-[hash][extname]'
+            return `assets/styles/[name]-[hash]-${buildId}[extname]`
           }
           if (assetInfo.name?.match(/\.(png|jpe?g|svg|gif|ico)$/)) {
-            return 'assets/images/[name]-[hash][extname]'
+            return `assets/images/[name]-[hash]-${buildId}[extname]`
           }
-          return 'assets/[name]-[hash][extname]'
+          return `assets/[name]-[hash]-${buildId}[extname]`
         }
       }
     },

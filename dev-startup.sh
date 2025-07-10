@@ -62,13 +62,51 @@ fi
 
 print_info "Step 3: Process cleanup"
 # Kill any existing dev servers (common issue after crashes)
-pkill -f "vite --port 3002" 2>/dev/null || true
+pkill -f "vite --port" 2>/dev/null || true
 pkill -f "next dev" 2>/dev/null || true
 
-# Clean up any stuck processes on port 3002
-lsof -ti:3002 | xargs kill -9 2>/dev/null || true
+# Clean up any stuck processes on the dev port
+lsof -ti:${DEV_PORT:-3001} | xargs kill -9 2>/dev/null || true
 
 print_status "Cleaned up existing processes"
+
+print_info "Step 3.5: Docker localhost health check"
+# Test if localhost binding works (common issue after restart)
+if ! timeout 3 bash -c "</dev/tcp/127.0.0.1/22" 2>/dev/null; then
+    print_warning "Localhost binding may be impaired - likely Docker networking conflict"
+    if systemctl is-active docker >/dev/null 2>&1; then
+        print_info "Docker is running and may be causing localhost conflicts"
+        echo ""
+        echo "🔧 To fix localhost development servers, Docker needs to restart."
+        echo "   This requires sudo access to run: systemctl restart docker"
+        echo ""
+        read -p "Restart Docker now? (y/N): " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            print_info "Restarting Docker to fix localhost networking..."
+            if sudo systemctl restart docker 2>/dev/null; then
+                print_status "Docker restarted successfully"
+                sleep 2
+                # Test localhost again after Docker restart
+                if timeout 3 bash -c "</dev/tcp/127.0.0.1/22" 2>/dev/null; then
+                    print_status "Localhost binding fixed!"
+                else
+                    print_warning "Localhost still impaired after Docker restart"
+                fi
+            else
+                print_error "Failed to restart Docker"
+            fi
+        else
+            print_warning "Skipping Docker restart - localhost may not work for development servers"
+            echo "💡 You can manually restart Docker later with: sudo systemctl restart docker"
+        fi
+    else
+        print_warning "Docker not running, but localhost binding still impaired"
+    fi
+else
+    print_status "Localhost binding healthy"
+fi
+print_status "Docker localhost check completed"
 
 print_info "Step 4: Build validation"
 # Quick build test to catch major issues early
@@ -81,15 +119,16 @@ print_status "Build validation passed"
 
 print_info "Step 5: Development server configuration"
 # Set environment variables for stable WebSocket connections
-export VITE_DEV_PORT=3002
-export VITE_HMR_PORT=3002
+export DEV_PORT=${DEV_PORT:-3001}
+export VITE_DEV_PORT=$DEV_PORT
+export VITE_HMR_PORT=$DEV_PORT
 export VITE_DEV_HOST="0.0.0.0"
 
-print_status "Environment configured: Port $VITE_DEV_PORT, HMR $VITE_HMR_PORT"
+print_status "Environment configured: Port $DEV_PORT, HMR $VITE_HMR_PORT"
 
 print_info "Step 6: Starting development server"
 echo ""
-echo "🌐 Development server will start on http://localhost:$VITE_DEV_PORT"
+echo "🌐 Development server will start on http://localhost:$DEV_PORT"
 echo "📝 Common issues and solutions:"
 echo "   • WebSocket errors: Hard refresh browser (Ctrl+F5)"
 echo "   • Port conflicts: This script cleans up automatically"

@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Weather Intelligence Platform - Vite React PWA",
   "type": "module",
+  "engines": {
+    "node": "20.x",
+    "npm": ">=10.8.0"
+  },
   "scripts": {
-    "dev": "vite --port 3002",
-    "build": "node deployment/health-check.cjs && vite build",
+    "dev": "vite",
+    "build": "node deployment/health-check.cjs && vite build && node deployment/cache-bust.cjs",
     "build:analyze": "ANALYZE=true vite build",
     "preview": "vite preview",
     "test": "vitest",

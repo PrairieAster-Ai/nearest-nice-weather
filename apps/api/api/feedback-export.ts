@@ -26,7 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     client = new Client({
       connectionString: DATABASE_URL,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-    })
+    try {
+      })
 
     await client.connect()
 
@@ -62,7 +63,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const csvContent = csvRows.join('\n')
 
-    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Type', 'text/csv');
+    } catch (error) {
+      console.error('Operation failed:', error);
+      // TODO: Add proper error handling
+    }
     res.setHeader('Content-Disposition', 'attachment; filename="feedback-export.csv"')
     res.status(200).send(csvContent)
 
@@ -71,7 +76,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(500).json({ error: 'Export failed' })
   } finally {
     if (client) {
-      await client.end()
+      try {
+        await client.end()
     }
   }
-}
+};
+      } catch (error) {
+        console.error('Operation failed:', error);
+        // TODO: Add proper error handling
+      }

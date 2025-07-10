@@ -6,11 +6,12 @@
     "devtools_page": "devtools.html",
     "permissions": [
       "activeTab",
-      "debugger",
+      "debugger", 
       "storage",
       "tabs",
       "tabCapture",
-      "windows"
+      "windows",
+      "desktopCapture"
     ],
     "host_permissions": [
       "<all_urls>"

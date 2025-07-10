@@ -38,7 +38,7 @@ export function formatFeedbackForClaude(feedback: DeploymentFeedback[]): string 
   const summary = generateSummary(feedback)
   const recentFailures = feedback
     .filter((f) => f.status === "failure")
-    .slice(-5)
+    .slice(-5)  // Negative index - works in both Node.js versions
     .map(formatFailureDetails)
     .join("\n\n")
 
@@ -89,7 +89,7 @@ function generateSummary(feedback: DeploymentFeedback[]) {
   const avgBuildTime = buildTimes.length > 0 ? Math.round(buildTimes.reduce((a, b) => a + b, 0) / buildTimes.length) : 0
 
   // Analyze trends (last 10 vs previous 10)
-  const recent = feedback.slice(-10)
+  const recent = feedback.slice(-10)  // Negative index - works in both Node.js versions
   const previous = feedback.slice(-20, -10)
 
   const recentSuccessRate = recent.filter((f) => f.status === "success").length / recent.length
@@ -116,12 +116,12 @@ function generateSummary(feedback: DeploymentFeedback[]) {
 function analyzeBundleSizeTrend(feedback: DeploymentFeedback[]): string {
   const sizes = feedback
     .filter((f) => f.bundleSize)
-    .slice(-10)
+    .slice(-10)  // Negative index - works in both Node.js versions
     .map((f) => f.bundleSize!)
 
   if (sizes.length < 2) return "insufficient data"
 
-  const recent = sizes.slice(-3).reduce((a, b) => a + b, 0) / 3
+  const recent = sizes.slice(-3)  // Negative index - works in both Node.js versions.reduce((a, b) => a + b, 0) / 3
   const older = sizes.slice(0, 3).reduce((a, b) => a + b, 0) / 3
 
   const change = ((recent - older) / older) * 100
@@ -133,12 +133,12 @@ function analyzeBundleSizeTrend(feedback: DeploymentFeedback[]): string {
 function analyzeBuildTimeTrend(feedback: DeploymentFeedback[]): string {
   const times = feedback
     .filter((f) => f.buildTime)
-    .slice(-10)
+    .slice(-10)  // Negative index - works in both Node.js versions
     .map((f) => f.buildTime!)
 
   if (times.length < 2) return "insufficient data"
 
-  const recent = times.slice(-3).reduce((a, b) => a + b, 0) / 3
+  const recent = times.slice(-3)  // Negative index - works in both Node.js versions.reduce((a, b) => a + b, 0) / 3
   const older = times.slice(0, 3).reduce((a, b) => a + b, 0) / 3
 
   const change = ((recent - older) / older) * 100
@@ -183,7 +183,7 @@ function generateRecommendations(feedback: DeploymentFeedback[]): string[] {
   // Check build time trends
   const recentBuildTimes = feedback
     .filter((f) => f.buildTime && f.buildTime > 300) // > 5 minutes
-    .slice(-5)
+    .slice(-5)  // Negative index - works in both Node.js versions
 
   if (recentBuildTimes.length > 2) {
     recommendations.push("Consider optimizing build process - recent builds are taking longer")
@@ -192,7 +192,7 @@ function generateRecommendations(feedback: DeploymentFeedback[]): string[] {
   // Check bundle size
   const largeBundles = feedback
     .filter((f) => f.bundleSize && f.bundleSize > 1000000) // > 1MB
-    .slice(-3)
+    .slice(-3)  // Negative index - works in both Node.js versions
 
   if (largeBundles.length > 1) {
     recommendations.push("Bundle size is increasing - consider code splitting or dependency optimization")

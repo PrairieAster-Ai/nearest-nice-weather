@@ -53,18 +53,8 @@ describe('Database Connection Validation', () => {
     try {
       client = await pool.connect();
       
-      try {
-      
-        // Test basic query
+      // Test basic query
       const result = await client.query('SELECT 1 as test');
-      
-      } catch (error) {
-      
-        console.error('Operation failed:', error);
-      
-        // TODO: Add proper error handling
-      
-      }
       expect(result.rows[0].test).toBe(1);
       
     } catch (error) {
@@ -73,12 +63,7 @@ describe('Database Connection Validation', () => {
       expect(error).toBeDefined();
     } finally {
       if (client) client.release();
-      try {
-        await pool.end();
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
+      await pool.end();
     }
   }, 10000);
 
@@ -102,24 +87,13 @@ describe('Database Connection Validation', () => {
     try {
       client = await pool.connect();
       
-      try {
-      
-        // Check if user_feedback table exists
+      // Check if user_feedback table exists
       const tableCheck = await client.query(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_name = 'user_feedback'
         );
-      
-      } catch (error) {
-      
-        console.error('Operation failed:', error);
-      
-        // TODO: Add proper error handling
-      
-      }
-      try {
-        `);
+      `);
       
       expect(tableCheck.rows[0].exists).toBe(true);
       
@@ -129,10 +103,6 @@ describe('Database Connection Validation', () => {
         FROM information_schema.columns 
         WHERE table_name = 'user_feedback'
         ORDER BY ordinal_position;
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
       `);
       
       const columns = columnCheck.rows.map(row => row.column_name);
@@ -149,12 +119,7 @@ describe('Database Connection Validation', () => {
       expect(error).toBeDefined();
     } finally {
       if (client) client.release();
-      try {
-        await pool.end();
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
+      await pool.end();
     }
   }, 10000);
 

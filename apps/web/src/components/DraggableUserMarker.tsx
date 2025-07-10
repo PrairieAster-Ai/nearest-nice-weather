@@ -18,9 +18,10 @@ const userIcon = new L.Icon({
 interface DraggableUserMarkerProps {
   position: [number, number]
   onLocationChange: (newPosition: [number, number]) => void
+  showLocationPrompt?: boolean
 }
 
-export function DraggableUserMarker({ position, onLocationChange }: DraggableUserMarkerProps) {
+export function DraggableUserMarker({ position, onLocationChange, showLocationPrompt }: DraggableUserMarkerProps) {
   const markerRef = useRef<L.Marker>(null)
 
   useEffect(() => {
@@ -39,6 +40,14 @@ export function DraggableUserMarker({ position, onLocationChange }: DraggableUse
       }
     }
   }, [onLocationChange])
+
+  // Open popup when showLocationPrompt is true
+  useEffect(() => {
+    const marker = markerRef.current
+    if (marker && showLocationPrompt) {
+      marker.openPopup()
+    }
+  }, [showLocationPrompt])
 
   return (
     <Marker

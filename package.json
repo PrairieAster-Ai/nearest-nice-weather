@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Weather Intelligence Platform - Monorepo",
   "private": true,
+  "engines": {
+    "node": "20.x",
+    "npm": ">=10.8.0"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"

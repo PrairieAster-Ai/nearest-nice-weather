@@ -39,12 +39,7 @@ async function testFeedback() {
     console.log('✅ Function imported successfully');
     
     // Call the handler
-    try {
-      await feedbackHandler.default(mockReq, mockRes);
-    } catch (error) {
-      console.error('Operation failed:', error);
-      // TODO: Add proper error handling
-    }
+    await feedbackHandler.default(mockReq, mockRes);
     
   } catch (error) {
     console.error('❌ Test failed:', error.message);
@@ -81,17 +76,7 @@ async function runTests() {
   testDatabaseConfig();
   console.log('');
   
-  try {
-  
-    await testFeedback();
-  
-  } catch (error) {
-  
-    console.error('Operation failed:', error);
-  
-    // TODO: Add proper error handling
-  
-  }
+  await testFeedback();
   
   console.log('\n✅ Local tests complete!');
   console.log('💡 API functions are ready for Vercel deployment');

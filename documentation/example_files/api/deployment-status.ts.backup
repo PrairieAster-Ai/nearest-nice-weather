@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       summary,
-      recentDeployments: feedback.slice(-10)  // Negative index - works in both Node.js versions, // Last 10 deployments
-      recentErrors: errors.slice(-5)  // Negative index - works in both Node.js versions, // Last 5 errors
+      recentDeployments: feedback.slice(-10), // Last 10 deployments
+      recentErrors: errors.slice(-5), // Last 5 errors
       stats: calculateDeploymentStats(feedback),
     })
   } catch (error) {
@@ -31,7 +31,7 @@ function generateDeploymentSummary(feedback: any[], errors: any[]) {
   const failed = feedback.filter((f) => f.status === "ERROR").length
   const successRate = total > 0 ? ((successful / total) * 100).toFixed(1) : 0
 
-  const recentFailures = errors.slice(-3)  // Negative index - works in both Node.js versions.map((error) => ({
+  const recentFailures = errors.slice(-3).map((error) => ({
     id: error.deploymentId,
     message: error.errorMessage,
     timestamp: error.failedAt,

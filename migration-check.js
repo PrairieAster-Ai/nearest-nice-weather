@@ -1,0 +1,274 @@
+
+// Check Node.js version compatibility for Set.prototype.intersection
+if (!Set.prototype.intersection) {
+  console.warn('Set.prototype.intersection not available in this Node.js version');
+}
+
+// Check Node.js version compatibility for Set.prototype.union
+if (!Set.prototype.union) {
+  console.warn('Set.prototype.union not available in this Node.js version');
+}
+
+// Check Node.js version compatibility for Array.fromAsync
+if (!Array.fromAsync) {
+  console.warn('Array.fromAsync not available in this Node.js version');
+}
+#!/usr/bin/env node
+/**
+ * Node.js 22 → 20 Migration Compatibility Checker
+ * Scans codebase for potential breaking changes
+ */
+
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+class MigrationChecker {
+  constructor() {
+    this.issues = [];
+    this.files = [];
+    this.checks = [
+      this.checkUnhandledPromises.bind(this),
+      this.checkBufferUsage.bind(this),
+      this.checkModuleUsage.bind(this),
+      this.checkWebSocketUsage.bind(this),
+      this.checkStreamUsage.bind(this),
+      this.checkDeprecatedAPIs.bind(this),
+      this.checkV8Features.bind(this),
+    ];
+  }
+
+  async scanDirectory(dir = '.', extensions = ['.js', '.ts', '.jsx', '.tsx']) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      
+      if (entry.isDirectory() && !['node_modules', '.git', 'dist', '.next'].includes(entry.name)) {
+        try {
+          await this.scanDirectory(fullPath, extensions);
+        } catch (error) {
+          console.error('Operation failed:', error);
+          // TODO: Add proper error handling
+        }
+      } else if (entry.isFile() && extensions.some(ext => entry.name.endsWith(ext))) {
+        this.files.push(fullPath);
+      }
+    }
+  }
+
+  async checkFile(filePath) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split('\n');
+    
+    for (const check of this.checks) {
+      check(filePath, content, lines);
+    }
+  }
+
+  checkUnhandledPromises(filePath, content, lines) {
+    // Look for promises without proper error handling
+    const promisePatterns = [
+      /\.then\([^)]*\)(?!\s*\.catch)/g,
+      /await\s+[^;]+(?!\s*try|\s*catch)/g,
+      /new Promise\([^}]*\)(?!\s*\.catch)/g
+    ];
+
+    lines.forEach((line, index) => {
+      promisePatterns.forEach(pattern => {
+        if (pattern.test(line) && !line.includes('.catch') && !line.includes('try')) {
+          this.addIssue('HIGH', 'PROMISE_REJECTION', filePath, index + 1, 
+            'Unhandled promise - Node.js 20 is more forgiving, but add .catch() for safety',
+            line.trim()
+          );
+        }
+      });
+    });
+  }
+
+  checkBufferUsage(filePath, content, lines) {
+    // Check for Buffer usage with negative indices
+    const bufferPatterns = [
+      /Buffer\.[^(]*\([^)]*-\d+/g,
+      /buffer\[[^]]*-\d+\]/g,
+      /\.slice\([^,]*-\d+/g
+    ];
+
+    lines.forEach((line, index) => {
+      bufferPatterns.forEach(pattern => {
+        if (pattern.test(line)) {
+          this.addIssue('MEDIUM', 'BUFFER_NEGATIVE_INDEX', filePath, index + 1,
+            'Buffer negative indices - Node.js 20 is more lenient',
+            line.trim()
+          );
+        }
+      });
+    });
+  }
+
+  checkModuleUsage(filePath, content, lines) {
+    // Check for mixed module systems
+    const hasRequire = /require\s*\(/g.test(content);
+    const hasImport = /import\s+.*from|import\s*\(/g.test(content);
+    
+    if (hasRequire && hasImport) {
+      this.addIssue('MEDIUM', 'MIXED_MODULES', filePath, 1,
+        'Mixed require/import - Node.js 20 is more permissive',
+        'File uses both require() and import'
+      );
+    }
+  }
+
+  checkWebSocketUsage(filePath, content, lines) {
+    // Check for WebSocket usage
+    if (/WebSocket|websocket/g.test(content)) {
+      this.addIssue('LOW', 'WEBSOCKET_USAGE', filePath, 1,
+        'WebSocket usage detected - may need --experimental-websocket flag in Node.js 20',
+        'WebSocket functionality present'
+      );
+    }
+  }
+
+  checkStreamUsage(filePath, content, lines) {
+    // Check for stream usage that might be affected by HWM changes
+    if (/createReadStream|createWriteStream|Transform|Readable|Writable/g.test(content)) {
+      this.addIssue('LOW', 'STREAM_USAGE', filePath, 1,
+        'Stream usage - Node.js 20 has lower default highWaterMark (16KiB vs 64KiB)',
+        'Stream objects detected'
+      );
+    }
+  }
+
+  checkDeprecatedAPIs(filePath, content, lines) {
+    // Check for deprecated APIs
+    const deprecatedAPIs = [
+      '// process.binding is deprecated - use alternative APIs',
+      'Array.isArray',
+      '(typeof x === "boolean")',
+      '(typeof x === "function")',
+      'require.extensions'
+    ];
+
+    lines.forEach((line, index) => {
+      deprecatedAPIs.forEach(api => {
+        if (line.includes(api)) {
+          this.addIssue('HIGH', 'DEPRECATED_API', filePath, index + 1,
+            `Deprecated API: ${api} - may not work in either version`,
+            line.trim()
+          );
+        }
+      });
+    });
+  }
+
+  checkV8Features(filePath, content, lines) {
+    // Check for newer V8 features that might not be in Node.js 20
+    const v8Features = [
+      'Array.fromAsync',
+      'Set.prototype.union',
+      'Set.prototype.intersection',
+      'Set.prototype.difference'
+    ];
+
+    lines.forEach((line, index) => {
+      v8Features.forEach(feature => {
+        if (line.includes(feature)) {
+          this.addIssue('MEDIUM', 'V8_FEATURE', filePath, index + 1,
+            `V8 feature: ${feature} - may not be available in Node.js 20`,
+            line.trim()
+          );
+        }
+      });
+    });
+  }
+
+  addIssue(severity, type, file, line, message, code) {
+    this.issues.push({
+      severity,
+      type,
+      file: path.relative('.', file),
+      line,
+      message,
+      code
+    });
+  }
+
+  async run() {
+    console.log('🔍 Node.js 22→20 Migration Compatibility Check');
+    console.log('==============================================\n');
+
+    try {
+
+      await this.scanDirectory();
+
+    } catch (error) {
+
+      console.error('Operation failed:', error);
+
+      // TODO: Add proper error handling
+
+    }
+    console.log(`📁 Scanning ${this.files.length} files...\n`);
+
+    for (const file of this.files) {
+      try {
+        await this.checkFile(file);
+      } catch (error) {
+        console.error('Operation failed:', error);
+        // TODO: Add proper error handling
+      }
+    }
+
+    this.generateReport();
+  }
+
+  generateReport() {
+    if (this.issues.length === 0) {
+      console.log('✅ No potential migration issues found!\n');
+      console.log('🎉 Your codebase appears compatible with Node.js 20.18.0');
+      return;
+    }
+
+    const severityCounts = this.issues.reduce((acc, issue) => {
+      acc[issue.severity] = (acc[issue.severity] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log('📊 Migration Issues Summary:');
+    console.log(`   🔴 HIGH: ${severityCounts.HIGH || 0} issues`);
+    console.log(`   🟡 MEDIUM: ${severityCounts.MEDIUM || 0} issues`);
+    console.log(`   🟢 LOW: ${severityCounts.LOW || 0} issues`);
+    console.log();
+
+    // Group by severity
+    ['HIGH', 'MEDIUM', 'LOW'].forEach(severity => {
+      const severityIssues = this.issues.filter(i => i.severity === severity);
+      if (severityIssues.length === 0) return;
+
+      const emoji = severity === 'HIGH' ? '🔴' : severity === 'MEDIUM' ? '🟡' : '🟢';
+      console.log(`${emoji} ${severity} SEVERITY ISSUES:`);
+      console.log('─'.repeat(40));
+
+      severityIssues.forEach(issue => {
+        console.log(`📄 ${issue.file}:${issue.line}`);
+        console.log(`   ${issue.message}`);
+        console.log(`   Code: ${issue.code}`);
+        console.log();
+      });
+    });
+
+    console.log('🔧 Recommended Actions:');
+    console.log('   1. Fix HIGH severity issues before migration');
+    console.log('   2. Review MEDIUM issues - may need adjustments');
+    console.log('   3. Monitor LOW issues during testing');
+    console.log('   4. Run comprehensive tests after migration');
+    console.log();
+  }
+}
+
+// Run the checker
+const checker = new MigrationChecker();
+checker.run().catch(console.error);

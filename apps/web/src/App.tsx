@@ -346,9 +346,13 @@ export default function App() {
 
   // Apply filters when user location or API data changes
   useEffect(() => {
+    // Wait for API data to load before any map calculations
     if (apiLocations.length === 0) {
+      console.log('Waiting for API data to load...')
       return
     }
+    
+    console.log('API data loaded, calculating map view with', apiLocations.length, 'locations')
 
     if (userLocation === null) {
       // No user location yet - apply default filters and use smart zoom for markers only
@@ -411,6 +415,13 @@ export default function App() {
         if (paddedRange > 2.500) zoom = 8
         
         setMapZoom(zoom)
+        
+        // Give markers time to render, then ensure they're visible
+        setTimeout(() => {
+          console.log('Markers should be rendered, final zoom adjustment')
+          setMapCenter([centerLat, centerLng])
+          setMapZoom(zoom)
+        }, 100)
       }
     } else {
       // User location available - use current filters with dynamic center calculation

@@ -14,11 +14,22 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 ## Repository Structure
 
-- `documentation/` - Complete business plan, technical architecture, and strategic documentation
+- `documentation/` - Complete business plan, technical architecture, and operational documentation
   - `business-plan/` - Master plan, executive summary, implementation roadmap
   - `appendices/` - Market research, user personas, financial assumptions
   - `sessions/` - Action items and focused work tracking
+  - `runbooks/` - **Operational procedures and troubleshooting guides**
+    - `docker-networking-troubleshooting.md` - Docker networking issue resolution
+    - `nodejs-migration-checklist.md` - LTS migration procedures
+    - `cache-busting-implementation-guide.md` - Production cache control
+    - `emergency-deployment-procedures.md` - Incident response protocols
+    - `environment-setup-automation.md` - Team onboarding automation
+  - `DEVELOPMENT-ENVIRONMENT-SUMMARY.md` - Overview of all operational improvements
   - `architecture-overview.md` - Complete technical specification for FastAPI + Directus + PostGIS stack
+- `scripts/` - **Automated development environment tools**
+  - `localhost-health-check.sh` - Comprehensive environment validation
+  - `quick-docker-health.sh` - Fast Docker networking check
+  - `development-dashboard.sh` - Real-time environment monitoring
 
 ## Development Commands
 
@@ -35,6 +46,10 @@ cd apps/web && npm run dev
 
 # The development server will proxy API calls to production automatically
 # No local API server needed - all configuration via .env files
+
+# Optional: Set custom development port
+export DEV_PORT=3001  # Default port if not specified
+cd apps/web && npm run dev
 ```
 
 **Deployment Commands** (PRODUCTION SAFETY):
@@ -195,10 +210,89 @@ git push origin emergency-rollback --force
 
 - Always quickly verify localhost sites are available in the browser before indicating they are done and/or ready for review
 
-- Use ./dev-startup.sh to startup localhost and maintain to document and mitigate common issues
+- **Use ./dev-startup.sh to startup localhost** and maintain to document and mitigate common issues
+  - **Enhanced with health checks**: Now includes Docker networking validation
+  - **Automated diagnostics**: Reports issues with specific fix recommendations
+
+- **Daily workflow starts with health validation**:
+  ```bash
+  ./scripts/localhost-health-check.sh  # Comprehensive validation
+  # OR
+  ./scripts/quick-docker-health.sh     # Fast Docker check
+  ```
+
+- **When environment issues occur**:
+  - Docker networking problems → `./apply-docker-fix.sh`
+  - General diagnostics → `./scripts/development-dashboard.sh`
+  - Emergency issues → Follow `documentation/runbooks/emergency-deployment-procedures.md`
 
 - Ask for feedback before adding or editing end user facing content
 
 - Request content review before adding or editing content
 
 - Only deploy to live or production with explicit authorization from the human partner
+
+## UI/UX Change Policy
+
+- **NEVER add new visual elements** (buttons, icons, UI components) without explicit user request
+- **NEVER modify existing UI layout** or visual design without permission
+- **ASK FIRST** before making any user-facing content changes
+- Focus on backend functionality, API integration, and data flow unless specifically asked to modify UI
+- If users mention missing functionality, explain the technical solution but ask before implementing UI changes
+
+- **Proactive maintenance approach**: Use automated scripts to prevent issues rather than react to them
+
+## Software Selection Principles
+
+- Software from an external source must be the versions tagged with Long Term Support (LTS) or most Stable. New or bleeding edge software presents an unnecessary project risk that's a distraction from creating value.
+
+## Software Version Memories
+
+- Software versions on localhost MUST match production, and prod can be upgraded if necessary. 
+
+## Deployment Workflow
+
+- Production deployment requires a Preview environment deployment, automated testing, and validated by Me (Bob). This helps us catch any environmental issues between localhost and prod, and is a final quality gate that should take moments.
+
+## Development Environment Maintenance
+
+### Daily Maintenance
+- **Health Check**: Run `./scripts/localhost-health-check.sh` when starting development work
+- **Docker Status**: Verify Docker networking with `./scripts/quick-docker-health.sh`
+- **Node.js Version**: Ensure LTS version (20.18.0) with `node --version`
+- **Environment Validation**: Use `./scripts/development-dashboard.sh` for real-time status
+
+### Weekly Maintenance  
+- **Documentation Review**: Check `documentation/runbooks/` for process updates
+- **Dependency Updates**: Review and update project dependencies (`npm audit`)
+- **Docker Cleanup**: Run `docker system prune -f` to clean unused resources
+- **Environment Sync**: Verify localhost matches production versions
+
+### Monthly Maintenance
+- **LTS Updates**: Check for new Node.js LTS releases and plan migration
+- **Runbook Updates**: Review and update procedures based on new issues encountered
+- **Team Training**: Ensure all developers are familiar with emergency procedures
+- **Process Improvements**: Identify and implement workflow optimizations
+
+### Emergency Procedures
+- **Critical Issues**: Follow `documentation/runbooks/emergency-deployment-procedures.md`
+- **Docker Problems**: Use `documentation/runbooks/docker-networking-troubleshooting.md`
+- **Migration Needs**: Follow `documentation/runbooks/nodejs-migration-checklist.md`
+- **Cache Issues**: Reference `documentation/runbooks/cache-busting-implementation-guide.md`
+
+### Knowledge Management
+- **Runbook Location**: All procedures documented in `documentation/runbooks/`
+- **Setup Automation**: New team members use `documentation/runbooks/environment-setup-automation.md`
+- **Health Monitoring**: Automated scripts in `scripts/` directory
+- **Incident Documentation**: Update runbooks after resolving new issues
+
+### Key Documentation Files
+- `documentation/DEVELOPMENT-ENVIRONMENT-SUMMARY.md` - Overview of all improvements
+- `documentation/runbooks/` - Complete operational procedures
+- `scripts/` - Automated health check and validation tools
+- `apply-docker-fix.sh` - Docker networking issue resolution
+- `MIGRATION-SUMMARY.md` - Node.js 22→20 migration record
+
+## Data Integrity Memories
+
+- Mock data fallbacks are a bad idea, we need to maintain user's trust by only showing the most accurate data possible. If test data is necessary it needs to persist in the same way it will in production for full end to end testing.

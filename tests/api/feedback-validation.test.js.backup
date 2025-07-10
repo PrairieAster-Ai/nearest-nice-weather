@@ -16,16 +16,11 @@ const API_BASE_URL = process.env.API_BASE_URL || 'https://www.nearestniceweather
 describe('Feedback API Validation', () => {
   
   test('should handle basic feedback submission', async () => {
-    try {
-      const response = await request(API_BASE_URL)
+    const response = await request(API_BASE_URL)
       .post('/api/feedback')
       .send({
         feedback: 'This is a test feedback message'
       });
-    } catch (error) {
-      console.error('Operation failed:', error);
-      // TODO: Add proper error handling
-    }
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
@@ -35,8 +30,7 @@ describe('Feedback API Validation', () => {
 
   test('should handle feedback with special characters', async () => {
     const testCases = [
-      try {
-        'Great app!',
+      'Great app!',
       'Love it! Amazing work.',
       'Perfect! 100% satisfied!',
       'Works great! Thanks!',
@@ -48,10 +42,6 @@ describe('Feedback API Validation', () => {
       const response = await request(API_BASE_URL)
         .post('/api/feedback')
         .send({ feedback });
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -62,23 +52,13 @@ describe('Feedback API Validation', () => {
   test('should validate rating ranges', async () => {
     const validRatings = [1, 2, 3, 4, 5];
     
-    try {
-    
-      for (const rating of validRatings) {
+    for (const rating of validRatings) {
       const response = await request(API_BASE_URL)
         .post('/api/feedback')
         .send({
           feedback: `Test feedback with rating ${rating}`,
           rating: rating
         });
-    
-    } catch (error) {
-    
-      console.error('Operation failed:', error);
-    
-      // TODO: Add proper error handling
-    
-    }
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -88,23 +68,13 @@ describe('Feedback API Validation', () => {
   test('should reject invalid rating values', async () => {
     const invalidRatings = [0, 6, -1, 10, 'invalid', null];
     
-    try {
-    
-      for (const rating of invalidRatings) {
+    for (const rating of invalidRatings) {
       const response = await request(API_BASE_URL)
         .post('/api/feedback')
         .send({
           feedback: 'Test feedback with invalid rating',
           rating: rating
         });
-    
-    } catch (error) {
-    
-      console.error('Operation failed:', error);
-    
-      // TODO: Add proper error handling
-    
-    }
 
       // Should either reject or accept with null rating
       if (response.body.success === false) {
@@ -115,8 +85,7 @@ describe('Feedback API Validation', () => {
 
   test('should handle email validation', async () => {
     const validEmails = [
-      try {
-        'test@example.com',
+      'test@example.com',
       'user.name@domain.co.uk',
       'user+tag@example.org',
       'valid@test-domain.com'
@@ -129,10 +98,6 @@ describe('Feedback API Validation', () => {
           feedback: 'Test feedback with email',
           email: email
         });
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -140,25 +105,19 @@ describe('Feedback API Validation', () => {
   }, 20000);
 
   test('should handle categories array', async () => {
-    try {
-      const response = await request(API_BASE_URL)
+    const response = await request(API_BASE_URL)
       .post('/api/feedback')
       .send({
         feedback: 'Test feedback with categories',
         categories: ['improvement', 'bug', 'feature']
       });
-    } catch (error) {
-      console.error('Operation failed:', error);
-      // TODO: Add proper error handling
-    }
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
   }, 10000);
 
   test('should handle complete feedback object', async () => {
-    try {
-      const response = await request(API_BASE_URL)
+    const response = await request(API_BASE_URL)
       .post('/api/feedback')
       .send({
         feedback: 'Complete test feedback with all fields',
@@ -166,10 +125,6 @@ describe('Feedback API Validation', () => {
         email: 'test@example.com',
         categories: ['improvement']
       });
-    } catch (error) {
-      console.error('Operation failed:', error);
-      // TODO: Add proper error handling
-    }
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
@@ -178,13 +133,8 @@ describe('Feedback API Validation', () => {
   }, 10000);
 
   test('should handle CORS preflight requests', async () => {
-    try {
-      const response = await request(API_BASE_URL)
+    const response = await request(API_BASE_URL)
       .options('/api/feedback');
-    } catch (error) {
-      console.error('Operation failed:', error);
-      // TODO: Add proper error handling
-    }
 
     expect(response.status).toBe(200);
     expect(response.headers['access-control-allow-origin']).toBe('*');
@@ -192,28 +142,18 @@ describe('Feedback API Validation', () => {
   }, 10000);
 
   test('should reject non-POST methods', async () => {
-    try {
-      const response = await request(API_BASE_URL)
+    const response = await request(API_BASE_URL)
       .get('/api/feedback');
-    } catch (error) {
-      console.error('Operation failed:', error);
-      // TODO: Add proper error handling
-    }
 
     expect(response.status).toBe(405);
   }, 10000);
 
   test('should provide debug information in development', async () => {
-    try {
-      const response = await request(API_BASE_URL)
+    const response = await request(API_BASE_URL)
       .post('/api/feedback')
       .send({
         feedback: 'Debug information test'
       });
-    } catch (error) {
-      console.error('Operation failed:', error);
-      // TODO: Add proper error handling
-    }
 
     expect(response.status).toBe(200);
     
