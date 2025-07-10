@@ -46,7 +46,12 @@ export function FeedbackFab() {
     setMessage('')
 
     try {
-      const response = await fetch('/api/feedback', {
+      // Use local API server in development, production API in production
+      const apiUrl = process.env.NODE_ENV === 'development' 
+        ? 'http://localhost:4000/api/feedback'
+        : '/api/feedback'
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
