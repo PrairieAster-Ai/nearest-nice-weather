@@ -126,11 +126,44 @@ git log --since="1 week ago" --pretty=format:"%h - %s%n%b%n"
 git log --grep="Status.*✅" -3 --pretty=format:"%s%n%b%n"
 ```
 
+### Browser Tools Integration
+
+**Real-time Frontend Debugging Infrastructure** (Added 2025-07-10):
+
+**Services Running**:
+- Browser Tools Server: `http://localhost:3025` (keep running)
+- Chrome Extension: Browser Tools MCP v1.2.0 (installed)
+- MCP Integration: Connects Claude Code to browser activity
+
+**Capabilities**:
+- ✅ Real-time console log streaming (no more manual copying)
+- ✅ Automatic screenshot capture for visual debugging
+- ✅ Network request monitoring (API calls visible)
+- ✅ DOM change tracking (map interactions, filter updates)
+
+**Usage**:
+- Keep Chrome DevTools open when working on frontend
+- Browser Tools automatically captures activity for Claude Code
+- No manual screenshot sharing needed for "localhost ready for review"
+- Console errors/logs visible to Claude Code in real-time
+
+**Setup Commands** (for new sessions):
+```bash
+# Start browser tools server (background)
+npx @agentdeskai/browser-tools-server@1.2.0 &
+
+# Verify connection
+npx @agentdeskai/browser-tools-mcp@1.2.0 get-console-logs
+```
+
+**Chrome Extension Path**: `chrome-extension/` (already installed)
+
 ### Context Preservation
 - This charter is checked into version control
 - Git commits serve as running project narrative
 - Each commit message documents incremental progress
 - Status tracking in commits enables quick context recovery
+- Browser Tools provide real-time frontend visibility
 - Reference this document before any infrastructure changes
 - Update this document when learning new patterns/failures
 - Treat working features as sacred foundation for future development
