@@ -32,8 +32,46 @@
 - □ All previously working features still work  
 - □ Database migrations are additive only
 - □ Environment variables maintain backward compatibility
+- □ **Environment variables checked first** (data source, API endpoints)
 - □ Full user workflow tested after each change
 - □ Localhost validation completed before marking "ready for review"
+
+### Environment Variable Debugging (Critical First Step)
+**ALWAYS CHECK THESE FIRST when data/API issues occur**:
+- `VITE_API_PROXY_URL` - Controls where frontend gets data (prod vs local)
+- `DATABASE_URL` - Controls where API reads/writes data
+- `NODE_ENV` - Affects build behavior and data sources
+
+**Common Issue**: Frontend proxying to production while expecting local database changes
+**Solution**: Verify environment variables match intended data flow (local → local or prod → prod)
+
+### Debug Code & Temporary Code Management
+**CRITICAL**: Debug code can crash applications silently in production builds
+
+**Dangerous Debug Patterns**:
+- `document.title = ...` with complex string interpolation
+- `console.log()` statements with `.toFixed()` on potentially undefined values
+- `markersToShow[0]?.property.toFixed(3)` - optional chaining with method calls
+- Temporary mock data that replaces real API calls
+
+**Safe Debug Patterns**:
+- `console.log('Simple message', simpleValue)`
+- `console.log('Value:', value?.toString() || 'undefined')`
+- Conditional logging: `if (value) console.log('Value:', value)`
+
+**Debug Code Removal Checklist**:
+- [ ] Search for `document.title` assignments
+- [ ] Search for `console.log` statements  
+- [ ] Search for `// DEBUG:` or `// TEMP:` comments
+- [ ] Search for mock data or hardcoded values
+- [ ] Search for `setTimeout` with debug purposes
+- [ ] Search for `?.` optional chaining with method calls
+
+**Symptoms of Debug Code Crashes**:
+- Empty console tab (JavaScript not running)
+- No network requests (app crashed before making calls)
+- Default page title (app crashed before setting title)
+- Map loads but no markers/functionality
 
 ### Integration Pattern Examples
 

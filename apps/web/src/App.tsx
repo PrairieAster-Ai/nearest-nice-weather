@@ -288,11 +288,11 @@ export default function App() {
           setUserLocation(ipLocation)
           setMapCenter(ipLocation)
           setShowLocationPrompt(false)
-          console.log('Location set from IP:', data.city, data.region)
+          // Location set from IP
           return true
         }
       } catch (error) {
-        console.log('IP location failed:', error)
+        // IP location failed
       }
       return false
     }
@@ -307,7 +307,7 @@ export default function App() {
       setUserLocation(fallbackLocation)
       setMapCenter(fallbackLocation)
       setShowLocationPrompt(true) // Show popup to prompt user to move marker
-      console.log('Location set to results center (fallback)')
+      // Location set to results center (fallback)
     }
 
     const initializeLocation = async () => {
@@ -348,11 +348,8 @@ export default function App() {
   useEffect(() => {
     // Wait for API data to load before any map calculations
     if (apiLocations.length === 0) {
-      console.log('Waiting for API data to load...')
       return
     }
-    
-    console.log('API data loaded, calculating map view with', apiLocations.length, 'locations')
 
     if (userLocation === null) {
       // No user location yet - apply default filters and use smart zoom for markers only
@@ -418,7 +415,9 @@ export default function App() {
         
         // Give markers time to render, then ensure they're visible
         setTimeout(() => {
-          console.log('Markers should be rendered, final zoom adjustment')
+          // Visual indicator that our zoom fix is running
+          // Debug info - app is working
+          console.log('Zoom fix active:', zoom, 'Center:', centerLat.toFixed(3), centerLng.toFixed(3))
           setMapCenter([centerLat, centerLng])
           setMapZoom(zoom)
         }, 100)
