@@ -1,7 +1,27 @@
 #!/usr/bin/env node
 
-// Database Seeder - Handles all data loading strategies without schema changes
-// This replaces database schema modifications with flexible data strategies
+// ========================================================================
+// DATABASE SEEDER - Persona-Driven Weather Intelligence Data Loading
+// ========================================================================
+// 
+// BUSINESS PURPOSE: Load realistic weather data serving Minnesota tourism personas
+// TARGET USERS:
+// - Sarah Kowalski (BWCA Outfitter): Safety-critical wilderness weather decisions
+// - Jennifer Martinez (Mayo Medical Tourism): Family stress reduction during medical care  
+// - Andrea Thompson (Bass Tournament): Performance-driven fishing strategy
+// - Kirsten Lindqvist (Rural Business): Regional development weather planning
+//
+// DATA STRATEGY PHILOSOPHY:
+// - NO SCHEMA CHANGES: All persona needs met through flexible data loading
+// - INTELLIGENT SIMULATION: Realistic Minnesota weather patterns vs random data
+// - ENVIRONMENT-SPECIFIC: Different data strategies for development/testing/production
+// - EXTENSIBLE: Add new personas/activities without database modifications
+//
+// CLAUDE AI DECISION SUPPORT:
+// - Use comments below to understand persona needs when enhancing weather algorithms
+// - Focus data improvements on persona pain points (safety, stress, performance, reliability)
+// - Consider seasonal patterns, activity-specific conditions, geographic variations
+// ========================================================================
 
 const { Pool } = require('pg')
 const { PracticalWeatherSimulation } = require('./practical-weather-implementation.js')
@@ -20,18 +40,39 @@ class DatabaseSeeder {
     
     this.weatherSimulator = new PracticalWeatherSimulation()
     
-    // Minnesota cities with accurate coordinates
+    // ====================================================================
+    // MINNESOTA LOCATIONS - Persona-Representative Geographic Coverage
+    // ====================================================================
+    // SELECTION CRITERIA:
+    // - Real coordinates for accurate distance calculations (all personas need proximity)
+    // - Geographic diversity across Minnesota tourism regions
+    // - Representative of each persona's operational territory
+    // - Different terrain types for activity-specific weather variations
+    //
+    // PERSONA MAPPING:
+    // - Sarah (BWCA): Ely (HQ), Grand Rapids (outfitting supply), International Falls (border access)
+    // - Jennifer (Mayo): Rochester (medical center), Minneapolis (urban amenities/airport)
+    // - Andrea (Bass): Minneapolis (home base), Brainerd (tournament venue), Alexandria (lakes region)
+    // - Kirsten (Rural): Bemidji, International Falls, Grand Rapids (business development territory)
+    //
     this.minnesotaCities = [
-      { name: 'Minneapolis', lat: 44.977800, lng: -93.265000, region: 'Metro', type: 'urban' },
-      { name: 'Duluth', lat: 46.786700, lng: -92.100500, region: 'North Shore', type: 'lakeside' },
-      { name: 'Brainerd', lat: 46.358000, lng: -94.200800, region: 'Lakes', type: 'resort' },
-      { name: 'Rochester', lat: 44.012100, lng: -92.480200, region: 'Southeast', type: 'city' },
-      { name: 'Ely', lat: 47.903000, lng: -91.866800, region: 'Boundary Waters', type: 'wilderness' },
-      { name: 'Grand Rapids', lat: 47.236900, lng: -93.530800, region: 'North Central', type: 'forest' },
-      { name: 'International Falls', lat: 48.600900, lng: -93.406700, region: 'Border', type: 'border' },
-      { name: 'Alexandria', lat: 45.885200, lng: -95.377500, region: 'Lake Country', type: 'lake_town' },
-      { name: 'Bemidji', lat: 47.473700, lng: -94.880300, region: 'North Woods', type: 'college_town' },
-      { name: 'St. Cloud', lat: 45.557900, lng: -94.163200, region: 'Central', type: 'river_city' }
+      // ANDREA'S TERRITORY (Bass Tournament Circuit)
+      { name: 'Minneapolis', lat: 44.977800, lng: -93.265000, region: 'Metro', type: 'urban' },           // Home base, urban amenities
+      { name: 'Brainerd', lat: 46.358000, lng: -94.200800, region: 'Lakes', type: 'resort' },            // Primary tournament venue
+      { name: 'Alexandria', lat: 45.885200, lng: -95.377500, region: 'Lake Country', type: 'lake_town' }, // Lakes region tournaments
+      
+      // JENNIFER'S NEEDS (Medical Tourism + Family Activities)
+      { name: 'Rochester', lat: 44.012100, lng: -92.480200, region: 'Southeast', type: 'city' },         // Mayo Clinic medical center
+      { name: 'St. Cloud', lat: 45.557900, lng: -94.163200, region: 'Central', type: 'river_city' },     // Mid-state family activities
+      
+      // SARAH'S DOMAIN (BWCA Wilderness Outfitting)
+      { name: 'Ely', lat: 47.903000, lng: -91.866800, region: 'Boundary Waters', type: 'wilderness' },   // Outfitting headquarters
+      { name: 'Grand Rapids', lat: 47.236900, lng: -93.530800, region: 'North Central', type: 'forest' }, // Supply/staging area
+      { name: 'International Falls', lat: 48.600900, lng: -93.406700, region: 'Border', type: 'border' },// Northern BWCA access
+      
+      // KIRSTEN'S NETWORK (Rural Business Development)
+      { name: 'Bemidji', lat: 47.473700, lng: -94.880300, region: 'North Woods', type: 'college_town' },  // Rural business hub
+      { name: 'Duluth', lat: 46.786700, lng: -92.100500, region: 'North Shore', type: 'lakeside' }       // Regional economic center
     ]
   }
 

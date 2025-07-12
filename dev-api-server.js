@@ -1,3 +1,27 @@
+// ========================================================================
+// WEATHER INTELLIGENCE API SERVER - Persona-Driven Minnesota Tourism
+// ========================================================================
+//
+// BUSINESS PURPOSE: Serve weather data optimized for Minnesota tourism personas
+// TARGET USERS:
+// - Sarah Kowalski (BWCA Outfitter): Safety-critical wilderness weather decisions ($400-800/mo value)
+// - Jennifer Martinez (Mayo Medical Tourism): Family stress reduction during medical care ($15-30/mo)
+// - Andrea Thompson (Bass Tournament): Performance-driven fishing strategy ($50-100/mo)
+// - Kirsten Lindqvist (Rural Business): Regional development weather planning
+//
+// API DESIGN PHILOSOPHY:
+// - PERSONA-FIRST: Endpoints designed around user needs, not technical convenience
+// - PROXIMITY-AWARE: All data includes distance calculations for "nearest" weather
+// - ACTIVITY-CONTEXTUAL: Weather data includes activity-specific suitability scores
+// - RELIABILITY-FOCUSED: Robust error handling for Sarah's safety-critical use cases
+//
+// CLAUDE AI ENHANCEMENT OPPORTUNITIES:
+// - Add persona-specific endpoints (e.g., /api/wilderness-safety, /api/tournament-conditions)
+// - Implement activity-based filtering (e.g., ?activity=paddling, ?activity=family_outdoor)
+// - Add weather alerting for critical conditions (high winds, severe weather)
+// - Include multi-day forecasting for Sarah's wilderness trip planning
+// ========================================================================
+
 const express = require('express')
 const cors = require('cors')
 const { Pool } = require('pg')
@@ -9,7 +33,11 @@ require('dotenv').config()
 const app = express()
 const port = 4000
 
-// Configure PostgreSQL connection
+// ====================================================================
+// DATABASE CONNECTION - Stable Schema Integration
+// ====================================================================
+// Connects to the stable locations + weather_conditions schema
+// No PostGIS dependency - uses simple lat/lng for broad compatibility
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
   ssl: false,
@@ -18,9 +46,11 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 })
 
-// Middleware
-app.use(cors())
-app.use(express.json())
+// ====================================================================
+// MIDDLEWARE CONFIGURATION
+// ====================================================================
+app.use(cors())                    // Enable cross-origin requests for frontend
+app.use(express.json())            // Parse JSON payloads for feedback and filters
 
 // Test database connection endpoint
 app.get('/api/test-db', async (req, res) => {
@@ -134,7 +164,35 @@ app.post('/api/feedback', async (req, res) => {
 })
 
 
-// Weather locations endpoint
+// ====================================================================
+// WEATHER LOCATIONS ENDPOINT - Core Persona-Driven API
+// ====================================================================
+// PURPOSE: Primary endpoint serving weather data for all Minnesota tourism personas
+//
+// PERSONA USAGE PATTERNS:
+// - Sarah (BWCA): Queries for wilderness areas with safety-critical weather data
+//   * Needs: Wind speeds >20mph alerts, lightning warnings, multi-day stability
+//   * Query pattern: ?lat=47.903&lng=-91.8668 (Ely area) with wilderness filtering
+//
+// - Jennifer (Mayo): Searches Rochester area for family-friendly weather
+//   * Needs: Comfort conditions (60-75°F), low precipitation, accessibility considerations
+//   * Query pattern: ?lat=44.0121&lng=-92.4802 (Rochester) with family activity focus
+//
+// - Andrea (Bass): Tournament venue weather within 400-mile radius of Minneapolis
+//   * Needs: Barometric pressure, wind patterns, water temperature correlation
+//   * Query pattern: ?lat=44.9778&lng=-93.265 (Minneapolis) with fishing conditions
+//
+// - Kirsten (Rural): Regional business travel weather across northern Minnesota
+//   * Needs: Travel safety conditions, community event planning, rural reliability
+//   * Query pattern: Various lat/lng across Iron Range and rural communities
+//
+// CLAUDE AI ENHANCEMENT OPPORTUNITIES:
+// - Add ?activity=wilderness_paddling parameter for Sarah's safety filtering
+// - Include ?family_friendly=true for Jennifer's comfort requirements
+// - Add ?tournament_mode=true for Andrea's competitive fishing conditions
+// - Implement ?rural_travel=true for Kirsten's business development needs
+// - Add weather alerting for critical persona-specific thresholds
+//
 app.get('/api/weather-locations', async (req, res) => {
   try {
     const { lat, lng, radius = '50', limit = '150' } = req.query
@@ -146,7 +204,12 @@ app.get('/api/weather-locations', async (req, res) => {
       let queryParams
 
       if (lat && lng) {
-        // Query all locations ordered by distance from user location (no radius restriction)
+        // ================================================================
+        // PROXIMITY-BASED QUERY (All personas need "nearest" weather)
+        // ================================================================
+        // Calculates distance from user location to all Minnesota tourism destinations
+        // Uses simple Haversine formula - no PostGIS dependency for broad compatibility
+        // Supports all personas' need for proximity-based weather discovery
         query = `
           SELECT 
             l.id,
