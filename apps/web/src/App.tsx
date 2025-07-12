@@ -54,9 +54,9 @@ interface Location {
 
 export default function App() {
   const [filters, setFilters] = useState<WeatherFilters>({
-    temperature: 'mild',
-    precipitation: 'light', // More inclusive for nice weather
-    wind: 'calm'
+    temperature: '', // Show all temperatures initially  
+    precipitation: '', // Show all precipitation levels
+    wind: '' // Show all wind speeds
   })
   
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
@@ -75,8 +75,7 @@ export default function App() {
     refetch: refetchLocations 
   } = useWeatherLocations({ 
     userLocation, 
-    radius: 50, 
-    limit: 40 
+    limit: 150 // Sensible maximum for nearest nice weather (no geographic restrictions)
   })
 
   // Helper function to apply relative filtering
@@ -352,20 +351,20 @@ export default function App() {
     }
 
     if (userLocation === null) {
-      // No user location yet - apply default filters and use smart zoom for markers only
+      // No user location yet - apply default filters to show good variety of locations
       const defaultFilters = {
-        temperature: 'mild',
-        precipitation: 'light', 
-        wind: 'calm'
+        temperature: '', // Show all temperatures initially
+        precipitation: '', // Show all precipitation levels
+        wind: '' // Show all wind speeds
       }
       const filtered = applyRelativeFilters(apiLocations, defaultFilters)
       setFilteredLocations(filtered)
       
       // Use smarter zoom calculation for filtered markers
       if (filtered.length > 0) {
-        // For initial view, focus on clustered markers rather than all scattered markers
-        const targetCount = Math.min(3, filtered.length)
-        const markersToShow = filtered.slice(0, targetCount)
+        // For Minnesota weather platform, show regional context with all filtered markers
+        // Use all filtered markers to provide comprehensive regional view
+        const markersToShow = filtered
         
         const lats = markersToShow.map(loc => loc.lat)
         const lngs = markersToShow.map(loc => loc.lng)
@@ -385,31 +384,21 @@ export default function App() {
         const lngRange = maxLng - minLng
         const maxRange = Math.max(latRange, lngRange)
         
-        // Use much tighter padding for better initial zoom
-        const paddedRange = Math.max(maxRange * 1.5, 0.01) // Ensure minimum range for single markers
+        // Use appropriate padding for regional Minnesota view
+        const paddedRange = Math.max(maxRange * 1.2, 0.5) // Ensure good regional context for Minnesota
         
-        // Use same granular zoom levels as calculateDynamicMapView
-        let zoom = 18
-        if (paddedRange > 0.008) zoom = 17.5
-        if (paddedRange > 0.012) zoom = 17
-        if (paddedRange > 0.018) zoom = 16.5
-        if (paddedRange > 0.025) zoom = 16
-        if (paddedRange > 0.035) zoom = 15.5
-        if (paddedRange > 0.050) zoom = 15
-        if (paddedRange > 0.070) zoom = 14.5
-        if (paddedRange > 0.095) zoom = 14
-        if (paddedRange > 0.125) zoom = 13.5
-        if (paddedRange > 0.165) zoom = 13
-        if (paddedRange > 0.220) zoom = 12.5
-        if (paddedRange > 0.290) zoom = 12
-        if (paddedRange > 0.380) zoom = 11.5
-        if (paddedRange > 0.500) zoom = 11
-        if (paddedRange > 0.650) zoom = 10.5
-        if (paddedRange > 0.850) zoom = 10
-        if (paddedRange > 1.100) zoom = 9.5
-        if (paddedRange > 1.450) zoom = 9
-        if (paddedRange > 1.900) zoom = 8.5
-        if (paddedRange > 2.500) zoom = 8
+        // Use zoom levels optimized for Minnesota regional weather view
+        let zoom = 8 // Start with regional view for statewide weather
+        if (paddedRange < 4.0) zoom = 8   // Statewide view
+        if (paddedRange < 3.0) zoom = 8.5 // Large regional view  
+        if (paddedRange < 2.0) zoom = 9   // Regional view
+        if (paddedRange < 1.5) zoom = 9.5 // Sub-regional view
+        if (paddedRange < 1.0) zoom = 10  // Multi-city view
+        if (paddedRange < 0.7) zoom = 10.5
+        if (paddedRange < 0.5) zoom = 11  // City cluster view
+        if (paddedRange < 0.3) zoom = 11.5
+        if (paddedRange < 0.2) zoom = 12  // Close cluster view
+        if (paddedRange < 0.1) zoom = 13  // Very close markers
         
         setMapZoom(zoom)
         

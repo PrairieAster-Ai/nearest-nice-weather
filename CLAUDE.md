@@ -33,6 +33,29 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 ## Development Commands
 
+**Development Environment** (ROBUST STARTUP - Prevents Connection Issues):
+```bash
+# RECOMMENDED: Use the robust startup script
+./dev-startup.sh
+
+# This script automatically:
+# - Cleans up existing processes
+# - Starts API server (port 4000)
+# - Starts frontend server (port 3001)
+# - Tests all connections
+# - Verifies environment configuration
+
+# Alternative: Manual startup
+cd apps/web && npm run dev  # Frontend on port 3001
+node dev-api-server.js      # API on port 4000
+
+# Production-style process management (optional)
+npm install -g pm2
+pm2 start ecosystem.config.js  # Starts both servers with auto-restart
+pm2 logs                       # View logs
+pm2 restart all               # Restart all services
+```
+
 **Environment Setup** (SIMPLIFIED - Environment Variables):
 ```bash
 # 1. Copy environment template and configure
@@ -42,10 +65,10 @@ cp .env.example .env
 # DATABASE_URL="postgresql://[username]:[password]@[hostname]/weather?sslmode=require"
 
 # 3. Run development environment
-cd apps/web && npm run dev
+./dev-startup.sh
 
-# The development server will proxy API calls to production automatically
-# No local API server needed - all configuration via .env files
+# The development server will proxy API calls to localhost:4000 automatically
+# All configuration via .env files
 
 # Optional: Set custom development port
 export DEV_PORT=3001  # Default port if not specified
@@ -224,6 +247,37 @@ git push origin emergency-rollback --force
 - **When environment issues occur**:
   - Docker networking problems → `./apply-docker-fix.sh`
   - General diagnostics → `./scripts/development-dashboard.sh`
+
+## Claude AI Productivity Intelligence
+
+**CRITICAL**: Check environment health before starting any development work:
+```bash
+# Required environment check at session start:
+curl -s http://localhost:3050/health | jq '.'
+./environment-health-check.sh
+```
+
+**Development Environment KPIs** (see [CLAUDE-PRODUCTIVITY-KPIs.md](CLAUDE-PRODUCTIVITY-KPIs.md)):
+- **Health Score >90%**: Full development capability - proceed with complex tasks
+- **Health Score 70-89%**: Reduced capability - focus on incremental changes  
+- **Health Score <70%**: CRITICAL - prioritize environment fixes over features
+
+**Known Productivity Degradation Patterns**:
+- **Port conflicts**: 8-10 hours/week historical loss - monitor service detection
+- **Service startup issues**: 4-6 hours/week - check startup sequence health
+- **Docker networking**: 2-4 hours/week - system restart requires Docker restart
+- **Configuration drift**: 2-3 hours/week - validate environment variables
+
+**Intelligence Monitoring**: Claude Intelligence Suite provides real-time context
+- System Monitor: http://localhost:3052/system-resources  
+- Service Health: http://localhost:3050/status
+- Business Context: http://localhost:3058/business-context
+
+**Decision Framework**: Use environment health to determine task complexity
+- Health >95%: Safe for refactoring, config changes, complex features
+- Health 85-94%: Normal development, monitor resources during builds
+- Health 70-84%: Incremental changes only, avoid config modifications
+- Health <70%: Stop feature work, focus on environment recovery
   - Emergency issues → Follow `documentation/runbooks/emergency-deployment-procedures.md`
 
 - Ask for feedback before adding or editing end user facing content

@@ -21,47 +21,12 @@ export interface WeatherSearchResponse {
 }
 
 export const weatherApi = {
+  // DEPRECATED: This endpoint doesn't exist in current API
+  // The main app uses useWeatherLocations -> /api/weather-locations
+  // This can be removed after confirming no components use it
   async searchLocations(filters: WeatherFilter): Promise<WeatherSearchResponse> {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)
-
-    try {
-      const response = await fetch(`${API_CONFIG.baseURL}/weather-search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(filters),
-        signal: controller.signal,
-      })
-
-      clearTimeout(timeoutId)
-
-      if (!response.ok) {
-        throw new WeatherApiError(
-          `Failed to search for weather locations: ${response.statusText}`,
-          response.status
-        )
-      }
-
-      const data = await response.json()
-      return {
-        locations: data.locations || [],
-        total: data.total || data.locations?.length || 0,
-      }
-    } catch (error) {
-      clearTimeout(timeoutId)
-      
-      if (error instanceof WeatherApiError) {
-        throw error
-      }
-      
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new WeatherApiError('Request timed out. Please try again.')
-      }
-      
-      throw new WeatherApiError('An unexpected error occurred while searching for weather data')
-    }
+    console.warn('DEPRECATED: searchLocations endpoint does not exist. Use useWeatherLocations instead.')
+    throw new WeatherApiError('Search endpoint not implemented. Use weather-locations endpoint.')
   },
 
   async getLocations(): Promise<Location[]> {
@@ -69,7 +34,7 @@ export const weatherApi = {
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)
 
     try {
-      const response = await fetch(`${API_CONFIG.baseURL}/locations`, {
+      const response = await fetch(`${API_CONFIG.baseURL}/weather-locations`, {
         method: 'GET',
         signal: controller.signal,
       })
@@ -84,7 +49,7 @@ export const weatherApi = {
       }
 
       const data = await response.json()
-      return data.locations || []
+      return data.data || []
     } catch (error) {
       clearTimeout(timeoutId)
       

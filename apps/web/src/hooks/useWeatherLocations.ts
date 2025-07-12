@@ -23,7 +23,7 @@ interface WeatherLocationResponse {
 
 interface UseWeatherLocationsOptions {
   userLocation?: [number, number] | null
-  radius?: number // miles
+  radius?: number // miles (legacy parameter, not used for distance restriction)  
   limit?: number
 }
 
@@ -34,7 +34,7 @@ export function useWeatherLocations(options: UseWeatherLocationsOptions = {}) {
   const [error, setError] = useState<string | null>(null)
   const [lastFetch, setLastFetch] = useState<Date | null>(null)
 
-  const { userLocation, radius = 50, limit = 40 } = options
+  const { userLocation, radius = 50, limit = 150 } = options
 
   const fetchWeatherLocations = useCallback(async () => {
     try {
@@ -52,10 +52,8 @@ export function useWeatherLocations(options: UseWeatherLocationsOptions = {}) {
         params.append('radius', radius.toString())
       }
 
-      // Use local API server in development, production API in production
-      const apiUrl = process.env.NODE_ENV === 'development' 
-        ? `http://localhost:4000/api/weather-locations?${params}`
-        : `/api/weather-locations?${params}`
+      // Use proxy in all environments
+      const apiUrl = `/api/weather-locations?${params}`
       
       const response = await fetch(apiUrl)
       

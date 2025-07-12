@@ -1,0 +1,50 @@
+{
+  "name": "@claude-ai/intelligence-suite",
+  "version": "1.0.0",
+  "description": "Portable Claude AI Intelligence Suite - Minimize productivity degradation through contextual data access",
+  "main": "claude-intelligence-suite-portable.js",
+  "bin": {
+    "claude-intelligence": "./claude-intelligence-suite-portable.js"
+  },
+  "scripts": {
+    "start": "node claude-intelligence-suite-portable.js",
+    "install-global": "npm install -g .",
+    "test": "node test/basic-test.js"
+  },
+  "keywords": [
+    "claude-ai",
+    "intelligence",
+    "monitoring",
+    "development",
+    "productivity",
+    "collaboration",
+    "git-analysis",
+    "system-monitoring",
+    "database-intelligence"
+  ],
+  "author": "Claude AI Collaboration Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "ws": "^8.0.0"
+  },
+  "optionalDependencies": {
+    "pg": "^8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/claude-ai/intelligence-suite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/claude-ai/intelligence-suite/issues"
+  },
+  "homepage": "https://github.com/claude-ai/intelligence-suite#readme",
+  "files": [
+    "claude-intelligence-suite-portable.js",
+    "README.md",
+    "LICENSE",
+    "examples/"
+  ]
+}

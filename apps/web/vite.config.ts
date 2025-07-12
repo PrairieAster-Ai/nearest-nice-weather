@@ -61,9 +61,9 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: process.env.VITE_API_PROXY_URL || 'https://www.nearestniceweather.com',
+        target: process.env.VITE_API_PROXY_URL || 'http://localhost:4000',
         changeOrigin: true,
-        secure: true,
+        secure: false,
         configure: (proxy) => {
           proxy.on('error', (err) => {
             console.log('Proxy error:', err);

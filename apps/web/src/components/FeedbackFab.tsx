@@ -46,10 +46,8 @@ export function FeedbackFab() {
     setMessage('')
 
     try {
-      // Use local API server in development, production API in production
-      const apiUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:4000/api/feedback'
-        : '/api/feedback'
+      // Use proxy in all environments
+      const apiUrl = '/api/feedback'
       
       const response = await fetch(apiUrl, {
         method: 'POST',

@@ -43,8 +43,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { 
       lat, 
       lng, 
-      radius = '50', // miles
-      limit = '40' 
+      radius = '50', // miles (legacy parameter, not used for distance restriction)
+      limit = '150' // Increased sensible maximum for nearest nice weather
     } = req.query
 
     const client = await pool.connect()
@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let queryParams: any[]
 
       if (lat && lng) {
-        // Query locations within radius of user location, ordered by distance
+        // Query all locations ordered by distance from user location (no radius restriction)
         query = `
           SELECT 
             wl.id,
@@ -79,17 +79,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ) / 1609.34 as distance_miles
           FROM weather.locations wl
           LEFT JOIN weather.current_data wd ON wl.id = wd.location_id
-          WHERE ST_DWithin(
-            ST_Transform(wl.coordinates, 3857),
-            ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 3857),
-            $3 * 1609.34
-          )
           ORDER BY distance_miles ASC
-          LIMIT $4
+          LIMIT $3
         `
-        queryParams = [parseFloat(lng as string), parseFloat(lat as string), parseFloat(radius as string), parseInt(limit as string)]
+        queryParams = [parseFloat(lng as string), parseFloat(lat as string), parseInt(limit as string)]
       } else {
-        // Query all Minnesota locations with mock weather data
+        // Query all available locations with mock weather data (no geographic restrictions)
         query = `
           SELECT 
             wl.id,
@@ -110,7 +105,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             COALESCE(wd.wind_speed, (5 + RANDOM() * 30)::int) as wind_speed
           FROM weather.locations wl
           LEFT JOIN weather.current_data wd ON wl.id = wd.location_id
-          WHERE wl.state = 'MN'
           ORDER BY wl.name ASC
           LIMIT $1
         `
@@ -139,10 +133,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         timestamp: new Date().toISOString(),
         ...(process.env.NODE_ENV === 'development' && {
           debug: {
-            query_type: lat && lng ? 'proximity' : 'all_minnesota',
+            query_type: lat && lng ? 'proximity_unlimited' : 'all_locations',
             user_location: lat && lng ? { lat, lng } : null,
-            radius: radius,
-            limit: limit
+            radius: radius + ' (legacy parameter, not used for distance restriction)',
+            limit: limit,
+            data_source: 'database'
           }
         })
       })

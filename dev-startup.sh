@@ -1,159 +1,159 @@
 #!/bin/bash
+
 # Development Environment Startup Script
-# This script handles common localhost setup issues and serves as documentation
+# Prevents frequent localhost connection issues
 
-set -e  # Exit on error
+echo "🚀 Starting Nearest Nice Weather Development Environment..."
 
-echo "🚀 Starting Nearest Nice Weather Development Environment"
-echo "=================================================="
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-print_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
-}
-
-# Check if we're in the right directory
-if [ ! -f "package.json" ]; then
-    print_error "Not in project root directory. Please run from nearest-nice-weather/"
-    exit 1
-fi
-
-print_info "Step 1: Environment validation"
-# Check for required environment file
-if [ ! -f ".env" ]; then
-    print_warning ".env file not found"
-    if [ -f ".env.example" ]; then
-        print_info "Copying .env.example to .env"
-        cp .env.example .env
-        print_warning "Please edit .env with your database credentials"
+# Function to check if port is in use
+check_port() {
+    local port=$1
+    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
+        echo "Port $port is in use"
+        return 0
     else
-        print_error ".env.example not found. Please create .env manually"
-        exit 1
+        echo "Port $port is available"
+        return 1
     fi
-else
-    print_status ".env file exists"
-fi
+}
 
-print_info "Step 2: Dependency health check"
-# Check for common dependency issues
-if ! npm ls @vercel/node > /dev/null 2>&1; then
-    print_warning "Dependency issues detected, running npm install"
-    npm install
-fi
-
-print_info "Step 3: Process cleanup"
-# Kill any existing dev servers (common issue after crashes)
-pkill -f "vite --port" 2>/dev/null || true
-pkill -f "next dev" 2>/dev/null || true
-
-# Clean up any stuck processes on the dev port
-lsof -ti:${DEV_PORT:-3001} | xargs kill -9 2>/dev/null || true
-
-print_status "Cleaned up existing processes"
-
-print_info "Step 3.5: Docker localhost health check"
-# Test if localhost binding works (common issue after restart)
-if ! timeout 3 bash -c "</dev/tcp/127.0.0.1/22" 2>/dev/null; then
-    print_warning "Localhost binding may be impaired - likely Docker networking conflict"
-    if systemctl is-active docker >/dev/null 2>&1; then
-        print_info "Docker is running and may be causing localhost conflicts"
-        echo ""
-        echo "🔧 To fix localhost development servers, Docker needs to restart."
-        echo "   This requires sudo access to run: systemctl restart docker"
-        echo ""
-        read -p "Restart Docker now? (y/N): " -n 1 -r
-        echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            print_info "Restarting Docker to fix localhost networking..."
-            if sudo systemctl restart docker 2>/dev/null; then
-                print_status "Docker restarted successfully"
-                sleep 2
-                # Test localhost again after Docker restart
-                if timeout 3 bash -c "</dev/tcp/127.0.0.1/22" 2>/dev/null; then
-                    print_status "Localhost binding fixed!"
-                else
-                    print_warning "Localhost still impaired after Docker restart"
-                fi
-            else
-                print_error "Failed to restart Docker"
+# Function to start service with retry logic
+start_service() {
+    local name=$1
+    local command=$2
+    local port=$3
+    local max_retries=3
+    local retry=0
+    
+    while [ $retry -lt $max_retries ]; do
+        echo "🔄 Starting $name (attempt $((retry + 1))/$max_retries)..."
+        
+        if [ -n "$port" ]; then
+            if check_port $port; then
+                echo "✅ $name already running on port $port"
+                return 0
             fi
-        else
-            print_warning "Skipping Docker restart - localhost may not work for development servers"
-            echo "💡 You can manually restart Docker later with: sudo systemctl restart docker"
         fi
-    else
-        print_warning "Docker not running, but localhost binding still impaired"
-    fi
-else
-    print_status "Localhost binding healthy"
-fi
-print_status "Docker localhost check completed"
+        
+        eval $command &
+        local pid=$!
+        sleep 3
+        
+        if kill -0 $pid 2>/dev/null; then
+            echo "✅ $name started successfully (PID: $pid)"
+            return 0
+        else
+            echo "❌ $name failed to start, retrying..."
+            retry=$((retry + 1))
+        fi
+    done
+    
+    echo "❌ Failed to start $name after $max_retries attempts"
+    return 1
+}
 
-print_info "Step 4: Build validation"
-# Quick build test to catch major issues early
-if ! npm run build > /dev/null 2>&1; then
-    print_error "Build failed. Running diagnostic..."
-    npm run build
+# Kill any existing processes
+echo "🧹 Cleaning up existing processes..."
+pkill -f "node.*vite" 2>/dev/null || true
+pkill -f "node.*dev-api-server" 2>/dev/null || true
+pkill -f "simple-server" 2>/dev/null || true
+sleep 2
+
+# Start API server
+echo "🗄️ Starting API server..."
+if ! start_service "API Server" "node dev-api-server.js" "4000"; then
+    echo "❌ Failed to start API server"
     exit 1
 fi
-print_status "Build validation passed"
 
-print_info "Step 5: Development server configuration"
-# Set environment variables for stable WebSocket connections
-export DEV_PORT=${DEV_PORT:-3001}
-export VITE_DEV_PORT=$DEV_PORT
-export VITE_HMR_PORT=$DEV_PORT
-export VITE_DEV_HOST="0.0.0.0"
+# Start frontend development server
+echo "🌐 Starting frontend development server..."
+if ! start_service "Frontend Server" "npm run dev" "3001"; then
+    echo "❌ Failed to start frontend server"
+    exit 1
+fi
 
-print_status "Environment configured: Port $DEV_PORT, HMR $VITE_HMR_PORT"
+# Wait for servers to be ready
+echo "⏳ Waiting for servers to be ready..."
+sleep 5
 
-print_info "Step 6: Starting development server"
-echo ""
-echo "🌐 Development server will start on http://localhost:$DEV_PORT"
-echo "📝 Common issues and solutions:"
-echo "   • WebSocket errors: Hard refresh browser (Ctrl+F5)"
-echo "   • Port conflicts: This script cleans up automatically"
-echo "   • Dependency issues: Run 'npm install' if imports fail"
-echo "   • Database errors: Check .env DATABASE_URL"
-echo ""
-echo "🔧 Development commands:"
-echo "   • npm run build      - Test production build"
-echo "   • npm run lint       - Check code style"
-echo "   • npm run type-check - TypeScript validation"
-echo "   • npm test           - Run complete test suite (28 tests)"
-echo "   • npm run test:coverage - Test coverage report"
-echo "   • npm run test:watch - Live test feedback during development"
-echo "   • npm run dev:full   - Start dev server + live testing"
-echo ""
-echo "⚠️  Known issues:"
-echo "   • aria-hidden warnings: Material-UI modal behavior (safe to ignore)"
-echo "   • Frontend tests skipped: React 19 compatibility (non-blocking)"
-echo "   • npm audit warnings: Development dependencies only"
-echo ""
-echo "🛑 To stop: Ctrl+C or run 'pkill -f \"vite --port $VITE_DEV_PORT\"'"
-echo ""
+# Test API connectivity
+echo "🔍 Testing API connectivity..."
+if curl -s "http://localhost:4000/api/weather-locations?limit=1" | grep -q "success"; then
+    echo "✅ API server responding correctly"
+else
+    echo "❌ API server not responding"
+fi
 
-# Start the development server
-cd apps/web
-exec npm run dev
+# Test frontend connectivity
+echo "🔍 Testing frontend connectivity..."
+if curl -s "http://localhost:3001/" | grep -q "html"; then
+    echo "✅ Frontend server responding correctly"
+else
+    echo "❌ Frontend server not responding"
+fi
 
-# Note: exec replaces the shell process, so anything after this won't run
+# Test proxy connectivity
+echo "🔍 Testing API proxy..."
+if curl -s "http://localhost:3001/api/weather-locations?limit=1" | grep -q "success"; then
+    echo "✅ API proxy working correctly"
+else
+    echo "❌ API proxy not working"
+fi
+
+# Test PostgreSQL database connectivity
+echo "🔍 Testing local PostgreSQL database..."
+if docker exec weather-postgres psql -U postgres -d weather_intelligence -c "SELECT 1;" >/dev/null 2>&1; then
+    echo "✅ PostgreSQL database responding correctly"
+else
+    echo "❌ PostgreSQL database not responding"
+fi
+
+# Start Claude Intelligence Suite if not running
+echo "🧠 Starting Claude Intelligence Suite..."
+if ! curl -s "http://localhost:3050/health" >/dev/null 2>&1; then
+    echo "🔄 Starting intelligence monitoring..."
+    cd /home/robertspeer/Projects/GitRepo/nearest-nice-weather
+    DATABASE_URL="postgresql://postgres:postgres@localhost:5432/weather_intelligence" \
+    PROJECT_NAME="nearest-nice-weather" \
+    node claude-intelligence-suite-portable.js >/dev/null 2>&1 &
+    sleep 3
+    
+    if curl -s "http://localhost:3050/health" >/dev/null 2>&1; then
+        echo "✅ Claude Intelligence Suite started successfully"
+    else
+        echo "❌ Claude Intelligence Suite failed to start"
+    fi
+else
+    echo "✅ Claude Intelligence Suite already running"
+fi
+
+# Environment check
+echo "🔍 Checking environment configuration..."
+if [ -f ".env" ]; then
+    echo "✅ .env file exists"
+    if grep -q "VITE_API_PROXY_URL=http://localhost:4000" .env; then
+        echo "✅ API proxy configured correctly"
+    else
+        echo "❌ API proxy configuration missing"
+    fi
+else
+    echo "❌ .env file missing"
+fi
+
+echo ""
+echo "🎉 Development environment ready!"
+echo "📋 Available services:"
+echo "   🌐 Frontend: http://localhost:3001/"
+echo "   🗄️ API: http://localhost:4000/api/weather-locations"
+echo "   🔗 Proxy: http://localhost:3001/api/weather-locations"
+echo ""
+echo "🛠️ Debugging tools:"
+echo "   📊 API Health: curl http://localhost:4000/api/health"
+echo "   🌤️ Weather data: curl http://localhost:3001/api/weather-locations?limit=5"
+echo "   🧠 Intelligence: curl http://localhost:3050/health"
+echo "   🗄️ Database: docker exec weather-postgres psql -U postgres -d weather_intelligence"
+echo "   📝 Logs: tail -f /tmp/vite.log"
+echo ""
+echo "🔄 To restart: ./dev-startup.sh"
+echo "🛑 To stop: pkill -f \"node.*vite\" && pkill -f \"node.*dev-api-server\" && pkill -f \"claude-intelligence\""
