@@ -1,5 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '../../../test/utils/test-utils'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#7563A8',
+    },
+  },
+})
+
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <ThemeProvider theme={theme}>{children}</ThemeProvider>
+)
 import { FeedbackForm } from '../FeedbackForm'
 
 // Mock the useFeedbackSubmission hook
@@ -10,7 +23,7 @@ vi.mock('../../../hooks/useFeedbackSubmission', () => ({
   }))
 }))
 
-describe.skip('FeedbackForm Component', () => {
+describe('FeedbackForm Component', () => {
   const mockOnClose = vi.fn()
 
   beforeEach(() => {
@@ -18,7 +31,7 @@ describe.skip('FeedbackForm Component', () => {
   })
 
   it('renders feedback form when open', () => {
-    render(<FeedbackForm open={true} onClose={mockOnClose} />)
+    render(<FeedbackForm open={true} onClose={mockOnClose} />, { wrapper: TestWrapper })
     
     expect(screen.getByText('Share Your Feedback')).toBeInTheDocument()
     expect(screen.getByText('How would you rate your experience?')).toBeInTheDocument()
@@ -28,13 +41,13 @@ describe.skip('FeedbackForm Component', () => {
   })
 
   it('does not render when closed', () => {
-    render(<FeedbackForm open={false} onClose={mockOnClose} />)
+    render(<FeedbackForm open={false} onClose={mockOnClose} />, { wrapper: TestWrapper })
     
     expect(screen.queryByText('Share Your Feedback')).not.toBeInTheDocument()
   })
 
   it('validates required fields', async () => {
-    render(<FeedbackForm open={true} onClose={mockOnClose} />)
+    render(<FeedbackForm open={true} onClose={mockOnClose} />, { wrapper: TestWrapper })
     
     const submitButton = screen.getByRole('button', { name: /submit feedback/i })
     expect(submitButton).toBeDisabled()
@@ -62,7 +75,7 @@ describe.skip('FeedbackForm Component', () => {
       isPending: false,
     } as any)
 
-    render(<FeedbackForm open={true} onClose={mockOnClose} />)
+    render(<FeedbackForm open={true} onClose={mockOnClose} />, { wrapper: TestWrapper })
     
     // Fill out the form
     const ratingInputs = screen.getAllByRole('radio')
@@ -97,7 +110,7 @@ describe.skip('FeedbackForm Component', () => {
   })
 
   it('closes dialog when cancel is clicked', () => {
-    render(<FeedbackForm open={true} onClose={mockOnClose} />)
+    render(<FeedbackForm open={true} onClose={mockOnClose} />, { wrapper: TestWrapper })
     
     const cancelButton = screen.getByRole('button', { name: /cancel/i })
     fireEvent.click(cancelButton)

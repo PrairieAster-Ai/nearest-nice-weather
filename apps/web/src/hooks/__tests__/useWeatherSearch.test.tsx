@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useWeatherSearch } from '../useWeatherSearch'
 
-describe.skip('useWeatherSearch Hook', () => {
+describe('useWeatherSearch Hook', () => {
   it('initializes with default state', () => {
     const { result } = renderHook(() => useWeatherSearch())
     

@@ -1,9 +1,22 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '../../../test/utils/test-utils'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#7563A8',
+    },
+  },
+})
+
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <ThemeProvider theme={theme}>{children}</ThemeProvider>
+)
 import { WeatherFilters } from '../WeatherFilters'
 import type { WeatherFilter } from '../../../types/weather'
 
-describe.skip('WeatherFilters Component', () => {
+describe('WeatherFilters Component', () => {
   const defaultFilters: WeatherFilter = {
     temperature: 'mild',
     precipitation: 'none',
@@ -12,7 +25,7 @@ describe.skip('WeatherFilters Component', () => {
 
   it('renders all filter options', () => {
     const onChange = vi.fn()
-    render(<WeatherFilters filters={defaultFilters} onChange={onChange} />)
+    render(<WeatherFilters filters={defaultFilters} onChange={onChange} />, { wrapper: TestWrapper })
     
     expect(screen.getByLabelText(/temperature/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/precipitation/i)).toBeInTheDocument()
@@ -21,7 +34,7 @@ describe.skip('WeatherFilters Component', () => {
 
   it('displays current filter values', () => {
     const onChange = vi.fn()
-    render(<WeatherFilters filters={defaultFilters} onChange={onChange} />)
+    render(<WeatherFilters filters={defaultFilters} onChange={onChange} />, { wrapper: TestWrapper })
     
     expect(screen.getByDisplayValue('mild')).toBeInTheDocument()
     expect(screen.getByDisplayValue('none')).toBeInTheDocument()
@@ -30,7 +43,7 @@ describe.skip('WeatherFilters Component', () => {
 
   it('calls onChange when filter is changed', () => {
     const onChange = vi.fn()
-    render(<WeatherFilters filters={defaultFilters} onChange={onChange} />)
+    render(<WeatherFilters filters={defaultFilters} onChange={onChange} />, { wrapper: TestWrapper })
     
     const temperatureSelect = screen.getByLabelText(/temperature/i)
     fireEvent.change(temperatureSelect, { target: { value: 'warm' } })
@@ -40,7 +53,7 @@ describe.skip('WeatherFilters Component', () => {
 
   it('disables filters when disabled prop is true', () => {
     const onChange = vi.fn()
-    render(<WeatherFilters filters={defaultFilters} onChange={onChange} disabled />)
+    render(<WeatherFilters filters={defaultFilters} onChange={onChange} disabled />, { wrapper: TestWrapper })
     
     expect(screen.getByLabelText(/temperature/i)).toBeDisabled()
     expect(screen.getByLabelText(/precipitation/i)).toBeDisabled()

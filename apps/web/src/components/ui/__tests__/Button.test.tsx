@@ -16,7 +16,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <ThemeProvider theme={theme}>{children}</ThemeProvider>
 )
 
-describe.skip('Button Component', () => {
+describe('Button Component', () => {
   it('renders with text', () => {
     render(<Button>Click me</Button>, { wrapper: TestWrapper })
     expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument()
