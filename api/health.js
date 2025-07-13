@@ -24,7 +24,13 @@ module.exports = async function handler(req, res) {
       message: 'Production API server is running',
       timestamp: new Date().toISOString(),
       environment: 'vercel-serverless',
-      region: process.env.VERCEL_REGION || 'unknown'
+      region: process.env.VERCEL_REGION || 'unknown',
+      debug: {
+        has_postgres_url: !!process.env.POSTGRES_URL,
+        has_database_url: !!process.env.DATABASE_URL,
+        node_env: process.env.NODE_ENV,
+        vercel_env: process.env.VERCEL_ENV
+      }
     })
   } catch (error) {
     console.error('Health check error:', error)
