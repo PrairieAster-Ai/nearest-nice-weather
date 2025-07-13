@@ -4,7 +4,7 @@
 // Provides Minnesota weather data for travel-time based weather discovery
 // Supports both proximity-based and general location queries
 
-const { Pool } = require('pg')
+import { Pool } from 'pg'
 
 // Database connection with environment variable support
 const pool = new Pool({
@@ -15,7 +15,7 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 })
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // CORS headers for frontend access
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
