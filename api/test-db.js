@@ -3,18 +3,11 @@
 // ========================================================================
 // Tests database connectivity for production monitoring
 
-const { Pool } = require('pg')
+import { neon } from '@neondatabase/serverless'
 
-// Database connection with environment variable support
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL || process.env.DATABASE_URL_ALT,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-})
+const sql = neon(process.env.WEATHERDB_URL || process.env.POSTGRES_URL || process.env.DATABASE_URL)
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // CORS headers for frontend access
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
@@ -30,22 +23,15 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const client = await pool.connect()
+    const result = await sql`SELECT NOW() as current_time`
     
-    try {
-      const result = await client.query('SELECT NOW() as current_time')
-      
-      res.json({
-        success: true,
-        message: 'Database connection successful',
-        timestamp: result.rows[0].current_time,
-        postgres_version: 'Connected',
-        environment: 'vercel-serverless'
-      })
-      
-    } finally {
-      client.release()
-    }
+    res.json({
+      success: true,
+      message: 'Database connection successful',
+      timestamp: result[0].current_time,
+      postgres_version: 'Connected via Neon Serverless',
+      environment: 'vercel-serverless'
+    })
     
   } catch (error) {
     console.error('Database connection error:', error)

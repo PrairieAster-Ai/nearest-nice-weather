@@ -3,7 +3,7 @@
 // ========================================================================
 // Simple health check endpoint for production monitoring
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // CORS headers for frontend access
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
