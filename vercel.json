@@ -4,6 +4,20 @@
   "outputDirectory": "apps/web/dist",
   "framework": "vite",
   "installCommand": "npm install --legacy-peer-deps",
+  "functions": {
+    "api/health.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/hello.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/test-db.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/weather-locations.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "rewrites": [
     {
       "source": "/health.json",
