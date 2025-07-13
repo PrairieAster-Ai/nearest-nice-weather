@@ -21,7 +21,8 @@
     "deploy": "echo '⚠️  Use deploy:prod for production or deploy:preview for preview' && false",
     "deploy:preview": "vercel",
     "deploy:prod": "node deployment/confirm-production.js",
-    "ci:quality": "npm run lint && npm run type-check && npm run test && npm run build"
+    "ci:quality": "npm run lint && npm run type-check && npm run build",
+    "ci:quality:full": "npm run lint && npm run type-check && npm run test && npm run build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -32,20 +33,21 @@
     "@types/leaflet": "^1.9.19",
     "@vercel/node": "^2.3.0",
     "leaflet": "^1.9.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.27.1",
     "@eslint/js": "^9.30.1",
     "@tanstack/react-query-devtools": "^5.59.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/node": "^24.0.10",
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",
     "@vitejs/plugin-react": "^4.5.2",
@@ -78,9 +80,9 @@
     ]
   },
   "overrides": {
-    "react-leaflet": {
-      "react": "19.1.0",
-      "react-dom": "19.1.0"
-    }
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1"
   }
 }

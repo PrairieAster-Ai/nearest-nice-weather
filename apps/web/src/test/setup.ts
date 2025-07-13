@@ -2,6 +2,7 @@ import '@testing-library/jest-dom'
 import { beforeAll, afterEach, afterAll, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import { server } from './mocks/server'
+// React 18 LTS setup - explicit React import now provided in components
 
 // Establish API mocking before all tests
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))

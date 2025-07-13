@@ -5,7 +5,10 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // React 18 LTS with classic JSX runtime for stability
+      jsxRuntime: 'automatic'
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       disable: true,

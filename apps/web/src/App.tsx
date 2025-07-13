@@ -290,7 +290,7 @@ export default function App() {
           // Location set from IP
           return true
         }
-      } catch (error) {
+      } catch {
         // IP location failed
       }
       return false

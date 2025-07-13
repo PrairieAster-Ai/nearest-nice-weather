@@ -1,8 +1,11 @@
-// React 19 with the new JSX transform doesn't require React import
+// React 18 LTS with automatic JSX transform
+import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <App />
+  <StrictMode>
+    <App />
+  </StrictMode>
 )

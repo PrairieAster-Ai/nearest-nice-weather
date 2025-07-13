@@ -24,7 +24,7 @@ export const weatherApi = {
   // DEPRECATED: This endpoint doesn't exist in current API
   // The main app uses useWeatherLocations -> /api/weather-locations
   // This can be removed after confirming no components use it
-  async searchLocations(filters: WeatherFilter): Promise<WeatherSearchResponse> {
+  async searchLocations(_filters: WeatherFilter): Promise<WeatherSearchResponse> {
     console.warn('DEPRECATED: searchLocations endpoint does not exist. Use useWeatherLocations instead.')
     throw new WeatherApiError('Search endpoint not implemented. Use weather-locations endpoint.')
   },
