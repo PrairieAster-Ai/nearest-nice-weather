@@ -4,11 +4,6 @@
   "outputDirectory": "apps/web/dist",
   "framework": "vite",
   "installCommand": "npm install --legacy-peer-deps",
-  "functions": {
-    "apps/web/api/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/health.json",

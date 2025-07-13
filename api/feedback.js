@@ -3,11 +3,18 @@
 // ========================================================================
 // Handles user feedback submission with database storage
 
-import { neon } from '@neondatabase/serverless'
+const { Pool } = require('pg')
 
-const sql = neon(process.env.WEATHERDB_URL || process.env.POSTGRES_URL || process.env.DATABASE_URL)
+// Database connection with environment variable support
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+})
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // CORS headers for frontend access
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
@@ -38,35 +45,51 @@ export default async function handler(req, res) {
     const sessionId = session_id || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     // Create table if it doesn't exist
-    await sql`
-      CREATE TABLE IF NOT EXISTS user_feedback (
-        id SERIAL PRIMARY KEY,
-        email VARCHAR(255),
-        feedback_text TEXT NOT NULL,
-        rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-        category VARCHAR(50) CHECK (category IN ('bug', 'feature', 'general', 'performance')),
-        categories JSONB,
-        user_agent TEXT,
-        ip_address VARCHAR(45),
-        session_id VARCHAR(255),
-        page_url TEXT,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      )
-    `
+    const client = await pool.connect()
+    
+    try {
+      // Create table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS user_feedback (
+          id SERIAL PRIMARY KEY,
+          email VARCHAR(255),
+          feedback_text TEXT NOT NULL,
+          rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+          category VARCHAR(50) CHECK (category IN ('bug', 'feature', 'general', 'performance')),
+          categories JSONB,
+          user_agent TEXT,
+          ip_address VARCHAR(45),
+          session_id VARCHAR(255),
+          page_url TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        )
+      `)
 
       // Handle categories - support both single category and array
       const finalCategory = category || (categories && categories.length > 0 ? categories[0] : 'general')
       const finalCategories = categories || (category ? [category] : ['general'])
 
       // Insert feedback
-      const result = await sql`
+      const query = `
         INSERT INTO user_feedback 
         (email, feedback_text, rating, category, categories, user_agent, ip_address, session_id, page_url, created_at)
-        VALUES (${email || null}, ${feedback.trim()}, ${rating || null}, ${finalCategory}, ${JSON.stringify(finalCategories)}, ${userAgent}, ${Array.isArray(clientIp) ? clientIp[0] : clientIp}, ${sessionId}, ${page_url || null}, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
         RETURNING id, created_at
       `
+      
+      const result = await client.query(query, [
+        email || null,
+        feedback.trim(),
+        rating || null,
+        finalCategory,
+        JSON.stringify(finalCategories),
+        userAgent,
+        Array.isArray(clientIp) ? clientIp[0] : clientIp,
+        sessionId,
+        page_url || null
+      ])
 
-      const feedbackRecord = result[0]
+      const feedbackRecord = result.rows[0]
 
       res.status(200).json({
         success: true,
@@ -75,6 +98,9 @@ export default async function handler(req, res) {
         timestamp: feedbackRecord.created_at.toISOString()
       })
 
+    } finally {
+      client.release()
+    }
 
   } catch (error) {
     console.error('Feedback submission error:', error)
