@@ -33,6 +33,27 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 ## Development Commands
 
+**⚠️ CRITICAL: Database & API Deployment Guidelines** (Updated July 13, 2025):
+
+### **Environment Variable Management**
+- **NEVER mix local and cloud database connections** - leads to 2+ hour debugging sessions
+- **Always use Neon serverless driver** (`@neondatabase/serverless`) for Vercel functions
+- **Use consistent variable names** across all environments:
+  - Production: `WEATHERDB_URL` or `POSTGRES_URL` 
+  - Must point to same database with known schema
+
+### **Vercel Deployment Checklist**
+1. **Verify API functions location**: Must be in `apps/web/api/` directory
+2. **Use ES6 export syntax**: `export default function handler(req, res)`
+3. **Install serverless driver**: `npm install @neondatabase/serverless`
+4. **Set environment variables** in correct Vercel project
+5. **Disable authentication** on production (enable only for preview)
+
+### **Database Schema Validation**
+- **Always verify table structure** before deploying API changes
+- **Required tables**: `locations`, `weather_conditions`, `tourism_operators`
+- **Test with known good data** before production deployment
+
 **Development Environment** (ROBUST STARTUP - Prevents Connection Issues):
 ```bash
 # RECOMMENDED: Use the robust startup script
@@ -350,3 +371,8 @@ curl -s http://localhost:3050/health | jq '.'
 ## Data Integrity Memories
 
 - Mock data fallbacks are a bad idea, we need to maintain user's trust by only showing the most accurate data possible. If test data is necessary it needs to persist in the same way it will in production for full end to end testing.
+
+## Development Deployment Memories
+
+- Vercel preview environment requires vercel authentication to access
+- Vercel authentication should only apply to preview, if it's on production there is a break
