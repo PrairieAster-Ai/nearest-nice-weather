@@ -9,7 +9,7 @@ const assert = require('assert');
 
 class ProductionAcceptanceTests {
   constructor() {
-    this.baseUrl = 'https://nearestniceweather.com';
+    this.baseUrl = 'https://www.nearestniceweather.com';
     this.results = [];
   }
 
