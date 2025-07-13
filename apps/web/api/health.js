@@ -26,6 +26,7 @@ export default async function handler(req, res) {
       environment: 'vercel-serverless',
       region: process.env.VERCEL_REGION || 'unknown',
       debug: {
+        has_weatherdb_url: !!process.env.WEATHERDB_URL,
         has_postgres_url: !!process.env.POSTGRES_URL,
         has_database_url: !!process.env.DATABASE_URL,
         node_env: process.env.NODE_ENV,
