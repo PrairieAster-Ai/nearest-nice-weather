@@ -61,10 +61,13 @@ describe('Vercel Configuration Validation', () => {
     expect(config.rewrites).toBeDefined();
     expect(Array.isArray(config.rewrites)).toBe(true);
     
-    // Should have API rewrite rule
-    const apiRewrite = config.rewrites.find(rule => rule.source === '/api/(.*)');
-    expect(apiRewrite).toBeDefined();
-    expect(apiRewrite.destination).toBe('/api/$1');
+    // Should have frontend rewrite rule that excludes API routes
+    const frontendRewrite = config.rewrites.find(rule => rule.source === '/((?!api).*)');
+    expect(frontendRewrite).toBeDefined();
+    expect(frontendRewrite.destination).toBe('/index.html');
+    
+    // API routes are handled automatically by Vercel serverless functions
+    // No explicit API rewrite needed when using /api/ directory structure
   });
 
   test('should not have duplicate vercel.json files', () => {
