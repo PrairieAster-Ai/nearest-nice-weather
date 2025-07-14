@@ -48,9 +48,7 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Database connection error:', error)
     
-    const errorMessage = process.env.NODE_ENV === 'production' 
-      ? 'Database connection failed'
-      : error.message
+    const errorMessage = error.message
     
     res.status(500).json({
       success: false,
