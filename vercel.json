@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm install --legacy-peer-deps && cd apps/web && node deployment/health-check.cjs && vite build",
+  "buildCommand": "npm install --legacy-peer-deps && cd apps/web && npm run ci:quality",
   "outputDirectory": "apps/web/dist",
   "framework": "vite",
   "installCommand": "npm install --legacy-peer-deps",
