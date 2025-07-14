@@ -494,7 +494,6 @@ export default function App() {
         {/* Map Container - Full height, no padding, seamless with footer */}
         <div className="flex-1 relative">
           <MapContainer
-          key="weather-map-instance"
           {...({ center: mapCenter as LatLngExpression, zoom: mapZoom, style: { height: '100%', width: '100%' }, scrollWheelZoom: true, zoomControl: false } as any)}
         >
           <TileLayer
