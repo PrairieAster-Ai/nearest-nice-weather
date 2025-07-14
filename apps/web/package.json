@@ -22,7 +22,8 @@
     "deploy:preview": "vercel",
     "deploy:prod": "node deployment/confirm-production.js",
     "ci:quality": "npm run lint && npm run type-check && npm run build",
-    "ci:quality:full": "npm run lint && npm run type-check && npm run test && npm run build"
+    "ci:quality:full": "npm run lint && npm run type-check && npm run build",
+    "ci:quality:with-tests": "npm run lint && npm run type-check && npm run test && npm run build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
