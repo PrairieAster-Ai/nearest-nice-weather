@@ -24,14 +24,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const result = await sql`SELECT NOW() as current_time`
+    const time_result = await sql`SELECT NOW() as current_time`
+    const tables_result = await sql`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`
     
     res.json({
       success: true,
       message: 'Database connection successful',
-      timestamp: result[0].current_time,
+      timestamp: time_result[0].current_time,
       postgres_version: 'Connected via Neon Serverless',
-      environment: 'vercel-serverless'
+      environment: 'vercel-serverless',
+      tables: tables_result.map(row => row.table_name)
     })
     
   } catch (error) {
