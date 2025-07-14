@@ -4,7 +4,7 @@
   "description": "Weather Intelligence Platform - Monorepo",
   "private": true,
   "engines": {
-    "node": "20.x",
+    "node": "18.x",
     "npm": ">=10.8.0"
   },
   "workspaces": [
