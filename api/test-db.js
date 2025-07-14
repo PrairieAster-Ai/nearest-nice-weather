@@ -27,13 +27,22 @@ export default async function handler(req, res) {
     const time_result = await sql`SELECT NOW() as current_time`
     const tables_result = await sql`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`
     
+    // Test if locations table exists
+    let locations_test = null
+    try {
+      locations_test = await sql`SELECT COUNT(*) as count FROM locations`
+    } catch (e) {
+      locations_test = { error: e.message }
+    }
+    
     res.json({
       success: true,
       message: 'Database connection successful',
       timestamp: time_result[0].current_time,
       postgres_version: 'Connected via Neon Serverless',
       environment: 'vercel-serverless',
-      tables: tables_result.map(row => row.table_name)
+      tables: tables_result.map(row => row.table_name),
+      locations_test: locations_test
     })
     
   } catch (error) {
