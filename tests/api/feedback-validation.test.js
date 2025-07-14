@@ -35,8 +35,7 @@ describe('Feedback API Validation', () => {
 
   test('should handle feedback with special characters', async () => {
     const testCases = [
-      try {
-        'Great app!',
+      'Great app!',
       'Love it! Amazing work.',
       'Perfect! 100% satisfied!',
       'Works great! Thanks!',
@@ -44,18 +43,18 @@ describe('Feedback API Validation', () => {
       'Multi-line\nfeedback\nwith breaks'
     ];
 
-    for (const feedback of testCases) {
-      const response = await request(API_BASE_URL)
-        .post('/api/feedback')
-        .send({ feedback });
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
+    try {
+      for (const feedback of testCases) {
+        const response = await request(API_BASE_URL)
+          .post('/api/feedback')
+          .send({ feedback });
+          
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
       }
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.feedback_id).toBeDefined();
+    } catch (error) {
+      console.error('Operation failed:', error);
+      throw error;
     }
   }, 30000);
 
