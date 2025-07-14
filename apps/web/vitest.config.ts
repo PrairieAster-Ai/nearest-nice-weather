@@ -26,7 +26,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': '/src'
-    }
+      '@': '/src',
+      'react': 'react',
+      'react-dom': 'react-dom'
+    },
+    dedupe: ['react', 'react-dom']
   }
 })
