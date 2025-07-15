@@ -494,8 +494,13 @@ export default function App() {
         {/* Map Container - Full height, no padding, seamless with footer */}
         <div className="flex-1 relative">
           <MapContainer
-          {...({ center: mapCenter as LatLngExpression, zoom: mapZoom, style: { height: '100%', width: '100%' }, scrollWheelZoom: true, zoomControl: false } as any)}
-        >
+            key={`${mapCenter[0]}-${mapCenter[1]}-${mapZoom}`}
+            center={mapCenter as LatLngExpression}
+            zoom={mapZoom}
+            style={{ height: '100%', width: '100%' }}
+            scrollWheelZoom={true}
+            zoomControl={false}
+          >
           <TileLayer
             {...({ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any)}
           />

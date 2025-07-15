@@ -137,6 +137,29 @@ This error emerged after a series of deployment attempts on July 13-14, 2025. Th
 - **KPI Impact**: Deployment complexity increased but isolated development environment achieved
 - **Next Steps**: User needs to create actual Neon development branch and update .env with connection string
 
+### **2025-07-15 - 02:45**
+- **Action**: Created PRD-001 feature branch and completed localhost testing
+- **Result**: Development environment operational with isolated database testing
+- **Technical Details**: 
+  - Feature branch: `feature/PRD-001-leaflet-error-resolution`
+  - Database connection: `ep-soft-surf-advwzunc-pooler.c-2.us-east-1.aws.neon.tech`
+  - API endpoints tested: weather-locations, feedback, health
+  - Frontend proxy tested: All API routes working correctly
+  - All APIs updated to use Neon serverless driver for consistency
+- **KPI Impact**: Environment isolation achieved, testing infrastructure validated
+- **Next Steps**: Deploy feature branch to preview for staging validation before production
+
+### **2025-07-15 - 03:00**
+- **Action**: Applied PRD-001 fix for Leaflet MapContainer initialization error
+- **Result**: Updated MapContainer with proper key prop to prevent double initialization
+- **Technical Details**: 
+  - Fixed: `key={`${mapCenter[0]}-${mapCenter[1]}-${mapZoom}`}` forces proper cleanup
+  - Fixed: Replaced spread operator with explicit props for better React rendering
+  - Root cause: React StrictMode double-rendering + missing key prop
+  - Solution: MapContainer now properly unmounts/remounts on state changes
+- **KPI Impact**: Primary blocker resolved, ready for browser testing validation
+- **Next Steps**: Browser testing to confirm error resolution, then commit to feature branch
+
 ### **2025-07-15 - 01:45**
 - **Action**: Attempted deployment to preview with `vercel --yes`
 - **Result**: Created wrong Vercel project (web-1zjro9hd1-roberts-projects-3488152a.vercel.app)
