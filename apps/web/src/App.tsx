@@ -41,6 +41,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -74,6 +75,9 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
 
     // Cleanup function
     return () => {
+      if (userMarkerRef.current) {
+        userMarkerRef.current = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -151,19 +155,12 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
     });
   }, [locations]);
 
-  // Handle user location marker separately
+  // Create user location marker once and update position as needed
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Remove existing user marker
-    mapRef.current.eachLayer((layer) => {
-      if (layer instanceof L.Marker && layer.options.isUserMarker) {
-        mapRef.current!.removeLayer(layer);
-      }
-    });
-
-    // Add user location marker if present
-    if (userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined &&
+    // Create marker only if it doesn't exist and we have valid location
+    if (!userMarkerRef.current && userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined &&
         !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
       
       // Use standard cool guy emoji (😎) with white circular background
@@ -203,13 +200,31 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
       
       userMarker.bindPopup(popupContent, { className: "custom-popup" });
       userMarker.addTo(mapRef.current!);
-
-      // Auto-open popup when showLocationPrompt is true (like original DraggableUserMarker)
-      if (showLocationPrompt) {
-        userMarker.openPopup();
-      }
+      
+      // Store reference to the marker
+      userMarkerRef.current = userMarker;
     }
-  }, [userLocation, onLocationChange, showLocationPrompt]);
+    
+    // Update existing marker position if it exists and we have valid location
+    if (userMarkerRef.current && userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined &&
+        !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
+      userMarkerRef.current.setLatLng(userLocation);
+    }
+    
+    // Remove marker if location becomes invalid
+    if (userMarkerRef.current && (!userLocation || userLocation[0] === undefined || userLocation[1] === undefined ||
+        isNaN(userLocation[0]) || isNaN(userLocation[1]))) {
+      mapRef.current.removeLayer(userMarkerRef.current);
+      userMarkerRef.current = null;
+    }
+  }, [userLocation, onLocationChange]);
+
+  // Handle showLocationPrompt separately to avoid marker recreation
+  useEffect(() => {
+    if (userMarkerRef.current && showLocationPrompt) {
+      userMarkerRef.current.openPopup();
+    }
+  }, [showLocationPrompt]);
 
   return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
 };
