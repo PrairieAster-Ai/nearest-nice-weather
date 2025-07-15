@@ -263,9 +263,9 @@ interface Location {
 
 export default function App() {
   const [filters, setFilters] = useState<WeatherFilters>({
-    temperature: '', // Show all temperatures initially  
-    precipitation: '', // Show all precipitation levels
-    wind: '' // Show all wind speeds
+    temperature: 'mild',
+    precipitation: 'none',
+    wind: 'calm'
   })
   
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
