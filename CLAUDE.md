@@ -54,21 +54,34 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 - **Required tables**: `locations`, `weather_conditions`, `tourism_operators`
 - **Test with known good data** before production deployment
 
-**Development Environment** (ROBUST STARTUP - Prevents Connection Issues):
+**Development Environment** (NEON DATABASE BRANCHING - Development Complexity):
 ```bash
+# STEP 1: Configure Neon Database Development Branch
+# 1. Login to Neon Console: https://console.neon.tech/
+# 2. Create development branch from main branch
+# 3. Copy development branch connection string
+# 4. Update .env file with actual connection string:
+#    DATABASE_URL="postgresql://neondb_owner:actual_password@ep-development-actual.region.neon.tech/neondb?sslmode=require"
+
+# STEP 2: Start Development Environment
 # RECOMMENDED: Use the robust startup script
 ./dev-startup.sh
 
 # This script automatically:
 # - Cleans up existing processes
-# - Starts API server (port 4000)
+# - Starts API server (port 4000) 
 # - Starts frontend server (port 3001)
-# - Tests all connections
+# - Tests all connections including database
 # - Verifies environment configuration
 
 # Alternative: Manual startup
 cd apps/web && npm run dev  # Frontend on port 3001
 node dev-api-server.js      # API on port 4000
+
+# STEP 3: Database Environment Deployment Strategy
+# LOCALHOST: Uses Neon development branch (.env)
+# PREVIEW: Uses Neon production branch (.env.production in Vercel)
+# PRODUCTION: Uses Neon production branch (.env.production in Vercel)
 
 # Production-style process management (optional)
 npm install -g pm2
@@ -77,19 +90,26 @@ pm2 logs                       # View logs
 pm2 restart all               # Restart all services
 ```
 
-**Environment Setup** (SIMPLIFIED - Environment Variables):
+**Environment Setup** (NEON DATABASE BRANCHING - Multi-Environment Strategy):
 ```bash
 # 1. Copy environment template and configure
 cp .env.example .env
 
-# 2. Edit .env with your Neon database URL (get from Neon Dashboard)
-# DATABASE_URL="postgresql://[username]:[password]@[hostname]/weather?sslmode=require"
+# 2. Configure Neon Database Branching:
+# LOCALHOST DEVELOPMENT: Edit .env with development branch URL
+# DATABASE_URL="postgresql://[username]:[password]@[hostname]/neondb?sslmode=require"
+
+# PREVIEW/PRODUCTION: Configure in Vercel dashboard with production branch URL
+# Set environment variables in Vercel project settings
 
 # 3. Run development environment
 ./dev-startup.sh
 
 # The development server will proxy API calls to localhost:4000 automatically
-# All configuration via .env files
+# Each environment uses its own database branch:
+# - localhost: development branch (isolated testing)
+# - preview: production branch (staging validation)  
+# - production: production branch (live data)
 
 # Optional: Set custom development port
 export DEV_PORT=3001  # Default port if not specified
