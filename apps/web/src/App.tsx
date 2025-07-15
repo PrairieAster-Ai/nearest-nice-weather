@@ -192,10 +192,24 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
           onLocationChange(position.lat, position.lng);
         }
       });
+
+      // Add popup matching original DraggableUserMarker functionality
+      const popupContent = `
+        <div class="text-center p-2">
+          <div class="text-sm font-bold text-gray-800 mb-1">Our best guess at your location</div>
+          <div class="text-xs text-gray-600">Drag and drop for more accuracy</div>
+        </div>
+      `;
       
+      userMarker.bindPopup(popupContent, { className: "custom-popup" });
       userMarker.addTo(mapRef.current!);
+
+      // Auto-open popup when showLocationPrompt is true (like original DraggableUserMarker)
+      if (showLocationPrompt) {
+        userMarker.openPopup();
+      }
     }
-  }, [userLocation, onLocationChange]);
+  }, [userLocation, onLocationChange, showLocationPrompt]);
 
   return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
 };
