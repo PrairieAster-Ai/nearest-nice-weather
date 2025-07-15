@@ -92,9 +92,9 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Clear existing markers
+    // Clear existing location markers only (preserve user marker)
     mapRef.current.eachLayer((layer) => {
-      if (layer instanceof L.Marker) {
+      if (layer instanceof L.Marker && !layer.options.isUserMarker) {
         mapRef.current!.removeLayer(layer);
       }
     });
@@ -149,17 +149,28 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
       marker.bindPopup(popupContent, { maxWidth: 280, className: "custom-popup" });
       marker.addTo(mapRef.current!);
     });
+  }, [locations]);
+
+  // Handle user location marker separately
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Remove existing user marker
+    mapRef.current.eachLayer((layer) => {
+      if (layer instanceof L.Marker && layer.options.isUserMarker) {
+        mapRef.current!.removeLayer(layer);
+      }
+    });
 
     // Add user location marker if present
     if (userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined &&
         !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
+      
+      // Use default Leaflet marker icon (blue pin)
       const userMarker = L.marker(userLocation, { 
         draggable: true,
-        icon: L.icon({
-          iconUrl: '/user-marker.svg',
-          iconSize: [30, 30],
-          iconAnchor: [15, 15]
-        })
+        isUserMarker: true,
+        icon: new L.Icon.Default()
       });
       
       userMarker.on('dragend', (e) => {
@@ -172,7 +183,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
       
       userMarker.addTo(mapRef.current!);
     }
-  }, [locations, userLocation, onLocationChange]);
+  }, [userLocation, onLocationChange]);
 
   return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
 };
