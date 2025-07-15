@@ -20,6 +20,163 @@ const asterIcon = new L.Icon({
   popupAnchor: [0, -20]
 })
 
+// MapComponent with proper lifecycle management to handle React StrictMode
+const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange, showLocationPrompt }: {
+  center: [number, number];
+  zoom: number;
+  locations: Array<{
+    id: string;
+    name: string;
+    lat: number;
+    lng: number;
+    temperature: number;
+    condition: string;
+    description: string;
+    precipitation: number;
+    windSpeed: number;
+  }>;
+  userLocation: [number, number] | null;
+  onLocationChange: (lat: number, lng: number) => void;
+  showLocationPrompt: boolean;
+}) => {
+  const mapRef = useRef<L.Map | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    // Clear any existing map instance
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+    }
+
+    // Validate center and zoom before creating map
+    if (!center || isNaN(center[0]) || isNaN(center[1]) || !zoom || isNaN(zoom)) {
+      console.warn('Invalid center or zoom provided to MapComponent:', { center, zoom });
+      return;
+    }
+
+    // Create new map instance
+    const map = L.map(containerRef.current, {
+      center: center,
+      zoom: zoom,
+      scrollWheelZoom: true,
+      zoomControl: false
+    });
+
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    mapRef.current = map;
+
+    // Cleanup function
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update map center and zoom when props change
+  useEffect(() => {
+    if (mapRef.current && center && !isNaN(center[0]) && !isNaN(center[1]) && zoom && !isNaN(zoom)) {
+      mapRef.current.setView(center, zoom);
+    }
+  }, [center, zoom]);
+
+  // Add markers when locations change
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Clear existing markers
+    mapRef.current.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        mapRef.current!.removeLayer(layer);
+      }
+    });
+
+    // Add location markers
+    locations.forEach((location) => {
+      const marker = L.marker([location.lat, location.lng], { icon: asterIcon });
+      
+      const popupContent = `
+        <div class="p-2 text-xs leading-tight">
+          <div class="mb-1">
+            <h3 class="font-bold text-sm text-black mb-0">${location.name}</h3>
+            <p class="text-xs text-gray-800 mt-0">${location.description}</p>
+          </div>
+          <div class="bg-gray-100 rounded p-2 mb-2 border">
+            <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
+              <span class="font-bold text-lg text-black">${location.temperature}°F</span>
+              <span class="text-lg">
+                ${location.condition === 'Sunny' ? '☀️' : 
+                  location.condition === 'Partly Cloudy' ? '⛅' :
+                  location.condition === 'Cloudy' ? '☁️' :
+                  location.condition === 'Overcast' ? '🌫️' :
+                  location.condition === 'Clear' ? '✨' : location.condition}
+              </span>
+              <span>💧 ${location.precipitation}%</span>
+              <span>💨 ${location.windSpeed}</span>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}" 
+               target="_blank" rel="noopener noreferrer"
+               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
+               style="background-color: rgba(133, 109, 166, 0.5)">
+              🗺️ Driving Directions
+            </a>
+            <a href="https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&filter=all"
+               target="_blank" rel="noopener noreferrer"
+               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
+               style="background-color: rgba(127, 164, 207, 0.5)">
+              🌲 MN DNR
+            </a>
+            <a href="https://www.exploreminnesota.com/search?keys=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&field_page_type=All"
+               target="_blank" rel="noopener noreferrer"
+               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
+               style="background-color: rgba(133, 109, 166, 0.5)">
+              ⭐ Explore MN
+            </a>
+          </div>
+        </div>
+      `;
+      
+      marker.bindPopup(popupContent, { maxWidth: 280, className: "custom-popup" });
+      marker.addTo(mapRef.current!);
+    });
+
+    // Add user location marker if present
+    if (userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined &&
+        !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
+      const userMarker = L.marker(userLocation, { 
+        draggable: true,
+        icon: L.icon({
+          iconUrl: '/user-marker.svg',
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        })
+      });
+      
+      userMarker.on('dragend', (e) => {
+        const marker = e.target;
+        const position = marker.getLatLng();
+        if (position && !isNaN(position.lat) && !isNaN(position.lng)) {
+          onLocationChange(position.lat, position.lng);
+        }
+      });
+      
+      userMarker.addTo(mapRef.current!);
+    }
+  }, [locations, userLocation, onLocationChange]);
+
+  return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
+};
+
 // PrairieAster.Ai theme
 const theme = createTheme({
   palette: {
@@ -493,95 +650,14 @@ export default function App() {
 
         {/* Map Container - Full height, no padding, seamless with footer */}
         <div className="flex-1 relative">
-          <MapContainer
-            key={`${mapCenter[0]}-${mapCenter[1]}-${mapZoom}`}
-            center={mapCenter as LatLngExpression}
+          <MapComponent
+            center={mapCenter}
             zoom={mapZoom}
-            style={{ height: '100%', width: '100%' }}
-            scrollWheelZoom={true}
-            zoomControl={false}
-          >
-          <TileLayer
-            {...({ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any)}
+            locations={filteredLocations}
+            userLocation={userLocation}
+            onLocationChange={handleUserLocationChange}
+            showLocationPrompt={showLocationPrompt}
           />
-          
-          {/* Map controller to handle programmatic centering */}
-          <MapController center={mapCenter} zoom={mapZoom} />
-          
-          {/* User location marker - draggable */}
-          {userLocation && (
-            <DraggableUserMarker 
-              position={userLocation}
-              onLocationChange={handleUserLocationChange}
-              showLocationPrompt={showLocationPrompt}
-            />
-          )}
-
-          {filteredLocations.map((location) => (
-            <Marker 
-              key={location.id}
-              {...({ position: [location.lat, location.lng] as LatLngExpression, icon: asterIcon } as any)}>
-              <Popup {...({ maxWidth: 280, className: "custom-popup" } as any)}>
-                <div className="p-2 text-xs leading-tight">
-                  {/* Header */}
-                  <div className="mb-1">
-                    <h3 className="font-bold text-sm text-black mb-0">{location.name}</h3>
-                    <p className="text-xs text-gray-800 mt-0">{location.description}</p>
-                  </div>
-
-                  {/* Weather Summary */}
-                  <div className="bg-gray-100 rounded p-2 mb-2 border">
-                    <div className="flex justify-between items-center text-xs text-black font-medium" style={{gap: '5px'}}>
-                      <span className="font-bold text-lg text-black">{location.temperature}°F</span>
-                      <span className="text-lg">
-                        {location.condition === 'Sunny' ? '☀️' : 
-                         location.condition === 'Partly Cloudy' ? '⛅' :
-                         location.condition === 'Cloudy' ? '☁️' :
-                         location.condition === 'Overcast' ? '🌫️' :
-                         location.condition === 'Clear' ? '✨' : location.condition}
-                      </span>
-                      <span>💧 {location.precipitation}%</span>
-                      <span>💨 {location.windSpeed}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Links */}
-                  <div className="space-y-1">
-                    <a 
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-                      style={{backgroundColor: 'rgba(133, 109, 166, 0.5)'}}
-                    >
-                      🗺️ Driving Directions
-                    </a>
-                    
-                    <a 
-                      href={`https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&filter=all`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-                      style={{backgroundColor: 'rgba(127, 164, 207, 0.5)'}}
-                    >
-                      🌲 MN DNR
-                    </a>
-                    <a 
-                      href={`https://www.exploreminnesota.com/search?keys=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&field_page_type=All`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-                      style={{backgroundColor: 'rgba(133, 109, 166, 0.5)'}}
-                    >
-                      ⭐ Explore MN
-                    </a>
-                  </div>
-
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
 
           {/* FAB Filter System - top right, expanding left */}
           <div className="absolute top-6 right-6 z-[1000]">

@@ -46,7 +46,8 @@ export function useWeatherLocations(options: UseWeatherLocationsOptions = {}) {
         limit: limit.toString()
       })
 
-      if (userLocation) {
+      if (userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined && 
+          !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
         params.append('lat', userLocation[0].toString())
         params.append('lng', userLocation[1].toString())
         params.append('radius', radius.toString())
