@@ -36,7 +36,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
     windSpeed: number;
   }>;
   userLocation: [number, number] | null;
-  onLocationChange: (lat: number, lng: number) => void;
+  onLocationChange: (newPosition: [number, number]) => void;
   showLocationPrompt: boolean;
 }) => {
   const mapRef = useRef<L.Map | null>(null);
@@ -186,7 +186,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
         const marker = e.target;
         const position = marker.getLatLng();
         if (position && !isNaN(position.lat) && !isNaN(position.lng)) {
-          onLocationChange(position.lat, position.lng);
+          onLocationChange([position.lat, position.lng]);
         }
       });
 
@@ -272,7 +272,12 @@ export default function App() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([46.7296, -94.6859]) // Default to Minnesota
   const [mapZoom, setMapZoom] = useState(7)
   const [, setMapReady] = useState(false)
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [userLocation, setUserLocationState] = useState<[number, number] | null>(null)
+  
+  const setUserLocation = (location: [number, number] | null) => {
+    console.log('setUserLocation called with:', location)
+    setUserLocationState(location)
+  }
   const [showLocationPrompt, setShowLocationPrompt] = useState(false)
   const locationInitialized = useRef(false)
 
@@ -653,6 +658,7 @@ export default function App() {
   }
 
   const handleUserLocationChange = (newPosition: [number, number]) => {
+    console.log('handleUserLocationChange called with:', newPosition)
     setUserLocation(newPosition)
     setShowLocationPrompt(false) // User has moved the marker, so hide the prompt
     
