@@ -273,7 +273,7 @@ function updateConnectionBanner(connected, serverInfo) {
     // Connected state with server info
     indicator.style.backgroundColor = "#4CAF50"; // Green indicator
     statusText.style.color = "#ffffff"; // White text for contrast on black
-    statusText.textContent = `Connected to ${serverInfo.name} v${serverInfo.version} at ${settings.serverHost}:${settings.serverPort}`;
+    statusText.textContent = `Connected to ${serverInfo.name} v${serverInfo.version} at ${settings.serverHost}:${serverInfo.port || settings.serverPort}`;
 
     // Hide reconnect button when connected
     reconnectButton.style.display = "none";
@@ -478,7 +478,7 @@ async function testConnection(host, port) {
 
   try {
     // Use the identity endpoint instead of .port for more reliable validation
-    const response = await fetch(`http://${host}:${port}/.identity`, {
+    const response = await fetch(`http://${host}:${port}/identity`, {
       signal: AbortSignal.timeout(5000), // 5 second timeout
     });
 
@@ -498,7 +498,7 @@ async function testConnection(host, port) {
       statusIcon.className = "status-indicator status-connected";
       statusText.textContent = `Connected successfully to ${identity.name} v${identity.version} at ${host}:${port}`;
       serverConnected = true;
-      updateConnectionBanner(true, identity);
+      updateConnectionBanner(true, { ...identity, port: port });
 
       // Clear any scheduled reconnect attempts
       if (reconnectAttemptTimeout) {
@@ -507,9 +507,10 @@ async function testConnection(host, port) {
       }
 
       // Update settings if different port was discovered
-      if (parseInt(identity.port, 10) !== port) {
-        console.log(`Detected different port: ${identity.port}`);
-        settings.serverPort = parseInt(identity.port, 10);
+      const discoveredPort = identity.port ? parseInt(identity.port, 10) : port;
+      if (discoveredPort !== port) {
+        console.log(`Detected different port: ${discoveredPort}`);
+        settings.serverPort = discoveredPort;
         serverPortInput.value = settings.serverPort;
         saveSettings();
       }
@@ -574,7 +575,7 @@ async function tryServerConnection(host, port) {
 
     try {
       // Use identity endpoint for validation
-      const response = await fetch(`http://${host}:${port}/.identity`, {
+      const response = await fetch(`http://${host}:${port}/identity`, {
         // Use a local controller for this specific request timeout
         // but also respect the global discovery cancellation
         signal: discoveryController
@@ -604,16 +605,17 @@ async function tryServerConnection(host, port) {
 
         // Update settings with discovered server
         settings.serverHost = host;
-        settings.serverPort = parseInt(identity.port, 10);
+        const discoveredPort = identity.port ? parseInt(identity.port, 10) : port;
+        settings.serverPort = discoveredPort;
         serverHostInput.value = settings.serverHost;
         serverPortInput.value = settings.serverPort;
         saveSettings();
 
         statusIcon.className = "status-indicator status-connected";
-        statusText.textContent = `Discovered ${identity.name} v${identity.version} at ${host}:${identity.port}`;
+        statusText.textContent = `Discovered ${identity.name} v${identity.version} at ${host}:${discoveredPort}`;
 
-        // Update connection banner with server info
-        updateConnectionBanner(true, identity);
+        // Update connection banner with server info (include discovered port)
+        updateConnectionBanner(true, { ...identity, port: discoveredPort });
 
         // Update connection status
         serverConnected = true;

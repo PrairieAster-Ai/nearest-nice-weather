@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrowserToolsMCP Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { margin: 5px; padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>BrowserToolsMCP Connection Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <button onclick="testDirectConnection()">Test Direct Server Connection</button>
+    <button onclick="testExtensionConnection()">Test Extension Connection</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <script>
+        const resultsDiv = document.getElementById('test-results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(div);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        async function testDirectConnection() {
+            addResult('Testing direct connection to BrowserToolsMCP server...');
+            
+            try {
+                const response = await fetch('http://localhost:3025/identity');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.signature === 'mcp-browser-connector-24x7') {
+                    addResult('✅ Direct connection successful! Server is responding with correct signature.', 'success');
+                    addResult(`📋 Server details: ${data.name} v${data.version}`, 'info');
+                    addResult(`🌐 Environments: ${data.environments.join(', ')}`, 'info');
+                    addResult(`📸 Screenshots: ${data.screenshotPath}`, 'info');
+                } else {
+                    addResult('❌ Server responding but with wrong signature: ' + data.signature, 'error');
+                }
+                
+            } catch (error) {
+                addResult('❌ Direct connection failed: ' + error.message, 'error');
+            }
+        }
+        
+        function testExtensionConnection() {
+            addResult('Testing Chrome extension connection...');
+            
+            // Check if extension is available
+            if (typeof chrome === 'undefined' || !chrome.runtime) {
+                addResult('❌ Chrome extension API not available', 'error');
+                return;
+            }
+            
+            // Try to send a message to the extension
+            try {
+                chrome.runtime.sendMessage('BrowserToolsMCP_Extension_ID', {
+                    type: 'TEST_CONNECTION'
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        addResult('❌ Extension connection failed: ' + chrome.runtime.lastError.message, 'error');
+                    } else {
+                        addResult('✅ Extension connection successful!', 'success');
+                        addResult('📋 Response: ' + JSON.stringify(response), 'info');
+                    }
+                });
+            } catch (error) {
+                addResult('❌ Extension connection error: ' + error.message, 'error');
+            }
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            addResult('🔍 BrowserToolsMCP Connection Test Page Loaded');
+            addResult('📋 This page will test the connection between the Chrome extension and the BrowserToolsMCP server.');
+            addResult('🎯 Expected: Server on localhost:3025 with signature "mcp-browser-connector-24x7"');
+            
+            // Auto-test direct connection
+            setTimeout(testDirectConnection, 1000);
+        });
+    </script>
+</body>
+</html>

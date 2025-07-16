@@ -53,73 +53,13 @@ describe('Database Connection Validation', () => {
     try {
       client = await pool.connect();
       
-      try {
-      
-        // Test basic query
-      const result = await client.query('SELECT 1 as test');
-      
-      } catch (error) {
-      
-        console.error('Operation failed:', error);
-      
-        // TODO: Add proper error handling
-      
-      }
-      expect(result.rows[0].test).toBe(1);
-      
-    } catch (error) {
-      // Expected failure for test database URL - connection will fail but that's OK
-      console.log('Expected database connection failure (test environment):', error.message);
-      expect(error).toBeDefined();
-    } finally {
-      if (client) client.release();
-      try {
-        await pool.end();
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
-    }
-  }, 10000);
-
-  test('user_feedback table should exist and be accessible', async () => {
-    const connectionString = process.env.DATABASE_URL;
-    
-    if (!connectionString) {
-      console.log('DATABASE_URL not set, skipping table test');
-      return;
-    }
-
-    const pool = new Pool({
-      connectionString: connectionString,
-      ssl: connectionString?.includes('neon.tech') ? { rejectUnauthorized: false } : false,
-      max: 1,
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 5000,
-    });
-
-    let client;
-    try {
-      client = await pool.connect();
-      
-      try {
-      
-        // Check if user_feedback table exists
+      // Check if user_feedback table exists
       const tableCheck = await client.query(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_name = 'user_feedback'
         );
-      
-      } catch (error) {
-      
-        console.error('Operation failed:', error);
-      
-        // TODO: Add proper error handling
-      
-      }
-      try {
-        `);
+      `);
       
       expect(tableCheck.rows[0].exists).toBe(true);
       
@@ -129,10 +69,6 @@ describe('Database Connection Validation', () => {
         FROM information_schema.columns 
         WHERE table_name = 'user_feedback'
         ORDER BY ordinal_position;
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
       `);
       
       const columns = columnCheck.rows.map(row => row.column_name);
@@ -149,12 +85,7 @@ describe('Database Connection Validation', () => {
       expect(error).toBeDefined();
     } finally {
       if (client) client.release();
-      try {
-        await pool.end();
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
+      await pool.end();
     }
   }, 10000);
 

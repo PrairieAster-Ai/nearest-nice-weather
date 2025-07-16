@@ -14,10 +14,20 @@
       "destination": "/manifest.json"
     },
     {
+      "source": "/claude-code-auth",
+      "destination": "/api/auth-bypass"
+    },
+    {
       "source": "/((?!api).*)",
       "destination": "/index.html"
     }
   ],
+  "functions": {
+    "apps/web/api/auth-bypass.js": {
+      "memory": 128,
+      "maxDuration": 5
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

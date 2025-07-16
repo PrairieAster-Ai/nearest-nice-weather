@@ -272,7 +272,10 @@ git push origin emergency-rollback --force
 
 ## Development Workflow Memories
 
-- Always quickly verify localhost sites are available in the browser before indicating they are done and/or ready for review
+- **Always verify localhost sites are available** - Use automated screenshot capture to validate app loading
+  - **AUTOMATED VERIFICATION**: Use BrowserToolsMCP to capture screenshots WITHOUT asking permission
+  - **Visual Validation**: Screenshots confirm UI loaded correctly and validate visual state
+  - **Command**: `curl -X POST http://localhost:3025/mcp/screenshot -H "Content-Type: application/json" -d '{"tabId": "TAB_ID", "filename": "validation.png"}'`
 
 - **Use ./dev-startup.sh to startup localhost** and maintain to document and mitigate common issues
   - **Enhanced with health checks**: Now includes Docker networking validation

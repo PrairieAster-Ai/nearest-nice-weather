@@ -1,0 +1,109 @@
+{
+  "timestamp": "2025-07-16T00:01:40.717Z",
+  "totalSize": "970.5KB",
+  "gzippedSize": "375.2KB",
+  "compressionRatio": "61.3%",
+  "sizeChange": 0,
+  "budgets": [
+    {
+      "name": "Total Bundle Size",
+      "actual": "970.5KB",
+      "limit": "1464.8KB",
+      "status": "pass",
+      "impact": "none"
+    },
+    {
+      "name": "JavaScript Bundle Size",
+      "actual": "787.0KB",
+      "limit": "830.1KB",
+      "status": "pass",
+      "impact": "none"
+    },
+    {
+      "name": "CSS Bundle Size",
+      "actual": "17.1KB",
+      "limit": "195.3KB",
+      "status": "pass",
+      "impact": "none"
+    },
+    {
+      "name": "Chunk Count",
+      "actual": "5",
+      "limit": "15",
+      "status": "pass",
+      "impact": "none"
+    }
+  ],
+  "recommendations": [
+    "Optimize weather icons and map assets (consider WebP format)",
+    "Consider compressing or optimizing large assets"
+  ],
+  "breakdown": {
+    "javascript": "787.0KB",
+    "css": "17.1KB",
+    "assets": "156.2KB",
+    "chunks": 5
+  },
+  "files": [
+    {
+      "path": "assets/react-D7jQKa1i-835j4918.js",
+      "size": 322229,
+      "gzippedSize": 96817,
+      "type": "js"
+    },
+    {
+      "path": "assets/mui-vOA8-Cdz-qwwfcm2q.js",
+      "size": 245140,
+      "gzippedSize": 68369,
+      "type": "js"
+    },
+    {
+      "path": "assets/leaflet-CNvRqjgM-4ry1q352.js",
+      "size": 148634,
+      "gzippedSize": 42730,
+      "type": "js"
+    },
+    {
+      "path": "aster-logo.png",
+      "size": 118618,
+      "gzippedSize": 112714,
+      "type": "png"
+    },
+    {
+      "path": "assets/vendor-CmDXywIv-2kaz1gyl.js",
+      "size": 57554,
+      "gzippedSize": 21952,
+      "type": "js"
+    },
+    {
+      "path": "assets/index-C1ACnR9f-z3wsdabq.js",
+      "size": 32280,
+      "gzippedSize": 8032,
+      "type": "js"
+    },
+    {
+      "path": "assets/styles/leaflet-CIGW-MKW-xzmt8nyg.css",
+      "size": 15607,
+      "gzippedSize": 6486,
+      "type": "css"
+    },
+    {
+      "path": "aster-logo.svg",
+      "size": 14751,
+      "gzippedSize": 4833,
+      "type": "svg"
+    },
+    {
+      "path": "aster-favicon.png",
+      "size": 11983,
+      "gzippedSize": 11893,
+      "type": "png"
+    },
+    {
+      "path": "test.html",
+      "size": 4965,
+      "gzippedSize": 1558,
+      "type": "html"
+    }
+  ]
+}

@@ -1,5 +1,19 @@
 module.exports = {
   apps: [{
+    name: 'browsertools-mcp-server',
+    script: 'browsertools-mcp-server.js',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '200M',
+    min_uptime: '10s',
+    max_restarts: 10,
+    restart_delay: 2000,
+    env: {
+      NODE_ENV: 'development',
+      PORT: '3025'
+    }
+  }, {
     name: 'weather-api',
     script: 'dev-api-server.js',
     instances: 1,
