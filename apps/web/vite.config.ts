@@ -121,11 +121,23 @@ export default defineConfig({
             return `assets/images/[name]-[hash]-${buildId}[extname]`
           }
           return `assets/[name]-[hash]-${buildId}[extname]`
+        },
+        // Separate vendor chunks for better caching and performance
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            // Group major dependencies for optimal caching
+            if (id.includes('@mui/')) return 'mui';
+            if (id.includes('react') || id.includes('react-dom')) return 'react';
+            if (id.includes('leaflet')) return 'leaflet';
+            if (id.includes('@tanstack/react-query')) return 'query';
+            return 'vendor';
+          }
         }
       }
     },
-    // Performance budgets
-    chunkSizeWarningLimit: 1000, // 1MB warning for chunks
+    // Enhanced performance budgets and monitoring
+    chunkSizeWarningLimit: 800, // 800KB warning for chunks (stricter than default)
+    reportCompressedSize: true
   },
   resolve: {
     alias: {

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "apps/web/api/auth-bypass.js": {
+      "memory": 128,
+      "maxDuration": 5
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/claude-code-auth",
+      "destination": "/api/auth-bypass"
+    }
+  ],
+  "env": {
+    "CLAUDE_CODE_ACCESS_TOKEN": "@claude-code-access-token"
+  },
+  "build": {
+    "env": {
+      "VERCEL_ENV": "@vercel-env"
+    }
+  }
+}

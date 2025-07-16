@@ -56,8 +56,21 @@ start_service() {
 echo "🧹 Cleaning up existing processes..."
 pkill -f "node.*vite" 2>/dev/null || true
 pkill -f "node.*dev-api-server" 2>/dev/null || true
+pkill -f "browsertools-mcp-server" 2>/dev/null || true
 pkill -f "simple-server" 2>/dev/null || true
 sleep 2
+
+# Start BrowserToolsMCP server with monitoring
+echo "🔧 Starting BrowserToolsMCP server..."
+if ! start_service "BrowserToolsMCP Server" "node browsertools-mcp-server.js" "3025"; then
+    echo "❌ Failed to start BrowserToolsMCP server"
+    exit 1
+fi
+
+# Start BrowserToolsMCP monitor in background
+echo "🔍 Starting BrowserToolsMCP monitor..."
+./scripts/browsertools-monitor.sh monitor >/dev/null 2>&1 &
+echo "✅ BrowserToolsMCP monitor started (will auto-restart server if needed)"
 
 # Start API server
 echo "🗄️ Starting API server..."
@@ -76,6 +89,14 @@ fi
 # Wait for servers to be ready
 echo "⏳ Waiting for servers to be ready..."
 sleep 5
+
+# Test BrowserToolsMCP connectivity
+echo "🔍 Testing BrowserToolsMCP connectivity..."
+if curl -s "http://localhost:3025/identity" | grep -q "mcp-browser-connector"; then
+    echo "✅ BrowserToolsMCP server responding correctly"
+else
+    echo "❌ BrowserToolsMCP server not responding"
+fi
 
 # Test API connectivity
 echo "🔍 Testing API connectivity..."
@@ -147,13 +168,16 @@ echo "📋 Available services:"
 echo "   🌐 Frontend: http://localhost:3001/"
 echo "   🗄️ API: http://localhost:4000/api/weather-locations"
 echo "   🔗 Proxy: http://localhost:3001/api/weather-locations"
+echo "   🔧 BrowserToolsMCP: http://localhost:3025/identity"
 echo ""
 echo "🛠️ Debugging tools:"
 echo "   📊 API Health: curl http://localhost:4000/api/health"
 echo "   🌤️ Weather data: curl http://localhost:3001/api/weather-locations?limit=5"
 echo "   🧠 Intelligence: curl http://localhost:3050/health"
+echo "   🔧 BrowserTools: curl http://localhost:3025/health"
+echo "   📸 Screenshots: ls -la /home/robertspeer/Projects/screenshots/"
 echo "   🗄️ Database: docker exec weather-postgres psql -U postgres -d weather_intelligence"
 echo "   📝 Logs: tail -f /tmp/vite.log"
 echo ""
 echo "🔄 To restart: ./dev-startup.sh"
-echo "🛑 To stop: pkill -f \"node.*vite\" && pkill -f \"node.*dev-api-server\" && pkill -f \"claude-intelligence\""
+echo "🛑 To stop: pkill -f \"node.*vite\" && pkill -f \"node.*dev-api-server\" && pkill -f \"browsertools-mcp-server\" && pkill -f \"claude-intelligence\""

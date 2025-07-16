@@ -1,12 +1,25 @@
 // Listen for messages from the devtools panel
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Add timeout to prevent hanging responses
+  const timeout = setTimeout(() => {
+    if (sendResponse) {
+      sendResponse({ success: false, error: "Operation timeout" });
+    }
+  }, 10000); // 10 second timeout
+  
   if (message.type === "GET_CURRENT_URL" && message.tabId) {
     getCurrentTabUrl(message.tabId)
       .then((url) => {
-        sendResponse({ success: true, url: url });
+        clearTimeout(timeout);
+        if (sendResponse) {
+          sendResponse({ success: true, url: url });
+        }
       })
       .catch((error) => {
-        sendResponse({ success: false, error: error.message });
+        clearTimeout(timeout);
+        if (sendResponse) {
+          sendResponse({ success: false, error: error.message });
+        }
       });
     return true; // Required to use sendResponse asynchronously
   }
@@ -22,9 +35,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       message.source || "explicit_update"
     )
       .then(() => {
+        clearTimeout(timeout);
         if (sendResponse) sendResponse({ success: true });
       })
       .catch((error) => {
+        clearTimeout(timeout);
         console.error("Background: Error updating server with URL:", error);
         if (sendResponse)
           sendResponse({ success: false, error: error.message });
@@ -44,36 +59,49 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       validateServerIdentity(settings.serverHost, settings.serverPort)
         .then((isValid) => {
           if (!isValid) {
+            clearTimeout(timeout);
             console.error(
               "Cannot capture screenshot: Not connected to a valid browser tools server"
             );
-            sendResponse({
-              success: false,
-              error:
-                "Not connected to a valid browser tools server. Please check your connection settings.",
-            });
+            if (sendResponse) {
+              sendResponse({
+                success: false,
+                error:
+                  "Not connected to a valid browser tools server. Please check your connection settings.",
+              });
+            }
             return;
           }
 
           // Continue with screenshot capture
-          captureAndSendScreenshot(message, settings, sendResponse);
+          captureAndSendScreenshot(message, settings, sendResponse, timeout);
         })
         .catch((error) => {
+          clearTimeout(timeout);
           console.error("Error validating server:", error);
-          sendResponse({
-            success: false,
-            error: "Failed to validate server identity: " + error.message,
-          });
+          if (sendResponse) {
+            sendResponse({
+              success: false,
+              error: "Failed to validate server identity: " + error.message,
+            });
+          }
         });
     });
     return true; // Required to use sendResponse asynchronously
   }
+  
+  // Handle unrecognized message types
+  clearTimeout(timeout);
+  if (sendResponse) {
+    sendResponse({ success: false, error: "Unknown message type" });
+  }
+  return false;
 });
 
 // Validate server identity
 async function validateServerIdentity(host, port) {
   try {
-    const response = await fetch(`http://${host}:${port}/.identity`, {
+    const response = await fetch(`http://${host}:${port}/identity`, {
       signal: AbortSignal.timeout(3000), // 3 second timeout
     });
 
@@ -340,15 +368,18 @@ async function retestConnectionOnRefresh(tabId) {
 }
 
 // Function to capture and send screenshot
-function captureAndSendScreenshot(message, settings, sendResponse) {
+function captureAndSendScreenshot(message, settings, sendResponse, timeout) {
   // Get the inspected window's tab
   chrome.tabs.get(message.tabId, (tab) => {
     if (chrome.runtime.lastError) {
+      clearTimeout(timeout);
       console.error("Error getting tab:", chrome.runtime.lastError);
-      sendResponse({
-        success: false,
-        error: chrome.runtime.lastError.message,
-      });
+      if (sendResponse) {
+        sendResponse({
+          success: false,
+          error: chrome.runtime.lastError.message,
+        });
+      }
       return;
     }
 
@@ -359,11 +390,14 @@ function captureAndSendScreenshot(message, settings, sendResponse) {
       );
 
       if (!targetWindow) {
+        clearTimeout(timeout);
         console.error("Could not find window containing the inspected tab");
-        sendResponse({
-          success: false,
-          error: "Could not find window containing the inspected tab",
-        });
+        if (sendResponse) {
+          sendResponse({
+            success: false,
+            error: "Could not find window containing the inspected tab",
+          });
+        }
         return;
       }
 
@@ -377,14 +411,17 @@ function captureAndSendScreenshot(message, settings, sendResponse) {
             chrome.runtime.lastError &&
             !chrome.runtime.lastError.message.includes("devtools://")
           ) {
+            clearTimeout(timeout);
             console.error(
               "Error capturing screenshot:",
               chrome.runtime.lastError
             );
-            sendResponse({
-              success: false,
-              error: chrome.runtime.lastError.message,
-            });
+            if (sendResponse) {
+              sendResponse({
+                success: false,
+                error: chrome.runtime.lastError.message,
+              });
+            }
             return;
           }
 
@@ -404,25 +441,33 @@ function captureAndSendScreenshot(message, settings, sendResponse) {
           })
             .then((response) => response.json())
             .then((result) => {
+              clearTimeout(timeout);
               if (result.error) {
                 console.error("Error from server:", result.error);
-                sendResponse({ success: false, error: result.error });
+                if (sendResponse) {
+                  sendResponse({ success: false, error: result.error });
+                }
               } else {
                 console.log("Screenshot saved successfully:", result.path);
                 // Send success response even if DevTools capture failed
-                sendResponse({
-                  success: true,
-                  path: result.path,
-                  title: tab.title || "Current Tab",
-                });
+                if (sendResponse) {
+                  sendResponse({
+                    success: true,
+                    path: result.path,
+                    title: tab.title || "Current Tab",
+                  });
+                }
               }
             })
             .catch((error) => {
+              clearTimeout(timeout);
               console.error("Error sending screenshot data:", error);
-              sendResponse({
-                success: false,
-                error: error.message || "Failed to save screenshot",
-              });
+              if (sendResponse) {
+                sendResponse({
+                  success: false,
+                  error: error.message || "Failed to save screenshot",
+                });
+              }
             });
         }
       );

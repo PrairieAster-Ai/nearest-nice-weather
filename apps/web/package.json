@@ -21,8 +21,14 @@
     "deploy": "echo '⚠️  Use deploy:prod for production or deploy:preview for preview' && false",
     "deploy:preview": "vercel",
     "deploy:prod": "node deployment/confirm-production.js",
+    "performance:budget": "node ../../scripts/check-performance-budgets.js",
+    "performance:lighthouse": "npx @lhci/cli autorun",
+    "performance:analyze": "npm run build:analyze && npm run performance:budget",
+    "preview:auth": "node ../../scripts/claude-code-vercel-auth.js auth",
+    "preview:validate": "node ../../scripts/claude-code-vercel-auth.js full",
+    "preview:screenshot": "node ../../scripts/claude-code-vercel-auth.js screenshot",
     "ci:quality": "npm run lint && npm run type-check && npm run build",
-    "ci:quality:full": "npm run lint && npm run type-check && npm run build"
+    "ci:quality:full": "npm run lint && npm run type-check && npm run build && npm run performance:budget"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -53,6 +59,7 @@
     "@typescript-eslint/parser": "^8.18.2",
     "@vitejs/plugin-react": "^4.5.2",
     "@vitest/ui": "^3.2.4",
+    "@lhci/cli": "^0.13.0",
     "eslint": "^9.18.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",

@@ -1,0 +1,30 @@
+[Unit]
+Description=BrowserToolsMCP Server
+After=network.target
+
+[Service]
+Type=simple
+User=robertspeer
+WorkingDirectory=/home/robertspeer/Projects/GitRepo/nearest-nice-weather
+ExecStart=/usr/bin/node browsertools-mcp-server.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables
+Environment=NODE_ENV=development
+Environment=PORT=3025
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/robertspeer/Projects/screenshots
+ReadWritePaths=/home/robertspeer/Projects/GitRepo/nearest-nice-weather
+
+# Resource limits
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target

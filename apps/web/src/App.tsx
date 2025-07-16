@@ -1,16 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline, CircularProgress, Alert } from '@mui/material'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
-import { DraggableUserMarker } from './components/DraggableUserMarker'
-import { MapController } from './components/MapController'
 import { useWeatherLocations } from './hooks/useWeatherLocations'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
-import L, { LatLngExpression } from 'leaflet'
+import L from 'leaflet'
 
 // Create custom purple aster marker icon with white background
 const asterIcon = new L.Icon({
@@ -83,6 +80,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
         mapRef.current = null;
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update map center and zoom when props change
@@ -98,7 +96,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
 
     // Clear existing location markers only (preserve user marker)
     mapRef.current.eachLayer((layer) => {
-      if (layer instanceof L.Marker && !layer.options.isUserMarker) {
+      if (layer instanceof L.Marker && !(layer as any).options.isUserMarker) {
         mapRef.current!.removeLayer(layer);
       }
     });
@@ -178,12 +176,12 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
 
       const userMarker = L.marker(userLocation, { 
         draggable: true,
-        isUserMarker: true,
         icon: coolGuyIcon
-      });
+      }) as any;
+      userMarker.options.isUserMarker = true;
       
-      userMarker.on('dragend', (e) => {
-        const marker = e.target;
+      userMarker.on('dragend', (e: L.LeafletEvent) => {
+        const marker = (e as any).target;
         const position = marker.getLatLng();
         if (position && !isNaN(position.lat) && !isNaN(position.lng)) {
           onLocationChange([position.lat, position.lng]);
