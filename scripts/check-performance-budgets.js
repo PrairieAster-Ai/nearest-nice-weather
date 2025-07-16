@@ -72,7 +72,12 @@ function analyzeBundleSize() {
   const files = fs.readdirSync(DIST_PATH, { recursive: true })
     .filter(file => typeof file === 'string')
     .map(file => path.join(DIST_PATH, file))
-    .filter(file => fs.statSync(file).isFile());
+    .filter(file => fs.statSync(file).isFile())
+    .filter(file => {
+      const relativePath = path.relative(DIST_PATH, file);
+      // Exclude development artifacts from production bundle analysis
+      return !relativePath.includes('stats.html');
+    });
   
   const analysis = {
     totalSize: 0,

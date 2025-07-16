@@ -1,20 +1,20 @@
 {
-  "timestamp": "2025-07-15T23:47:37.421Z",
-  "totalSize": "6617.0KB",
-  "gzippedSize": "796.9KB",
-  "compressionRatio": "88.0%",
+  "timestamp": "2025-07-16T00:01:40.717Z",
+  "totalSize": "970.5KB",
+  "gzippedSize": "375.2KB",
+  "compressionRatio": "61.3%",
   "sizeChange": 0,
   "budgets": [
     {
       "name": "Total Bundle Size",
-      "actual": "6617.0KB",
+      "actual": "970.5KB",
       "limit": "1464.8KB",
-      "status": "fail",
-      "impact": "high"
+      "status": "pass",
+      "impact": "none"
     },
     {
       "name": "JavaScript Bundle Size",
-      "actual": "786.9KB",
+      "actual": "787.0KB",
       "limit": "830.1KB",
       "status": "pass",
       "impact": "none"
@@ -32,51 +32,33 @@
       "limit": "15",
       "status": "pass",
       "impact": "none"
-    },
-    {
-      "name": "Large Assets",
-      "actual": "1 files",
-      "limit": "0 files",
-      "status": "warn",
-      "impact": "medium",
-      "details": [
-        "stats.html (5647.1KB)"
-      ]
     }
   ],
   "recommendations": [
-    "Consider code splitting and lazy loading for non-critical features",
-    "Analyze bundle with `npm run build:analyze` to identify large dependencies",
     "Optimize weather icons and map assets (consider WebP format)",
     "Consider compressing or optimizing large assets"
   ],
   "breakdown": {
-    "javascript": "786.9KB",
+    "javascript": "787.0KB",
     "css": "17.1KB",
     "assets": "156.2KB",
     "chunks": 5
   },
   "files": [
     {
-      "path": "stats.html",
-      "size": 5782625,
-      "gzippedSize": 431939,
-      "type": "html"
-    },
-    {
-      "path": "assets/react-wrISTLjU-3o3auv9d.js",
+      "path": "assets/react-D7jQKa1i-835j4918.js",
       "size": 322229,
       "gzippedSize": 96817,
       "type": "js"
     },
     {
-      "path": "assets/mui-C2wpSDfB-o5261yms.js",
+      "path": "assets/mui-vOA8-Cdz-qwwfcm2q.js",
       "size": 245140,
       "gzippedSize": 68369,
       "type": "js"
     },
     {
-      "path": "assets/leaflet-p1gpytKM-biqtveh4.js",
+      "path": "assets/leaflet-CNvRqjgM-4ry1q352.js",
       "size": 148634,
       "gzippedSize": 42730,
       "type": "js"
@@ -88,19 +70,19 @@
       "type": "png"
     },
     {
-      "path": "assets/vendor-Pe75Y5kG-swxi96hw.js",
+      "path": "assets/vendor-CmDXywIv-2kaz1gyl.js",
       "size": 57554,
-      "gzippedSize": 21950,
+      "gzippedSize": 21952,
       "type": "js"
     },
     {
-      "path": "assets/index-vo3OgPR--e7x8z205.js",
-      "size": 32270,
-      "gzippedSize": 8028,
+      "path": "assets/index-C1ACnR9f-z3wsdabq.js",
+      "size": 32280,
+      "gzippedSize": 8032,
       "type": "js"
     },
     {
-      "path": "assets/styles/leaflet-CIGW-MKW-qpgv44je.css",
+      "path": "assets/styles/leaflet-CIGW-MKW-xzmt8nyg.css",
       "size": 15607,
       "gzippedSize": 6486,
       "type": "css"
@@ -116,6 +98,12 @@
       "size": 11983,
       "gzippedSize": 11893,
       "type": "png"
+    },
+    {
+      "path": "test.html",
+      "size": 4965,
+      "gzippedSize": 1558,
+      "type": "html"
     }
   ]
 }
