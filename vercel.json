@@ -23,7 +23,7 @@
     }
   ],
   "functions": {
-    "apps/web/api/auth-bypass.js": {
+    "api/auth-bypass.js": {
       "memory": 128,
       "maxDuration": 5
     }
