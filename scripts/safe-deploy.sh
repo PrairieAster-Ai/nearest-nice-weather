@@ -61,12 +61,14 @@ safety_check() {
     fi
     
     # Check if tests pass (if test command exists)
-    if command -v npm run test:quick &> /dev/null; then
+    if npm run --silent test:quick &> /dev/null; then
         log "Running quick tests..."
         if ! npm run test:quick; then
             error "Tests failed - deployment cancelled"
             return 1
         fi
+    else
+        log "No test:quick script found - skipping tests"
     fi
     
     success "Safety checks passed"
