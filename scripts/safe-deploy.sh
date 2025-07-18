@@ -50,12 +50,14 @@ safety_check() {
         return 1
     fi
     
-    # Check if on experimental branch
+    # Check if on experimental branch (only for production)
     local current_branch=$(git branch --show-current)
-    if [[ "$current_branch" == *"experiment"* ]] || [[ "$current_branch" == *"test"* ]]; then
-        error "Currently on experimental branch: $current_branch"
-        warning "Switch to stable branch before production deployment"
-        return 1
+    if [[ "$DEPLOYMENT_TYPE" == "production" || "$DEPLOYMENT_TYPE" == "prod" ]]; then
+        if [[ "$current_branch" == *"experiment"* ]] || [[ "$current_branch" == *"test"* ]]; then
+            error "Currently on experimental branch: $current_branch"
+            warning "Switch to stable branch before production deployment"
+            return 1
+        fi
     fi
     
     # Check if tests pass (if test command exists)
