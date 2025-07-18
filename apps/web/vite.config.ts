@@ -2,12 +2,18 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { visualizer } from 'rollup-plugin-visualizer'
+import vitePluginVercelApi from 'vite-plugin-vercel-api'
 
 export default defineConfig({
   plugins: [
     react({
       // React 18 LTS with classic JSX runtime for stability
       jsxRuntime: 'automatic'
+    }),
+    // Serve Vercel API routes locally during development
+    vitePluginVercelApi({
+      // API directory relative to the current working directory (apps/web)
+      apiDir: 'api'
     }),
     VitePWA({
       registerType: 'autoUpdate',
@@ -61,25 +67,8 @@ export default defineConfig({
     hmr: {
       port: parseInt(process.env.DEV_PORT || process.env.VITE_HMR_PORT || '3001'),
       host: 'localhost'
-    },
-    proxy: {
-      '/api': {
-        target: process.env.VITE_API_PROXY_URL || 'http://localhost:4000',
-        changeOrigin: true,
-        secure: false,
-        configure: (proxy) => {
-          proxy.on('error', (err) => {
-            console.log('Proxy error:', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req) => {
-            console.log('Proxying API request:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, _req) => {
-            proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-          });
-        }
-      }
     }
+    // Proxy removed - API routes now served directly by vite-plugin-vercel-api
   },
   build: {
     outDir: 'dist',

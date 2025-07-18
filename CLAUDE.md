@@ -27,7 +27,8 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
   - `DEVELOPMENT-ENVIRONMENT-SUMMARY.md` - Overview of all operational improvements
   - `architecture-overview.md` - Complete technical specification for FastAPI + Directus + PostGIS stack
 - `scripts/` - **Automated development environment tools**
-  - `localhost-health-check.sh` - Comprehensive environment validation
+  - `environment-validation.sh` - **Comprehensive multi-environment validation (localhost/preview/production)**
+  - `localhost-health-check.sh` - Legacy localhost-specific validation
   - `quick-docker-health.sh` - Fast Docker networking check
   - `development-dashboard.sh` - Real-time environment monitoring
 
@@ -48,6 +49,51 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 3. **Install serverless driver**: `npm install @neondatabase/serverless`
 4. **Set environment variables** in correct Vercel project
 5. **Disable authentication** on production (enable only for preview)
+6. **⚠️ CRITICAL: Always verify preview domain alias after deployment**
+
+### **🔄 Preview Domain Alias Issue (RECURRING PROBLEM)**
+**Problem**: `npm run deploy:preview` creates auto-generated URLs instead of updating p.nearestniceweather.com
+**Impact**: API endpoints appear broken when testing p.nearestniceweather.com
+**Root Cause**: Vercel doesn't automatically alias preview deployments to custom domains
+
+**MANDATORY STEPS after every preview deployment**:
+```bash
+# 1. Deploy to preview (creates auto-generated URL)
+npm run deploy:preview
+
+# 2. IMMEDIATELY alias the preview domain to the new deployment
+vercel alias set [AUTO-GENERATED-URL] p.nearestniceweather.com
+
+# 3. Test the preview domain API endpoints
+curl -s "https://p.nearestniceweather.com/api/health" | jq .
+curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
+```
+
+**Historical Pattern**: This issue occurs every 2-3 deployments and costs 15-30 minutes of debugging time
+**Prevention**: Always run the alias command immediately after preview deployment
+
+### **🔍 Environment Validation (STANDARD OPERATING PROCEDURE)**
+**MANDATORY**: Use automated validation script before manual testing
+```bash
+# Validate any environment with comprehensive testing
+./scripts/environment-validation.sh [ENVIRONMENT]
+
+# Common usage patterns:
+./scripts/environment-validation.sh localhost     # Test local development
+./scripts/environment-validation.sh preview      # Test preview environment
+./scripts/environment-validation.sh production   # Test production
+./scripts/environment-validation.sh https://my-branch.vercel.app  # Custom URL
+```
+
+**What it detects**:
+- ✅ API endpoints working (health, weather-locations, feedback)
+- ✅ Frontend loading (HTML, static assets, JavaScript bundles)
+- ✅ Database connectivity and environment variables
+- ✅ Common deployment issues (blank screens, 404s, timeouts)
+- ✅ BrowserToolsMCP integration for screenshots and console logs
+
+**Exit codes**: 0=success, 1=API issues, 2=frontend issues, 3=both
+**Automation**: Run this script before asking "is the environment working?"
 
 ### **Database Schema Validation**
 - **Always verify table structure** before deploying API changes
@@ -118,23 +164,27 @@ cd apps/web && npm run dev
 
 **Deployment Commands** (PRODUCTION SAFETY):
 ```bash
-# Preview deployment (safe, no confirmation needed)
+# Preview deployment (safe, with automatic validation)
 npm run deploy:preview
 
 # Production deployment (requires explicit confirmation)
-npm run deploy:prod                    # Shows deployment info, requires --confirm flag
-npm run deploy:prod -- --confirm       # Deploys to production after safety checks
+npm run deploy:production              # Interactive confirmation required
+npm run deploy:production -- --force   # Skip confirmation (emergency use only)
 
 # Legacy deploy command (disabled for safety)
 npm run deploy                         # Returns error message with correct commands
+
+# DANGEROUS: Raw vercel commands (blocked by safety wrapper)
+vercel --prod                          # BLOCKED - use npm run deploy:production instead
 ```
 
 **Deployment Safety Features**:
-- 🛡️ **Confirmation Required**: Production deployments require explicit `--confirm` flag
-- 📋 **Pre-deployment Info**: Shows git status, commit details, and recent deployments
-- ⚠️ **Uncommitted Changes Warning**: Alerts if there are uncommitted changes
-- 🔍 **Pre-deployment Checks**: Runs lint, type-check, and build before deployment
-- 🚫 **Accidental Deployment Prevention**: Legacy `npm run deploy` command disabled
+- 🛡️ **Interactive Confirmation**: Production deployments require typing "DEPLOY-TO-PRODUCTION"
+- 📋 **Pre-deployment Checks**: Git status, uncommitted changes, branch validation
+- ⚠️ **Experimental Branch Protection**: Prevents production deployment from test branches
+- 🔍 **Automated Validation**: Runs environment validation after deployment
+- 🚫 **Command Blocking**: Raw `vercel --prod` commands are intercepted and blocked
+- 🔄 **Automatic Alias Updates**: Preview deployments automatically update p.nearestniceweather.com
 
 **Environment Variables** (Required):
 - `DATABASE_URL`: Neon PostgreSQL connection string
@@ -359,6 +409,7 @@ curl -s http://localhost:3050/health | jq '.'
 - **Docker Status**: Verify Docker networking with `./scripts/quick-docker-health.sh`
 - **Node.js Version**: Ensure LTS version (20.18.0) with `node --version`
 - **Environment Validation**: Use `./scripts/development-dashboard.sh` for real-time status
+- **Blank Screen Check**: If preview shows blank screen, run `./scripts/blank-screen-diagnostic.sh preview`
 
 ### Weekly Maintenance  
 - **Documentation Review**: Check `documentation/runbooks/` for process updates
@@ -377,6 +428,7 @@ curl -s http://localhost:3050/health | jq '.'
 - **Docker Problems**: Use `documentation/runbooks/docker-networking-troubleshooting.md`
 - **Migration Needs**: Follow `documentation/runbooks/nodejs-migration-checklist.md`
 - **Cache Issues**: Reference `documentation/runbooks/cache-busting-implementation-guide.md`
+- **Blank Screen Issues**: Use `./scripts/blank-screen-diagnostic.sh` for automated diagnosis and fix
 
 ### Knowledge Management
 - **Runbook Location**: All procedures documented in `documentation/runbooks/`
