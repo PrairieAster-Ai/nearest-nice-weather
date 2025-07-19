@@ -13,6 +13,11 @@
   ],
   "scripts": {
     "start": "bash ./scripts/unified-dev-start.sh",
+    "start:pm2": "pm2 start ecosystem.config.js",
+    "stop:pm2": "pm2 stop ecosystem.config.js",
+    "restart:pm2": "pm2 restart ecosystem.config.js",
+    "logs:pm2": "pm2 logs",
+    "status:pm2": "pm2 status",
     "dev": "npm run dev:all",
     "dev:all": "concurrently \"npm run dev:redis\" \"npm run dev:web\"",
     "dev:redis": "docker compose up -d redis",
@@ -50,6 +55,8 @@
     "reset": "npm run clean:all && npm install",
     "health": "npm run health:all",
     "health:all": "curl -f http://localhost:3000 && curl -f https://www.nearestniceweather.com/api/feedback",
+    "health:visual": "node ./scripts/visual-health-check.js",
+    "health:monitor": "node ./scripts/persistent-health-monitor.js",
     "validate:env": "./scripts/validate-env.sh",
     "setup": "./scripts/dev-setup.sh"
   },

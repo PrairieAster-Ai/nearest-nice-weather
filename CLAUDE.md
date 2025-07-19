@@ -127,6 +127,17 @@ npm start
 # - Provides monitoring and auto-restart capabilities
 # - Ready in under 30 seconds
 
+# PERSISTENT MONITORING (Runs in background even after Ctrl+C):
+npm run start:pm2          # Start all services with PM2 process manager
+npm run stop:pm2           # Stop all PM2 services
+npm run restart:pm2        # Restart all PM2 services
+npm run status:pm2         # Check PM2 service status
+npm run logs:pm2           # View PM2 logs
+
+# ENHANCED HEALTH CHECKS:
+npm run health:visual      # Visual validation with screenshots & console analysis
+npm run health:monitor     # Run persistent health monitor independently
+
 # Alternative: Legacy startup (still available)
 ./dev-startup.sh           # Original complex startup
 cd apps/web && npm run dev  # Frontend only

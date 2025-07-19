@@ -44,24 +44,72 @@ info() {
     echo -e "${PURPLE}ℹ️  $1${NC}"
 }
 
-# Cleanup function for graceful exit
+# Track all child PIDs for proper cleanup
+CHILD_PIDS=()
+
+# Enhanced cleanup function for graceful exit with proper signal propagation
 cleanup() {
     log "🛑 Shutting down development environment..."
     
-    # Kill background processes
+    # Send SIGTERM to all tracked child processes first
+    for pid in "${CHILD_PIDS[@]}"; do
+        if kill -0 "$pid" 2>/dev/null; then
+            log "Sending SIGTERM to PID $pid"
+            kill -TERM "$pid" 2>/dev/null || true
+        fi
+    done
+    
+    # Wait a moment for graceful shutdown
+    sleep 2
+    
+    # Send SIGKILL to any remaining processes
+    for pid in "${CHILD_PIDS[@]}"; do
+        if kill -0 "$pid" 2>/dev/null; then
+            warning "Force killing PID $pid"
+            kill -KILL "$pid" 2>/dev/null || true
+        fi
+    done
+    
+    # Kill tracked background processes by PID variables
     if [[ -n $API_PID ]]; then
-        kill $API_PID 2>/dev/null || true
+        if kill -0 "$API_PID" 2>/dev/null; then
+            kill -TERM "$API_PID" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$API_PID" 2>/dev/null || true
+        fi
         success "API server stopped"
     fi
     
     if [[ -n $FRONTEND_PID ]]; then
-        kill $FRONTEND_PID 2>/dev/null || true
+        if kill -0 "$FRONTEND_PID" 2>/dev/null; then
+            kill -TERM "$FRONTEND_PID" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$FRONTEND_PID" 2>/dev/null || true
+        fi
         success "Frontend server stopped"
     fi
     
-    # Stop any other development processes
-    pkill -f "dev-api-server.js" 2>/dev/null || true
-    pkill -f "vite.*3001" 2>/dev/null || true
+    if [[ -n $BROWSERTOOLS_PID ]]; then
+        if kill -0 "$BROWSERTOOLS_PID" 2>/dev/null; then
+            kill -TERM "$BROWSERTOOLS_PID" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$BROWSERTOOLS_PID" 2>/dev/null || true
+        fi
+        success "BrowserToolsMCP server stopped"
+    fi
+    
+    # Comprehensive cleanup by process pattern (fallback)
+    pkill -TERM -f "dev-api-server.js" 2>/dev/null || true
+    pkill -TERM -f "vite.*3001" 2>/dev/null || true
+    pkill -TERM -f "browsertools-mcp-server" 2>/dev/null || true
+    pkill -TERM -f "browsertools-monitor" 2>/dev/null || true
+    
+    # Final cleanup after grace period
+    sleep 2
+    pkill -KILL -f "dev-api-server.js" 2>/dev/null || true
+    pkill -KILL -f "vite.*3001" 2>/dev/null || true
+    pkill -KILL -f "browsertools-mcp-server" 2>/dev/null || true
+    pkill -KILL -f "browsertools-monitor" 2>/dev/null || true
     
     log "Development environment stopped"
     exit 0
@@ -128,32 +176,85 @@ echo
 # Phase 2: Service Startup
 log "🚀 Phase 2: Service Startup"
 
-# Start API server
-log "Starting API server on port $API_PORT..."
-cd "$PROJECT_ROOT"
-node dev-api-server.js &
-API_PID=$!
+# Enhanced service startup with retry logic
+start_service_with_retry() {
+    local service_name=$1
+    local start_command=$2
+    local test_url=$3
+    local max_retries=3
+    local pid_var=$4
+    
+    for attempt in $(seq 1 $max_retries); do
+        log "Starting $service_name (attempt $attempt/$max_retries)..."
+        
+        # Start the service
+        eval "$start_command" &
+        local pid=$!
+        eval "$pid_var=$pid"
+        
+        # Track PID for cleanup
+        CHILD_PIDS+=("$pid")
+        
+        # Wait with exponential backoff
+        local wait_time=$((attempt * 2))
+        sleep $wait_time
+        
+        # Test if service is responding
+        for i in {1..10}; do
+            if curl -s "$test_url" >/dev/null 2>&1; then
+                success "$service_name ready (PID: $pid)"
+                return 0
+            fi
+            sleep 1
+        done
+        
+        # Service failed, kill and retry
+        warning "$service_name failed to start, killing PID $pid"
+        kill $pid 2>/dev/null || true
+        
+        if [[ $attempt -eq $max_retries ]]; then
+            error "$service_name failed after $max_retries attempts"
+            cleanup
+            exit 1
+        fi
+        
+        warning "Retrying $service_name in 3 seconds..."
+        sleep 3
+    done
+}
 
-# Wait for API to be ready
-log "Waiting for API server..."
-for i in {1..10}; do
-    if curl -s "http://localhost:$API_PORT/api/health" >/dev/null 2>&1; then
-        success "API server ready on http://localhost:$API_PORT"
-        break
+# Start BrowserToolsMCP server first (dependency for validation)
+if [[ -f "$PROJECT_ROOT/browsertools-mcp-server.js" ]]; then
+    log "Starting BrowserToolsMCP server..."
+    start_service_with_retry "BrowserToolsMCP" \
+        "cd '$PROJECT_ROOT' && node browsertools-mcp-server.js" \
+        "http://localhost:3025/identity" \
+        "BROWSERTOOLS_PID"
+        
+    # Start BrowserToolsMCP monitor
+    if [[ -f "$PROJECT_ROOT/scripts/browsertools-monitor.sh" ]]; then
+        log "Starting BrowserToolsMCP monitor..."
+        "$PROJECT_ROOT/scripts/browsertools-monitor.sh" monitor >/dev/null 2>&1 &
+        success "BrowserToolsMCP monitor started"
     fi
-    sleep 1
-    if [[ $i -eq 10 ]]; then
-        error "API server failed to start"
-        cleanup
-        exit 1
-    fi
-done
+else
+    warning "BrowserToolsMCP server not found, skipping"
+fi
+
+# Start API server with retry logic
+start_service_with_retry "API Server" \
+    "cd '$PROJECT_ROOT' && node dev-api-server.js" \
+    "http://localhost:$API_PORT/api/health" \
+    "API_PID"
 
 # Start frontend
 log "Starting frontend on port $FRONTEND_PORT..."
 cd "$PROJECT_ROOT/apps/web"
 npm run dev &
 FRONTEND_PID=$!
+
+# Track frontend PID for cleanup
+CHILD_PIDS+=("$FRONTEND_PID")
 
 # Wait for frontend to be ready
 log "Waiting for frontend..."
@@ -190,32 +291,82 @@ echo -e "  ${YELLOW}npm run deploy:preview${NC}      Deploy to preview"
 echo
 echo -e "${BLUE}🔍 Validation:${NC}"
 
-# Quick health check
+# Comprehensive service validation
+log "🔍 Running comprehensive service validation..."
+
+# Test BrowserToolsMCP connectivity (if available)
+if [[ -n $BROWSERTOOLS_PID ]]; then
+    if curl -s "http://localhost:3025/identity" | grep -q "mcp-browser-connector"; then
+        success "BrowserToolsMCP: PASSED"
+    else
+        warning "BrowserToolsMCP: FAILED - Server not responding correctly"
+    fi
+fi
+
+# Test API server health
 if curl -s "http://localhost:$API_PORT/api/health" | grep -q "success.*true"; then
     success "API Health Check: PASSED"
 else
     warning "API Health Check: FAILED"
 fi
 
-if curl -s "http://localhost:$FRONTEND_PORT" | grep -q "Nearest Nice Weather"; then
-    success "Frontend Health Check: PASSED"
+# Test API data endpoints (deeper validation)
+if curl -s "http://localhost:$API_PORT/api/weather-locations?limit=1" | grep -q "success"; then
+    success "API Data Endpoints: PASSED"
 else
-    warning "Frontend Health Check: FAILED"
+    warning "API Data Endpoints: FAILED - Database connectivity issues"
+fi
+
+# Test frontend loading
+if curl -s "http://localhost:$FRONTEND_PORT" | grep -q "Nearest Nice Weather"; then
+    success "Frontend Loading: PASSED"
+else
+    warning "Frontend Loading: FAILED"
+fi
+
+# Test API proxy through frontend (critical integration test)
+if curl -s "http://localhost:$FRONTEND_PORT/api/weather-locations?limit=1" | grep -q "success"; then
+    success "API Proxy Integration: PASSED"
+else
+    warning "API Proxy Integration: FAILED - Frontend/API connection broken"
+fi
+
+# Test database connectivity (if PostgreSQL container available)
+if command -v docker >/dev/null 2>&1; then
+    if docker ps | grep -q "weather-postgres\|postgres"; then
+        if docker exec $(docker ps --format "table {{.Names}}" | grep postgres | head -1) psql -U postgres -c "SELECT 1;" >/dev/null 2>&1; then
+            success "Database Connectivity: PASSED"
+        else
+            warning "Database Connectivity: FAILED - PostgreSQL not responding"
+        fi
+    else
+        info "Database Connectivity: SKIPPED - No PostgreSQL container found"
+    fi
+else
+    info "Database Connectivity: SKIPPED - Docker not available"
 fi
 
 echo
 log "🔄 Monitoring services (Ctrl+C to stop)..."
 
-# Service monitoring loop
+# Service monitoring loop with comprehensive health checking
 while true; do
     sleep 30
     
-    # Check if services are still running
+    # Check if services are still running and restart if needed
     if ! kill -0 $API_PID 2>/dev/null; then
         warning "API server stopped unexpectedly, restarting..."
         cd "$PROJECT_ROOT"
         node dev-api-server.js &
         API_PID=$!
+        sleep 3
+        
+        # Validate restart worked
+        if curl -s "http://localhost:$API_PORT/api/health" >/dev/null 2>&1; then
+            success "API server restarted successfully"
+        else
+            error "API server restart failed"
+        fi
     fi
     
     if ! kill -0 $FRONTEND_PID 2>/dev/null; then
@@ -223,5 +374,29 @@ while true; do
         cd "$PROJECT_ROOT/apps/web"
         npm run dev &
         FRONTEND_PID=$!
+        sleep 5
+        
+        # Validate restart worked
+        if curl -s "http://localhost:$FRONTEND_PORT" >/dev/null 2>&1; then
+            success "Frontend restarted successfully"
+        else
+            error "Frontend restart failed"
+        fi
+    fi
+    
+    # Check BrowserToolsMCP if it was started
+    if [[ -n $BROWSERTOOLS_PID ]] && ! kill -0 $BROWSERTOOLS_PID 2>/dev/null; then
+        warning "BrowserToolsMCP stopped unexpectedly, restarting..."
+        cd "$PROJECT_ROOT"
+        node browsertools-mcp-server.js &
+        BROWSERTOOLS_PID=$!
+        sleep 2
+        
+        # Validate restart worked
+        if curl -s "http://localhost:3025/identity" >/dev/null 2>&1; then
+            success "BrowserToolsMCP restarted successfully"
+        else
+            error "BrowserToolsMCP restart failed"
+        fi
     fi
 done
