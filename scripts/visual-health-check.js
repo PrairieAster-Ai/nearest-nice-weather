@@ -12,7 +12,7 @@ const path = require('path');
 
 // Configuration
 const BROWSERTOOLS_BASE = 'http://localhost:3025';
-const LOCALHOST_URL = 'http://localhost:3001';
+const LOCALHOST_URL = process.env.TEST_URL || 'http://localhost:3001';
 const SCREENSHOT_DIR = '/home/robertspeer/Projects/screenshots';
 
 // Logging
@@ -71,7 +71,13 @@ async function makeRequest(url, options = {}) {
 // Check if BrowserToolsMCP is available
 async function checkBrowserToolsAvailable() {
     const result = await makeRequest(`${BROWSERTOOLS_BASE}/identity`);
-    return result.success && result.data && result.data.includes('mcp-browser-connector');
+    if (!result.success || !result.data) {
+        return false;
+    }
+    
+    // Handle both string and object responses
+    const dataString = typeof result.data === 'string' ? result.data : JSON.stringify(result.data);
+    return dataString.includes('mcp-browser-connector');
 }
 
 // Get available browser tabs
@@ -174,6 +180,14 @@ function analyzeConsoleLogs(logs) {
         
         if (message.includes('chunk') && message.includes('failed')) {
             issues.push('JavaScript chunk loading failures');
+        }
+        
+        if (message.includes('geolocation') && message.includes('gesture')) {
+            issues.push('Geolocation privacy violation - requesting location without user gesture');
+        }
+        
+        if (message.includes('Violation') && message.includes('geolocation')) {
+            issues.push('Browser policy violation: Geolocation requested without user interaction');
         }
     }
     
