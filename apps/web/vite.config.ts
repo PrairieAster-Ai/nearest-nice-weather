@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { visualizer } from 'rollup-plugin-visualizer'
-import vitePluginVercelApi from 'vite-plugin-vercel-api'
+// import vitePluginVercelApi from 'vite-plugin-vercel-api' // Not working properly, using proxy instead
 
 export default defineConfig({
   plugins: [
@@ -10,11 +10,7 @@ export default defineConfig({
       // React 18 LTS with classic JSX runtime for stability
       jsxRuntime: 'automatic'
     }),
-    // Serve Vercel API routes locally during development
-    vitePluginVercelApi({
-      // API directory relative to the current working directory (apps/web)
-      apiDir: 'api'
-    }),
+    // Note: vite-plugin-vercel-api has execution issues, using proxy instead
     VitePWA({
       registerType: 'autoUpdate',
       disable: true,
@@ -67,8 +63,14 @@ export default defineConfig({
     hmr: {
       port: parseInt(process.env.DEV_PORT || process.env.VITE_HMR_PORT || '3001'),
       host: 'localhost'
+    },
+    // Proxy API requests to dev-api-server.js running on port 4000
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true
+      }
     }
-    // Proxy removed - API routes now served directly by vite-plugin-vercel-api
   },
   build: {
     outDir: 'dist',
