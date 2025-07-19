@@ -114,29 +114,23 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 - **Required tables**: `locations`, `weather_conditions`, `tourism_operators`
 - **Test with known good data** before production deployment
 
-**Development Environment** (NEON DATABASE BRANCHING - Development Complexity):
+**Development Environment** (UNIFIED STARTUP EXPERIENCE):
 ```bash
-# STEP 1: Configure Neon Database Development Branch
-# 1. Login to Neon Console: https://console.neon.tech/
-# 2. Create development branch from main branch
-# 3. Copy development branch connection string
-# 4. Update .env file with actual connection string:
-#    DATABASE_URL="postgresql://neondb_owner:actual_password@ep-development-actual.region.neon.tech/neondb?sslmode=require"
+# ONE COMMAND TO START EVERYTHING:
+npm start
 
-# STEP 2: Start Development Environment
-# RECOMMENDED: Use the robust startup script
-./dev-startup.sh
-
-# This script automatically:
-# - Cleans up existing processes
+# This automatically:
+# - Validates environment and frees conflicting ports
 # - Starts API server (port 4000) 
 # - Starts frontend server (port 3001)
-# - Tests all connections including database
-# - Verifies environment configuration
+# - Runs health checks for both services
+# - Provides monitoring and auto-restart capabilities
+# - Ready in under 30 seconds
 
-# Alternative: Manual startup
-cd apps/web && npm run dev  # Frontend on port 3001
-node dev-api-server.js      # API on port 4000
+# Alternative: Legacy startup (still available)
+./dev-startup.sh           # Original complex startup
+cd apps/web && npm run dev  # Frontend only
+node dev-api-server.js      # API only
 
 # STEP 3: Database Environment Deployment Strategy
 # LOCALHOST: Uses Neon development branch (.env)
