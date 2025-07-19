@@ -72,6 +72,20 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 **Historical Pattern**: This issue occurs every 2-3 deployments and costs 15-30 minutes of debugging time
 **Prevention**: Always run the alias command immediately after preview deployment
 
+### **🔄 RAPID LOCALHOST/PREVIEW PARITY TESTING**
+**FOR ITERATIVE VALIDATION WORKFLOWS**: Quick comparison between environments
+```bash
+# Test localhost with latest code
+./scripts/environment-validation.sh localhost
+
+# Test preview environment  
+./scripts/environment-validation.sh preview
+
+# Update SESSION-HANDOFF.md matrix with results
+# Fix divergences with unified solutions
+# Repeat until parity achieved
+```
+
 ### **🔍 Environment Validation (STANDARD OPERATING PROCEDURE)**
 **MANDATORY**: Use automated validation script before manual testing
 ```bash

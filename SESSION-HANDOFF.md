@@ -16,10 +16,62 @@
 - **p.nearestniceweather.com**: Fresh deployment with latest fixes
 - **Main branch**: Protected and stable, no risky changes
 
-### FEATURE BRANCH COMPLETED: `feature/api-relocation-experiment`
-- **Purpose**: Fix preview API function deployment without breaking localhost ✅ COMPLETED
-- **Result**: Preview API functions now working correctly ✅ DEPLOYED
-- **Status**: Ready for merge to main branch
+### FEATURE BRANCH: `feature/api-relocation-experiment` - VALIDATION PHASE
+- **Purpose**: Fix preview API function deployment without breaking localhost
+- **Phase 1**: Preview API functions ✅ DEPLOYED AND WORKING
+- **Phase 2**: Localhost/Preview parity validation ⏳ IN PROGRESS
+- **Status**: Requires validation testing before merge
+
+## 🔄 LOCALHOST/PREVIEW PARITY TESTING
+
+### **Current Validation Iteration: #1**
+- **Preview Status**: ✅ API endpoints working, white screen issue resolved
+- **Localhost Status**: ❓ NEEDS TESTING with latest vite-plugin-vercel-api changes
+- **Test Strategy**: Update localhost → test APIs → compare with preview behavior
+
+### **Environment Comparison Matrix:**
+| Component | Localhost | Preview | Parity Status | Notes |
+|-----------|-----------|---------|---------------|-------|
+| Health API | ❓ | ✅ | UNKNOWN | Need to test localhost |
+| Weather Locations API | ❓ | ✅ | UNKNOWN | Need to test localhost |
+| Feedback API | ❓ | ✅ | UNKNOWN | Need to test localhost |
+| Frontend Loading | ❓ | ✅ | UNKNOWN | Need to test localhost |
+| JavaScript Bundles | ❓ | ✅ | UNKNOWN | Simplified chunks deployed to preview |
+
+### **Validation Workflow:**
+```bash
+# 1. Update localhost with latest code
+git pull origin feature/api-relocation-experiment
+
+# 2. Test localhost APIs 
+./scripts/environment-validation.sh localhost
+
+# 3. Compare with preview results
+./scripts/environment-validation.sh preview
+
+# 4. Document any divergences
+# 5. Fix with unified solution (same code for both environments)
+# 6. Repeat until parity achieved
+```
+
+### **Known Issues to Validate:**
+- ✅ **vite-plugin-vercel-api**: Works on preview, needs localhost verification
+- ✅ **Simplified vendor chunks**: Deployed to preview, needs localhost testing
+- ❓ **API route serving**: Does localhost serve from `apps/web/api/` correctly?
+- ❓ **Development vs production builds**: Do both use same configuration?
+
+### **Iteration Success Criteria:**
+- [ ] All API endpoints work identically on localhost and preview
+- [ ] Frontend loads consistently across environments  
+- [ ] Same codebase serves both environments without environment-specific configs
+- [ ] No functionality regressions on either environment
+
+### **Next Actions:**
+1. **Test localhost** with latest feature branch code
+2. **Document any divergences** in matrix above
+3. **Fix issues** with unified solutions
+4. **Repeat validation** until parity achieved
+5. **Merge to main** only after both environments work identically
 
 ### DEPLOYMENT SAFETY SYSTEM IMPLEMENTED ✅
 
