@@ -1,5 +1,5 @@
-import { WeatherFilter } from '../components/features/WeatherFilters'
-import { Location } from '../components/features/WeatherMap'
+import { WeatherFilter } from '../types/weather'
+import { Location } from '../types/weather'
 import type { FeedbackFormData, FeedbackSubmissionResponse } from '../types/feedback'
 
 const API_CONFIG = {

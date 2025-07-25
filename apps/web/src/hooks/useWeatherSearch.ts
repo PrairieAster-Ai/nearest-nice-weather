@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
-import { WeatherFilter } from '../components/features/WeatherFilters'
-import { Location } from '../components/features/WeatherMap'
+import { WeatherFilter } from '../types/weather'
+import { Location } from '../types/weather'
 
 interface UseWeatherSearchReturn {
   loading: boolean
