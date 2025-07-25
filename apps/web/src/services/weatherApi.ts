@@ -15,20 +15,7 @@ export class WeatherApiError extends Error {
   }
 }
 
-export interface WeatherSearchResponse {
-  locations: Location[]
-  total: number
-}
-
 export const weatherApi = {
-  // DEPRECATED: This endpoint doesn't exist in current API
-  // The main app uses useWeatherLocations -> /api/weather-locations
-  // This can be removed after confirming no components use it
-  async searchLocations(_filters: WeatherFilter): Promise<WeatherSearchResponse> {
-    console.warn('DEPRECATED: searchLocations endpoint does not exist. Use useWeatherLocations instead.')
-    throw new WeatherApiError('Search endpoint not implemented. Use weather-locations endpoint.')
-  },
-
   async getLocations(): Promise<Location[]> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)

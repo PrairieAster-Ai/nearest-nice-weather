@@ -34,7 +34,7 @@ export const useWeatherSearch = () => {
       monitoring.captureUserAction('weather_search', { filters })
       
       const startTime = performance.now()
-      const result = await weatherApi.searchLocations(filters)
+      const locations = await weatherApi.getLocations()
       const endTime = performance.now()
 
       // Track performance
@@ -43,10 +43,10 @@ export const useWeatherSearch = () => {
         value: endTime - startTime,
         unit: 'ms',
         timestamp: new Date(),
-        context: { resultCount: result.locations.length }
+        context: { resultCount: locations.length }
       })
 
-      return result
+      return { locations, total: locations.length }
     },
     onSuccess: (data, variables) => {
       // Cache the search results
@@ -88,7 +88,10 @@ export const useWeatherSearch = () => {
 export const useWeatherSearchResults = (filters: WeatherFilter | null) => {
   return useQuery({
     queryKey: filters ? queryKeys.weather.search(filters) : ['weather', 'search', 'disabled'],
-    queryFn: () => weatherApi.searchLocations(filters!),
+    queryFn: async () => {
+      const locations = await weatherApi.getLocations()
+      return { locations, total: locations.length }
+    },
     enabled: !!filters && Object.values(filters).every(value => value && value.length > 0),
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes

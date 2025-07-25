@@ -29,10 +29,8 @@ export const useWeatherSearch = (): UseWeatherSearchReturn => {
       const timeoutId = setTimeout(() => controller.abort(), 
         parseInt(import.meta.env.VITE_API_TIMEOUT || '10000'))
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api'}/weather-search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filters),
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api'}/weather-locations`, {
+        method: 'GET',
         signal: controller.signal
       })
 
@@ -43,7 +41,7 @@ export const useWeatherSearch = (): UseWeatherSearchReturn => {
       }
 
       const data = await response.json()
-      setResults(data.locations || [])
+      setResults(data.data || [])
     } catch (err) {
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
