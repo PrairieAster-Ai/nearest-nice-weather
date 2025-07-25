@@ -4,6 +4,8 @@
 
 This risk analysis evaluates potential threats to the Nearest Nice Weather platform success and outlines mitigation strategies. Analysis is based on conservative assumptions documented in [Financial Assumptions](financial-assumptions.md) and market research from [Market Research Sources](market-research.md).
 
+**⚠️ CRITICAL UPDATE (July 2025)**: Previous B2B revenue assumptions have been identified as unsupported. See [B2B Market Analysis](b2b-market-analysis.md) for critical assessment of tourism operator monetization claims.
+
 ## Risk Categories & Assessment
 
 ### 1. Market Risks

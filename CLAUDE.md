@@ -10,7 +10,7 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 **🚀 RAPID DEVELOPMENT WORKFLOW**: [Optimized for High-Speed Experimentation](RAPID-DEVELOPMENT.md) - Idea to production in 2-5 minutes with automated quality gates and instant rollback capabilities.
 
-**Target Market**: Minnesota tourism operators (ice fishing guides, BWCA outfitters, resorts) and outdoor recreation enthusiasts.
+**Target Market**: Casual mass market consumers in Minneapolis metro area seeking constraint-based weather optimization for free/frugal local activities.
 
 ## Repository Structure
 
@@ -111,7 +111,7 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 
 ### **Database Schema Validation**
 - **Always verify table structure** before deploying API changes
-- **Required tables**: `locations`, `weather_conditions`, `tourism_operators`
+- **Required tables**: `locations`, `weather_conditions`, `tourism_operators` (NOTE: tourism_operators table exists for data completeness, but B2C focus means it's used only for location/activity data, not B2B features)
 - **Test with known good data** before production deployment
 
 **Development Environment** (UNIFIED STARTUP EXPERIENCE):
@@ -234,13 +234,15 @@ vercel --prod                          # BLOCKED - use npm run deploy:production
 
 ## Business Context
 
-**Revenue Model**: B2B SaaS for tourism operators ($200-500/month) + B2C subscriptions ($15-50/month)
+**Revenue Model**: B2C ad revenue platform targeting 10,000+ active users
 
-**Key Features** (planned):
+**IMPORTANT**: This is a B2C-focused project. Any B2B/tourism operator features are documented in appendices as far-future capabilities only.
+
+**Key Features** (B2C Focus):
 - Weather-destination matching algorithm
-- Tourism operator dashboard for weather-related business decisions  
 - Consumer interface for activity optimization
 - Predictive weather intelligence for trip planning
+- Minimalist interface optimized for usability and fun
 
 **Geographic Focus**: Initial Minnesota market, expanding to Upper Midwest
 
@@ -248,14 +250,14 @@ vercel --prod                          # BLOCKED - use npm run deploy:production
 
 **TECHNICAL FOUNDATION COMPLETED** ✅ (December 2024):
 1. ✅ **Technical Foundation**: FastAPI + PostGIS + Redis infrastructure validated
-2. ✅ **Database Implementation**: Sample Minnesota locations and tourism operators loaded
+2. ✅ **Database Implementation**: Sample Minnesota locations and outdoor activities loaded
 3. ✅ **API Development**: Infrastructure validation endpoints operational  
 4. ✅ **Frontend Dashboard**: Real-time infrastructure monitoring interface
 
 **NEXT DEVELOPMENT PRIORITIES**:
 1. **Weather API Integration**: Connect OpenWeather, Weather API, NOAA services
 2. **Core Algorithm**: Weather-activity matching for Minnesota conditions  
-3. **Tourism Operator Features**: B2B dashboard and workflow optimization
+3. **Consumer Features**: B2C interface optimization and user experience
 4. **Customer Discovery**: Market validation with live platform demos
 
 ## File Organization
@@ -272,7 +274,7 @@ vercel --prod                          # BLOCKED - use npm run deploy:production
 - Real-time infrastructure health monitoring
 - Geographic data handling with PostGIS
 - Next.js frontend with Tailwind CSS styling
-- Sample Minnesota tourism data (locations + operators)
+- Sample Minnesota outdoor activity data (locations + activities)
 
 ## Implementation Achievement
 

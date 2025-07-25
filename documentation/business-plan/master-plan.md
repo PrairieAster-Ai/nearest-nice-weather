@@ -115,23 +115,23 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 
 ## Market Segments & User Personas
 
-### Primary Market: Year-Round Outdoor Enthusiasts (B2C MVP Focus)
+### Primary Market: Casual Mass Market Consumers (B2C MVP Focus)
 
-**Target Market**: Active outdoor enthusiasts who want optimal weather for their activities year-round, prioritizing early adopters excited about new technology solutions
+**Target Market**: Casual outdoor enthusiasts in Minneapolis metro area seeking optimal weather conditions for free and frugal local activities, with emphasis on constraint-based discovery (location + weather + travel time + budget)
 
 **Primary Activities & Seasonal Distribution**:
-- **Winter (Dec-Mar)**: Ice fishing, winter camping, snow sports
-- **Spring (Apr-May)**: Fishing opener, turkey hunting, early camping
-- **Summer (Jun-Aug)**: BWCA trips, bass tournaments, water recreation
-- **Fall (Sep-Nov)**: Deer hunting, waterfowl, late-season fishing
+- **Winter (Dec-Mar)**: Free outdoor activities (parks, trails, ice skating, sledding)
+- **Spring (Apr-May)**: Budget-conscious recreation (hiking, camping, local events)
+- **Summer (Jun-Aug)**: Local discovery (beaches, parks, outdoor festivals, farmers markets)
+- **Fall (Sep-Nov)**: Frugal outdoor exploration (nature walks, scenic drives, local attractions)
 
-**Primary Persona**: Tech-savvy outdoor enthusiasts with specific weather preferences
-- **Demographics**: 500K+ active Minnesota outdoor recreation participants who use smartphone apps
-- **Critical Pain Point**: "Where can I find weather that matches my preferences today?"
-- **Current Behavior**: Checks multiple weather apps and manually evaluates conditions against personal preferences
-- **Solution Value**: Instant discovery of nearest weather matching personal preference filters
-- **Revenue Model**: MVP ad-supported only, premium features determined post-launch by user voting
-- **MVP Strategy**: 10,000+ users with unlimited saved filters to generate usage data for post-MVP development
+**Primary Persona**: Casual consumers seeking spontaneous local outdoor activities
+- **Demographics**: 2M+ Minneapolis metro area residents who use mobile apps for local discovery
+- **Critical Pain Point**: "Where can I find something fun to do outdoors today within my time and budget constraints?"
+- **Current Behavior**: Struggles with multiple apps (weather, maps, reviews) to find suitable activities that fit their time and budget
+- **Solution Value**: One-click discovery of free/frugal activities matching personal weather preferences and travel constraints
+- **Revenue Model**: Ad-supported with contextual local business promotion and judo marketing against big tech
+- **MVP Strategy**: 10,000+ daily users generating location and preference data for targeted local advertising
 
 **Viral Growth Strategy**:
 - **Social Sharing**: Users share weather discoveries: "Perfect camping weather in Brainerd!"
@@ -146,9 +146,9 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 - **Activity Services**: Guides, outfitters, equipment rentals in optimal weather areas
 - **Competitor-Neutral Networks**: Independent ad networks avoiding Google/Amazon conflicts
 
-### Secondary Market: Tourism Operators (Future B2B Opportunity)
+### Secondary Market: Tourism Operators (Far Future B2B Opportunity)
 
-**Target Market**: Tourism operators interested in advertising to our B2C user base - not primary MVP focus
+**Target Market**: Tourism operators interested in advanced analytics and business intelligence - positioned as post-Series A capability, not MVP focus
 
 **Business Types & Seasonal Operations**:
 - **Ice fishing guides** (winter) → **Open-water fishing guides** (summer): Estimated 95% overlap ⚠️ (*assumption requiring validation*)

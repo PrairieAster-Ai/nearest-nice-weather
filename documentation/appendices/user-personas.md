@@ -191,10 +191,10 @@ These user personas represent validated market segments for the Weather Intellig
 ## Strategic Implications
 
 ### Market Segmentation Priority
-1. **B2B Tourism Operators** (Primary): High revenue per customer, critical pain points, industry influence
-2. **Medical Tourism Families** (Secondary): High-value, predictable demand, stress-reduction premium willingness
-3. **Competitive Outdoor Enthusiasts** (Growth): Engaged users, community influence, seasonal consistency
-4. **Rural Business Development** (Strategic): Geographic expansion, community adoption catalysts
+1. **Casual Mass Market Consumers** (Primary): Large addressable market, ad-supported revenue, viral growth potential
+2. **Medical Tourism Families** (Secondary): High-value segment, predictable demand, premium willingness
+3. **Competitive Outdoor Enthusiasts** (Growth): Engaged users, community influence, word-of-mouth marketing
+4. **B2B Tourism Operators** (Far Future): Post-Series A opportunity requiring enterprise sales capability
 
 ### Product Development Insights
 - **Safety-Critical Features**: BWCA outfitters require professional-grade reliability and liability protection
@@ -203,14 +203,14 @@ These user personas represent validated market segments for the Weather Intellig
 - **Rural Connectivity**: Remote area functionality essential for geographic expansion
 
 ### Revenue Model Validation
-- **B2B Willingness to Pay**: $400-800/month validated for safety-critical applications
-- **B2C Premium Segments**: $15-100/month depending on use case intensity and stress reduction value
-- **Market Size Confirmation**: Multiple validated segments supporting diversified revenue strategy
-- **Network Effects Potential**: Community leaders and industry influencers across all segments
+- **Ad Revenue Primary**: Contextual local business advertising with $36K annually conservative estimate at 10K daily users
+- **B2C Premium Features**: $15-50/month for advanced features (secondary revenue stream)
+- **Market Size Confirmation**: 2M+ Minneapolis metro consumers supporting ad-supported strategy
+- **Network Effects Potential**: Viral sharing of weather discoveries and local activity recommendations
 
 ### Go-to-Market Strategy
-- **Phase 1**: Safety-critical B2B validation (BWCA outfitters, ice fishing guides)
-- **Phase 2**: Medical tourism integration (Mayo Clinic area partnerships)
+- **Phase 1**: Consumer market validation (Minneapolis metro area casual outdoor enthusiasts)
+- **Phase 2**: Medical tourism integration (Mayo Clinic area families as secondary market)
 - **Phase 3**: Enthusiast community expansion (tournament circuits, rural networks)
 - **Geographic Expansion**: Rural connector relationships enable regional scaling
 

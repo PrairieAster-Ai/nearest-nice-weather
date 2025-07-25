@@ -14,7 +14,7 @@
 | **Initial Investment** | $25,000 | Technical foundation complete |
 | **Series A Target** | Month 19 | $400K for national expansion |
 
-**Bottom Line**: Viral B2C Progressive Web App targeting year-round outdoor enthusiasts with simple "nearest nice weather" search and ad-supported revenue model.
+**Bottom Line**: Casual mass market B2C platform for constraint-based weather optimization, focusing on free/frugal local discovery with ad-supported revenue model and judo marketing against big tech "enshittification".
 
 ---
 
@@ -63,13 +63,13 @@ Your Location + Weather Preferences → Nearest Matching Weather → User Data +
 - **MVP Strategy**: Build year-round user base demonstrating cross-seasonal demand to B2B market
 - **Sample Target**: 2,500+ active users (statistically reliable feedback sample)
 
-### 🎯 Growth B2B: Year-Round Tourism Operators (B2C-Proven Demand)
-- **Market**: 500+ Minnesota multi-season guides/outfitters
-- **Key Business Assumption** ⚠️: Same operators estimated to provide services across seasons (ice fishing→open water, BWCA→winter wilderness) (*requires validation*)
-- **Pain Point**: Weather cancellations estimated to cost $10K-25K daily across all seasons ⚠️ (*requires operator interview validation*)
-- **Solution**: Year-round weather intelligence + proven consumer demand validation
-- **Pricing**: $400-800/month annual SaaS subscription for comprehensive intelligence
-- **B2C Conversion**: Leverage 2,500+ year-round consumer users demonstrating cross-seasonal demand
+### 🎯 Far Future B2B Opportunity: Tourism Analytics (Post-Series A)
+- **Market**: Minnesota tourism operators seeking advanced analytics
+- **Strategic Position**: B2B capabilities positioned as post-Series A expansion after consumer market validation
+- **Current Priority**: None - focus entirely on consumer market validation and ad revenue optimization
+- **Revenue Model**: B2B subscriptions for analytics/intelligence - not MVP focus
+- **Timeline**: Earliest consideration after 100K+ active consumer users and proven ad revenue model
+- **Dependency**: Requires substantial consumer data platform and enterprise sales capability
 
 ### 🏥 Secondary Market: Medical Tourism (Appendix Detail)
 - **Market**: Mayo patient families (see [Medical Tourism Analysis](../appendices/medical-tourism-segment.md))
@@ -79,20 +79,20 @@ Your Location + Weather Preferences → Nearest Matching Weather → User Data +
 
 ## 📊 Financial Projections
 
-### Revenue Growth (Year-Round Conservative Estimates)
+### Revenue Growth (Ad-Supported Conservative Estimates)
 
 | Stream | Month 6 | Month 12 | Month 24 |
 |--------|---------|----------|----------|
-| **B2C Annual Subscriptions** | $3,500 | $15,000 | $40,000 |
-| **B2B Annual SaaS Tourism** | $1,500 | $15,000 | $45,000 |
-| **Affiliate Revenue** | $600 | $6,000 | $18,000 |
-| **API/Data Licensing** | $0 | $2,500 | $12,000 |
-| **TOTAL Monthly** | **$5,600** | **$38,500** | **$115,000** |
+| **Local Ad Revenue** | $2,800 | $12,000 | $35,000 |
+| **Contextual Advertising** | $1,200 | $8,000 | $25,000 |
+| **B2C Premium Features** | $800 | $4,000 | $12,000 |
+| **Affiliate Revenue** | $400 | $3,000 | $8,000 |
+| **TOTAL Monthly** | **$5,200** | **$27,000** | **$80,000** |
 
-### Unit Economics (Year-Round Model)
-- **B2C LTV/CAC**: 53:1 (vs. 8:1 consumer standard) - Annual subscriptions with year-round engagement
-- **B2B LTV/CAC**: 60:1 (vs. 15:1 industry standard) - Multi-season operations with annual contracts
-- **Gross Margin**: 87%+ (annual subscription model with minimal variable costs)
+### Unit Economics (Ad-Supported Model)
+- **Consumer LTV/CAC**: 25:1 (vs. 8:1 consumer standard) - Ad revenue with high engagement
+- **Ad Revenue CPM**: $3.60 average (local businesses premium vs. $1.20 network average)
+- **Gross Margin**: 85%+ (ad-supported model with minimal hosting costs)
 - **Revenue Stability**: Year-round revenue vs. seasonal fluctuation
 - **Break-Even**: Month 12 with predictable annual contract revenue
 

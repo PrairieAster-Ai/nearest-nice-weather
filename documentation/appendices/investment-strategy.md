@@ -8,9 +8,11 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 
 ### **Unique Value Proposition**
 - **$140K Technical Foundation**: Completed FastAPI + PostGIS + PWA architecture eliminates 6 months of development risk
-- **Validated Market Need**: Weather-related cancellations cost Minnesota tourism operators $10K-25K daily
-- **Conservative Projections**: 80% confidence in break-even by Month 12 with multiple revenue streams
-- **First-Mover Advantage**: 2-3 year lead in tourism-focused weather intelligence
+- **Consumer Market Focus**: Pivot to validated consumer ad-supported model vs. unverified B2B assumptions
+- **Conservative Projections**: 80% confidence in break-even by Month 12 with consumer ad revenue
+- **First-Mover Advantage**: 2-3 year lead in constraint-based weather optimization for consumers
+
+**⚠️ CRITICAL UPDATE**: Previous B2B tourism operator assumptions have been identified as unsupported. See [B2B Market Analysis](b2b-market-analysis.md) for detailed assessment.
 
 ### **Investment Attractiveness**
 - **Proven Technical Team**: Operational platform with infrastructure validation

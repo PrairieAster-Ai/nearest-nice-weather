@@ -347,11 +347,22 @@ else
 fi
 
 echo
-log "🔄 Monitoring services (Ctrl+C to stop)..."
 
-# Service monitoring loop with comprehensive health checking
-while true; do
-    sleep 30
+# Check if we should run in monitoring mode or just start services
+if [[ "$1" == "--no-monitor" ]]; then
+    log "🎯 Services started successfully! Use Ctrl+C to stop monitoring mode."
+    log "🔄 To monitor services, run: npm start (without --no-monitor)"
+    
+    # Just wait for interrupt signal
+    while true; do
+        sleep 30
+    done
+else
+    log "🔄 Monitoring services (Ctrl+C to stop)..."
+    
+    # Service monitoring loop with comprehensive health checking
+    while true; do
+        sleep 30
     
     # Check if services are still running and restart if needed
     if ! kill -0 $API_PID 2>/dev/null; then
@@ -399,4 +410,5 @@ while true; do
             error "BrowserToolsMCP restart failed"
         fi
     fi
-done
+    done
+fi

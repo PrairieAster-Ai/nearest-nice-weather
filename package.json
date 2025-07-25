@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "start": "bash ./scripts/unified-dev-start.sh",
+    "start:simple": "bash ./scripts/unified-dev-start.sh --no-monitor",
     "start:pm2": "pm2 start ecosystem.config.js",
     "stop:pm2": "pm2 stop ecosystem.config.js",
     "restart:pm2": "pm2 restart ecosystem.config.js",
@@ -62,6 +63,7 @@
   },
   "devDependencies": {
     "concurrently": "^9.0.1",
+    "playwright": "^1.54.1",
     "typescript": "^5.0.0",
     "wait-on": "^8.0.1"
   },
@@ -72,6 +74,7 @@
     "express": "^5.1.0",
     "leaflet": "^1.9.4",
     "pg": "^8.16.3",
+    "reveal.js": "^5.2.1",
     "ws": "^8.18.3"
   }
 }

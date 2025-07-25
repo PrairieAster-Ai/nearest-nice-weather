@@ -37,6 +37,9 @@ export function AppFooter() {
               <Link href="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
                 Weather Data
               </Link>
+              <Link href="/presentation/index-reveal.html" className="block text-gray-400 hover:text-white transition-colors text-sm">
+                MVP Plan
+              </Link>
               <Link href="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
                 API Access
               </Link>
