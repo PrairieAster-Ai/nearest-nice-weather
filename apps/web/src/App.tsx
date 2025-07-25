@@ -1,3 +1,62 @@
+/**
+ * ========================================================================
+ * NEAREST NICE WEATHER - MAIN APPLICATION COMPONENT
+ * ========================================================================
+ * 
+ * BUSINESS CONTEXT: Core application for outdoor recreation weather intelligence
+ * - Primary target: Minnesota outdoor enthusiasts and tourism operators
+ * - Core value proposition: "Find optimal weather conditions for activities"
+ * - Business model: B2B SaaS for tourism operators + B2C subscriptions
+ * - Geographic focus: Minnesota with expansion to Upper Midwest planned
+ * 
+ * TECHNICAL PURPOSE: React SPA providing interactive weather-location discovery
+ * - Interactive map with weather markers for 34+ Minnesota locations
+ * - Dynamic filtering system for temperature, precipitation, and wind preferences
+ * - User location integration for proximity-based recommendations
+ * - Progressive Web App capabilities for mobile outdoor use
+ * 
+ * DEPENDENCIES:
+ * - React 18.3.1: Core framework with hooks for state management
+ * - Material-UI: Design system for consistent professional UI
+ * - Leaflet: Interactive mapping with OpenStreetMap tiles
+ * - Custom hooks: useWeatherLocations for API data integration
+ * - Backend APIs: weather-locations, feedback endpoints via Vercel functions
+ * 
+ * COMPONENT ARCHITECTURE:
+ * - App (this file): Main container with state management and business logic
+ * - MapComponent: Leaflet map integration with markers and popups
+ * - FabFilterSystem: Floating action button filter interface
+ * - FeedbackFab: User feedback collection system
+ * - UnifiedStickyFooter: Navigation and branding footer
+ * 
+ * DATA FLOW:
+ * 1. App fetches weather locations from API via useWeatherLocations hook
+ * 2. User location determined via geolocation → IP → fallback strategies
+ * 3. Filters applied to create subset of relevant weather locations
+ * 4. Map view dynamically calculated to show user + closest filtered results
+ * 5. User interactions (filter changes, marker drags) update state and view
+ * 
+ * STATE MANAGEMENT:
+ * - filters: User's weather preferences (temperature, precipitation, wind)
+ * - filteredLocations: Subset of API locations matching current filters
+ * - mapCenter/mapZoom: Dynamic map view based on user location + results
+ * - userLocation: User's position for proximity calculations
+ * 
+ * USER EXPERIENCE GOALS:
+ * - Instant visual feedback: Map updates immediately on filter changes
+ * - Location-aware: Prioritizes weather near user's location
+ * - Mobile-optimized: Touch-friendly interface for outdoor use
+ * - Graceful degradation: Works without geolocation or with slow connections
+ * 
+ * @CLAUDE_CONTEXT: Primary application entry point containing all business logic
+ * @BUSINESS_RULE: Minnesota-focused outdoor recreation weather intelligence
+ * @ARCHITECTURE_NOTE: Single-page application with real-time map interactions
+ * @INTEGRATION_POINT: Connects all UI components with backend weather data
+ * @PERFORMANCE_CRITICAL: Map rendering and filter calculations must be responsive
+ * 
+ * LAST UPDATED: 2025-07-25
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline, CircularProgress, Alert } from '@mui/material'
@@ -9,7 +68,22 @@ import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L from 'leaflet'
 
-// Create custom purple aster marker icon with white background
+/**
+ * CUSTOM WEATHER LOCATION MARKER ICON
+ * @CLAUDE_CONTEXT: Branded visual element for weather stations on map
+ * 
+ * BUSINESS CONTEXT: Purple aster (prairie aster) represents Minnesota native flora
+ * - Reinforces "Prairie Aster" brand identity and Minnesota focus
+ * - Visually distinct from standard map markers for weather locations
+ * - Consistent 40px size for touch-friendly mobile interaction
+ * 
+ * TECHNICAL IMPLEMENTATION: Leaflet custom icon configuration
+ * - Uses SVG for scalable, crisp rendering at all zoom levels
+ * - Icon anchor positioned at bottom center for accurate location marking
+ * - Popup anchor offset above icon to avoid overlap with marker
+ * 
+ * @BUSINESS_RULE: Consistent branding across all map markers
+ */
 const asterIcon = new L.Icon({
   iconUrl: '/aster-marker.svg',
   iconSize: [40, 40],
@@ -290,25 +364,49 @@ export default function App() {
     limit: 150 // Sensible maximum for nearest nice weather (no geographic restrictions)
   })
 
-  // Helper function to apply relative filtering
+  /**
+   * RELATIVE WEATHER FILTERING ALGORITHM
+   * @CLAUDE_CONTEXT: Core business logic for weather-based location discovery
+   * 
+   * BUSINESS LOGIC: Intelligent filtering based on current weather conditions
+   * - Avoids absolute thresholds that become meaningless across seasons
+   * - Provides meaningful "cold/mild/hot" relative to what's actually available
+   * - Ensures users always get results relevant to current weather patterns
+   * - Supports outdoor activity planning with relative weather preferences
+   * 
+   * TECHNICAL IMPLEMENTATION: Percentile-based filtering system
+   * - Sorts all available weather data to establish relative thresholds
+   * - Uses percentile ranges to define "cold", "mild", "hot" dynamically
+   * - Maintains consistent result distribution regardless of season
+   * - Prevents empty result sets by adapting to available data
+   * 
+   * BUSINESS RULE: Always provide actionable weather options to users
+   * - "Cold" = Coldest 20% of available locations
+   * - "Mild" = Middle 60% of available locations  
+   * - "Hot" = Hottest 20% of available locations
+   * - Same logic applies to precipitation and wind conditions
+   * 
+   * @BUSINESS_RULE: Relative filtering ensures seasonal relevance
+   * @PERFORMANCE_CRITICAL: Efficient sorting and filtering for real-time UI updates
+   */
   const applyRelativeFilters = (locations: Location[], filters: WeatherFilters): Location[] => {
     let filtered = [...locations]
 
-    // Temperature filtering - relative to current conditions
+    // TEMPERATURE FILTERING - Relative to current conditions across all locations
     if (filters.temperature && filters.temperature.length > 0) {
       const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
       const tempCount = temps.length
       
       if (filters.temperature === 'cold') {
-        // Coldest 20%
+        // BUSINESS LOGIC: Show coldest 20% for users preferring cooler weather
         const threshold = temps[Math.floor(tempCount * 0.2)]
         filtered = filtered.filter(loc => loc.temperature <= threshold)
       } else if (filters.temperature === 'hot') {
-        // Hottest 20%
+        // BUSINESS LOGIC: Show hottest 20% for users preferring warmer weather
         const threshold = temps[Math.floor(tempCount * 0.8)]
         filtered = filtered.filter(loc => loc.temperature >= threshold)
       } else if (filters.temperature === 'mild') {
-        // Middle 60% (exclude top and bottom 20%)
+        // BUSINESS LOGIC: Show middle 60% for users preferring moderate temperatures
         const lowThreshold = temps[Math.floor(tempCount * 0.2)]
         const highThreshold = temps[Math.floor(tempCount * 0.8)]
         filtered = filtered.filter(loc => loc.temperature > lowThreshold && loc.temperature < highThreshold)

@@ -3,6 +3,14 @@
 **Last Updated**: July 25, 2025  
 **Purpose**: Document the actual working database structure for MVP development
 
+## Overview and Context
+
+**@CLAUDE_CONTEXT**: This document describes the ACTUAL database schema used in production  
+**@BUSINESS_RULE**: Minnesota-focused outdoor recreation weather intelligence platform  
+**@ARCHITECTURE_NOTE**: Simple flat table structure chosen over PostGIS for MVP speed  
+
+This schema serves the "Nearest Nice Weather" platform, providing weather-location data for outdoor enthusiasts and tourism operators in Minnesota. The design prioritizes simplicity and rapid development over complex geographic operations.
+
 ## Database Configuration
 
 ### Environment Variables
@@ -19,25 +27,35 @@
 Based on API analysis and production data, these tables actually exist and work:
 
 ### `locations`
-Primary table for Minnesota weather locations (34 records in production)
+**@CLAUDE_CONTEXT**: Primary table for Minnesota weather locations (34 records in production)  
+**BUSINESS PURPOSE**: Geographic points where weather data is collected for outdoor recreation  
+**DATA RELATIONSHIPS**: Links to weather_conditions via location_id foreign key  
+**QUERY PATTERNS**: Frequently queried with distance calculations using Haversine formula  
+**PERFORMANCE NOTES**: No spatial indexes needed due to small dataset size (34 locations)  
+
 ```sql
--- Columns based on API usage in weather-locations.js
-id          -- Primary key
-name        -- Location name (e.g., "Minneapolis", "Duluth") 
-lat         -- Latitude (decimal)
-lng         -- Longitude (decimal)
+-- CORE LOCATION DATA: Geographic identifiers for weather stations
+id          -- Primary key (integer, auto-increment)
+name        -- Location name (e.g., "Minneapolis", "Duluth") - VARCHAR(255)
+lat         -- Latitude (decimal degrees, WGS84) - DECIMAL precision for mapping
+lng         -- Longitude (decimal degrees, WGS84) - DECIMAL precision for mapping
 ```
 
 ### `weather_conditions`  
-Weather data linked to locations
+**@CLAUDE_CONTEXT**: Current weather data linked to specific locations  
+**BUSINESS PURPOSE**: Real-time weather conditions for outdoor activity planning  
+**DATA RELATIONSHIPS**: References locations table via location_id foreign key  
+**QUERY PATTERNS**: Always joined with locations for complete weather-location data  
+**PERFORMANCE NOTES**: LEFT JOIN used to preserve locations without current weather data  
+
 ```sql
--- Columns based on API usage
-location_id   -- Foreign key to locations(id)
-temperature   -- Current temperature
-condition     -- Weather condition string
-description   -- Weather description
-precipitation -- Precipitation percentage
-wind_speed    -- Wind speed value
+-- CURRENT WEATHER DATA: Real-time conditions for outdoor recreation planning
+location_id   -- Foreign key to locations(id) - INTEGER NOT NULL
+temperature   -- Current temperature in Fahrenheit - INTEGER (outdoor recreation focus)
+condition     -- Weather condition string (e.g., "Clear", "Cloudy") - VARCHAR(100)
+description   -- Human-readable weather description - TEXT
+precipitation -- Precipitation probability percentage (0-100) - INTEGER
+wind_speed    -- Wind speed in miles per hour - INTEGER (mph for US outdoor use)
 ```
 
 ### `tourism_operators`
