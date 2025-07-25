@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Slide Debug</title>
+    
+    <!-- Load reveal.js CSS -->
+    <link rel="stylesheet" href="reveal.js-dist/css/reveal.css">
+    <link rel="stylesheet" href="reveal.js-dist/theme/white.css">
+    <link rel="stylesheet" href="theme/prairieaster-reveal.css">
+</head>
+<body>
+    <!-- Header from original -->
+    <div id="presentation-header" class="header">
+        <div class="header-content">
+            <div class="branding">
+                <img src="./prairieaster-logo.svg" alt="NearestNiceWeather" class="logo">
+                <span class="company-name full-name">NearestNiceWeather.com:</span>
+                <span class="company-name short-name" style="display: none;">NNW:</span>
+            </div>
+            <div class="header-slide-title" id="header-slide-title">
+                <span>Executive Summary Debug</span>
+            </div>
+            <div class="slide-counter">
+                <span>2 / 6</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+            <!-- Debug version of slide 2 content -->
+            <section data-slide-title="Executive Summary">
+                <div class="slide-content">
+                    <h2>Executive Summary</h2>
+                    
+                    <div class="key-metrics">
+                        <div class="metric-card">
+                            <h3>Market Opportunity</h3>
+                            <div class="metric-value">$2.3B</div>
+                            <p>Minnesota outdoor recreation economy</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Target Market</h3>
+                            <div class="metric-value">1M+</div>
+                            <p>Minnesota outdoor enthusiasts</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Revenue Model</h3>
+                            <div class="metric-value">Ad Revenue</div>
+                            <p>B2C platform to build user base to 10,000</p>
+                        </div>
+                    </div>
+                    
+                    <div class="foundation-status">
+                        <p><strong>🏗️ Current Status: $120,000 worth of technical foundation completed</strong></p>
+                        <p>Platform ready for weather API integration and customer-facing feature development</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <script src="reveal.js-dist/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: false,
+            progress: false,
+            center: false,
+            disableLayout: true, // Same setting as main presentation
+            keyboard: false // Disable for debugging
+        });
+    </script>
+</body>
+</html>

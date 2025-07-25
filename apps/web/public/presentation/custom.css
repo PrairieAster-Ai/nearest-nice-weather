@@ -1,0 +1,207 @@
+/* NearestNiceWeather.com Custom Reveal.js Theme */
+
+:root {
+  --primary-purple: #856da6;
+  --secondary-blue: #7fa4cf;
+  --accent-blue: #5ba0d6;
+  --text-dark: #2c3e50;
+  --background-light: #f8f9fa;
+  --success-green: #16a34a;
+  --warning-yellow: #ca8a04;
+  --danger-red: #dc2626;
+  --info-blue: #0ea5e9;
+}
+
+/* Main presentation styles */
+.reveal {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-dark);
+}
+
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4 {
+  color: var(--primary-purple);
+  text-transform: none;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+.reveal h1 {
+  font-size: 2.5em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.reveal h2 {
+  font-size: 1.8em;
+  font-weight: 500;
+  color: var(--secondary-blue);
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.reveal h3 {
+  font-size: 1.4em;
+  font-weight: 500;
+  margin-bottom: 0.3em;
+}
+
+/* Content styling */
+.reveal p {
+  margin-bottom: 0.8em;
+  line-height: 1.4;
+}
+
+.reveal ul {
+  margin-left: 1em;
+}
+
+.reveal li {
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.reveal strong {
+  color: var(--primary-purple);
+  font-weight: 600;
+}
+
+/* Risk color coding */
+.reveal h2:contains("Critical Risk"),
+.reveal h3:contains("Critical Risk") {
+  color: var(--danger-red) !important;
+}
+
+.reveal h2:contains("High Risk"),
+.reveal h3:contains("High Risk") {
+  color: #ea580c !important;
+}
+
+.reveal h2:contains("Medium Risk"),
+.reveal h3:contains("Medium Risk") {
+  color: var(--warning-yellow) !important;
+}
+
+.reveal h2:contains("Low Risk"),
+.reveal h3:contains("Low Risk") {
+  color: var(--success-green) !important;
+}
+
+/* Emoji and icon styling */
+.reveal h1:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+}
+
+/* Navigation and controls */
+.reveal .controls {
+  color: var(--primary-purple);
+  bottom: 20px;
+  right: 20px;
+}
+
+.reveal .progress {
+  color: var(--secondary-blue);
+}
+
+/* Background and layout */
+.reveal .backgrounds {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Slide-specific styling */
+.reveal section {
+  padding: 20px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .reveal h1 {
+    font-size: 2em;
+  }
+  
+  .reveal h2 {
+    font-size: 1.5em;
+  }
+  
+  .reveal h3 {
+    font-size: 1.2em;
+  }
+  
+  .reveal p,
+  .reveal li {
+    font-size: 0.9em;
+  }
+  
+  .reveal section {
+    padding: 15px;
+  }
+}
+
+/* Special slide layouts */
+.reveal .title-slide {
+  text-align: center;
+  background: linear-gradient(135deg, var(--primary-purple), var(--secondary-blue));
+  color: white;
+}
+
+.reveal .title-slide h1,
+.reveal .title-slide h2 {
+  color: white;
+}
+
+/* Content sections for better organization */
+.reveal .content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5em;
+  margin-top: 1em;
+}
+
+.reveal .content-box {
+  background: rgba(133, 109, 166, 0.1);
+  padding: 1.5em;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-purple);
+}
+
+/* Highlight important metrics and numbers */
+.reveal .metric {
+  background: var(--accent-blue);
+  color: white;
+  padding: 0.2em 0.5em;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* Speaker notes styling (when in presenter mode) */
+.speaker-notes {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #666;
+}
+
+/* Print styles */
+@media print {
+  .reveal {
+    background: white !important;
+  }
+  
+  .reveal h1,
+  .reveal h2,
+  .reveal h3 {
+    color: #333 !important;
+  }
+}

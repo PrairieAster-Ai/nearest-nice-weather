@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Simplified Layout Test</title>
+    
+    <!-- Load reveal.js CSS -->
+    <link rel="stylesheet" href="reveal.js-dist/css/reveal.css">
+    <link rel="stylesheet" href="reveal.js-dist/theme/white.css">
+    <link rel="stylesheet" href="theme/prairieaster-reveal.css">
+</head>
+<body>
+    <!-- Header from original -->
+    <div id="presentation-header" class="header">
+        <div class="header-content">
+            <div class="branding">
+                <img src="./prairieaster-logo.svg" alt="NearestNiceWeather" class="logo">
+                <span class="company-name full-name">NearestNiceWeather.com:</span>
+                <span class="company-name short-name" style="display: none;">NNW:</span>
+            </div>
+            <div class="header-slide-title" id="header-slide-title">
+                <i class="fas fa-list"></i>
+                <span>Test Layout</span>
+            </div>
+            <div class="slide-counter">
+                <button id="prev-slide" class="nav-button">‹</button>
+                <span id="current-slide">1</span> / <span id="total-slides">1</span>
+                <button id="next-slide" class="nav-button">›</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+            <!-- SIMPLE content - just like debug version -->
+            <section>
+                <h2>30-Second Elevator Pitch</h2>
+                <p>This should appear right below the header with minimal whitespace.</p>
+                <p>If there's massive whitespace, the problem is NOT in content complexity.</p>
+            </section>
+        </div>
+    </div>
+    
+    <script src="reveal.js-dist/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            controls: false,
+            progress: false,
+            center: false,
+            touch: false,
+            keyboard: true
+        });
+    </script>
+</body>
+</html>

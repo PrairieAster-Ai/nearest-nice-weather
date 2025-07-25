@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PrairieAster MVP - Business Presentation</title>
+    
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="../reveal.js-dist/reveal.css">
+    
+    <!-- PrairieAster theme based on reveal.js white theme -->
+    <link rel="stylesheet" href="./theme/prairieaster-reveal.css" id="theme">
+    
+</head>
+
+<body>
+    <!-- Fixed Header -->
+    <div id="presentation-header">
+        <div class="header-content">
+            <div class="branding">
+                <img src="../aster-official.svg" alt="NearestNiceWeather.com" class="logo">
+                <div class="title-container">
+                    <div class="main-title">Nearest Nice Weather</div>
+                    <div class="subtitle">by PrairieAster.Ai</div>
+                </div>
+            </div>
+            <div class="header-slide-title" id="header-slide-title">
+                <i class="fas fa-list"></i>
+                <span>Table of Contents & Elevator Pitch</span>
+            </div>
+            <div class="slide-counter">
+                <button id="prev-slide" class="nav-button">‹</button>
+                <span id="current-slide">1</span> / <span id="total-slides">8</span>
+                <button id="next-slide" class="nav-button">›</button>
+            </div>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- Slide 1: Table of Contents & Elevator Pitch -->
+            <section data-slide-title="Table of Contents & Elevator Pitch">
+                <div class="slide-content">
+                    <div class="elevator-pitch">
+                        <div class="pitch-content">
+                            <h2>🎯 30-Second Elevator Pitch</h2>
+                            <div class="pitch-text">
+                                <p class="pitch-statement">
+                                    <strong>NearestNiceWeather.com</strong> helps locals travel local wherever local maybe. 
+                                    Our platform matches optimal weather conditions with nearby outdoor activities, making it effortless to discover great locations 
+                                    when conditions are perfect for getting outside and exploring your area.
+                                </p>
+                                <div class="pitch-value">
+                                    <div class="value-point">
+                                        <span class="value-metric">Nearest Nice Weather</span>
+                                        <span class="value-label">Find perfect weather conditions closest to your location</span>
+                                    </div>
+                                    <div class="value-point">
+                                        <span class="value-metric">Expandable Search</span>
+                                        <span class="value-label">Add drive time to discover more perfect weather options</span>
+                                    </div>
+                                    <div class="value-point">
+                                        <span class="value-metric">Under 10 seconds</span>
+                                        <span class="value-label">Find your perfect weather destination with ideal conditions</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-of-contents">
+                        <h2>📋 Presentation Overview</h2>
+                        <div class="toc-grid">
+                            <div class="toc-item">
+                                <div class="toc-number">2</div>
+                                <div class="toc-content">
+                                    <h3>Executive Summary</h3>
+                                    <p>Market opportunity, problem-solution fit, and current status</p>
+                                </div>
+                            </div>
+                            <div class="toc-item">
+                                <div class="toc-number">3</div>
+                                <div class="toc-content">
+                                    <h3>Value Proposition</h3>
+                                    <p>User constraints and effortless activity discovery</p>
+                                </div>
+                            </div>
+                            <div class="toc-item">
+                                <div class="toc-number">4</div>
+                                <div class="toc-content">
+                                    <h3>Competition & Market</h3>
+                                    <p>Judo marketing advantages and competitive landscape</p>
+                                </div>
+                            </div>
+                            <div class="toc-item">
+                                <div class="toc-number">5</div>
+                                <div class="toc-content">
+                                    <h3>Product Work Breakdown Structure</h3>
+                                    <p>Capabilities and features organized by delivery hierarchy</p>
+                                </div>
+                            </div>
+                            <div class="toc-item">
+                                <div class="toc-number">6</div>
+                                <div class="toc-content">
+                                    <h3>Risk Register</h3>
+                                    <p>Strategic risk management and mitigation strategies</p>
+                                </div>
+                            </div>
+                            <div class="toc-item">
+                                <div class="toc-number">7</div>
+                                <div class="toc-content">
+                                    <h3>MVP Development Sprints</h3>
+                                    <p>Agile B2C feature delivery timeline</p>
+                                </div>
+                            </div>
+                            <div class="toc-item">
+                                <div class="toc-number">8</div>
+                                <div class="toc-content">
+                                    <h3>Most Lucrative Post-MVP Capabilities</h3>
+                                    <p>Revenue opportunities and development costs</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 2: Executive Summary -->
+            <section data-slide-title="Executive Summary">
+                <div class="slide-content">
+                    <div class="executive-overview">
+                        <div class="key-metrics">
+                            <div class="metric-card">
+                                <h3>Market Opportunity</h3>
+                                <div class="metric-value">$2.3B / $1.2T</div>
+                                <p>Minnesota / Nationwide outdoor recreation economy</p>
+                                <p><small>MN: $580M tourism spending, 76K jobs | US: 5.2M jobs, 2.3% GDP</small></p>
+                                <p><small><a href="https://mn.gov/deed/data/economic-analysis/" target="_blank" style="color: #7fa4cf; text-decoration: none;">(source)</a></small></p>
+                            </div>
+                            <div class="metric-card">
+                                <h3>Target Market</h3>
+                                <div class="metric-value">1M+ / 100M+</div>
+                                <p>Minnesota / Nationwide outdoor enthusiasts</p>
+                                <p><small>Starting MN market, nationwide expansion opportunity</small></p>
+                                <p><small><a href="https://www.bea.gov/data/special-topics/outdoor-recreation" target="_blank" style="color: #7fa4cf; text-decoration: none;">(source)</a></small></p>
+                            </div>
+                            <div class="metric-card">
+                                <h3>Revenue Model</h3>
+                                <div class="metric-value">Ad Revenue</div>
+                                <p>Conservative estimate: $36K annually at 10,000 daily users</p>
+                                <p><small><a href="https://www.businessofapps.com/ads/research/mobile-app-advertising-cpm-rates/" target="_blank" style="color: #7fa4cf; text-decoration: none;">(source)</a></small></p>
+                            </div>
+                        </div>
+                        
+                        <div class="foundation-status">
+                            <p><strong>✅ Current Status: Sprint 0 (Foundation) & Sprint 1 (Smart Weather Matching & UX) completed</strong> - Platform ready for weather API integration and customer-facing feature development</p>
+                            <p><small>$200,000 worth of development completed: Sprint 0 Foundation ($60K), Sprint 1 Smart Weather Matching & UX ($80K), deployment infrastructure ($35K), testing framework ($25K)</small></p>
+                        </div>
+                        
+                        <div class="technical-foundation">
+                            <p><strong>🏗️ Technical Foundation</strong></p>
+                            <div class="foundation-stats">
+                                <div class="stat">
+                                    <strong>FastAPI Backend</strong>
+                                    <span>High-performance async architecture</span>
+                                </div>
+                                <div class="stat">
+                                    <strong>PostGIS Database</strong>
+                                    <span>Advanced geographic data processing</span>
+                                </div>
+                                <div class="stat">
+                                    <strong>Cost-Conscious Architecture</strong>
+                                    <span>Periodic updates enabling sustainable operation</span>
+                                </div>
+                                <div class="stat">
+                                    <strong>Rapid Deployment</strong>
+                                    <span>2-5 minute idea-to-production cycle</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: Value Proposition -->
+            <section data-slide-title="Value Proposition">
+                <div class="slide-content">
+                    <div class="value-content">
+                        <div class="problem-solution-row">
+                            <div class="core-problem">
+                                <p class="problem-statement">
+                                    <strong>The Problem:</strong> Big apps make local discovery complicated and expensive. You're stuck juggling weather apps, maps, review sites, and tourism websites - each pushing premium features and ads - just to find free outdoor activities that fit your time and budget.
+                                </p>
+                            </div>
+                            
+                            <div class="our-solution">
+                                <p class="solution-statement">
+                                    <strong>Our Solution:</strong> One simple app that instantly matches your unique constraints: current location + available travel time + weather preferences = free and frugal local discoveries you can actually afford and enjoy.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="effortless-discovery">
+                            <div class="discovery-workflow-inline">
+                                <div class="workflow-step-inline">
+                                    <span class="step-number-inline">1</span>
+                                    <span class="step-action-inline">Visit website - no download required</span>
+                                </div>
+                                <div class="workflow-step-inline">
+                                    <span class="step-number-inline">2</span>
+                                    <span class="step-action-inline">See map of perfect weather spots</span>
+                                </div>
+                                <div class="workflow-step-inline">
+                                    <span class="step-number-inline">3</span>
+                                    <span class="step-action-inline">Tap location for activities & details</span>
+                                </div>
+                                <div class="workflow-step-inline">
+                                    <span class="step-number-inline">4</span>
+                                    <span class="step-action-inline">Drive there and enjoy perfect weather</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mvp-benefits">
+                                <div class="benefit-point">
+                                    <strong>🆓 Free Focus:</strong> Prioritizes no-cost and low-cost local adventures over expensive tourism
+                                </div>
+                                <div class="benefit-point">
+                                    <strong>⚡ Constraint-Optimized:</strong> Matches your actual time, location, and weather preferences instantly
+                                </div>
+                                <div class="benefit-point">
+                                    <strong>🏞️ Local Discovery:</strong> Uncover hidden gems in your area that big apps ignore or paywall
+                                </div>
+                                <div class="benefit-point">
+                                    <strong>🥷 Judo Marketing:</strong> Fast, simple, and honest while big players get slower and greedier
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Competition & Market -->
+            <section data-slide-title="Competition & Market">
+                <div class="slide-content">
+                    <div class="competitive-analysis">
+                        <div class="competitive-overview">
+                            <h2>🎯 Market Position: David vs. Goliath</h2>
+                            
+                            <div class="competitor-grid">
+                                <div class="competitor-category">
+                                    <h3><i class="fas fa-cloud-sun"></i> Weather Apps</h3>
+                                    <div class="competitor-problems">
+                                        <p><strong>The Problem:</strong> Show conditions but not solutions</p>
+                                        <ul>
+                                            <li>Weather Channel, AccuWeather show "what" not "where"</li>
+                                            <li>No travel time or budget consideration</li>
+                                            <li>Ad-heavy interfaces prioritize engagement over usability</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="competitor-category">
+                                    <h3><i class="fas fa-map-marked-alt"></i> Discovery Apps</h3>
+                                    <div class="competitor-problems">
+                                        <p><strong>The Problem:</strong> Complex, expensive, corporate-biased</p>
+                                        <ul>
+                                            <li>Google Maps pushes paid locations and chains</li>
+                                            <li>TripAdvisor/Yelp favor businesses that pay for placement</li>
+                                            <li>No weather-activity correlation intelligence</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="competitive-advantages">
+                                <h3>🥷 Our Judo Marketing Advantages</h3>
+                                <div class="advantage-grid">
+                                    <div class="advantage-point">
+                                        <div class="advantage-icon"><i class="fas fa-bolt"></i></div>
+                                        <div class="advantage-content">
+                                            <h4>Instant Access</h4>
+                                            <p>PWA = no download, no app store approval, instant sharing</p>
+                                        </div>
+                                    </div>
+                                    <div class="advantage-point">
+                                        <div class="advantage-icon"><i class="fas fa-heart"></i></div>
+                                        <div class="advantage-content">
+                                            <h4>Free-First Focus</h4>
+                                            <p>Prioritizes budget-conscious local discoveries vs. expensive tourism</p>
+                                        </div>
+                                    </div>
+                                    <div class="advantage-point">
+                                        <div class="advantage-icon"><i class="fas fa-filter"></i></div>
+                                        <div class="advantage-content">
+                                            <h4>Constraint Intelligence</h4>
+                                            <p>Only app that matches location + weather + time + budget simultaneously</p>
+                                        </div>
+                                    </div>
+                                    <div class="advantage-point">
+                                        <div class="advantage-icon"><i class="fas fa-store"></i></div>
+                                        <div class="advantage-content">
+                                            <h4>Local Business Focus</h4>
+                                            <p>Anti-chain strategy promotes neighborhood businesses vs. corporate sponsors</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="market-gap">
+                                <h3>💡 Market Gap We Fill</h3>
+                                <p class="gap-statement">
+                                    <strong>No existing solution</strong> combines weather optimization, travel constraints, and budget-conscious local discovery in a simple, instant-access interface that fights big tech "enshittification."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Capabilities & Features -->
+            <section data-slide-title="Capabilities & Features">
+                <div class="slide-content">
+                    <div class="wbs-container">
+                        <!-- Level 2: Capabilities -->
+                        <div class="wbs-level-2">
+                            <div class="wbs-capability">
+                                <div class="capability-header">
+                                    <div class="wbs-icon"><i class="fas fa-sliders-h"></i></div>
+                                    <h3>Constraint-Based Matching Engine</h3>
+                                    <p>Core system that processes user limitations and preferences</p>
+                                </div>
+                                <!-- Level 3: Features -->
+                                <div class="wbs-features">
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Time Window Processing</h4>
+                                            <p>Filters results by available time and travel distance</p>
+                                        </div>
+                                    </div>
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-dollar-sign"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Budget-Conscious Destinations</h4>
+                                            <p>Prioritizes free and low-cost activity options</p>
+                                        </div>
+                                    </div>
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-cloud-sun"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Weather-Activity Correlation</h4>
+                                            <p>Matches current conditions to suitable activities</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="wbs-capability">
+                                <div class="capability-header">
+                                    <div class="wbs-icon"><i class="fas fa-compass"></i></div>
+                                    <h3>Local Discovery Platform</h3>
+                                    <p>Database and search system for outdoor opportunities</p>
+                                </div>
+                                <!-- Level 3: Features -->
+                                <div class="wbs-features">
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-heart"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Free-First Location Database</h4>
+                                            <p>Comprehensive catalog of no-cost and low-cost local attractions</p>
+                                        </div>
+                                    </div>
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-expand-arrows-alt"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Expandable Geographic Search</h4>
+                                            <p>30-minute to 5-hour drive time radius expansion</p>
+                                        </div>
+                                    </div>
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-map-pin"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Local-Specific Intelligence</h4>
+                                            <p>Local knowledge and seasonal activity optimization</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="wbs-capability">
+                                <div class="capability-header">
+                                    <div class="wbs-icon"><i class="fas fa-mobile-alt"></i></div>
+                                    <h3>Mobile-First User Experience</h3>
+                                    <p>Consumer-grade interface designed for instant gratification</p>
+                                </div>
+                                <!-- Level 3: Features -->
+                                <div class="wbs-features">
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Zero-Friction Onboarding</h4>
+                                            <p>No account setup or complex configuration required</p>
+                                        </div>
+                                    </div>
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-map"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Map-Centric Visualization</h4>
+                                            <p>Instant geographic display of opportunities</p>
+                                        </div>
+                                    </div>
+                                    <div class="wbs-feature">
+                                        <div class="feature-icon"><i class="fas fa-ad"></i></div>
+                                        <div class="feature-content">
+                                            <h4>Contextual Ad Integration</h4>
+                                            <p>Non-intrusive local business promotion within location details</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Slide 6: Risk Register -->
+            <section data-slide-title="Risk Register">
+                <div class="slide-content">
+                    <div class="risk-overview">
+                        
+                        <div class="risk-grid">
+                            <!-- High Impact -->
+                            <div class="risk high-risk">
+                                <div class="risk-header">
+                                    <h4>No Competitive Moat</h4>
+                                    <span class="risk-level high">High Impact</span>
+                                </div>
+                                <p><strong>Risk:</strong> No proprietary data, patents, or unique resources preventing competitors from replicating core functionality</p>
+                                <p><strong>Mitigation:</strong> Speed-to-market advantage, local community building, brand trust through consistent user experience</p>
+                            </div>
+                            
+                            <div class="risk high-risk">
+                                <div class="risk-header">
+                                    <h4>User Acquisition Cost Inflation</h4>
+                                    <span class="risk-level high">High Impact</span>
+                                </div>
+                                <p><strong>Risk:</strong> Digital advertising CPMs rising faster than user engagement/retention rates</p>
+                                <p><strong>Mitigation:</strong> Focus on organic growth, community features, and content marketing vs. paid acquisition</p>
+                            </div>
+                            
+                            <!-- Medium Impact -->
+                            <div class="risk medium-risk">
+                                <div class="risk-header">
+                                    <h4>Weather Data Accuracy</h4>
+                                    <span class="risk-level medium">Medium Impact</span>
+                                </div>
+                                <p><strong>Risk:</strong> Inaccurate forecasts damage user trust and platform credibility</p>
+                                <p><strong>Mitigation:</strong> Multi-source data aggregation, accuracy tracking, transparent confidence intervals</p>
+                            </div>
+                            
+                            <div class="risk medium-risk">
+                                <div class="risk-header">
+                                    <h4>Big Tech Platform Changes</h4>
+                                    <span class="risk-level medium">Medium Impact</span>
+                                </div>
+                                <p><strong>Risk:</strong> Google/Apple PWA policy changes, iOS Safari limitations, search algorithm updates affecting discoverability</p>
+                                <p><strong>Mitigation:</strong> Multi-platform PWA strategy, direct traffic building, email/social user retention</p>
+                            </div>
+                            
+                            <div class="risk medium-risk">
+                                <div class="risk-header">
+                                    <h4>Market Saturation Risk</h4>
+                                    <span class="risk-level medium">Medium Impact</span>
+                                </div>
+                                <p><strong>Risk:</strong> Casual users abandon platform once they've discovered their local area</p>
+                                <p><strong>Mitigation:</strong> Gamification, seasonal content updates, social sharing, geographic expansion</p>
+                            </div>
+                            
+                            <!-- Low Impact -->
+                            <div class="risk low-risk">
+                                <div class="risk-header">
+                                    <h4>Ad Revenue Concentration</h4>
+                                    <span class="risk-level low">Low Impact</span>
+                                </div>
+                                <p><strong>Risk:</strong> Over-dependence on single ad networks or seasonal advertiser pullbacks</p>
+                                <p><strong>Mitigation:</strong> Diversified ad partnerships, local business direct sales, premium feature upsells</p>
+                            </div>
+                            
+                            <div class="risk low-risk">
+                                <div class="risk-header">
+                                    <h4>Scalability Challenges</h4>
+                                    <span class="risk-level low">Low Impact</span>
+                                </div>
+                                <p><strong>Risk:</strong> Platform performance degradation under high user load</p>
+                                <p><strong>Mitigation:</strong> Serverless architecture (Vercel), automated scaling, performance monitoring</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: MVP Development Sprints -->
+            <section data-slide-title="MVP Development Sprints">
+                <div class="slide-content">
+                    <div class="sprint-overview">
+                        <div class="sprint-grid">
+                            <div class="sprint completed-sprint">
+                                <div class="sprint-header">
+                                    <h3><i class="fas fa-check-circle"></i> Sprint 0: Foundation</h3>
+                                    <span class="sprint-status completed">✅ Complete</span>
+                                </div>
+                                <div class="sprint-content">
+                                    <div class="deliverables">
+                                        <h4>MVP Infrastructure:</h4>
+                                        <ul>
+                                            <li>Core backend API with weather data pipeline</li>
+                                            <li>Automated deployment and testing infrastructure</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sprint completed-sprint">
+                                <div class="sprint-header">
+                                    <h3><i class="fas fa-sliders-h"></i> Sprint 1: Constraint-Based Discovery</h3>
+                                    <span class="sprint-status completed">✅ Complete</span>
+                                </div>
+                                <div class="sprint-content">
+                                    <div class="deliverables">
+                                        <h4>PWA Foundation & User Constraints:</h4>
+                                        <ul>
+                                            <li>PWA foundation with instant website access (no download required)</li>
+                                            <li>GPS-based constraint input: time + travel distance preferences</li>
+                                            <li>Mobile-optimized map interface with expandable drive time zones</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sprint next-sprint">
+                                <div class="sprint-header">
+                                    <h3><i class="fas fa-compass"></i> Sprint 2: Local Discovery Platform</h3>
+                                    <span class="sprint-status upcoming">📋 Next</span>
+                                </div>
+                                <div class="sprint-content">
+                                    <div class="deliverables">
+                                        <h4>Location & Weather Data Integration:</h4>
+                                        <ul>
+                                            <li>Free-first location database with budget-conscious filtering</li>
+                                            <li>Basic weather-activity correlation for casual outdoor users</li>
+                                            <li>Minnesota-specific free destination database (parks, trails, beaches)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sprint future-sprint">
+                                <div class="sprint-header">
+                                    <h3><i class="fas fa-mobile-alt"></i> Sprint 3: PWA Build Out</h3>
+                                    <span class="sprint-status upcoming">📋 Upcoming</span>
+                                </div>
+                                <div class="sprint-content">
+                                    <div class="deliverables">
+                                        <h4>PWA Enhancement & Social Features:</h4>
+                                        <ul>
+                                            <li>Progressive Web App completion</li>
+                                            <li>PWA install prompts and offline capability</li>
+                                            <li>Social sharing features for discovered locations</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sprint future-sprint">
+                                <div class="sprint-header">
+                                    <h3><i class="fas fa-rocket"></i> Sprint 4: Revenue & Scale</h3>
+                                    <span class="sprint-status future">🎯 Launch</span>
+                                </div>
+                                <div class="sprint-content">
+                                    <div class="deliverables">
+                                        <h4>Monetization & Launch:</h4>
+                                        <ul>
+                                            <li>Contextual advertising integration (non-intrusive local business ads)</li>
+                                            <li>Analytics and user behavior tracking for ad optimization</li>
+                                            <li>A/B testing for user engagement and ad placement</li>
+                                            <li>Performance monitoring and scaling infrastructure</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Most Lucrative Post-MVP Capabilities -->
+            <section data-slide-title="Most Lucrative Post-MVP Capabilities">
+                <div class="slide-content">
+                    <div class="post-mvp-capabilities">
+                        <div class="capabilities-overview">
+                            <h2>🚀 Post-MVP Revenue Opportunities</h2>
+                            <p class="prerequisites"><strong>Prerequisites:</strong> 2,500+ weekly users, $10K+ monthly ad revenue, 70%+ retention</p>
+                            
+                            <div class="capabilities-grid">
+                                <div class="capability-card rank-2">
+                                    <div class="capability-header">
+                                        <div class="rank-badge">#2</div>
+                                        <h3><i class="fas fa-bell"></i> Smart Notifications</h3>
+                                        <div class="revenue-estimate">$15K-30K/month</div>
+                                    </div>
+                                    <div class="capability-details">
+                                        <p class="capability-description">Custom weather alerts, multi-channel delivery, smart triggers</p>
+                                        <div class="development-cost">
+                                            <span class="cost-label">Development:</span>
+                                            <span class="sprint-cost">2-3 Sprints</span>
+                                        </div>
+                                        <div class="success-condition">
+                                            <strong>Success Trigger:</strong> Daily app checking behavior, 80%+ mobile usage
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="capability-card rank-3">
+                                    <div class="capability-header">
+                                        <div class="rank-badge">#3</div>
+                                        <h3><i class="fas fa-users"></i> Social Discovery</h3>
+                                        <div class="revenue-estimate">$10K-20K/month</div>
+                                    </div>
+                                    <div class="capability-details">
+                                        <p class="capability-description">Activity sharing, group planning, discovery network</p>
+                                        <div class="development-cost">
+                                            <span class="cost-label">Development:</span>
+                                            <span class="sprint-cost">3-4 Sprints</span>
+                                        </div>
+                                        <div class="success-condition">
+                                            <strong>Success Trigger:</strong> Organic sharing of weather discoveries outside app
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="capability-card rank-4">
+                                    <div class="capability-header">
+                                        <div class="rank-badge">#4</div>
+                                        <h3><i class="fas fa-sliders-h"></i> Advanced Optimization</h3>
+                                        <div class="revenue-estimate">$8K-15K/month</div>
+                                    </div>
+                                    <div class="capability-details">
+                                        <p class="capability-description">Complex multi-factor optimization, travel time modeling</p>
+                                        <div class="development-cost">
+                                            <span class="cost-label">Development:</span>
+                                            <span class="sprint-cost">4-5 Sprints</span>
+                                        </div>
+                                        <div class="success-condition">
+                                            <strong>Success Trigger:</strong> Users manually combining multiple constraints
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="capability-card rank-5">
+                                    <div class="capability-header">
+                                        <div class="rank-badge">#5</div>
+                                        <h3><i class="fas fa-store"></i> Local Business Platform</h3>
+                                        <div class="revenue-estimate">$5K-12K/month</div>
+                                    </div>
+                                    <div class="capability-details">
+                                        <p class="capability-description">Business partnerships, weather-triggered offers, analytics</p>
+                                        <div class="development-cost">
+                                            <span class="cost-label">Development:</span>
+                                            <span class="sprint-cost">3-4 Sprints</span>
+                                        </div>
+                                        <div class="success-condition">
+                                            <strong>Success Trigger:</strong> Proven foot traffic from app recommendations
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="revenue-timeline">
+                                <h3>📈 Revenue Growth Timeline</h3>
+                                <div class="timeline-grid">
+                                    <div class="timeline-milestone">
+                                        <div class="milestone-month">Month 9</div>
+                                        <div class="milestone-revenue">$15K-25K/month</div>
+                                        <div class="milestone-features">Notifications launch</div>
+                                    </div>
+                                    <div class="timeline-milestone">
+                                        <div class="milestone-month">Month 12</div>
+                                        <div class="milestone-revenue">$25K-40K/month</div>
+                                        <div class="milestone-features">Social features launch</div>
+                                    </div>
+                                    <div class="timeline-milestone">
+                                        <div class="milestone-month">Month 18</div>
+                                        <div class="milestone-revenue">$35K-60K/month</div>
+                                        <div class="milestone-features">All capabilities deployed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js JavaScript -->
+    <script src="../reveal.js-dist/reveal.js"></script>
+    <script src="../reveal.js-plugin/notes/notes.js"></script>
+    <script src="../reveal.js-plugin/markdown/markdown.js"></script>
+    <script src="../reveal.js-plugin/highlight/highlight.js"></script>
+
+    <script>
+        // Initialize reveal.js with minimal configuration to avoid warnings
+        Reveal.initialize({
+            hash: true,
+            controls: false,
+            progress: false,
+            center: false,
+            disableLayout: true, // WORKING SOLUTION - prevents race condition
+            transition: 'slide',
+            loop: true,
+            touch: true,
+            keyboard: true,
+            mouseWheel: false,
+            backgroundTransition: 'none',
+            plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+        });
+
+        // Fix slide navigation with disableLayout: true
+        // When layout is disabled, reveal.js doesn't position slides properly
+        Reveal.addEventListener('slidechanged', function(event) {
+            // Force only the current slide to be visible
+            const allSections = document.querySelectorAll('.reveal .slides section');
+            allSections.forEach(function(section, index) {
+                if (index === event.indexh) {
+                    section.style.display = 'block';
+                    section.style.opacity = '1';
+                    section.style.visibility = 'visible';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+        
+        // Initialize first slide visibility
+        Reveal.addEventListener('ready', function() {
+            const allSections = document.querySelectorAll('.reveal .slides section');
+            allSections.forEach(function(section, index) {
+                if (index === 0) {
+                    section.style.display = 'block';
+                    section.style.opacity = '1';
+                    section.style.visibility = 'visible';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+
+        // Slide data with titles and icons
+        const slideData = [
+            { title: "Table of Contents & Elevator Pitch", icon: "fas fa-list" },
+            { title: "Executive Summary", icon: "fas fa-chart-line" },
+            { title: "Value Proposition", icon: "fas fa-star" },
+            { title: "Competition & Market", icon: "fas fa-crosshairs" },
+            { title: "Capabilities & Features", icon: "fas fa-cogs" },
+            { title: "Risk Register", icon: "fas fa-exclamation-triangle" },
+            { title: "Sprint Timeline", icon: "fas fa-calendar-alt" },
+            { title: "Most Lucrative Post-MVP Capabilities", icon: "fas fa-rocket" }
+        ];
+
+        // Custom slide counter, progress bar, and header title
+        function updateSlideCounter() {
+            const indices = Reveal.getIndices();
+            const currentSlide = indices ? indices.h + 1 : 1;
+            const totalSlides = Reveal.getTotalSlides() || document.querySelectorAll('.reveal .slides section').length;
+            
+            document.getElementById('current-slide').textContent = currentSlide;
+            document.getElementById('total-slides').textContent = totalSlides;
+            
+            // Update progress bar
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            
+            // Update header slide title
+            const slideInfo = slideData[currentSlide - 1];
+            if (slideInfo) {
+                const headerTitle = document.getElementById('header-slide-title');
+                headerTitle.innerHTML = `<i class="${slideInfo.icon}"></i><span>${slideInfo.title}</span>`;
+            }
+        }
+
+        // Navigation button handlers
+        document.getElementById('prev-slide').addEventListener('click', (e) => {
+            e.preventDefault();
+            Reveal.prev();
+        });
+        
+        document.getElementById('next-slide').addEventListener('click', (e) => {
+            e.preventDefault();
+            Reveal.next();
+        });
+
+        // Reveal.js built-in touch and controls handle everything reliably
+
+        // Update counter on slide change
+        Reveal.on('slidechanged', updateSlideCounter);
+        
+        // Initialize counter
+        Reveal.on('ready', updateSlideCounter);
+        
+        // Viewport indicator removed - was debug tool showing:
+        // iP = iPhone Portrait, iL = iPhone Landscape
+        // iPP = iPad Pro Portrait, iPL = iPad Pro Landscape  
+        // D = Desktop, T = Tablet/Other
+    </script>
+</body>
+</html>

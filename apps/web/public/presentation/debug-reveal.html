@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CSS Debug</title>
+    
+    <!-- Load reveal.js CSS first -->
+    <link rel="stylesheet" href="reveal.js-dist/css/reveal.css">
+    <link rel="stylesheet" href="reveal.js-dist/theme/white.css">
+    
+    <!-- Load our custom theme -->
+    <link rel="stylesheet" href="theme/prairieaster-reveal.css">
+    
+    <style>
+        /* Force higher specificity override */
+        .reveal .slides section.debug-override {
+            top: 40px !important;
+            padding: 0px 15px 10px 15px !important;
+            height: calc(100vh - 45px) !important;
+            background: rgba(255, 0, 0, 0.1) !important; /* Red tint to see if applied */
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section class="debug-override">
+                <h2>Debug Section</h2>
+                <p>This should have red tint if CSS works</p>
+            </section>
+        </div>
+    </div>
+    
+    <script src="reveal.js-dist/dist/reveal.js"></script>
+    <script>
+        // Initialize reveal.js with our settings
+        Reveal.initialize({
+            hash: true,
+            controls: false,
+            progress: false,
+            center: false,
+            touch: false,
+            keyboard: true
+        });
+        
+        // After initialization, log computed styles
+        setTimeout(() => {
+            const section = document.querySelector('.reveal .slides section');
+            if (section) {
+                const computed = window.getComputedStyle(section);
+                
+                const debugInfo = {
+                    timestamp: new Date().toISOString(),
+                    viewport: {
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                        devicePixelRatio: window.devicePixelRatio
+                    },
+                    section: {
+                        top: computed.top,
+                        padding: computed.padding,
+                        paddingTop: computed.paddingTop,
+                        height: computed.height,
+                        display: computed.display,
+                        justifyContent: computed.justifyContent,
+                        flexDirection: computed.flexDirection,
+                        position: computed.position,
+                        transform: computed.transform,
+                        background: computed.background
+                    },
+                    boundingRect: section.getBoundingClientRect(),
+                    classList: Array.from(section.classList),
+                    revealCSS: {
+                        initialized: typeof Reveal !== 'undefined' && Reveal.isReady(),
+                        version: typeof Reveal !== 'undefined' ? Reveal.VERSION : 'unknown'
+                    }
+                };
+                
+                // Write debug info to console and also to a data structure
+                console.log('=== COMPUTED STYLES DEBUG ===');
+                console.log(JSON.stringify(debugInfo, null, 2));
+                
+                // Also write to window for extraction
+                window.debugInfo = debugInfo;
+                
+                // Add a visible marker
+                document.title = 'DEBUG-READY';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
