@@ -49,10 +49,10 @@ body:
       label: Priority Level
       description: Priority level for this epic
       options:
-        - priority: critical
-        - priority: high
-        - priority: medium
-        - priority: low
+        - Critical
+        - High
+        - Medium
+        - Low
       default: 1
     validations:
       required: true

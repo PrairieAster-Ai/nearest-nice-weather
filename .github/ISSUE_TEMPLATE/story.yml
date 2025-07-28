@@ -51,10 +51,10 @@ body:
       label: Priority Level
       description: Priority level for this story
       options:
-        - priority: critical
-        - priority: high
-        - priority: medium
-        - priority: low
+        - Critical
+        - High
+        - Medium
+        - Low
       default: 2
     validations:
       required: true

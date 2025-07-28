@@ -41,10 +41,10 @@ body:
       label: Priority Level
       description: Strategic priority level for this capability
       options:
-        - priority: critical
-        - priority: high
-        - priority: medium
-        - priority: low
+        - Critical
+        - High
+        - Medium
+        - Low
       default: 1
     validations:
       required: true
