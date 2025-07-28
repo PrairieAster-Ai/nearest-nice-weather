@@ -1,0 +1,144 @@
+name: Epic
+description: 📦 Major work container (20+ story points)
+title: "Epic: "
+labels: ["type: epic"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📦 Epic Template
+        Create a major work container that groups related User Stories. Epics represent significant features or capabilities.
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint Assignment
+      description: Which sprint iteration is this epic assigned to?
+      options:
+        - Database + Weather API (Current)
+        - Revenue + Launch (Next)
+        - Post-MVP (Future)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Epic Size
+      description: Estimated effort for the entire epic
+      options:
+        - L (20-21 points)
+        - XL (34+ points)
+      default: 1
+    validations:
+      required: true
+
+  - type: input
+    id: parent_capability
+    attributes:
+      label: Parent Capability
+      description: Link to the parent Capability issue (e.g., #123)
+      placeholder: "#123"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Priority level for this epic
+      options:
+        - priority: critical
+        - priority: high
+        - priority: medium
+        - priority: low
+      default: 1
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: technical_labels
+    attributes:
+      label: Technical Areas
+      description: Select all technical areas this epic involves
+      options:
+        - label: Database (schema, queries, migrations)
+        - label: Weather API (service integration)
+        - label: Frontend (UI/UX, React components)
+        - label: Backend (server-side logic, APIs)
+        - label: Mobile (optimization, responsive design)
+        - label: Analytics (tracking, metrics, reporting)
+        - label: Revenue (monetization, ads, payments)
+
+  - type: textarea
+    id: epic_description
+    attributes:
+      label: Epic Description
+      description: Comprehensive description of what this epic accomplishes
+      placeholder: "This epic delivers [capability/feature] by implementing [key components]. It provides [business value] and enables [user benefits]."
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria
+      description: High-level criteria for epic completion
+      placeholder: |
+        - [ ] Major outcome 1 achieved
+        - [ ] Major outcome 2 achieved
+        - [ ] Major outcome 3 achieved
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_stories
+    attributes:
+      label: Child User Stories
+      description: List of User Stories that will be created under this Epic
+      placeholder: |
+        - [ ] Story 1: [Name] - [Size] points - [Brief description]
+        - [ ] Story 2: [Name] - [Size] points - [Brief description]
+        - [ ] Story 3: [Name] - [Size] points - [Brief description]
+
+  - type: textarea
+    id: implementation_requirements
+    attributes:
+      label: Implementation Requirements
+      description: Technical requirements and architectural considerations
+      placeholder: |
+        **Architecture:**
+        - [ ] Component 1: [description]
+        - [ ] Component 2: [description]
+
+        **Dependencies:**
+        - [ ] Dependency 1: [description]
+        - [ ] Dependency 2: [description]
+
+        **File Structure:**
+        - Primary directory: [path]
+        - Key files: [list]
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Epic Acceptance Criteria
+      description: Overall criteria for epic completion
+      value: |
+        - [ ] All child User Stories completed
+        - [ ] Success criteria met
+        - [ ] Integration testing passed
+        - [ ] Performance requirements met
+        - [ ] Documentation updated
+        - [ ] Stakeholder approval received
+
+  - type: checkboxes
+    id: workflow_labels
+    attributes:
+      label: Workflow Status (optional)
+      description: Add workflow labels if applicable
+      options:
+        - label: blocked (waiting on external dependency)
+        - label: urgent (high priority, expedite work)
+        - label: needs-review (ready for validation/testing)

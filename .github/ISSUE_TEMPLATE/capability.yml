@@ -1,0 +1,168 @@
+name: Capability
+description: 🌟 Cross-sprint platform capability
+title: "Capability: "
+labels: ["type: capability"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🌟 Capability Template
+        Create a cross-sprint platform capability that represents major system functionality. Capabilities contain multiple Epics and span across sprints.
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Primary Sprint
+      description: Which sprint does this capability primarily focus on?
+      options:
+        - Database + Weather API (Current)
+        - Revenue + Launch (Next)
+        - Cross-Sprint (Multiple)
+        - Post-MVP (Future)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Capability Size
+      description: Overall scope and complexity of this capability
+      options:
+        - L (20-21 points total)
+        - XL (34+ points total)
+      default: 1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Strategic priority level for this capability
+      options:
+        - priority: critical
+        - priority: high
+        - priority: medium
+        - priority: low
+      default: 1
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: technical_labels
+    attributes:
+      label: Technical Areas
+      description: Select all technical areas this capability involves
+      options:
+        - label: Database (schema, queries, migrations)
+        - label: Weather API (service integration)
+        - label: Frontend (UI/UX, React components)
+        - label: Backend (server-side logic, APIs)
+        - label: Mobile (optimization, responsive design)
+        - label: Analytics (tracking, metrics, reporting)
+        - label: Revenue (monetization, ads, payments)
+
+  - type: textarea
+    id: capability_description
+    attributes:
+      label: Capability Description
+      description: High-level description of this platform capability
+      placeholder: "This capability enables [core functionality] across the platform. It provides [business value] and supports [user outcomes]. The capability spans [scope] and integrates with [other systems]."
+    validations:
+      required: true
+
+  - type: textarea
+    id: business_value
+    attributes:
+      label: Business Value
+      description: Clear articulation of business value and impact
+      placeholder: |
+        **Revenue Impact:** [How this affects revenue/growth]
+        **User Experience:** [Impact on user satisfaction/retention]  
+        **Operational Efficiency:** [Process improvements]
+        **Strategic Advantage:** [Competitive benefits]
+    validations:
+      required: true
+
+  - type: textarea
+    id: child_epics
+    attributes:
+      label: Child Epics
+      description: List of Epics that will be created under this Capability
+      placeholder: |
+        - [ ] Epic 1: [Name] - [Size] points - [Sprint] - [Brief description]
+        - [ ] Epic 2: [Name] - [Size] points - [Sprint] - [Brief description]
+        - [ ] Epic 3: [Name] - [Size] points - [Sprint] - [Brief description]
+
+  - type: textarea
+    id: success_metrics
+    attributes:
+      label: Success Metrics
+      description: Measurable criteria for capability success
+      placeholder: |
+        **Performance Metrics:**
+        - [ ] Metric 1: [Target value]
+        - [ ] Metric 2: [Target value]
+
+        **Business Metrics:**
+        - [ ] User adoption: [Target %]
+        - [ ] Performance improvement: [Target improvement]
+        - [ ] Revenue impact: [Target $]
+
+        **Technical Metrics:**
+        - [ ] System reliability: [Target uptime]
+        - [ ] Response time: [Target speed]
+
+  - type: textarea
+    id: architectural_considerations
+    attributes:
+      label: Architectural Considerations
+      description: High-level architecture and technical strategy
+      placeholder: |
+        **Architecture Patterns:**
+        - [ ] Pattern 1: [description and rationale]
+        - [ ] Pattern 2: [description and rationale]
+
+        **Integration Points:**
+        - [ ] System 1: [integration approach]
+        - [ ] System 2: [integration approach]
+
+        **Scalability Considerations:**
+        - [ ] Scaling strategy: [approach]
+        - [ ] Performance requirements: [specifications]
+
+  - type: textarea
+    id: implementation_phases
+    attributes:
+      label: Implementation Phases
+      description: How this capability will be delivered across sprints
+      placeholder: |
+        **Phase 1:** [Sprint] - [What gets delivered]
+        **Phase 2:** [Sprint] - [What gets delivered]  
+        **Phase 3:** [Sprint] - [What gets delivered]
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Capability Acceptance Criteria
+      description: Overall criteria for capability completion
+      value: |
+        - [ ] All child Epics completed successfully
+        - [ ] Success metrics achieved
+        - [ ] Business value demonstrated
+        - [ ] Performance requirements met
+        - [ ] Integration testing passed
+        - [ ] User acceptance testing completed
+        - [ ] Documentation and training completed
+        - [ ] Production deployment successful
+
+  - type: checkboxes
+    id: workflow_labels
+    attributes:
+      label: Workflow Status (optional)
+      description: Add workflow labels if applicable
+      options:
+        - label: blocked (waiting on external dependency)
+        - label: urgent (high priority, expedite work)
+        - label: needs-review (ready for validation/testing)
