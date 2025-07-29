@@ -3,38 +3,12 @@
  * VERCEL SERVERLESS FUNCTION: Weather Locations API Endpoint
  * ========================================================================
  * 
- * BUSINESS CONTEXT: Core data provider for "Nearest Nice Weather" platform
- * - Enables outdoor enthusiasts to find optimal weather conditions for activities
- * - Serves Minnesota tourism operators (ice fishing guides, BWCA outfitters, resorts)
- * - Powers travel-time based weather discovery for recreational planning
- * 
- * TECHNICAL PURPOSE: RESTful API endpoint providing weather-location data
- * - Handles proximity-based queries (find weather near user location)
- * - Supports general location queries (browse all available locations)
- * - Returns standardized JSON format for frontend consumption
- * 
- * DEPENDENCIES: 
- * - @neondatabase/serverless: Neon PostgreSQL serverless driver
- * - Vercel Edge Runtime: Serverless execution environment
- * - Frontend applications: React components consuming this data
- * 
- * DATA FLOW:
- * 1. Frontend requests weather data (with optional lat/lng for proximity)
- * 2. API queries Neon database (locations + weather_conditions tables)
- * 3. Applies Haversine distance calculation for proximity queries
- * 4. Transforms database results to frontend-expected format
- * 5. Returns JSON response with weather locations and metadata
- * 
- * USAGE PATTERNS:
- * - GET /api/weather-locations (all locations, alphabetical)
- * - GET /api/weather-locations?lat=44.9778&lng=-93.2650 (proximity-based)
- * - GET /api/weather-locations?limit=50 (limited results)
- * 
- * @CLAUDE_CONTEXT: This is the primary data API for the weather platform
- * @BUSINESS_RULE: Minnesota-focused outdoor recreation weather intelligence
- * @ARCHITECTURE_NOTE: Serverless function with direct database access
- * @INTEGRATION_POINT: Connects Neon PostgreSQL with React frontend
- * @PERFORMANCE_CRITICAL: Optimized queries with distance calculations
+ * @CLAUDE_CONTEXT: Primary weather data API for B2C consumer platform
+ * @BUSINESS_CONTEXT: See CLAUDE.md Project Overview for complete business context
+ * @TECHNICAL_PURPOSE: Proximity-based weather queries with Haversine distance calculations
+ * @INTEGRATION_POINT: Connects Neon PostgreSQL with React frontend via Vercel Edge Functions
+ * @PERFORMANCE_CRITICAL: Optimized for persona-driven weather discovery
+ * @API_DOCUMENTATION: Same functionality as dev-api-server.js but in Vercel format
  * 
  * LAST UPDATED: 2025-07-25
  */
@@ -145,10 +119,11 @@ export default async function handler(req, res) {
        * - Orders results by proximity (closest first)
        * - Useful for trip planning and activity optimization
        * 
-       * TECHNICAL IMPLEMENTATION: Haversine formula for geographic distance
-       * - 3959 = Earth's radius in miles (for mile-based results)
+       * TECHNICAL IMPLEMENTATION: Manual Haversine formula for geographic distance
+       * - 3959 = Earth's radius in miles (for mile-based results)  
        * - Uses radians for trigonometric calculations
        * - LEFT JOIN ensures locations without weather data are included
+       * - NOTE: Could be replaced with PostGIS ST_Distance for better accuracy (Neon supports PostGIS)
        * 
        * @PERFORMANCE_CRITICAL: Distance calculation performed in database for efficiency
        * @BUSINESS_RULE: Minnesota-focused outdoor recreation use case
@@ -184,7 +159,7 @@ export default async function handler(req, res) {
        * BUSINESS LOGIC: Allows users to explore all available weather locations
        * - Alphabetical ordering for predictable browsing experience
        * - Used for general exploration and location discovery
-       * - Supports tourism operators reviewing regional conditions
+       * - Supports outdoor recreation consumers exploring regional conditions
        * 
        * TECHNICAL IMPLEMENTATION: Simple JOIN with alphabetical sorting
        * - No distance calculations needed

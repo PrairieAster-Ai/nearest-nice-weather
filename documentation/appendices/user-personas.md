@@ -2,7 +2,9 @@
 
 ## Overview
 
-These user personas represent validated market segments for the Weather Intelligence Platform, derived from direct customer interviews and market research conducted in Minnesota's tourism and outdoor recreation economy. Each persona represents distinct pain points, willingness to pay, and integration requirements that inform product development and go-to-market strategy.
+**Current Strategy**: Pure B2C focus until 10,000 daily users, then evaluate B2B opportunities based on proven consumer value.
+
+These user personas represent the target market segments for the Weather Intelligence Platform, with Jessica Chen as the primary mass market persona driving initial product development and user acquisition strategy.
 
 **Related Documentation**:
 - [Master Business Plan - Market Segments](../business-plan/master-plan.md#market-segments--user-personas)
@@ -11,14 +13,142 @@ These user personas represent validated market segments for the Weather Intellig
 - [Market Research Sources](market-research.md) - Validation methodology and data sources
 
 **Research Methodology:**
-- 25+ tourism operator interviews (B2B validation)
-- Mayo Clinic medical tourism family surveys
+- Mass market consumer interviews and surveys
 - Minnesota outdoor recreation community engagement
 - Competitive analysis and market sizing validation
+- User behavior analysis and constraint optimization research
 
 ---
 
-## B2B Primary Market
+## Primary B2C Market - Mass Market Focus
+
+### Jessica "Weekend Warrior" Chen - The Weekend Optimizer
+**The Time-Pressed Consumer Who Just Wants Good Weather Plans**
+
+#### Core Profile
+- **Age**: 32 | **Location**: Minneapolis suburbs (represents ANY metro user)
+- **Occupation**: Marketing Manager | **Income**: $65,000 | **Work Schedule**: M-F 8am-6pm
+- **Family**: Single, dating, active social life | **Housing**: Apartment (no yard)
+- **Key Constraint**: LIMITED TIME - wants maximum outdoor enjoyment per available hour
+
+#### Physical Constraints (The Real User Problem)
+
+**Time Available**:
+- **Weekday Evening**: 2-3 hours after work (5:30pm-8:30pm)
+- **Saturday**: 4-6 hours free time (varies with social commitments)
+- **Sunday**: 3-5 hours (often recovery/prep day)
+- **Spontaneous Windows**: 1-2 hour breaks when plans cancel
+
+**Current Location**:
+- **Home Base**: Minneapolis (but could be ANY metro area)
+- **Willing to Drive**: 60-90 minutes for great conditions
+- **Prefers Close**: 15-30 minutes for decent conditions
+- **Transit Reality**: Car required, parking considerations matter
+
+**Weather Sensitivity**:
+- **Deal Breakers**: Rain >50%, wind >20mph, temp <20°F or >90°F
+- **Activity Dependent**: Hiking vs biking vs photography have different weather needs
+- **Seasonal Adaptation**: Changes activities based on weather/season, not married to one sport
+
+**Budget Constraints**:
+- **Free Activities**: Hiking, running, parks, beaches, trails
+- **Low Cost**: <$20 entry fees (state parks, some activities)
+- **Avoid**: Expensive day passes, equipment rental, guided tours
+- **Gas Budget**: $10-15 extra gas for good weather is acceptable
+
+#### Current Frustration: The "Weather Roulette" Problem
+
+**Typical Scenario (Current State)**:
+1. **Friday 5pm**: "What should I do this weekend for outdoor time?"
+2. **Check Weather**: Generic forecast shows "partly cloudy, 70°F"
+3. **Pick Activity**: Choose hiking, drive 45 minutes to popular trail
+4. **Reality**: Overcast and windy, crowded trail, mediocre experience
+5. **Frustration**: Wasted 3 hours + gas for subpar outdoor time
+
+**What She Actually Needs**:
+- **"Where's the best weather within my drive time RIGHT NOW?"**
+- **"What outdoor activities work well in current conditions?"**
+- **"Where can I go that won't be super crowded?"**
+
+#### The Mass Market Use Case: Constraint Optimization
+
+**Primary User Journey**:
+1. **Trigger**: Has free time (evening, weekend, canceled plans)
+2. **Input Constraints**: Time available, willing to drive, activity preferences
+3. **Get Results**: Specific locations with current/forecasted conditions
+4. **Decision**: Go or modify plans based on actual weather quality
+5. **Experience**: Better outdoor time because weather was optimized
+
+**Example Queries**:
+- *"I have 3 hours Saturday afternoon, want to hike, willing to drive 1 hour - where's the best weather?"*
+- *"Free tonight until 8pm, want to bike, prefer within 30 minutes - what's good?"*
+- *"Sunday morning looks iffy - where within 90 minutes has the clearest skies?"*
+
+#### Value Proposition: Time Optimization, Not Weather Expertise
+
+**Consumer Benefit**:
+- **Time Savings**: No more researching weather across multiple locations
+- **Better Experiences**: Consistently good weather = better outdoor memories
+- **Spontaneous Capability**: Can optimize last-minute outdoor opportunities
+- **Reduced Disappointment**: Avoid driving to poor weather conditions
+
+**NOT Weather Nerding**:
+- Doesn't want detailed forecasts or meteorology
+- Doesn't care about barometric pressure or weather maps
+- Just wants: "Where should I go for good outdoor weather?"
+- Values simplicity over comprehensive data
+
+#### Technology Adoption Pattern: Mobile-First Convenience
+
+**Usage Context**:
+- **Mobile-First**: Phone app for spontaneous decisions
+- **Quick Decisions**: 30-second interaction from question to answer
+- **Social Validation**: Shares good weather discoveries with friends
+- **Habit Formation**: Becomes go-to tool for weekend planning
+
+**Feature Priorities**:
+1. **Speed**: Instant results for current conditions
+2. **Simplicity**: Minimal inputs required
+3. **Accuracy**: Results match actual conditions when they arrive
+4. **Discovery**: Find new places with good weather
+
+### Mass Market Segment Analysis
+
+#### Primary Target: Metro Area Outdoor Enthusiasts
+
+**Market Size**:
+- **Minneapolis Metro**: 3.7M people, ~40% outdoor active = 1.5M potential users
+- **Similar Markets**: Any metro area 500K+ with outdoor recreation access
+- **Total Addressable**: 50+ metro areas across US = 30M+ potential users
+
+**Common Characteristics**:
+- **Age**: 25-45 (prime outdoor activity + smartphone adoption)
+- **Income**: $40K-100K (disposable income for outdoor activities + gas)
+- **Lifestyle**: Urban/suburban with outdoor recreation interest
+- **Problem**: Limited time + want to optimize outdoor experiences
+
+#### Secondary Segments Within Mass Market
+
+**The Young Professional (25-35)**:
+- Limited time, high smartphone usage, social sharing
+- Values convenience and new discovery
+- Willing to drive for great conditions
+
+**The Active Parent (35-45)**:
+- Even more time-constrained, family coordination needs
+- Values reliable outdoor time for family activities
+- Safety-conscious about weather conditions
+
+**The Retiree/Flexible Schedule (55+)**:
+- More time available but weather-sensitive
+- Values comfort and avoiding poor conditions
+- May drive farther for ideal weather
+
+---
+
+## B2B Market Segments (Future Consideration - Post 10,000 Users)
+
+**Note**: These personas represent potential future market segments to be evaluated after achieving 10,000 daily B2C users and proven product-market fit in the consumer market.
 
 ### Sarah Kowalski - BWCA Wilderness Outfitter
 **The Professional Safety-Critical Decision Maker**
@@ -29,40 +159,7 @@ These user personas represent validated market segments for the Weather Intellig
 - **Location**: Ely, Minnesota (BWCA gateway community)
 - **Experience**: 15-year wilderness outfitting operation, 4 full-time + 8 seasonal employees
 
-#### Business Operations
-- **Annual Volume**: 600+ wilderness trips (400 multi-day, 200 day trips)
-- **Revenue Range**: $200-500 per person per day depending on trip complexity
-- **Seasonal Concentration**: Peak season May-September with critical weather dependencies
-- **Territory**: 1M+ acre BWCA serving multiple entry points and 150+ wilderness lakes
-
-#### Critical Pain Points
-- **Life-Safety Weather Decisions**: $10,000-25,000 daily revenue at extreme weather risk
-- **Multi-Day Trip Exposure**: Weather changes affecting groups already committed to wilderness
-- **Liability Management**: Weather-related injuries create significant business insurance exposure
-- **Microclimate Forecasting Gap**: Conditions vary significantly across vast BWCA territory
-
-#### Weather Intelligence Requirements
-1. **BWCA-specific microclimate forecasting** for different wilderness regions
-2. **Multi-day weather pattern evolution** for extended wilderness trip planning
-3. **Lightning and severe weather timing** for paddling safety on exposed waters
-4. **Emergency evacuation weather assessment** for rescue operation planning
-5. **Satellite integration** for weather updates to groups without cellular coverage
-
-#### Business Value Proposition
-- **Subscription Range**: $400-800/month acceptable for demonstrated safety improvement
-- **ROI Calculation**: Preventing 1-2 weather-related incidents annually justifies subscription cost
-- **Competitive Advantage**: Superior weather intelligence enables premium pricing and market differentiation
-- **Risk Reduction**: Significantly reduces liability exposure through better decision-making
-
-#### Industry Influence
-- **Minnesota Guides and Outfitters Association**: Board member and safety committee chair
-- **Professional Network**: Influences $50,000+ annual gear purchases across industry
-- **Safety Training**: Conducts wilderness safety seminars for new outfitters
-- **Media Consultation**: Expert source for wilderness safety and emergency response
-
----
-
-## B2C High-Value Market
+*[Full B2B persona details maintained for future reference but deprioritized until consumer success is proven]*
 
 ### Jennifer Martinez - Mayo Medical Tourism Family Coordinator
 **The Stress-Reduction Seeking Healthcare Navigator**

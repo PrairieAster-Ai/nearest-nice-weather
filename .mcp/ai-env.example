@@ -1,0 +1,30 @@
+# AI-Enhanced Project Manager MCP Configuration
+# Copy this to .mcp/ai-env and add your API keys
+
+# GitHub Configuration (Required)
+GITHUB_TOKEN=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
+GITHUB_OWNER=PrairieAster-Ai
+GITHUB_REPO=nearest-nice-weather
+
+# AI Provider API Keys (Choose one or more)
+# ANTHROPIC_API_KEY=sk-ant-api03-...  # Recommended for best results
+# OPENAI_API_KEY=sk-...               # Alternative
+# GOOGLE_API_KEY=...                  # Alternative  
+# PERPLEXITY_API_KEY=...              # Alternative
+
+# MCP Server Configuration
+MCP_PORT=3001
+MCP_LOG_LEVEL=info
+MCP_ENABLE_WEBHOOK=true
+
+# AI Feature Configuration
+AI_MODEL_PROVIDER=anthropic        # Options: anthropic, openai, google, perplexity
+AI_MODEL_NAME=claude-3-sonnet      # For Anthropic: claude-3-sonnet, claude-3-haiku
+# AI_MODEL_NAME=gpt-4               # For OpenAI: gpt-4, gpt-3.5-turbo
+AI_MAX_TOKENS=4000
+AI_TEMPERATURE=0.7
+
+# Business Context (for AI-powered insights)
+BUSINESS_REVENUE_TARGET=36000
+BUSINESS_MARKET=Minnesota tourism
+BUSINESS_MODEL=B2B SaaS + B2C subscriptions

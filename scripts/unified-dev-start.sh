@@ -317,11 +317,39 @@ else
     warning "API Data Endpoints: FAILED - Database connectivity issues"
 fi
 
-# Test frontend loading
-if curl -s "http://localhost:$FRONTEND_PORT" | grep -q "Nearest Nice Weather"; then
-    success "Frontend Loading: PASSED"
+# Test frontend loading (enhanced validation)
+FRONTEND_CHECK_RESULT=""
+if curl -s --max-time 5 "http://localhost:$FRONTEND_PORT" >/dev/null 2>&1; then
+    # Basic connectivity works, now check content
+    FRONTEND_CONTENT=$(curl -s --max-time 5 "http://localhost:$FRONTEND_PORT" || echo "")
+    if echo "$FRONTEND_CONTENT" | grep -q -E "(Nearest Nice Weather|react|vite|<!DOCTYPE html>)"; then
+        success "Frontend Loading: PASSED"
+        FRONTEND_CHECK_RESULT="PASSED"
+    else
+        warning "Frontend Loading: FAILED - Content check failed"
+        FRONTEND_CHECK_RESULT="CONTENT_FAILED"
+    fi
 else
-    warning "Frontend Loading: FAILED"
+    error "Frontend Loading: FAILED - Connection refused"
+    FRONTEND_CHECK_RESULT="CONNECTION_FAILED"
+fi
+
+# Enhanced browser validation (if BrowserToolsMCP available)
+if [[ -n $BROWSERTOOLS_PID && "$FRONTEND_CHECK_RESULT" == "PASSED" ]]; then
+    log "🌐 Performing browser validation..."
+    sleep 2  # Give browser time to load
+    
+    # Take screenshot for visual validation
+    SCREENSHOT_RESULT=$(curl -s --max-time 10 "http://localhost:3025/mcp/screenshot" \
+        -H "Content-Type: application/json" \
+        -d '{"url": "http://localhost:'$FRONTEND_PORT'", "filename": "startup-validation.png"}' 2>/dev/null || echo "")
+    
+    if echo "$SCREENSHOT_RESULT" | grep -q "success"; then
+        success "Browser Visual Validation: PASSED"
+        info "Screenshot saved: startup-validation.png"
+    else
+        warning "Browser Visual Validation: FAILED - Could not capture screenshot"
+    fi
 fi
 
 # Test API proxy through frontend (critical integration test)

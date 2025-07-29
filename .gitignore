@@ -66,3 +66,5 @@ Thumbs.db
 application/logs/
 *.sqlite
 *.db
+# AI environment files (contains API keys)
+.mcp/ai-env

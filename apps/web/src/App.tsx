@@ -4,9 +4,9 @@
  * ========================================================================
  * 
  * BUSINESS CONTEXT: Core application for outdoor recreation weather intelligence
- * - Primary target: Minnesota outdoor enthusiasts and tourism operators
+ * - Primary target: Minnesota outdoor enthusiasts and recreation consumers
  * - Core value proposition: "Find optimal weather conditions for activities"
- * - Business model: B2B SaaS for tourism operators + B2C subscriptions
+ * - Business model: B2C platform with market validation focus until 10,000 daily users
  * - Geographic focus: Minnesota with expansion to Upper Midwest planned
  * 
  * TECHNICAL PURPOSE: React SPA providing interactive weather-location discovery
@@ -49,7 +49,7 @@
  * - Graceful degradation: Works without geolocation or with slow connections
  * 
  * @CLAUDE_CONTEXT: Primary application entry point containing all business logic
- * @BUSINESS_RULE: Minnesota-focused outdoor recreation weather intelligence
+ * @BUSINESS_RULE: B2C consumer platform focused on Minnesota outdoor recreation market
  * @ARCHITECTURE_NOTE: Single-page application with real-time map interactions
  * @INTEGRATION_POINT: Connects all UI components with backend weather data
  * @PERFORMANCE_CRITICAL: Map rendering and filter calculations must be responsive

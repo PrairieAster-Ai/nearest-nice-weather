@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 5 Debug Analysis</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #fff;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #2d2d2d;
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .warning { color: #ffd43b; }
+        .info { color: #74c0fc; }
+        
+        #iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #444;
+            margin: 20px 0;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        button {
+            background: #339af0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #228be6;
+        }
+        
+        #console-output {
+            background: #000;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Slide 5 Debug Analysis</h1>
+    
+    <div class="debug-section">
+        <h3>Test Controls</h3>
+        <button onclick="loadPresentation()">Load Presentation</button>
+        <button onclick="navigateToSlide5()">Navigate to Slide 5</button>
+        <button onclick="runDiagnostics()">Run Diagnostics</button>
+        <button onclick="takeScreenshot()">Take Screenshot</button>
+        <button onclick="compareWithDebugFile()">Compare with Debug File</button>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Live Presentation (will auto-navigate to slide 5)</h3>
+        <div id="iframe-container">
+            <iframe id="presentation-frame" src=""></iframe>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Diagnostic Output</h3>
+        <div id="console-output"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Analysis Results</h3>
+        <div id="analysis-results"></div>
+    </div>
+
+    <script>
+        let presentationFrame;
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const span = document.createElement('div');
+            span.className = type;
+            span.textContent = `[${timestamp}] ${message}`;
+            output.appendChild(span);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function loadPresentation() {
+            log('Loading presentation...', 'info');
+            presentationFrame = document.getElementById('presentation-frame');
+            presentationFrame.src = './MVP-Work-Breakdown-Structure.html';
+            
+            presentationFrame.onload = function() {
+                log('Presentation loaded successfully', 'success');
+                setTimeout(() => {
+                    navigateToSlide5();
+                }, 1000);
+            };
+            
+            presentationFrame.onerror = function() {
+                log('Failed to load presentation', 'error');
+            };
+        }
+        
+        function navigateToSlide5() {
+            try {
+                const frame = presentationFrame.contentWindow;
+                if (frame && frame.changeSlide) {
+                    frame.currentSlide = 4; // Slide 5 is index 4
+                    frame.showSlide(4);
+                    log('Navigated to slide 5', 'success');
+                    setTimeout(runDiagnostics, 500);
+                } else {
+                    log('Cannot access presentation frame functions', 'error');
+                }
+            } catch (e) {
+                log(`Navigation error: ${e.message}`, 'error');
+            }
+        }
+        
+        function runDiagnostics() {
+            try {
+                const frame = presentationFrame.contentWindow;
+                const doc = frame.document;
+                
+                log('=== RUNNING DIAGNOSTICS ===', 'warning');
+                
+                // Check slides
+                const slides = doc.querySelectorAll('.slide');
+                log(`Found ${slides.length} slides`, 'info');
+                
+                // Check slide 5
+                const slide5 = slides[4];
+                if (!slide5) {
+                    log('CRITICAL: Slide 5 not found!', 'error');
+                    return;
+                }
+                
+                const style = frame.getComputedStyle(slide5);
+                log(`Slide 5 display: ${style.display}`, 'info');
+                log(`Slide 5 visibility: ${style.visibility}`, 'info');
+                log(`Slide 5 opacity: ${style.opacity}`, 'info');
+                log(`Slide 5 has active class: ${slide5.classList.contains('active')}`, 'info');
+                
+                // Check feature grid
+                const featureGrid = slide5.querySelector('.feature-grid');
+                if (!featureGrid) {
+                    log('CRITICAL: Feature grid not found in slide 5!', 'error');
+                    return;
+                }
+                
+                const gridStyle = frame.getComputedStyle(featureGrid);
+                log(`Feature grid display: ${gridStyle.display}`, 'info');
+                log(`Feature grid height: ${gridStyle.height}`, 'info');
+                
+                // Check feature cards
+                const cards = featureGrid.querySelectorAll('.feature-card');
+                log(`Found ${cards.length} feature cards`, 'info');
+                
+                // Visual debugging
+                slide5.style.border = '5px solid red';
+                featureGrid.style.border = '3px solid blue';
+                
+                log('=== DIAGNOSTICS COMPLETE ===', 'warning');
+                
+            } catch (e) {
+                log(`Diagnostics error: ${e.message}`, 'error');
+            }
+        }
+        
+        function takeScreenshot() {
+            // This would integrate with BrowserToolsMCP
+            log('Screenshot functionality would integrate with BrowserToolsMCP', 'info');
+        }
+        
+        function compareWithDebugFile() {
+            log('Opening debug file in new tab for comparison...', 'info');
+            window.open('./slide5-debug.html', '_blank');
+        }
+        
+        // Auto-start when page loads
+        window.onload = function() {
+            log('Debug page loaded. Click "Load Presentation" to start analysis.', 'success');
+        };
+    </script>
+</body>
+</html>

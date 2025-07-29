@@ -9,6 +9,8 @@
 
 Never mix local and cloud database connections. Never use multiple conflicting environment variables.
 
+**Work Planning Single Source of Truth**: For current work planning and sprint management, the GitHub Project "NearestNiceWeather.com App Development" (https://github.com/orgs/PrairieAster-Ai/projects/2) is the authoritative source. This database management guide supports the technical implementation of work items tracked in the GitHub Project.
+
 ## 📊 Current Environment Setup
 
 ### **Production Configuration** ✅

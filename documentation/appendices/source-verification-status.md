@@ -10,8 +10,10 @@ This document tracks the verification status of all major claims in the Nearest 
 - [Financial Assumptions](financial-assumptions.md) - Projection methodology and sources
 - [Master Business Plan](../business-plan/master-plan.md) - Contains key assumptions requiring validation
 
-**Last Updated**: December 23, 2024  
+**Last Updated**: December 23, 2024 (Original), July 29, 2025 (Work Planning Update)  
 **Review Methodology**: Comprehensive audit of all statistical claims, market data, and business projections
+
+**Work Planning Source of Truth**: For current development work and sprint planning, the GitHub Project "NearestNiceWeather.com App Development" (https://github.com/orgs/PrairieAster-Ai/projects/2) serves as the single source of truth, replacing any previous work breakdown structure documents.
 
 ---
 

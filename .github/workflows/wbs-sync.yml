@@ -1,0 +1,188 @@
+name: WBS Synchronization
+
+on:
+  issues:
+    types: [closed, reopened]
+  workflow_dispatch:
+    inputs:
+      sprint:
+        description: 'Sprint to sync (1-4)'
+        required: true
+        default: '3'
+        
+jobs:
+  sync-wbs-status:
+    runs-on: ubuntu-latest
+    name: Sync WBS with GitHub Issues
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Calculate Sprint Progress
+      id: progress
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const sprint = context.payload.inputs?.sprint || '3';
+          
+          // Get all issues for the sprint
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: `sprint-${sprint}`,
+            state: 'all'
+          });
+          
+          console.log(`Found ${issues.length} issues for Sprint ${sprint}`);
+          
+          // Calculate story points
+          let totalPoints = 0;
+          let completedPoints = 0;
+          
+          for (const issue of issues) {
+            const body = issue.body || '';
+            const storyPointsMatch = body.match(/\*\*Story Points\*\*:\s*(\d+)/i);
+            
+            if (storyPointsMatch) {
+              const points = parseInt(storyPointsMatch[1]);
+              totalPoints += points;
+              
+              if (issue.state === 'closed') {
+                completedPoints += points;
+              }
+            }
+          }
+          
+          const completionPercentage = totalPoints > 0 ? Math.round((completedPoints / totalPoints) * 100) : 0;
+          
+          console.log(`Sprint ${sprint} Progress: ${completedPoints}/${totalPoints} points (${completionPercentage}%)`);
+          
+          // Determine sprint status
+          let sprintStatus = '📅 PLANNED';
+          if (completionPercentage > 0 && completionPercentage < 100) {
+            sprintStatus = '🔄 IN PROGRESS';
+          } else if (completionPercentage === 100) {
+            sprintStatus = '✅ COMPLETED';
+          }
+          
+          core.setOutput('sprint', sprint);
+          core.setOutput('totalPoints', totalPoints);
+          core.setOutput('completedPoints', completedPoints);
+          core.setOutput('completionPercentage', completionPercentage);
+          core.setOutput('sprintStatus', sprintStatus);
+          
+          return {
+            sprint,
+            totalPoints,
+            completedPoints,
+            completionPercentage,
+            sprintStatus
+          };
+          
+    - name: Update Sprint Tracking Issue
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const sprint = '${{ steps.progress.outputs.sprint }}';
+          const totalPoints = '${{ steps.progress.outputs.totalPoints }}';
+          const completedPoints = '${{ steps.progress.outputs.completedPoints }}';
+          const completionPercentage = '${{ steps.progress.outputs.completionPercentage }}';
+          const sprintStatus = '${{ steps.progress.outputs.sprintStatus }}';
+          
+          // Search for sprint tracking issue
+          const { data: searchResults } = await github.rest.search.issuesAndPullRequests({
+            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue "Sprint ${sprint}:" in:title`
+          });
+          
+          if (searchResults.items.length > 0) {
+            const trackingIssue = searchResults.items[0];
+            
+            // Create progress update comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: trackingIssue.number,
+              body: `📊 **Automated Sprint Progress Update**\n\n**Sprint ${sprint} Status**: ${sprintStatus}\n**Story Points**: ${completedPoints}/${totalPoints} (${completionPercentage}%)\n**Last Updated**: ${new Date().toISOString()}\n\n*This update was generated automatically based on closed GitHub issues.*`
+            });
+            
+            console.log(`Updated sprint tracking issue #${trackingIssue.number}`);
+          } else {
+            console.log(`No sprint tracking issue found for Sprint ${sprint}`);
+          }
+          
+    - name: Generate WBS Status Report
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const sprint = '${{ steps.progress.outputs.sprint }}';
+          const completionPercentage = '${{ steps.progress.outputs.completionPercentage }}';
+          const sprintStatus = '${{ steps.progress.outputs.sprintStatus }}';
+          
+          // Get all sprint issues with details
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: `sprint-${sprint}`,
+            state: 'all'
+          });
+          
+          // Group by epic/feature
+          const epics = issues.filter(i => i.labels.some(l => l.name === 'epic'));
+          const stories = issues.filter(i => i.labels.some(l => l.name === 'story'));
+          
+          let report = `# WBS Status Report - Sprint ${sprint}\n\n`;
+          report += `**Generated**: ${new Date().toISOString()}\n`;
+          report += `**Sprint Status**: ${sprintStatus}\n`;
+          report += `**Completion**: ${completionPercentage}%\n\n`;
+          
+          report += `## Epics Status\n`;
+          for (const epic of epics) {
+            const status = epic.state === 'closed' ? '✅' : '🔄';
+            report += `- ${status} [${epic.title}](${epic.html_url}) (#${epic.number})\n`;
+          }
+          
+          report += `\n## Stories Status\n`;
+          for (const story of stories) {
+            const status = story.state === 'closed' ? '✅' : '🔄';
+            report += `- ${status} [${story.title}](${story.html_url}) (#${story.number})\n`;
+          }
+          
+          report += `\n## Alignment Check\n`;
+          report += `- **GitHub Issues**: ${issues.length} total\n`;
+          report += `- **WBS Presentation**: MVP-WBS.html Slide ${parseInt(sprint) + 2}\n`;
+          report += `- **Documentation**: SPRINT-ALIGNMENT-COMPLETED.md\n`;
+          
+          console.log('Generated WBS Status Report:');
+          console.log(report);
+          
+          // Save report as artifact or comment (optional)
+          // Could be extended to update documentation files
+          
+    - name: Check for WBS Presentation Updates Needed
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const sprint = '${{ steps.progress.outputs.sprint }}';
+          const completionPercentage = '${{ steps.progress.outputs.completionPercentage }}';
+          
+          // Check if major milestone reached (25%, 50%, 75%, 100%)
+          const milestones = [25, 50, 75, 100];
+          const currentMilestone = milestones.find(m => 
+            completionPercentage >= m && completionPercentage < m + 25
+          );
+          
+          if (currentMilestone) {
+            // Create an issue for WBS presentation update
+            const issueBody = `## WBS Presentation Update Required\n\n**Sprint ${sprint}** has reached **${completionPercentage}%** completion.\n\nPlease update the following:\n\n1. **MVP-WBS.html** - Update Sprint ${sprint} status to reflect current progress\n2. **SPRINT-ALIGNMENT-COMPLETED.md** - Add latest progress information\n3. **Business presentations** - Sync with current development status\n\n**Current Status**: ${completionPercentage}% complete\n**Milestone**: ${currentMilestone}% milestone reached\n\nThis update ensures stakeholder presentations remain aligned with actual development progress.`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Update WBS Presentation - Sprint ${sprint} ${currentMilestone}% Complete`,
+              body: issueBody,
+              labels: ['documentation', 'wbs-sync', `sprint-${sprint}`]
+            });
+            
+            console.log(`Created WBS update issue for ${currentMilestone}% milestone`);
+          }

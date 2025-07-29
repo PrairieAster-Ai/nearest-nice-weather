@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "github-official": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN=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",
+        "-e", "GITHUB_TOOLSETS=repos,issues,pull_requests",
+        "ghcr.io/github/github-mcp-server",
+        "stdio"
+      ]
+    },
+    "github-project-manager-ai": {
+      "command": "mcp-github-project-manager",
+      "args": [
+        "--env-file", "/home/robertspeer/Projects/GitRepo/nearest-nice-weather/.mcp/ai-env",
+        "--verbose"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

@@ -1,25 +1,17 @@
 // ========================================================================
-// WEATHER INTELLIGENCE API SERVER - Persona-Driven Minnesota Tourism
+// WEATHER INTELLIGENCE API SERVER - Minnesota Outdoor Recreation Platform
 // ========================================================================
 //
-// BUSINESS PURPOSE: Serve weather data optimized for Minnesota tourism personas
-// TARGET USERS:
-// - Sarah Kowalski (BWCA Outfitter): Safety-critical wilderness weather decisions ($400-800/mo value)
-// - Jennifer Martinez (Mayo Medical Tourism): Family stress reduction during medical care ($15-30/mo)
-// - Andrea Thompson (Bass Tournament): Performance-driven fishing strategy ($50-100/mo)
-// - Kirsten Lindqvist (Rural Business): Regional development weather planning
+// @CLAUDE_CONTEXT: Core API server for weather intelligence platform
+// @BUSINESS_CONTEXT: See CLAUDE.md Project Overview for complete business context
+// @PERSONA_DOCUMENTATION: API designed for 3 primary consumer personas:
+//   - Jessica Chen (documentation/appendices/user-personas.md) - Primary mass market
+//   - Mark Anderson (COMPOSITE-PERSONA-2025.md) - B2C→B2B bridge  
+//   - Andrea Thompson (documentation/appendices/user-personas.md) - Legacy validated
 //
-// API DESIGN PHILOSOPHY:
-// - PERSONA-FIRST: Endpoints designed around user needs, not technical convenience
-// - PROXIMITY-AWARE: All data includes distance calculations for "nearest" weather
-// - ACTIVITY-CONTEXTUAL: Weather data includes activity-specific suitability scores
-// - RELIABILITY-FOCUSED: Robust error handling for Sarah's safety-critical use cases
-//
-// CLAUDE AI ENHANCEMENT OPPORTUNITIES:
-// - Add persona-specific endpoints (e.g., /api/wilderness-safety, /api/tournament-conditions)
-// - Implement activity-based filtering (e.g., ?activity=paddling, ?activity=family_outdoor)
-// - Add weather alerting for critical conditions (high winds, severe weather)
-// - Include multi-day forecasting for Sarah's wilderness trip planning
+// @ARCHITECTURE_NOTE: Persona-first API design with proximity-aware weather data
+// @INTEGRATION_POINT: Connects Neon PostgreSQL with React frontend via Vercel functions
+// @ENHANCEMENT_OPPORTUNITIES: Persona-specific endpoints, activity filtering, weather alerting
 // ========================================================================
 
 const express = require('express')
@@ -165,33 +157,13 @@ app.post('/api/feedback', async (req, res) => {
 
 
 // ====================================================================
-// WEATHER LOCATIONS ENDPOINT - Core Persona-Driven API
+// WEATHER LOCATIONS ENDPOINT - Core B2C Consumer API
 // ====================================================================
-// PURPOSE: Primary endpoint serving weather data for all Minnesota tourism personas
-//
-// PERSONA USAGE PATTERNS:
-// - Sarah (BWCA): Queries for wilderness areas with safety-critical weather data
-//   * Needs: Wind speeds >20mph alerts, lightning warnings, multi-day stability
-//   * Query pattern: ?lat=47.903&lng=-91.8668 (Ely area) with wilderness filtering
-//
-// - Jennifer (Mayo): Searches Rochester area for family-friendly weather
-//   * Needs: Comfort conditions (60-75°F), low precipitation, accessibility considerations
-//   * Query pattern: ?lat=44.0121&lng=-92.4802 (Rochester) with family activity focus
-//
-// - Andrea (Bass): Tournament venue weather within 400-mile radius of Minneapolis
-//   * Needs: Barometric pressure, wind patterns, water temperature correlation
-//   * Query pattern: ?lat=44.9778&lng=-93.265 (Minneapolis) with fishing conditions
-//
-// - Kirsten (Rural): Regional business travel weather across northern Minnesota
-//   * Needs: Travel safety conditions, community event planning, rural reliability
-//   * Query pattern: Various lat/lng across Iron Range and rural communities
-//
-// CLAUDE AI ENHANCEMENT OPPORTUNITIES:
-// - Add ?activity=wilderness_paddling parameter for Sarah's safety filtering
-// - Include ?family_friendly=true for Jennifer's comfort requirements
-// - Add ?tournament_mode=true for Andrea's competitive fishing conditions
-// - Implement ?rural_travel=true for Kirsten's business development needs
-// - Add weather alerting for critical persona-specific thresholds
+// @CLAUDE_CONTEXT: Primary weather data endpoint for persona-driven consumer platform
+// @PERSONA_PATTERNS: Serves 3 primary consumer personas (see file header for persona documentation)
+// @TECHNICAL_IMPLEMENTATION: Proximity-based queries with Haversine distance calculations
+// @BUSINESS_RULE: Persona-first design with activity-weather matching optimization
+// @ENHANCEMENT_OPPORTUNITIES: Persona-specific filtering, constraint optimization, weather alerting
 //
 app.get('/api/weather-locations', async (req, res) => {
   try {
@@ -204,12 +176,9 @@ app.get('/api/weather-locations', async (req, res) => {
       let queryParams
 
       if (lat && lng) {
-        // ================================================================
-        // PROXIMITY-BASED QUERY (All personas need "nearest" weather)
-        // ================================================================
-        // Calculates distance from user location to all Minnesota tourism destinations
-        // Uses simple Haversine formula - no PostGIS dependency for broad compatibility
-        // Supports all personas' need for proximity-based weather discovery
+        // @CLAUDE_CONTEXT: Proximity query using Haversine distance for "nearest" weather
+        // @BUSINESS_RULE: All personas require location-based weather discovery
+        // @TECHNICAL_NOTE: Manual Haversine formula (could be replaced with PostGIS ST_Distance for better accuracy)
         query = `
           SELECT 
             l.id,

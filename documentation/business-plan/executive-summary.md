@@ -14,17 +14,17 @@
 | **Initial Investment** | $25,000 | Technical foundation complete |
 | **Series A Target** | Month 19 | $400K for national expansion |
 
-**Bottom Line**: Casual mass market B2C platform for constraint-based weather optimization, focusing on free/frugal local discovery with ad-supported revenue model and judo marketing against big tech "enshittification".
+**Bottom Line**: Weekend Warriors on a budget B2C platform for constraint-based weather optimization, focusing on free/frugal local discovery with biological UX optimization (<100ms dopamine hits), ad-supported revenue model and judo marketing against big tech "enshittification".
 
 ---
 
 ## 💡 Business Concept
 
 ### The Problem
-- **"Where is the nearest weather that matches my preferences today?"**
+- **"Where can I get tacos when it's nice out?"** - Core value avoiding feature creep
 - People have different weather preferences: some prefer cold, others warm; some like rain, others avoid it
-- Weather apps only show local conditions, don't suggest better locations nearby
-- No simple tool exists to find preferred weather conditions within driving distance
+- Weather apps only show local conditions, don't suggest better budget-friendly locations nearby
+- No simple tool exists to find preferred weather conditions within driving distance for free/cheap activities
 
 ### The Solution
 **Ultra-Simple Weather Filter Progressive Web App**:
@@ -33,11 +33,12 @@
 Your Location + Weather Preferences → Nearest Matching Weather → User Data + Premium Features
 ```
 
-**MVP Features (Free-Only Launch)**: 
-- **Simple Filters**: Radio buttons for Temperature, Precipitation, Wind preferences
-- **Unlimited Saves**: Create account to save unlimited custom filter combinations ("Perfect Day", "Cozy Weather")
+**MVP Features (Free-Only Launch)** - Risk-Aware Development: 
+- **Simple Filters**: Radio buttons for Temperature, Precipitation, Wind preferences - biological UX optimization
+- **Unlimited Saves**: Create account to save unlimited custom filter combinations ("Perfect Free Day", "Budget Adventure Weather")
 - **Time-Based Voting**: Monthly 48-hour voting rounds on next features to build (creates urgency and engagement)
 - **Ad-Supported**: Free tier with competitor-neutral ad networks, premium features determined post-launch
+- **Risk Mitigation**: Each sprint validates core value before adding complexity
 
 **Post-MVP Features** (Based on User Voting):
 - **Email Newsletter**: Weekly weather updates based on saved filter preferences
@@ -54,14 +55,14 @@ Your Location + Weather Preferences → Nearest Matching Weather → User Data +
 
 ## 👥 Target Market Segments
 
-### 🎣 Primary B2C MVP: Year-Round Outdoor Enthusiasts
-- **Market**: 1.2M Minnesota outdoor recreation participants across all seasons
-- **Key Business Assumption** ⚠️: Estimated 95% of ice fishing guides also do open-water guiding; 80% of hunting guides offer fishing services (*requires customer discovery validation*)
-- **Pain Point**: Weather ruins outdoor plans across multiple seasons, costs $5,000-20,000 annually
-- **Solution**: Year-round weather intelligence for cross-seasonal activity planning
-- **Pricing**: $25-50/month annual subscriptions for all-season planning
-- **MVP Strategy**: Build year-round user base demonstrating cross-seasonal demand to B2B market
-- **Sample Target**: 2,500+ active users (statistically reliable feedback sample)
+### 🎣 Primary B2C MVP: Weekend Warriors on a Budget
+- **Market**: 1.2M Minnesota Weekend Warriors seeking free/cheap outdoor activities across all seasons
+- **User Focus**: Weekend Warriors on a budget, NOT enterprise travel managers
+- **Pain Point**: "Where can I get tacos when it's nice out?" - weather ruins budget outdoor plans
+- **Solution**: <100ms dopamine hit through instant discovery of free/frugal activities with optimal weather
+- **Pricing**: Ad-supported free tier with premium features determined by user voting
+- **MVP Strategy**: Risk-aware sprint planning - validate core value before feature expansion
+- **Sample Target**: 10,000+ daily users milestone (proven consumer value before B2B consideration)
 
 ### 🎯 Far Future B2B Opportunity: Tourism Analytics (Post-Series A)
 - **Market**: Minnesota tourism operators seeking advanced analytics
@@ -100,10 +101,10 @@ Your Location + Weather Preferences → Nearest Matching Weather → User Data +
 
 ## 🚀 Implementation Strategy
 
-### Phase 1: Minnesota Market Validation (Months 1-6)
-- **Focus**: Ice fishing guides + Mayo tourism + MVP completion
+### Phase 1: Minnesota Market Validation (Months 1-6) - Weekend Warriors Focus
+- **Focus**: Weekend Warriors on a budget + risk-aware MVP development + biological UX optimization
 - **Investment**: $25,000 leveraging existing technical architecture
-- **Goal**: 25 customers, $5,000/month revenue, product-market fit
+- **Goal**: Validate "Where can I get tacos when it's nice out?" core value, 10,000+ daily users milestone
 
 ### Phase 2: Regional Expansion (Months 7-18)  
 - **Focus**: Wisconsin/Iowa + team expansion
@@ -126,33 +127,33 @@ Your Location + Weather Preferences → Nearest Matching Weather → User Data +
 - ✅ **Authentication system** with JWT and user management
 - ✅ **Weather API integrations** designed and documented
 
-### Progressive Web App Strategic Advantage
-- **No App Store Barriers**: Instant deployment, no 30% platform fees, zero download friction
-- **Offline-First Design**: Weather data cached for BWCA wilderness and remote locations without cell coverage
+### Progressive Web App Strategic Advantage (Biological UX Optimization)
+- **No App Store Barriers**: Instant deployment, no 30% platform fees, zero download friction - <100ms to dopamine hit
+- **Offline-First Design**: Weather data cached for budget outdoor activities and remote locations without cell coverage
 - **Native App Features**: GPS, push notifications, camera integration without app store gatekeepers
-- **Universal Compatibility**: Single codebase serves iOS, Android, desktop simultaneously
-- **Viral Growth**: Users share URLs instead of "download this app" barriers
+- **Universal Compatibility**: Single codebase serves iOS, Android, desktop simultaneously - Weekend Warriors across all devices
+- **Viral Growth**: Users share URLs instead of "download this app" barriers - optimized for social dopamine response
 
-### Competitive Timeline Advantage
-- **Traditional Development**: 6 months + $140K investment + app store approval cycles
-- **Our Approach**: 6 weeks PWA implementation + instant deployment + immediate customer validation
-- **Result**: 3-4 months faster time-to-market with 20-30% higher conversion rates
+### Competitive Timeline Advantage (Risk-Aware Development)
+- **Traditional Development**: 6 months + $140K investment + app store approval cycles + feature creep risk
+- **Our Approach**: 6 weeks PWA implementation + instant deployment + risk-aware sprint validation
+- **Result**: 3-4 months faster time-to-market with core value validation before complexity addition
 
 ---
 
 ## 🎯 Geographic Strategy
 
-### Central Minnesota Advantage
+### Central Minnesota Advantage (Weekend Warriors Geographic Strategy)
 **700-mile radius** covering multiple climate zones provides:
-- **Market Access**: $16.6B Minnesota tourism + adjacent states
-- **Weather Diversity**: Year-round optimal conditions within driving distance
-- **Competitive Window**: 2-3 years before major platforms add weather features
-- **Local Expertise**: Established tourism industry relationships
+- **Market Access**: $16.6B Minnesota tourism + adjacent states focused on budget activities
+- **Weather Diversity**: Year-round optimal conditions within driving distance for free/cheap activities
+- **Competitive Window**: 2-3 years before major platforms add weather features for budget market
+- **Local Expertise**: Weekend Warriors community relationships, not enterprise tourism focus
 
-### Expansion Timeline
-- **Year 1**: Minnesota market dominance (70% of addressable operators)
-- **Year 2**: Wisconsin/Iowa/Dakota regional expansion
-- **Year 3**: National platform with enterprise customers
+### Expansion Timeline (Risk-Aware Growth)
+- **Year 1**: Minnesota Weekend Warriors market validation (10,000+ daily users)
+- **Year 2**: Wisconsin/Iowa/Dakota regional expansion with proven budget activity model
+- **Year 3**: National platform consideration only after consumer success proven
 
 ---
 

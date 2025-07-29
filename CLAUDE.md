@@ -10,6 +10,8 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 **🚀 RAPID DEVELOPMENT WORKFLOW**: [Optimized for High-Speed Experimentation](RAPID-DEVELOPMENT.md) - Idea to production in 2-5 minutes with automated quality gates and instant rollback capabilities.
 
+**📋 WORK PLANNING & SPRINT MANAGEMENT**: [GitHub Project "NearestNiceWeather.com App Development"](https://github.com/orgs/PrairieAster-Ai/projects/2) - **SINGLE SOURCE OF TRUTH** for all current work, sprint planning, and issue tracking. See [GITHUB-PROJECT-REFERENCE.md](GITHUB-PROJECT-REFERENCE.md) for complete project structure and workflow guidance.
+
 **Target Market**: Casual mass market consumers in Minneapolis metro area seeking constraint-based weather optimization for free/frugal local activities.
 
 ## Repository Structure

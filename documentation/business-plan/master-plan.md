@@ -34,7 +34,7 @@
 | **Geographic Focus** | Minnesota + 700-mile radius | Climate zone advantage |
 | **Break-Even** | Month 12 | Multiple revenue streams |
 
-**Investment Thesis**: Simple, viral B2C Progressive Web App targeting year-round outdoor enthusiasts with ad-supported revenue model and competitor-neutral monetization strategy.
+**Investment Thesis**: Simple, viral B2C Progressive Web App targeting "Weekend Warriors on a budget" with biological UX optimization (<100ms dopamine hits), risk-aware development methodology, and competitor-neutral ad-supported revenue model.
 
 ### Key Competitive Advantages
 
@@ -50,12 +50,12 @@
 
 ### Problem Statement
 
-**Primary Pain Point for Year-Round Outdoor Enthusiasts**:
-- "Where is the nearest nice weather that matches my preferences today?"
-- Weather apps show local conditions but don't suggest better locations nearby
+**Primary Pain Point for Weekend Warriors on a Budget**:
+- "Where can I get tacos when it's nice out?" - Simple, focused value avoiding feature creep
+- Weather apps show local conditions but don't suggest better free/cheap activities nearby
 - People want different weather conditions: some prefer cold, others warm; some like rain, others avoid it
-- No simple tool exists to find preferred weather conditions within driving distance
-- Weather ruins outdoor plans because people can't easily find their ideal conditions nearby
+- No simple tool exists to find preferred weather conditions within driving distance for budget-conscious activities
+- Weather ruins outdoor plans because people can't easily find their ideal conditions for free/frugal activities nearby
 
 ### Solution Architecture
 
@@ -65,12 +65,12 @@
 Your Location + Weather Preferences → Nearest Matching Weather → Social Sharing + User Data
 ```
 
-**MVP Core Features (Free-Only Launch)**:
-- **Simple Filter Interface**: Radio buttons for Temperature (coldest/comfortable/hottest), Precipitation (likely/sporadic/unlikely), Wind (high/medium/low)
-- **Instant Results**: Show 3-5 nearest locations matching your weather preferences
-- **Unlimited Saved Filters**: Create account to save unlimited named filter combinations ("Perfect Camping Day", "Cozy Indoor Weather")
+**MVP Core Features (Free-Only Launch)** - Risk-Aware Sprint Development:
+- **Simple Filter Interface**: Radio buttons for Temperature (coldest/comfortable/hottest), Precipitation (likely/sporadic/unlikely), Wind (high/medium/low) - Biological UX optimization for <100ms dopamine response
+- **Instant Results**: Show 3-5 nearest locations matching your weather preferences with budget activity focus
+- **Unlimited Saved Filters**: Create account to save unlimited named filter combinations ("Perfect Free Day", "Budget Adventure Weather")
 - **Time-Based Feature Voting**: Monthly voting rounds with 48-hour windows to vote on next features to build
-- **Voting Scarcity**: Limited voting periods create urgency and engagement
+- **Risk Mitigation**: Each sprint validates core value before adding complexity
 
 **Post-MVP Features** (Based on User Voting Results):
 - **Email Newsletter**: Weekly weather updates based on user's saved filter preferences
@@ -115,9 +115,9 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 
 ## Market Segments & User Personas
 
-### Primary Market: Casual Mass Market Consumers (B2C MVP Focus)
+### Primary Market: Weekend Warriors on a Budget (B2C MVP Focus)
 
-**Target Market**: Casual outdoor enthusiasts in Minneapolis metro area seeking optimal weather conditions for free and frugal local activities, with emphasis on constraint-based discovery (location + weather + travel time + budget)
+**Target Market**: Weekend Warriors on a budget in Minneapolis metro area seeking optimal weather conditions for free and frugal local activities, with emphasis on constraint-based discovery (location + weather + travel time + budget) and biological UX optimization for instant gratification
 
 **Primary Activities & Seasonal Distribution**:
 - **Winter (Dec-Mar)**: Free outdoor activities (parks, trails, ice skating, sledding)
@@ -125,13 +125,13 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 - **Summer (Jun-Aug)**: Local discovery (beaches, parks, outdoor festivals, farmers markets)
 - **Fall (Sep-Nov)**: Frugal outdoor exploration (nature walks, scenic drives, local attractions)
 
-**Primary Persona**: Casual consumers seeking spontaneous local outdoor activities
-- **Demographics**: 2M+ Minneapolis metro area residents who use mobile apps for local discovery
-- **Critical Pain Point**: "Where can I find something fun to do outdoors today within my time and budget constraints?"
-- **Current Behavior**: Struggles with multiple apps (weather, maps, reviews) to find suitable activities that fit their time and budget
-- **Solution Value**: One-click discovery of free/frugal activities matching personal weather preferences and travel constraints
-- **Revenue Model**: Ad-supported with contextual local business promotion and judo marketing against big tech
-- **MVP Strategy**: 10,000+ daily users generating location and preference data for targeted local advertising
+**Primary Persona**: Weekend Warriors on a budget seeking spontaneous local outdoor activities
+- **Demographics**: 2M+ Minneapolis metro area residents who use mobile apps for local discovery - NOT enterprise travel managers
+- **Critical Pain Point**: "Where can I get tacos when it's nice out?" - Simple value proposition avoiding feature creep
+- **Current Behavior**: Struggles with multiple apps (weather, maps, reviews) to find suitable free/budget activities
+- **Solution Value**: <100ms dopamine hit through instant discovery of free/frugal activities matching weather preferences
+- **Revenue Model**: Ad-supported with contextual local business promotion and judo marketing against big tech enshittification
+- **MVP Strategy**: Risk-aware development - validate core value before adding complexity, 10,000+ daily users milestone
 
 **Viral Growth Strategy**:
 - **Social Sharing**: Users share weather discoveries: "Perfect camping weather in Brainerd!"
@@ -183,13 +183,14 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 
 ### Build-Measure-Learn Implementation (Post-MVP Market Research)
 
-#### Cycle 1: MVP Development & Launch (Weeks 1-3)
+#### Cycle 1: MVP Development & Launch (Weeks 1-3) - Risk-Aware Sprint Planning
 
-**Build Phase**:
-- Ultra-simple weather filter interface with 3 radio button categories
+**Build Phase** (Core Value Validation First):
+- Ultra-simple weather filter interface with 3 radio button categories - biological UX optimization
 - User account system for unlimited saved filter combinations
 - Time-based feature voting system with scarcity mechanics
 - Basic ad integration for revenue generation
+- **Risk Mitigation**: Validate "Where can I get tacos when it's nice out?" core value before feature expansion
 
 **Measure Phase**:
 - User adoption rate: 1,000+ users in first month
@@ -316,10 +317,10 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 
 ### Conservative Financial Assumptions
 
-**Market Penetration Rates**: 75% of optimistic industry projections
-**Customer Acquisition**: Lower quartile SaaS performance benchmarks
-**Revenue Growth**: Conservative timeline with 25% buffer vs. best-case scenarios
-**Churn Rates**: Upper quartile assumptions accounting for seasonal business factors
+**Market Penetration Rates**: 75% of optimistic industry projections (Risk-Aware Methodology)
+**Customer Acquisition**: Lower quartile SaaS performance benchmarks focused on Weekend Warriors
+**Revenue Growth**: Conservative timeline with 25% buffer vs. best-case scenarios, sprint-validated milestones
+**Churn Rates**: Upper quartile assumptions accounting for seasonal business factors and budget constraints
 
 *Complete methodology documentation available in [Financial Assumptions - Conservative Projection Methodology](../appendices/financial-assumptions.md#conservative-projection-methodology)*
 
@@ -329,16 +330,16 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 
 ## Go-to-Market Strategy
 
-### Phase 1: Minnesota B2C Market Development (Months 1-9)
+### Phase 1: Minnesota B2C Market Development (Months 1-9) - Weekend Warriors Focus
 
-**Primary Focus**: Outdoor recreation enthusiasts + consumer demand validation + MVP development completion
+**Primary Focus**: Weekend Warriors on a budget + consumer demand validation + MVP development completion with risk-aware sprint methodology
 
-**Customer Acquisition Channels**:
-- **Digital marketing**: Minnesota outdoor recreation community engagement and content marketing
-- **Social media growth**: Facebook groups, Instagram, and YouTube for outdoor enthusiasts
-- **Content marketing**: Minnesota-specific weather guides and outdoor activity optimization
-- **Community partnerships**: Local outdoor gear stores, fishing clubs, and recreation groups
-- **Referral programs**: User-driven growth through community sharing and testimonials
+**Customer Acquisition Channels** (Budget-Conscious Focus):
+- **Digital marketing**: Minnesota Weekend Warriors community engagement avoiding enterprise messaging
+- **Social media growth**: Facebook groups, Instagram, and YouTube for budget outdoor enthusiasts
+- **Content marketing**: Minnesota-specific free/cheap activity guides with weather optimization
+- **Community partnerships**: Local budget-friendly venues, free activity groups, and recreation communities
+- **Referral programs**: User-driven growth through community sharing and testimonials - dopamine-optimized sharing
 
 **B2C-to-B2B Strategy**:
 - Months 1-6: Build B2C user base demonstrating market demand

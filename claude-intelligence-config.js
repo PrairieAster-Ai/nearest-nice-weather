@@ -4,7 +4,7 @@
 module.exports = {
   // Project identification
   projectName: 'nearest-nice-weather',
-  description: 'Weather intelligence platform for Minnesota tourism operators',
+  description: 'B2C weather intelligence platform for Minnesota outdoor recreation consumers',
   
   // Network configuration - avoid conflicts with existing services
   basePort: 3050,  // Uses ports 3050-3059
@@ -124,7 +124,7 @@ module.exports = {
     businessMetrics: {
       trackUserEngagement: true,
       trackWeatherAccuracy: true,
-      trackTourismValue: true,
+      trackConsumerValue: true,
       trackCollaborationSuccess: true
     },
     

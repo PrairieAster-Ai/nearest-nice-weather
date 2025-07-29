@@ -1,12 +1,48 @@
 # GitHub Project Reference - NearestNiceWeather.com App Development
 
-## 🎯 Project Overview
+## 🎯 SINGLE SOURCE OF TRUTH FOR CURRENT WORK
+
+**⚠️ AUTHORITATIVE SOURCE**: This GitHub Project is the **single source of truth** for all current and near-future work planning for NearestNiceWeather.com. All other documents, including local PRDs, session handoffs, and historical WBS documents, serve as supporting context only.
 
 **Project Name:** NearestNiceWeather.com App Development  
 **Project URL:** https://github.com/orgs/PrairieAster-Ai/projects/2  
 **Repository:** PrairieAster-Ai/nearest-nice-weather  
 **Project Type:** GitHub Projects v2 (Beta)  
-**Workflow:** Sprint-based Agile Development  
+**Workflow:** Sprint-based Agile Development
+
+## 📋 WORK PLANNING HIERARCHY
+
+**PRIMARY (Authoritative):**
+- GitHub Project "NearestNiceWeather.com App Development" - **SINGLE SOURCE OF TRUTH**
+- Contains current sprint planning, issue tracking, and work breakdown
+- All active development items must be tracked here
+
+**SECONDARY (Supporting Context):**
+- Local PRD files (PRD-*.md) - Detailed specifications for specific features
+- SESSION-HANDOFF.md - Current session context and immediate priorities
+- Documentation files - Historical context and business background
+- Architecture documentation - Technical implementation guidance
+
+## 🔄 TRANSITION FROM MVP-WBS-STRUCTURED.md
+
+**IMPORTANT**: As of July 29, 2025, the GitHub Project "NearestNiceWeather.com App Development" has replaced MVP-WBS-STRUCTURED.md as the authoritative source for work breakdown and sprint planning.
+
+**What Changed:**
+- **OLD**: MVP-WBS-STRUCTURED.md contained static work breakdown structure
+- **NEW**: GitHub Project provides dynamic, real-time work tracking and sprint management
+- **Benefits**: Live status updates, better collaboration, integrated issue tracking, automated progress monitoring
+
+**Migration Status:**
+- ✅ All MVP work items imported into GitHub Project with proper hierarchy
+- ✅ Sprint structure maintained (Database + Weather API, Revenue + Launch)
+- ✅ Story points and estimates preserved
+- ✅ Capability → Epic → Story → Sub-issue hierarchy established
+- ✅ Labels and workflow states configured for optimal project management
+
+**For Development Teams:**
+- Use GitHub Project for all sprint planning and issue creation
+- Reference this document for project structure and workflow guidance
+- Consult local documentation for detailed technical specifications only
 
 ---
 
@@ -341,33 +377,44 @@ label:"type: story" status:"In progress"
 
 ## 🔧 Claude Code Integration
 
-### **How Claude Should Use This Project**
+### **How Claude Should Use This Project As Single Source of Truth**
 
-1. **Issue Creation:**
+**⚠️ CRITICAL**: Always check the GitHub Project FIRST before referencing any local documentation for current work. The GitHub Project is the authoritative source for:
+- What work is currently planned and in progress
+- Sprint assignments and priorities  
+- Issue status and progress tracking
+- Story point estimates and capacity planning
+
+1. **Issue Creation (PRIMARY WORKFLOW):**
    
+   - **START HERE**: Check GitHub Project for existing work before creating new issues
    - Use proper hierarchy (Capability → Epic → Story → Sub-issues)
    - Apply correct labels and status to main issues (Capability, Epic, Story)
    - Assign Stories to appropriate sprint
    - Set parent-child relationships using Parent Issue field (Stories→Epics, Epics→Capabilities)
    - Create sub-issues within Stories for technical tasks
 
-2. **Status Updates:**
+2. **Status Updates (REAL-TIME TRACKING):**
    
-   - Move issues through workflow states
+   - **UPDATE IMMEDIATELY**: Move issues through workflow states as work progresses
    - Update parent issues when children complete
    - Add comments for significant progress
+   - GitHub Project reflects live status, not local documents
 
-3. **Sprint Planning:**
+3. **Sprint Planning (AUTHORITATIVE SOURCE):**
    
-   - Focus on current sprint (Sprint 3)
-   - Keep next sprint (Sprint 4) in backlog
-   - Respect story point estimates and capacity
+   - **PRIMARY REFERENCE**: Use GitHub Project sprint assignments, not local files
+   - Focus on current sprint assignments in GitHub Project
+   - Keep next sprint items in backlog status
+   - Respect story point estimates and capacity as defined in GitHub Project
 
-4. **Project Queries:**
+4. **Project Queries (CURRENT STATE):**
    
-   - Use filters to find relevant work
-   - Check sprint progress regularly
-   - Monitor blocked items
+   - **FIRST CHECK**: Query GitHub Project for current work state
+   - Use GitHub Project filters to find relevant work
+   - Check sprint progress via GitHub Project dashboard
+   - Monitor blocked items through GitHub Project labels
+   - Reference local PRDs only for detailed technical specifications
 
 ### **Common Claude Actions**
 

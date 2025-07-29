@@ -6,10 +6,10 @@
 ## Overview and Context
 
 **@CLAUDE_CONTEXT**: This document describes the ACTUAL database schema used in production  
-**@BUSINESS_RULE**: Minnesota-focused outdoor recreation weather intelligence platform  
+**@BUSINESS_RULE**: B2C consumer platform focused on Minnesota outdoor recreation market  
 **@ARCHITECTURE_NOTE**: Simple flat table structure chosen over PostGIS for MVP speed  
 
-This schema serves the "Nearest Nice Weather" platform, providing weather-location data for outdoor enthusiasts and tourism operators in Minnesota. The design prioritizes simplicity and rapid development over complex geographic operations.
+This schema serves the "Nearest Nice Weather" platform, providing weather-location data for outdoor enthusiasts and recreation consumers in Minnesota. The design prioritizes simplicity and rapid development over complex geographic operations.
 
 ## Database Configuration
 
@@ -31,7 +31,7 @@ Based on API analysis and production data, these tables actually exist and work:
 **BUSINESS PURPOSE**: Geographic points where weather data is collected for outdoor recreation  
 **DATA RELATIONSHIPS**: Links to weather_conditions via location_id foreign key  
 **QUERY PATTERNS**: Frequently queried with distance calculations using Haversine formula  
-**PERFORMANCE NOTES**: No spatial indexes needed due to small dataset size (34 locations)  
+**PERFORMANCE NOTES**: No spatial indexes needed for current Minnesota-focused dataset (34 comprehensive locations)  
 
 ```sql
 -- CORE LOCATION DATA: Geographic identifiers for weather stations
@@ -58,11 +58,12 @@ precipitation -- Precipitation probability percentage (0-100) - INTEGER
 wind_speed    -- Wind speed in miles per hour - INTEGER (mph for US outdoor use)
 ```
 
-### `tourism_operators`
-Business data for Minnesota tourism operators
+### `tourism_operators` (Legacy)
+Historical reference data - not actively used in B2C consumer platform
 ```sql
--- Referenced in test-db.js, likely contains operator information
--- Exact structure needs verification via API endpoint
+-- Legacy table from original B2B concept
+-- Not used in current B2C consumer-focused implementation
+-- May be removed in future schema cleanup
 ```
 
 ### `user_feedback`
@@ -98,7 +99,7 @@ The production system uses:
 ## MVP Development Guidelines
 
 ### ✅ Safe to Use
-- `locations` table - 34 Minnesota locations working
+- `locations` table - 34 comprehensive Minnesota locations covering all major outdoor recreation areas
 - `weather_conditions` table - provides weather data
 - `user_feedback` table - handles customer feedback
 - Basic distance calculations using lat/lng
