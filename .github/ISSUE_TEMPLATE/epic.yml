@@ -1,144 +1,92 @@
 name: Epic
-description: 📦 Major work container (20+ story points)
-title: "Epic: "
-labels: ["type: epic"]
-assignees: []
+description: A large body of work that can be broken down into multiple user stories
+title: "[Epic] "
+labels: ["type:epic"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## 📦 Epic Template
-        Create a major work container that groups related User Stories. Epics represent significant features or capabilities.
-
-  - type: dropdown
-    id: sprint
+        ## Epic Template
+        
+        Use this template for large features or initiatives that span multiple sprints and can be broken down into smaller user stories.
+        
+  - type: textarea
+    id: epic-description
     attributes:
-      label: Sprint Assignment
-      description: Which sprint iteration is this epic assigned to?
-      options:
-        - Database + Weather API (Current)
-        - Revenue + Launch (Next)
-        - Post-MVP (Future)
+      label: Epic Description
+      description: High-level description of the epic and its business value
+      placeholder: "Describe the overall goal and business value of this epic"
     validations:
       required: true
-
+      
+  - type: textarea
+    id: business-value
+    attributes:
+      label: Business Value
+      description: What business problem does this solve? What value does it provide?
+      placeholder: "This epic enables users to... which results in increased engagement/revenue/retention"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: success-metrics
+    attributes:
+      label: Success Metrics
+      description: How will we measure the success of this epic?
+      placeholder: |
+        - Metric 1: Target value
+        - Metric 2: Target value
+        - Metric 3: Target value
+    validations:
+      required: true
+      
   - type: dropdown
     id: size
     attributes:
       label: Epic Size
-      description: Estimated effort for the entire epic
+      description: Relative size estimate
       options:
-        - L (20-21 points)
-        - XL (34+ points)
-      default: 1
+        - L (1-2 sprints)
+        - XL (2-4 sprints)
+        - XXL (4+ sprints)
     validations:
       required: true
-
-  - type: input
-    id: parent_capability
-    attributes:
-      label: Parent Capability
-      description: Link to the parent Capability issue (e.g., #123)
-      placeholder: "#123"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority Level
-      description: Priority level for this epic
-      options:
-        - Critical
-        - High
-        - Medium
-        - Low
-      default: 1
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: technical_labels
-    attributes:
-      label: Technical Areas
-      description: Select all technical areas this epic involves
-      options:
-        - label: Database (schema, queries, migrations)
-        - label: Weather API (service integration)
-        - label: Frontend (UI/UX, React components)
-        - label: Backend (server-side logic, APIs)
-        - label: Mobile (optimization, responsive design)
-        - label: Analytics (tracking, metrics, reporting)
-        - label: Revenue (monetization, ads, payments)
-
+      
   - type: textarea
-    id: epic_description
+    id: user-stories
     attributes:
-      label: Epic Description
-      description: Comprehensive description of what this epic accomplishes
-      placeholder: "This epic delivers [capability/feature] by implementing [key components]. It provides [business value] and enables [user benefits]."
-    validations:
-      required: true
-
-  - type: textarea
-    id: success_criteria
-    attributes:
-      label: Success Criteria
-      description: High-level criteria for epic completion
+      label: User Stories (Initial List)
+      description: List of potential user stories that make up this epic
       placeholder: |
-        - [ ] Major outcome 1 achieved
-        - [ ] Major outcome 2 achieved
-        - [ ] Major outcome 3 achieved
-    validations:
-      required: true
-
+        - [ ] Story 1: Brief description
+        - [ ] Story 2: Brief description
+        - [ ] Story 3: Brief description
+        
+        Note: This list may evolve as the epic is refined
+      
   - type: textarea
-    id: user_stories
+    id: assumptions
     attributes:
-      label: Child User Stories
-      description: List of User Stories that will be created under this Epic
-      placeholder: |
-        - [ ] Story 1: [Name] - [Size] points - [Brief description]
-        - [ ] Story 2: [Name] - [Size] points - [Brief description]
-        - [ ] Story 3: [Name] - [Size] points - [Brief description]
-
+      label: Assumptions & Dependencies
+      description: Key assumptions and external dependencies
+      placeholder: "List any assumptions about user behavior, technical constraints, or external dependencies"
+      
   - type: textarea
-    id: implementation_requirements
+    id: risks
     attributes:
-      label: Implementation Requirements
-      description: Technical requirements and architectural considerations
+      label: Risks & Mitigation
+      description: Potential risks and how we'll address them
       placeholder: |
-        **Architecture:**
-        - [ ] Component 1: [description]
-        - [ ] Component 2: [description]
-
-        **Dependencies:**
-        - [ ] Dependency 1: [description]
-        - [ ] Dependency 2: [description]
-
-        **File Structure:**
-        - Primary directory: [path]
-        - Key files: [list]
-
+        - Risk 1: Description → Mitigation strategy
+        - Risk 2: Description → Mitigation strategy
+        
   - type: textarea
-    id: acceptance_criteria
+    id: acceptance-criteria
     attributes:
       label: Epic Acceptance Criteria
-      description: Overall criteria for epic completion
-      value: |
-        - [ ] All child User Stories completed
-        - [ ] Success criteria met
-        - [ ] Integration testing passed
+      description: High-level criteria for epic completion
+      placeholder: |
+        - [ ] All user stories completed and deployed
+        - [ ] Success metrics achieved
+        - [ ] User acceptance testing completed
         - [ ] Performance requirements met
-        - [ ] Documentation updated
-        - [ ] Stakeholder approval received
-
-  - type: checkboxes
-    id: workflow_labels
-    attributes:
-      label: Workflow Status (optional)
-      description: Add workflow labels if applicable
-      options:
-        - label: blocked (waiting on external dependency)
-        - label: urgent (high priority, expedite work)
-        - label: needs-review (ready for validation/testing)

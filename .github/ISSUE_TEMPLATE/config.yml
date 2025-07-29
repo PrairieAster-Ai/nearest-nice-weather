@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: 📋 Project Board
+    url: https://github.com/orgs/PrairieAster-Ai/projects/2
+    about: View and manage work items in the project board
   - name: 🌟 Capability Discussion
     url: https://github.com/PrairieAster-Ai/nearest-nice-weather/discussions
     about: Discuss cross-sprint platform capabilities and architecture decisions

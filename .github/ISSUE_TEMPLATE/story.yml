@@ -1,133 +1,67 @@
-name: Story
-description: 👤 User-focused work item (3-13 story points)
-title: "Story: "
-labels: ["type: story"]
-assignees: []
+name: User Story
+description: A user story representing a specific feature or functionality requirement
+title: "[Story] "
+labels: ["type:story"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## 👤 User Story Template
-        Create a user-focused work item as part of an Epic. Stories represent functionality from the user's perspective.
-
-  - type: dropdown
-    id: sprint
+        ## User Story Template
+        
+        Use this template for individual features or functionality requirements that can be completed in a sprint.
+        
+  - type: textarea
+    id: user-story
     attributes:
-      label: Sprint Assignment
-      description: Which sprint iteration is this story assigned to?
-      options:
-        - Database + Weather API (Current)
-        - Revenue + Launch (Next)
-        - Post-MVP (Future)
+      label: User Story
+      description: As a [user type], I want [functionality] so that [benefit]
+      placeholder: "As a Minnesota outdoor enthusiast, I want to see weather conditions on a map so that I can find the best locations for my activities."
     validations:
       required: true
-
+      
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what "done" means for this story
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+    validations:
+      required: true
+      
   - type: dropdown
     id: size
     attributes:
       label: Story Size
-      description: Estimated effort using standard story point sizing
+      description: Relative size estimate
       options:
-        - XS (1-2 points)
-        - S (3-5 points) 
-        - M (8-13 points)
-        - L (20-21 points)
-        - XL (34+ points)
+        - XS (1-2 hours)
+        - S (2-4 hours)
+        - M (4-8 hours)
+        - L (1-2 days)
+        - XL (2-3 days)
     validations:
       required: true
-
-  - type: input
-    id: parent_epic
-    attributes:
-      label: Parent Epic
-      description: Link to the parent Epic issue (e.g., #123)
-      placeholder: "#123"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority Level
-      description: Priority level for this story
-      options:
-        - Critical
-        - High
-        - Medium
-        - Low
-      default: 2
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: technical_labels
-    attributes:
-      label: Technical Areas
-      description: Select all technical areas this story involves
-      options:
-        - label: Database (schema, queries, migrations)
-        - label: Weather API (service integration)
-        - label: Frontend (UI/UX, React components)
-        - label: Backend (server-side logic, APIs)
-        - label: Mobile (optimization, responsive design)
-        - label: Analytics (tracking, metrics, reporting)
-        - label: Revenue (monetization, ads, payments)
-
+      
   - type: textarea
-    id: user_story
+    id: technical-notes
     attributes:
-      label: User Story
-      description: Write the story from the user's perspective
-      placeholder: "As a [type of user], I want [goal/desire] so that [benefit/value]."
-    validations:
-      required: true
-
+      label: Technical Notes
+      description: Implementation details, dependencies, or constraints
+      placeholder: "Any technical considerations, API dependencies, or architectural notes"
+      
   - type: textarea
-    id: acceptance_criteria
+    id: definition-of-done
     attributes:
-      label: Acceptance Criteria
-      description: List specific, testable criteria for story completion
-      placeholder: |
-        - [ ] Given [context], when [action], then [outcome]
-        - [ ] Given [context], when [action], then [outcome]  
-        - [ ] Given [context], when [action], then [outcome]
-    validations:
-      required: true
-
-  - type: textarea
-    id: implementation_details
-    attributes:
-      label: Implementation Details
-      description: Technical requirements and file references
-      placeholder: |
-        **File References:**
-        - Primary file: [file path]
-        - Function/component: [specific location in file]
-        - Dependencies: [other files that need changes]
-
-        **Technical Requirements:**
-        - [ ] Requirement 1
-        - [ ] Requirement 2
-        - [ ] Requirement 3
-
-  - type: textarea
-    id: definition_of_done
-    attributes:
-      label: Definition of Done  
-      description: Checklist for story completion
+      label: Definition of Done
+      description: Checklist for completion
       value: |
         - [ ] Code implemented and tested
-        - [ ] User acceptance criteria met
+        - [ ] Unit tests written and passing
+        - [ ] Integration tests passing
         - [ ] Code reviewed and approved
-        - [ ] Documentation updated if needed
-        - [ ] Sub-issues completed (if any)
-
-  - type: checkboxes
-    id: workflow_labels
-    attributes:
-      label: Workflow Status (optional)
-      description: Add workflow labels if applicable
-      options:
-        - label: blocked (waiting on external dependency)
-        - label: urgent (high priority, expedite work)
-        - label: needs-review (ready for validation/testing)
+        - [ ] Documentation updated
+        - [ ] Deployed to preview environment
+        - [ ] Acceptance criteria verified
