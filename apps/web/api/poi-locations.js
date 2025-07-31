@@ -50,10 +50,9 @@ export default async function handler(req, res) {
     let params = []
 
     if (lat && lng) {
-      // Proximity query with distance calculation
+      // Proximity query - simplified approach (fallback to basic query for now)
       const userLat = parseFloat(lat)
       const userLng = parseFloat(lng)
-      const radiusKm = parseFloat(radius) * 1.60934 // Convert miles to km
 
       if (isNaN(userLat) || isNaN(userLng)) {
         return res.status(400).json({
@@ -63,48 +62,21 @@ export default async function handler(req, res) {
         })
       }
 
-      // Haversine distance formula for proximity search (with explicit casting)
+      // Simplified query for now - just return all results with user location info
       query = `
         SELECT 
-          id,
-          name,
-          CAST(lat AS DECIMAL) as lat,
-          CAST(lng AS DECIMAL) as lng,
-          park_type,
-          data_source,
-          description,
-          importance_rank,
-          ROUND(
-            (6371 * acos(
-              cos(radians(CAST($1 AS DECIMAL))) * cos(radians(CAST(lat AS DECIMAL))) * 
-              cos(radians(CAST(lng AS DECIMAL)) - radians(CAST($2 AS DECIMAL))) + 
-              sin(radians(CAST($1 AS DECIMAL))) * sin(radians(CAST(lat AS DECIMAL)))
-            ) * 0.621371)::numeric, 2
-          ) AS distance_miles
+          id, name, lat, lng, park_type, data_source, description, importance_rank,
+          NULL as distance_miles
         FROM poi_locations 
-        WHERE (
-          6371 * acos(
-            cos(radians(CAST($1 AS DECIMAL))) * cos(radians(CAST(lat AS DECIMAL))) * 
-            cos(radians(CAST(lng AS DECIMAL)) - radians(CAST($2 AS DECIMAL))) + 
-            sin(radians(CAST($1 AS DECIMAL))) * sin(radians(CAST(lat AS DECIMAL)))
-          )
-        ) <= CAST($4 AS DECIMAL)
-        ORDER BY distance_miles ASC, importance_rank ASC
-        LIMIT $3
+        ORDER BY importance_rank ASC, name ASC
+        LIMIT $1
       `
-      params = [userLat, userLng, limitNum, radiusKm]
+      params = [limitNum]
     } else {
-      // General query without proximity (with explicit casting)
+      // General query without proximity
       query = `
         SELECT 
-          id,
-          name,
-          CAST(lat AS DECIMAL) as lat,
-          CAST(lng AS DECIMAL) as lng,
-          park_type,
-          data_source,
-          description,
-          importance_rank,
+          id, name, lat, lng, park_type, data_source, description, importance_rank,
           NULL as distance_miles
         FROM poi_locations 
         ORDER BY importance_rank ASC, name ASC
@@ -122,11 +94,12 @@ export default async function handler(req, res) {
       count: result.length,
       timestamp: new Date().toISOString(),
       debug: {
-        query_type: lat && lng ? 'proximity_search' : 'all_pois',
+        query_type: lat && lng ? 'proximity_search_simplified' : 'all_pois',
         user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
-        radius: lat && lng ? `${radius} miles` : 'N/A',
+        radius: lat && lng ? `${radius} miles (not yet implemented)` : 'N/A',
         limit: limitNum.toString(),
-        data_source: 'poi_locations_table'
+        data_source: 'poi_locations_table',
+        note: lat && lng ? 'Proximity filtering temporarily disabled - showing all results' : null
       }
     }
 
