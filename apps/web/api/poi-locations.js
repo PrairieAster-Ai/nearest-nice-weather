@@ -47,10 +47,28 @@ export default async function handler(req, res) {
       LIMIT ${limitNum}
     `
 
+    // Transform database results to match localhost API format
+    const transformedData = result.map(row => ({
+      id: row.id.toString(),
+      name: row.name,
+      lat: parseFloat(row.lat),
+      lng: parseFloat(row.lng),
+      park_type: row.park_type,
+      data_source: row.data_source,
+      description: row.description,
+      importance_rank: row.importance_rank,
+      osm_id: row.osm_id,
+      osm_type: row.osm_type,
+      search_name: row.search_name,
+      place_rank: row.place_rank,
+      external_id: row.external_id,
+      distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
+    }))
+
     return res.status(200).json({
       success: true,
-      data: result,
-      count: result.length,
+      data: transformedData,
+      count: transformedData.length,
       timestamp: new Date().toISOString(),
       debug: {
         query_type: lat && lng ? 'proximity_search_disabled' : 'all_pois',
