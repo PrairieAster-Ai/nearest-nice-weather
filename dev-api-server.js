@@ -1,17 +1,40 @@
 // ========================================================================
-// WEATHER INTELLIGENCE API SERVER - Minnesota Outdoor Recreation Platform
+// LOCALHOST EXPRESS.JS API SERVER - Development Environment Only
 // ========================================================================
 //
-// @CLAUDE_CONTEXT: Core API server for weather intelligence platform
-// @BUSINESS_CONTEXT: See CLAUDE.md Project Overview for complete business context
-// @PERSONA_DOCUMENTATION: API designed for 3 primary consumer personas:
-//   - Jessica Chen (documentation/appendices/user-personas.md) - Primary mass market
-//   - Mark Anderson (COMPOSITE-PERSONA-2025.md) - B2C→B2B bridge  
-//   - Andrea Thompson (documentation/appendices/user-personas.md) - Legacy validated
+// ⚠️  ARCHITECTURAL DECISION: DUAL API ARCHITECTURE
+// This localhost Express server duplicates functionality found in apps/web/api/*.js
+// 
+// WHY DUAL ARCHITECTURE EXISTS:
+// ✅ DEVELOPMENT VELOCITY: ~100ms API responses vs 1-3s Vercel dev cold starts
+// ✅ DEBUGGING SUPERIORITY: Full Node.js debugging, console logs, breakpoints
+// ✅ DATABASE CONNECTION POOLING: Persistent connections vs serverless reconnects
+// ✅ OFFLINE DEVELOPMENT: Works without internet, independent of Vercel infrastructure
+// ✅ AUTO-HEALING WORKFLOW: npm start provides 3-second startup with service monitoring
 //
-// @ARCHITECTURE_NOTE: Persona-first API design with proximity-aware weather data
-// @INTEGRATION_POINT: Connects Neon PostgreSQL with React frontend via Vercel functions
-// @ENHANCEMENT_OPPORTUNITIES: Persona-specific endpoints, activity filtering, weather alerting
+// ❌ MAINTENANCE OVERHEAD: 60% code duplication between this file and Vercel functions
+// ❌ SYNC BURDEN: Every API change requires updates in two locations
+// ❌ DATABASE DRIVER DIFFERENCES: pg (localhost) vs @neondatabase/serverless (production)
+// ❌ ENVIRONMENT-SPECIFIC BUGS: Data type mismatches, connection handling differences
+//
+// DECISION RATIONALE (2025-07-31):
+// For single developer MVP development, localhost velocity benefits outweigh 
+// architectural purity concerns. Post-MVP migration to Vercel-only is planned.
+//
+// MITIGATION STRATEGIES IN PLACE:
+// 1. Automated environment validation: ./scripts/environment-validation.sh
+// 2. Type consistency enforcement: parseFloat() transformations
+// 3. API parity testing: Cross-environment validation scripts
+// 4. Documentation: This comment block and inline sync reminders
+//
+// MIGRATION PATH (Post-MVP):
+// Phase 1: Benchmark vercel dev performance vs localhost
+// Phase 2: Selective migration of read-only APIs
+// Phase 3: Full migration if productivity metrics justify change
+//
+// @SYNC_TARGET: apps/web/api/*.js (Vercel serverless functions)
+// @MAINTENANCE_BURDEN: Estimated 2-4 hours/week for dual-environment sync
+// @BUSINESS_CONTEXT: See CLAUDE.md Project Overview for complete business context
 // ========================================================================
 
 import express from 'express'
@@ -34,20 +57,42 @@ const app = express()
 const port = 4000
 
 // ====================================================================
-// DATABASE CONNECTION - Neon Cloud Database Only
+// DATABASE CONNECTION - LOCALHOST DEVELOPMENT PATTERN
 // ====================================================================
-// ⚠️  NEON CLOUD DATABASE ONLY - Never connects to local PostgreSQL
-// SSL is required for Neon connections (ssl: false caused 8-hour debugging session)
-// Connects to the stable locations + weather_conditions schema
-// No PostGIS dependency - uses simple lat/lng for broad compatibility
+// ⚠️  DUAL DATABASE DRIVER ARCHITECTURE WARNING
+// 
+// LOCALHOST USES: node-postgres ('pg') with connection pooling
+// PRODUCTION USES: @neondatabase/serverless driver in apps/web/api/*.js
+//
+// TRADEOFFS:
+// ✅ LOCALHOST BENEFITS:
+//    - Persistent connection pool (10 connections max)
+//    - 30-second idle timeout prevents connection churn
+//    - 2-second connection timeout for fast failure detection
+//    - Full transaction support with manual client.release()
+//
+// ❌ SYNC CHALLENGES:
+//    - Different query parameter binding: $1, $2 vs template literals
+//    - Different error objects and stack traces
+//    - Connection pooling vs serverless connection handling
+//    - Type coercion differences (pg returns strings, neon returns numbers)
+//
+// MITIGATION STRATEGIES:
+// 1. Explicit type conversion: parseInt(row.temperature || 70)
+// 2. Consistent error handling patterns in try/catch blocks
+// 3. Manual testing of both environments before deployment
+// 4. Environment validation scripts verify API parity
+//
+// @SYNC_TARGET: const sql = neon(process.env.DATABASE_URL) in Vercel functions
+// @FUTURE_MIGRATION: Consider database adapter pattern for unified interface
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false  // Required for Neon cloud database
   },
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  max: 10,                      // Connection pool size (serverless has no pooling)
+  idleTimeoutMillis: 30000,     // Keep connections alive longer than serverless
+  connectionTimeoutMillis: 2000, // Fast failure for development feedback
 })
 
 // ====================================================================
@@ -169,13 +214,42 @@ app.post('/api/feedback', async (req, res) => {
 
 
 // ====================================================================
-// WEATHER LOCATIONS ENDPOINT - Core B2C Consumer API
+// WEATHER LOCATIONS ENDPOINT - DUPLICATED API WARNING
 // ====================================================================
-// @CLAUDE_CONTEXT: Primary weather data endpoint for persona-driven consumer platform
-// @PERSONA_PATTERNS: Serves 3 primary consumer personas (see file header for persona documentation)
-// @TECHNICAL_IMPLEMENTATION: Proximity-based queries with Haversine distance calculations
-// @BUSINESS_RULE: Persona-first design with activity-weather matching optimization
-// @ENHANCEMENT_OPPORTUNITIES: Persona-specific filtering, constraint optimization, weather alerting
+// ⚠️  CODE DUPLICATION ALERT: This endpoint is duplicated in apps/web/api/weather-locations.js
+//
+// LOCALHOST VERSION (this file):
+// - Uses 'pg' library with $1, $2 parameter binding
+// - Connection pooling with client.connect() and client.release()
+// - Error handling optimized for development debugging
+// - Returns data types as pg client provides them
+//
+// VERCEL VERSION (apps/web/api/weather-locations.js):
+// - Uses '@neondatabase/serverless' with template literal queries
+// - Serverless connection (no pooling)
+// - Error handling optimized for production logging
+// - May have different data type coercion behavior
+//
+// SYNC REQUIREMENTS:
+// ✅ Query logic must remain identical
+// ✅ Response format must match exactly
+// ✅ Business rule implementations must be consistent
+// ✅ Haversine distance calculations must be identical
+//
+// CURRENT SYNC CHALLENGES:
+// - Different query parameter styles: $1, $2 vs template literals  
+// - Different type coercion: pg may return strings, neon may return numbers
+// - Different error message formats and stack traces
+//
+// MAINTENANCE PROTOCOL:
+// 1. When modifying this endpoint, also update apps/web/api/weather-locations.js
+// 2. Test both localhost and preview environments before deployment
+// 3. Verify response format consistency with curl testing
+// 4. Run ./scripts/environment-validation.sh to confirm API parity
+//
+// @SYNC_TARGET: apps/web/api/weather-locations.js
+// @LAST_SYNC: 2025-07-31 (schema consistency fixes)
+// @MIGRATION_CANDIDATE: High priority for Vercel-only migration due to complexity
 //
 app.get('/api/weather-locations', async (req, res) => {
   try {
@@ -476,6 +550,37 @@ app.post('/api/insert-sample-pois', async (req, res) => {
   }
 })
 
+// ====================================================================
+// POI LOCATIONS ENDPOINT - CRITICAL SCHEMA SYNC POINT
+// ====================================================================
+// ⚠️  CRITICAL DUPLICATION: This endpoint has different schema handling vs Vercel
+//
+// RECENT SYNC ISSUE (2025-07-31):
+// - Localhost correctly uses: place_rank (actual column name)
+// - Vercel incorrectly used: importance_rank (causing "column does not exist" error)
+// - Fixed by aliasing: place_rank as importance_rank in Vercel version
+//
+// SCHEMA CONSISTENCY REQUIREMENTS:
+// ✅ Both environments must use same column aliasing: place_rank as importance_rank
+// ✅ Haversine distance formula must be identical (validated with curl testing)
+// ✅ Response transformation must match: importance_rank: row.place_rank
+// ✅ Query parameter validation must be consistent
+//
+// CURRENT SYNC STATE:
+// - Localhost: Uses place_rank directly, aliases in response transformation
+// - Vercel: Uses "place_rank as importance_rank" in SELECT, uses directly in response
+// - Both approaches work but use different implementation patterns
+//
+// MAINTENANCE PROTOCOL FOR POI SCHEMA:
+// 1. Any schema changes must be tested in both localhost AND preview environments
+// 2. Column name mismatches are HIGH-RISK and cause immediate API failures
+// 3. Always use curl testing to verify both environments before deployment
+// 4. Schema migration requires coordinated deployment of both versions
+//
+// @SYNC_TARGET: apps/web/api/poi-locations.js
+// @SCHEMA_RISK: HIGH - Column name mismatches cause immediate API failures
+// @LAST_SCHEMA_SYNC: 2025-07-31 (Fixed importance_rank column reference)
+//
 // POI test endpoint - validate POI data and test proximity queries
 app.get('/api/poi-locations', async (req, res) => {
   try {
@@ -487,7 +592,20 @@ app.get('/api/poi-locations', async (req, res) => {
       let query, queryParams
       
       if (lat && lng) {
-        // Proximity query using Haversine formula (same as weather-locations)
+        // ⚠️  DUPLICATED HAVERSINE FORMULA - Appears in 3+ locations
+        // DUPLICATE LOCATIONS:
+        // 1. This POI endpoint (lines ~607-612)
+        // 2. Weather-locations endpoint in this file (lines ~270-275)
+        // 3. apps/web/api/weather-locations.js (Vercel version)
+        // 4. Potentially apps/web/api/poi-locations.js (Vercel version)
+        //
+        // FORMULA CONSISTENCY CRITICAL:
+        // - 3959 = Earth radius in miles (could be 6371 for kilometers)
+        // - Parameter order: lng=$1, lat=$2 (MUST match across all implementations)
+        // - Mathematical accuracy depends on identical implementation
+        //
+        // SYNC RISK: HIGH - Math errors cause incorrect distance calculations
+        // MITIGATION: Extract to shared GeographyUtils class (post-MVP)
         query = `
           SELECT 
             id,

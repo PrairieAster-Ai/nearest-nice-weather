@@ -1,16 +1,42 @@
 /**
  * ========================================================================
- * VERCEL SERVERLESS FUNCTION: Weather Locations API Endpoint
+ * VERCEL SERVERLESS WEATHER LOCATIONS - DUPLICATE OF LOCALHOST API
  * ========================================================================
  * 
- * @CLAUDE_CONTEXT: Primary weather data API for B2C consumer platform
- * @BUSINESS_CONTEXT: See CLAUDE.md Project Overview for complete business context
- * @TECHNICAL_PURPOSE: Proximity-based weather queries with Haversine distance calculations
- * @INTEGRATION_POINT: Connects Neon PostgreSQL with React frontend via Vercel Edge Functions
- * @PERFORMANCE_CRITICAL: Optimized for persona-driven weather discovery
- * @API_DOCUMENTATION: Same functionality as dev-api-server.js but in Vercel format
+ * ⚠️  ARCHITECTURAL WARNING: This is the PRODUCTION version of weather-locations
+ * 🔄 DUPLICATE OF: /dev-api-server.js app.get('/api/weather-locations') 
  * 
- * LAST UPDATED: 2025-07-25
+ * VERCEL VERSION CHARACTERISTICS:
+ * ✅ PRODUCTION BENEFITS:
+ *    - Serverless scaling (no persistent server costs)
+ *    - Edge distribution (global performance)
+ *    - Automatic HTTPS and security headers
+ *    - Vercel analytics and monitoring integration
+ *    - Zero maintenance of server infrastructure
+ * 
+ * ❌ DEVELOPMENT CHALLENGES:
+ *    - Cold start latency (1-3 seconds vs 100ms localhost)
+ *    - Template literal queries vs parameterized ($1, $2)
+ *    - Different error handling patterns
+ *    - @neondatabase/serverless vs pg library differences
+ *    - Limited local debugging capabilities
+ * 
+ * SYNC REQUIREMENTS WITH LOCALHOST:
+ * 🔴 CRITICAL: Business logic must remain identical
+ * 🔴 CRITICAL: Response format must match exactly  
+ * 🔴 CRITICAL: Haversine distance formula must be identical
+ * 🟡 DIFFERENT: Database connection patterns (template literals vs $1, $2)
+ * 🟡 DIFFERENT: Error handling (production vs development optimized)
+ * 
+ * MAINTENANCE PROTOCOL:
+ * 1. Changes to localhost dev-api-server.js MUST be replicated here
+ * 2. Test both environments with curl before deployment
+ * 3. Verify response format consistency using environment-validation.sh
+ * 4. Schema changes require coordinated deployment
+ * 
+ * @SYNC_SOURCE: /dev-api-server.js (lines 254-320)
+ * @LAST_SYNC: 2025-07-31 (resolved type consistency issues)
+ * @SYNC_RISK: HIGH - Query differences can cause production failures
  */
 
 import { neon } from '@neondatabase/serverless'

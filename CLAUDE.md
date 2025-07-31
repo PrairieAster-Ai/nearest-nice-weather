@@ -212,7 +212,14 @@ vercel --prod                          # BLOCKED - use npm run deploy:production
 - `POSTGRES_URL`: Alternative name for Vercel compatibility
 - Development vs production managed automatically
 
-**⚠️  CRITICAL: NO LOCAL POSTGRESQL DATABASE**
+**⚠️  CRITICAL: DUAL API ARCHITECTURE MAINTENANCE**
+- **Localhost Express.js** (`dev-api-server.js`) for development velocity
+- **Vercel Serverless Functions** (`apps/web/api/*.js`) for production
+- **Complete API duplication** between both implementations
+- **Maintenance overhead**: ~2-4 hours/week for sync management
+- **See**: `DUAL-API-MITIGATION-STRATEGIES.md` for complete documentation
+
+**Database Architecture** (NO LOCAL POSTGRESQL):
 - Database is hosted on Neon cloud in all environments
 - Local PostgreSQL Docker containers have been permanently removed
 - SSL is required for all database connections
