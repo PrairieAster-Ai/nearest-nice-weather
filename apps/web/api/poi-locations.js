@@ -63,44 +63,44 @@ export default async function handler(req, res) {
         })
       }
 
-      // Haversine distance formula for proximity search
+      // Haversine distance formula for proximity search (with explicit casting)
       query = `
         SELECT 
           id,
           name,
-          lat,
-          lng,
+          CAST(lat AS DECIMAL) as lat,
+          CAST(lng AS DECIMAL) as lng,
           park_type,
           data_source,
           description,
           importance_rank,
           ROUND(
             (6371 * acos(
-              cos(radians($1)) * cos(radians(lat)) * 
-              cos(radians(lng) - radians($2)) + 
-              sin(radians($1)) * sin(radians(lat))
+              cos(radians(CAST($1 AS DECIMAL))) * cos(radians(CAST(lat AS DECIMAL))) * 
+              cos(radians(CAST(lng AS DECIMAL)) - radians(CAST($2 AS DECIMAL))) + 
+              sin(radians(CAST($1 AS DECIMAL))) * sin(radians(CAST(lat AS DECIMAL)))
             ) * 0.621371)::numeric, 2
           ) AS distance_miles
         FROM poi_locations 
         WHERE (
           6371 * acos(
-            cos(radians($1)) * cos(radians(lat)) * 
-            cos(radians(lng) - radians($2)) + 
-            sin(radians($1)) * sin(radians(lat))
+            cos(radians(CAST($1 AS DECIMAL))) * cos(radians(CAST(lat AS DECIMAL))) * 
+            cos(radians(CAST(lng AS DECIMAL)) - radians(CAST($2 AS DECIMAL))) + 
+            sin(radians(CAST($1 AS DECIMAL))) * sin(radians(CAST(lat AS DECIMAL)))
           )
-        ) <= $4
+        ) <= CAST($4 AS DECIMAL)
         ORDER BY distance_miles ASC, importance_rank ASC
         LIMIT $3
       `
       params = [userLat, userLng, limitNum, radiusKm]
     } else {
-      // General query without proximity
+      // General query without proximity (with explicit casting)
       query = `
         SELECT 
           id,
           name,
-          lat,
-          lng,
+          CAST(lat AS DECIMAL) as lat,
+          CAST(lng AS DECIMAL) as lng,
           park_type,
           data_source,
           description,
