@@ -22,12 +22,6 @@
       "destination": "/index.html"
     }
   ],
-  "functions": {
-    "api/auth-bypass.js": {
-      "memory": 128,
-      "maxDuration": 5
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
