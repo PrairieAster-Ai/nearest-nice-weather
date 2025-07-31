@@ -208,9 +208,15 @@ vercel --prod                          # BLOCKED - use npm run deploy:production
 - 🔄 **Automatic Alias Updates**: Preview deployments automatically update p.nearestniceweather.com
 
 **Environment Variables** (Required):
-- `DATABASE_URL`: Neon PostgreSQL connection string
+- `DATABASE_URL`: Neon PostgreSQL connection string (CLOUD ONLY - never localhost)
 - `POSTGRES_URL`: Alternative name for Vercel compatibility
 - Development vs production managed automatically
+
+**⚠️  CRITICAL: NO LOCAL POSTGRESQL DATABASE**
+- Database is hosted on Neon cloud in all environments
+- Local PostgreSQL Docker containers have been permanently removed
+- SSL is required for all database connections
+- This prevents database confusion that caused 8-hour debugging session on 2025-07-31
 
 **Development Tools** (SIMPLIFIED STACK):
 - ✅ **Neon PostgreSQL Database** (cloud-hosted, no local setup required)

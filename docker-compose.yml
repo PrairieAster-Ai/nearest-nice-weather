@@ -1,5 +1,9 @@
 # Nearest Nice Weather - Simplified Development Environment
 # Redis cache only - Database hosted on Neon cloud
+#
+# ⚠️  IMPORTANT: NO LOCAL POSTGRESQL DATABASE
+# Database is hosted on Neon cloud - never add PostgreSQL container here
+# This prevents the 8-hour database confusion that occurred on 2025-07-31
 
 version: '3.8'
 

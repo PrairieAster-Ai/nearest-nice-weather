@@ -34,13 +34,17 @@ const app = express()
 const port = 4000
 
 // ====================================================================
-// DATABASE CONNECTION - Stable Schema Integration
+// DATABASE CONNECTION - Neon Cloud Database Only
 // ====================================================================
+// ⚠️  NEON CLOUD DATABASE ONLY - Never connects to local PostgreSQL
+// SSL is required for Neon connections (ssl: false caused 8-hour debugging session)
 // Connects to the stable locations + weather_conditions schema
 // No PostGIS dependency - uses simple lat/lng for broad compatibility
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: false,
+  ssl: {
+    rejectUnauthorized: false  // Required for Neon cloud database
+  },
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
