@@ -836,4 +836,4 @@ export default function App() {
       </div>
     </ThemeProvider>
   )
-}// Force deployment trigger + cache bust: 1753975499152
+}// ATTEMPT 3: Force frontend cache refresh $(date +%s)
