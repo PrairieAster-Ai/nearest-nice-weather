@@ -621,40 +621,39 @@ export default function App() {
     }
 
     const initializeLocation = async () => {
-      // Try geolocation first
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const userPos: [number, number] = [position.coords.latitude, position.coords.longitude]
-            setUserLocation(userPos)
-            setMapCenter(userPos)
-            setShowLocationPrompt(false)
-            // DEBUG: Confirm successful geolocation for UX flow validation and fallback strategy testing
-            console.log('Location set from geolocation')
-          },
-          async (error) => {
-            // DEBUG: Track geolocation failures to measure fallback strategy effectiveness and user impact
-            console.log('Geolocation failed:', error.message)
-            // Try IP location
-            const ipSuccess = await getLocationFromIP()
-            if (!ipSuccess) {
-              // Use fallback location
-              setFallbackLocation()
-            }
-          },
-          { timeout: 10000, enableHighAccuracy: false }
-        )
-      } else {
-        // No geolocation support, try IP
-        const ipSuccess = await getLocationFromIP()
-        if (!ipSuccess) {
-          setFallbackLocation()
-        }
+      // Start with IP location (no user gesture required) to avoid geolocation violation
+      // Geolocation will be triggered by user interaction (e.g., "Find My Location" button)
+      const ipSuccess = await getLocationFromIP()
+      if (!ipSuccess) {
+        // Use fallback location if IP location fails
+        setFallbackLocation()
       }
     }
 
     initializeLocation()
   }, [apiLocations])
+
+  // User-triggered geolocation (for "Find My Location" button or similar)
+  const requestUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos: [number, number] = [position.coords.latitude, position.coords.longitude]
+          setUserLocation(userPos)
+          setMapCenter(userPos)
+          setShowLocationPrompt(false)
+          // DEBUG: Confirm successful geolocation for UX flow validation and user-triggered location requests
+          console.log('Location set from user-requested geolocation')
+        },
+        (error) => {
+          // DEBUG: Track geolocation failures to measure user-triggered location request success rate
+          console.log('User-requested geolocation failed:', error.message)
+          // Could show a user-friendly error message here
+        },
+        { timeout: 10000, enableHighAccuracy: false }
+      )
+    }
+  }
 
   // Apply filters when user location or API data changes
   useEffect(() => {
