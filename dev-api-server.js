@@ -683,6 +683,93 @@ app.get('/api/poi-locations', async (req, res) => {
   }
 })
 
+// ====================================================================
+// POI LOCATIONS WITH WEATHER API - LOCALHOST VERSION
+// ====================================================================
+// ⚠️  SYNC TARGET: apps/web/api/poi-locations-with-weather.js
+// @CLAUDE_CONTEXT: Unified POI-weather integration for POI-centric architecture
+//
+// BUSINESS PURPOSE: Core API for showing parks with weather data
+// ARCHITECTURAL SHIFT: From weather-station-centric to POI-centric display
+// 
+// SYNC REQUIREMENTS:
+// 🔴 CRITICAL: Business logic must match Vercel serverless version exactly
+// 🔴 CRITICAL: Response format must be identical for frontend compatibility
+// 🔴 CRITICAL: Distance calculations must use same Haversine formula
+// 🟡 DIFFERENT: Database connection patterns (pg vs @neondatabase/serverless)
+//
+// @MAINTENANCE_PROTOCOL: Changes here must be replicated in Vercel version
+app.get('/api/poi-locations-with-weather', async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const { limit = '10' } = req.query
+    const limitNum = Math.min(parseInt(limit) || 10, 50) // Start with very simple query
+    
+    // Very simple query for initial testing
+    const query = `
+      SELECT 
+        p.id,
+        p.name,
+        p.lat,
+        p.lng,
+        p.park_type,
+        p.description,
+        70 as temperature,
+        'Clear' as condition,
+        'Test weather' as weather_description,
+        15 as precipitation,
+        8 as wind_speed,
+        'Test Station' as weather_station_name
+      FROM poi_locations p
+      ORDER BY p.place_rank ASC
+      LIMIT $1
+    `
+    const queryParams = [limitNum]
+
+    const result = await client.query(query, queryParams)
+
+    // Transform results to match frontend interface
+    const poiLocations = result.rows.map(row => ({
+      id: row.id.toString(),
+      name: row.name,
+      lat: parseFloat(row.lat),
+      lng: parseFloat(row.lng),
+      park_type: row.park_type,
+      description: row.description,
+      temperature: parseInt(row.temperature),
+      condition: row.condition,
+      weather_description: row.weather_description,
+      precipitation: parseInt(row.precipitation),
+      windSpeed: parseInt(row.wind_speed),
+      distance_miles: null,
+      weather_station_name: row.weather_station_name,
+      weather_distance_miles: null
+    }))
+
+    res.json({
+      success: true,
+      data: poiLocations,
+      count: poiLocations.length,
+      timestamp: new Date().toISOString(),
+      debug: {
+        query_type: 'simplified_test',
+        data_source: 'poi_locations_simple'
+      }
+    })
+
+  } catch (error) {
+    console.error('POI locations with weather API error:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve POI data with weather',
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  } finally {
+    client.release()
+  }
+})
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({

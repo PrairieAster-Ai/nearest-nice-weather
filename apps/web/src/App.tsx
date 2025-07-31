@@ -9,8 +9,8 @@
  * - Business model: B2C platform with market validation focus until 10,000 daily users
  * - Geographic focus: Minnesota with expansion to Upper Midwest planned
  * 
- * TECHNICAL PURPOSE: React SPA providing interactive weather-location discovery
- * - Interactive map with weather markers for 34+ Minnesota locations
+ * TECHNICAL PURPOSE: React SPA providing interactive POI-weather discovery
+ * - Interactive map with POI markers for 200+ Minnesota parks and recreation areas
  * - Dynamic filtering system for temperature, precipitation, and wind preferences
  * - User location integration for proximity-based recommendations
  * - Progressive Web App capabilities for mobile outdoor use
@@ -19,8 +19,8 @@
  * - React 18.3.1: Core framework with hooks for state management
  * - Material-UI: Design system for consistent professional UI
  * - Leaflet: Interactive mapping with OpenStreetMap tiles
- * - Custom hooks: useWeatherLocations for API data integration
- * - Backend APIs: weather-locations, feedback endpoints via Vercel functions
+ * - Custom hooks: usePOILocations for unified POI-weather data integration
+ * - Backend APIs: poi-locations-with-weather, feedback endpoints via Vercel functions
  * 
  * COMPONENT ARCHITECTURE:
  * - App (this file): Main container with state management and business logic
@@ -30,17 +30,17 @@
  * - UnifiedStickyFooter: Navigation and branding footer
  * 
  * DATA FLOW:
- * 1. App fetches weather locations from API via useWeatherLocations hook
+ * 1. App fetches POI locations with weather data via usePOILocations hook
  * 2. User location determined via geolocation → IP → fallback strategies
- * 3. Filters applied to create subset of relevant weather locations
- * 4. Map view dynamically calculated to show user + closest filtered results
+ * 3. Filters applied to create subset of POIs with suitable weather conditions
+ * 4. Map view dynamically calculated to show user + closest filtered POI results
  * 5. User interactions (filter changes, marker drags) update state and view
  * 
  * STATE MANAGEMENT:
  * - filters: User's weather preferences (temperature, precipitation, wind)
- * - filteredLocations: Subset of API locations matching current filters
- * - mapCenter/mapZoom: Dynamic map view based on user location + results
- * - userLocation: User's position for proximity calculations
+ * - filteredLocations: Subset of POI locations matching current weather filters
+ * - mapCenter/mapZoom: Dynamic map view based on user location + POI results
+ * - userLocation: User's position for proximity-based POI calculations
  * 
  * USER EXPERIENCE GOALS:
  * - Instant visual feedback: Map updates immediately on filter changes
@@ -63,26 +63,26 @@ import { CssBaseline, CircularProgress, Alert } from '@mui/material'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
-import { useWeatherLocations } from './hooks/useWeatherLocations'
+import { usePOILocations } from './hooks/usePOILocations'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L from 'leaflet'
 
 /**
- * CUSTOM WEATHER LOCATION MARKER ICON
- * @CLAUDE_CONTEXT: Branded visual element for weather stations on map
+ * CUSTOM POI LOCATION MARKER ICON
+ * @CLAUDE_CONTEXT: Branded visual element for POI locations on map
  * 
  * BUSINESS CONTEXT: Purple aster (prairie aster) represents Minnesota native flora
  * - Reinforces "Prairie Aster" brand identity and Minnesota focus
- * - Visually distinct from standard map markers for weather locations
+ * - Visually distinct from standard map markers for POI locations (parks, recreation areas)
  * - Consistent 40px size for touch-friendly mobile interaction
  * 
  * TECHNICAL IMPLEMENTATION: Leaflet custom icon configuration
  * - Uses SVG for scalable, crisp rendering at all zoom levels
- * - Icon anchor positioned at bottom center for accurate location marking
+ * - Icon anchor positioned at bottom center for accurate POI location marking
  * - Popup anchor offset above icon to avoid overlap with marker
  * 
- * @BUSINESS_RULE: Consistent branding across all map markers
+ * @BUSINESS_RULE: Consistent branding across all POI map markers
  */
 const asterIcon = new L.Icon({
   iconUrl: '/aster-marker.svg',
@@ -183,6 +183,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
         <div class="p-2 text-xs leading-tight">
           <div class="mb-1">
             <h3 class="font-bold text-sm text-black mb-0">${location.name}</h3>
+            ${(location as any).park_type ? `<div class="text-xs text-purple-800 font-medium">${(location as any).park_type}</div>` : ''}
             <p class="text-xs text-gray-800 mt-0">${location.description}</p>
           </div>
           <div class="bg-gray-100 rounded p-2 mb-2 border">
@@ -198,6 +199,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
               <span>💧 ${location.precipitation}%</span>
               <span>💨 ${location.windSpeed}</span>
             </div>
+            ${(location as any).weather_station_name ? `<div class="text-xs text-gray-600 mt-1">Weather from ${(location as any).weather_station_name}${(location as any).weather_distance_miles ? ` (${(location as any).weather_distance_miles} mi)` : ''}</div>` : ''}
           </div>
           <div class="space-y-1">
             <a href="https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}" 
@@ -354,15 +356,17 @@ export default function App() {
   const [showLocationPrompt, setShowLocationPrompt] = useState(false)
   const locationInitialized = useRef(false)
 
-  // Fetch weather locations from API
+  // Fetch POI locations with weather from unified API
   const { 
     locations: apiLocations, 
     loading: locationsLoading, 
     error: locationsError, 
     refetch: refetchLocations 
-  } = useWeatherLocations({ 
+  } = usePOILocations({ 
     userLocation, 
-    limit: 150 // Sensible maximum for nearest nice weather (no geographic restrictions)
+    limit: 200,      // Increased limit for expanded POI dataset
+    radius: 100,     // POI search radius in miles
+    weatherRadius: 25 // Weather station search radius in miles
   })
 
   /**
