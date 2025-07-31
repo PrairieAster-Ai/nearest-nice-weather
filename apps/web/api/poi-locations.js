@@ -40,10 +40,11 @@ export default async function handler(req, res) {
     // Simple query - return all POIs with full details
     const result = await sql`
       SELECT 
-        id, name, lat, lng, park_type, data_source, description, importance_rank,
+        id, name, lat, lng, park_type, data_source, description, 
+        place_rank as importance_rank,
         NULL as distance_miles
       FROM poi_locations 
-      ORDER BY importance_rank ASC, name ASC
+      ORDER BY place_rank ASC, name ASC
       LIMIT ${limitNum}
     `
 
