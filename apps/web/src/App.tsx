@@ -347,6 +347,7 @@ export default function App() {
   const [userLocation, setUserLocationState] = useState<[number, number] | null>(null)
   
   const setUserLocation = (location: [number, number] | null) => {
+    // DEBUG: Track user location updates for geolocation debugging and state management validation
     console.log('setUserLocation called with:', location)
     setUserLocationState(location)
   }
@@ -628,9 +629,11 @@ export default function App() {
             setUserLocation(userPos)
             setMapCenter(userPos)
             setShowLocationPrompt(false)
+            // DEBUG: Confirm successful geolocation for UX flow validation and fallback strategy testing
             console.log('Location set from geolocation')
           },
           async (error) => {
+            // DEBUG: Track geolocation failures to measure fallback strategy effectiveness and user impact
             console.log('Geolocation failed:', error.message)
             // Try IP location
             const ipSuccess = await getLocationFromIP()
@@ -714,8 +717,7 @@ export default function App() {
         
         // Give markers time to render, then ensure they're visible
         setTimeout(() => {
-          // Visual indicator that our zoom fix is running
-          // Debug info - app is working
+          // DEBUG: Map viewport debugging for responsive design issues and marker visibility problems
           console.log('Zoom fix active:', zoom, 'Center:', centerLat.toFixed(3), centerLng.toFixed(3))
           setMapCenter([centerLat, centerLng])
           setMapZoom(zoom)
@@ -754,6 +756,7 @@ export default function App() {
   }
 
   const handleUserLocationChange = (newPosition: [number, number]) => {
+    // DEBUG: User location change tracking for state management and map interaction validation
     console.log('handleUserLocationChange called with:', newPosition)
     setUserLocation(newPosition)
     setShowLocationPrompt(false) // User has moved the marker, so hide the prompt

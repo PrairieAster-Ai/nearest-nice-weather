@@ -67,7 +67,7 @@ import { neon } from '@neondatabase/serverless'
  * 
  * @SECURITY_SENSITIVE: Migration operations have full database access
  */
-const sql = neon(process.env.DATABASE_URL || process.env.POSTGRES_URL)
+const sql = neon(process.env.DATABASE_URL)
 
 export default async function handler(req, res) {
   // CORS headers

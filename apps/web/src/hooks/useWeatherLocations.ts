@@ -71,7 +71,7 @@ export function useWeatherLocations(options: UseWeatherLocationsOptions = {}) {
       setLocations(result.data)
       setLastFetch(new Date())
 
-      // Log debug info in development
+      // DEBUG: Weather API data fetching and caching debug info for performance monitoring and API optimization
       if (process.env.NODE_ENV === 'development' && result.debug) {
         console.log('Weather locations fetched:', {
           count: result.count,

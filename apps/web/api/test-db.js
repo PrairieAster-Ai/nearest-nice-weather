@@ -7,7 +7,7 @@ import { neon } from '@neondatabase/serverless'
 
 // Neon serverless database connection
 // Standardized environment variable usage across all environments
-const sql = neon(process.env.DATABASE_URL || process.env.POSTGRES_URL)
+const sql = neon(process.env.DATABASE_URL)
 
 export default async function handler(req, res) {
   // CORS headers for frontend access

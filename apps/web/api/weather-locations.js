@@ -31,7 +31,7 @@ import { neon } from '@neondatabase/serverless'
  * SECURITY NOTES: Connection strings contain credentials, environment-isolated
  * @SECURITY_SENSITIVE: Database credentials in environment variables
  */
-const sql = neon(process.env.DATABASE_URL || process.env.POSTGRES_URL)
+const sql = neon(process.env.DATABASE_URL)
 
 /**
  * MAIN API HANDLER FUNCTION

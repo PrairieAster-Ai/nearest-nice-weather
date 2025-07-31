@@ -1,4 +1,3 @@
-import { WeatherFilter } from '../types/weather'
 import { Location } from '../types/weather'
 import type { FeedbackFormData, FeedbackSubmissionResponse } from '../types/feedback'
 
