@@ -1,0 +1,189 @@
+[
+  {
+    "id": "9",
+    "name": "Voyageurs National Park",
+    "lat": 48.5,
+    "lng": -92.8833,
+    "park_type": "National Park",
+    "data_source": "nps_manual",
+    "description": "National park featuring pristine lakes, forests, and wildlife viewing in northern Minnesota",
+    "importance_rank": 5,
+    "distance_miles": null
+  },
+  {
+    "id": "13",
+    "name": "Afton State Park",
+    "lat": 44.8339,
+    "lng": -92.7935,
+    "park_type": "State Park",
+    "data_source": "dnr_manual",
+    "description": "Bluff-top state park with hiking trails and St. Croix River access",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "14",
+    "name": "Forestville/Mystery Cave State Park",
+    "lat": 43.6275,
+    "lng": -92.2167,
+    "park_type": "State Park",
+    "data_source": "dnr_manual",
+    "description": "Historic town site and underground cave tours with camping",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "2",
+    "name": "Gooseberry Falls State Park",
+    "lat": 47.1397,
+    "lng": -91.469,
+    "park_type": "State Park",
+    "data_source": "manual",
+    "description": "Spectacular waterfalls along Lake Superior with hiking trails",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "3",
+    "name": "Itasca State Park",
+    "lat": 47.2181,
+    "lng": -95.2058,
+    "park_type": "State Park",
+    "data_source": "manual",
+    "description": "Headwaters of the Mississippi River with old-growth pines",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "15",
+    "name": "Lake Bemidji State Park",
+    "lat": 47.5167,
+    "lng": -94.9167,
+    "park_type": "State Park",
+    "data_source": "dnr_manual",
+    "description": "Northwoods lake park with swimming, fishing, and hiking trails",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "16",
+    "name": "Mille Lacs Kathio State Park",
+    "lat": 46.1333,
+    "lng": -93.8333,
+    "park_type": "State Park",
+    "data_source": "dnr_manual",
+    "description": "Historic Native American site with lake access and interpretive center",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "4",
+    "name": "Split Rock Lighthouse State Park",
+    "lat": 47.1999,
+    "lng": -91.3895,
+    "park_type": "State Park",
+    "data_source": "manual",
+    "description": "Iconic lighthouse on Lake Superior cliffs with hiking trails",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "5",
+    "name": "Taylors Falls State Park",
+    "lat": 45.4005,
+    "lng": -92.6518,
+    "park_type": "State Park",
+    "data_source": "manual",
+    "description": "St. Croix River gorge with rock climbing and scenic overlooks",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "17",
+    "name": "Whitewater State Park",
+    "lat": 44.0833,
+    "lng": -91.9167,
+    "park_type": "State Park",
+    "data_source": "dnr_manual",
+    "description": "Limestone bluffs and trout streams in southeastern Minnesota",
+    "importance_rank": 10,
+    "distance_miles": null
+  },
+  {
+    "id": "7",
+    "name": "Bunker Hills Regional Park",
+    "lat": 45.245,
+    "lng": -93.28,
+    "park_type": "County Park",
+    "data_source": "manual",
+    "description": "Multi-use park with trails, beach, and recreational facilities",
+    "importance_rank": 20,
+    "distance_miles": null
+  },
+  {
+    "id": "1",
+    "name": "Minnehaha Falls Regional Park",
+    "lat": 44.9153,
+    "lng": -93.2111,
+    "park_type": "County Park",
+    "data_source": "manual",
+    "description": "Historic waterfall park with paved trails and scenic overlooks",
+    "importance_rank": 20,
+    "distance_miles": null
+  },
+  {
+    "id": "8",
+    "name": "Rum River Central Regional Park",
+    "lat": 45.36,
+    "lng": -93.2,
+    "park_type": "County Park",
+    "data_source": "manual",
+    "description": "River park with canoe access and hiking trails",
+    "importance_rank": 20,
+    "distance_miles": null
+  },
+  {
+    "id": "10",
+    "name": "Grand Portage National Monument",
+    "lat": 47.9992,
+    "lng": -90.3459,
+    "park_type": "National Monument",
+    "data_source": "nps_manual",
+    "description": "Historic fur trade depot with hiking trails and Lake Superior access",
+    "importance_rank": 25,
+    "distance_miles": null
+  },
+  {
+    "id": "11",
+    "name": "Mississippi National River and Recreation Area",
+    "lat": 44.9778,
+    "lng": -93.265,
+    "park_type": "National Recreation Area",
+    "data_source": "nps_manual",
+    "description": "Urban national park along the Mississippi River through Twin Cities",
+    "importance_rank": 25,
+    "distance_miles": null
+  },
+  {
+    "id": "12",
+    "name": "Pipestone National Monument",
+    "lat": 44.0142,
+    "lng": -96.3256,
+    "park_type": "National Monument",
+    "data_source": "nps_manual",
+    "description": "Sacred pipestone quarries with hiking trails and cultural interpretation",
+    "importance_rank": 25,
+    "distance_miles": null
+  },
+  {
+    "id": "6",
+    "name": "Carlos Avery Wildlife Management Area",
+    "lat": 45.28,
+    "lng": -93.145,
+    "park_type": "Wildlife Area",
+    "data_source": "manual",
+    "description": "Wildlife viewing and hunting area with hiking trails near Nowthen",
+    "importance_rank": 30,
+    "distance_miles": null
+  }
+]

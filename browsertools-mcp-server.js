@@ -14,12 +14,12 @@
  * - MCP protocol integration for Claude Code
  */
 
-const express = require('express');
-const cors = require('cors');
-const WebSocket = require('ws');
-const fs = require('fs');
-const path = require('path');
-const { spawn } = require('child_process');
+import express from 'express';
+import cors from 'cors';
+import WebSocket from 'ws';
+import fs from 'fs';
+import path from 'path';
+import { spawn } from 'child_process';
 
 class BrowserToolsMCPServer {
   constructor() {

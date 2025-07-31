@@ -1,0 +1,74 @@
+{
+  "timestamp": "2025-07-30T20:13:55.075Z",
+  "summary": {
+    "total_attempted": 9,
+    "total_inserted": 9,
+    "total_skipped": 0,
+    "total_errors": 0,
+    "success_rate": 100
+  },
+  "sources": {
+    "OpenStreetMap": {
+      "attempted": 0,
+      "inserted": 0,
+      "skipped": 0,
+      "errors": 0
+    },
+    "National Park Service": {
+      "attempted": 4,
+      "inserted": 4,
+      "skipped": 0,
+      "errors": 0
+    },
+    "Minnesota DNR": {
+      "attempted": 5,
+      "inserted": 5,
+      "skipped": 0,
+      "errors": 0
+    }
+  },
+  "execution": {
+    "start_time": "2025-07-30T20:13:23.806Z",
+    "end_time": "2025-07-30T20:13:55.076Z",
+    "duration_seconds": 31
+  },
+  "validation": {
+    "success": false,
+    "totalPOIs": 9,
+    "bounds": {
+      "south": "43.62750000",
+      "north": "48.50000000",
+      "west": "-96.32560000",
+      "east": "-90.34590000",
+      "total": "9"
+    },
+    "sources": [
+      {
+        "data_source": "dnr_manual",
+        "count": "5"
+      },
+      {
+        "data_source": "nps_manual",
+        "count": "4"
+      }
+    ],
+    "types": [
+      {
+        "park_type": "State Park",
+        "count": "5"
+      },
+      {
+        "park_type": "National Monument",
+        "count": "2"
+      },
+      {
+        "park_type": "National Park",
+        "count": "1"
+      },
+      {
+        "park_type": "National Recreation Area",
+        "count": "1"
+      }
+    ]
+  }
+}
