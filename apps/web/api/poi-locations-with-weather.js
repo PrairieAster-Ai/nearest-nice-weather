@@ -93,25 +93,108 @@ export default async function handler(req, res) {
 
     let result
 
-    // Simplified query for initial testing - will expand once basic functionality works
-    result = await sql`
-      SELECT 
-        p.id,
-        p.name,
-        p.lat,
-        p.lng,
-        p.park_type,
-        p.description,
-        70 as temperature,
-        'Clear' as condition,
-        'Test weather' as weather_description,
-        15 as precipitation,
-        8 as wind_speed,
-        'Test Station' as weather_station_name
-      FROM poi_locations p
-      ORDER BY p.place_rank ASC
-      LIMIT ${limitNum}
-    `
+    if (lat && lng) {
+      // Proximity-based POI query with real weather data
+      result = await sql`
+        SELECT 
+          p.id,
+          p.name,
+          p.lat,
+          p.lng,
+          p.park_type,
+          p.description,
+          p.data_source,
+          p.place_rank,
+          (
+            3959 * acos(
+              cos(radians(${parseFloat(lat)})) * cos(radians(p.lat)) * 
+              cos(radians(p.lng) - radians(${parseFloat(lng)})) + 
+              sin(radians(${parseFloat(lat)})) * sin(radians(p.lat))
+            )
+          ) as distance_miles,
+          w.temperature,
+          w.condition,
+          w.description as weather_description,
+          w.precipitation,
+          w.wind_speed,
+          l.name as weather_station_name,
+          (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l.lat)) * 
+              cos(radians(l.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l.lat))
+            )
+          ) as weather_distance_miles
+        FROM poi_locations p
+        CROSS JOIN LATERAL (
+          SELECT 
+            l2.id, l2.name, l2.lat, l2.lng
+          FROM locations l2
+          ORDER BY (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l2.lat)) * 
+              cos(radians(l2.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l2.lat))
+            )
+          )
+          LIMIT 1
+        ) l
+        LEFT JOIN weather_conditions w ON l.id = w.location_id
+        WHERE (
+          3959 * acos(
+            cos(radians(${parseFloat(lat)})) * cos(radians(p.lat)) * 
+            cos(radians(p.lng) - radians(${parseFloat(lng)})) + 
+            sin(radians(${parseFloat(lat)})) * sin(radians(p.lat))
+          )
+        ) <= ${radiusNum}
+        ORDER BY distance_miles ASC
+        LIMIT ${limitNum}
+      `
+    } else {
+      // General POI browsing with real weather data
+      result = await sql`
+        SELECT 
+          p.id,
+          p.name,
+          p.lat,
+          p.lng,
+          p.park_type,
+          p.description,
+          p.data_source,
+          p.place_rank,
+          NULL as distance_miles,
+          w.temperature,
+          w.condition,
+          w.description as weather_description,
+          w.precipitation,
+          w.wind_speed,
+          l.name as weather_station_name,
+          (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l.lat)) * 
+              cos(radians(l.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l.lat))
+            )
+          ) as weather_distance_miles
+        FROM poi_locations p
+        CROSS JOIN LATERAL (
+          SELECT 
+            l2.id, l2.name, l2.lat, l2.lng
+          FROM locations l2
+          ORDER BY (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l2.lat)) * 
+              cos(radians(l2.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l2.lat))
+            )
+          )
+          LIMIT 1
+        ) l
+        LEFT JOIN weather_conditions w ON l.id = w.location_id
+        ORDER BY p.place_rank ASC, p.name ASC
+        LIMIT ${limitNum}
+      `
+    }
 
     /**
      * DATA TRANSFORMATION FOR FRONTEND COMPATIBILITY

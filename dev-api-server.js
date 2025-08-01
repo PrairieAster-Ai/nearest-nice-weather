@@ -703,29 +703,141 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
   const client = await pool.connect()
   
   try {
-    const { limit = '10' } = req.query
-    const limitNum = Math.min(parseInt(limit) || 10, 50) // Start with very simple query
-    
-    // Very simple query for initial testing
-    const query = `
-      SELECT 
-        p.id,
-        p.name,
-        p.lat,
-        p.lng,
-        p.park_type,
-        p.description,
-        70 as temperature,
-        'Clear' as condition,
-        'Test weather' as weather_description,
-        15 as precipitation,
-        8 as wind_speed,
-        'Test Station' as weather_station_name
-      FROM poi_locations p
-      ORDER BY p.place_rank ASC
-      LIMIT $1
-    `
-    const queryParams = [limitNum]
+    const { 
+      lat, 
+      lng, 
+      radius = '50', 
+      limit = '200',
+      weather_radius = '25'
+    } = req.query
+
+    const limitNum = Math.min(parseInt(limit) || 200, 500)
+    const radiusNum = parseFloat(radius) || 50
+    const weatherRadiusNum = parseFloat(weather_radius) || 25
+
+    let query, queryParams
+
+    if (lat && lng) {
+      // Proximity-based POI query with real weather JOIN
+      // Uses LATERAL JOIN to find closest weather station for each POI
+      query = `
+        SELECT DISTINCT ON (p.id)
+          p.id,
+          p.name,
+          p.lat,
+          p.lng,
+          p.park_type,
+          p.description,
+          p.data_source,
+          p.place_rank,
+          (
+            3959 * acos(
+              cos(radians($1)) * cos(radians(p.lat)) * 
+              cos(radians(p.lng) - radians($2)) + 
+              sin(radians($1)) * sin(radians(p.lat))
+            )
+          ) as distance_miles,
+          COALESCE(w.temperature, 70) as temperature,
+          COALESCE(w.condition, 'Clear') as condition,
+          COALESCE(w.description, p.name || ' area weather') as weather_description,
+          COALESCE(w.precipitation, 15) as precipitation,
+          COALESCE(w.wind_speed, 8) as wind_speed,
+          l.name as weather_station_name,
+          (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l.lat)) * 
+              cos(radians(l.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l.lat))
+            )
+          ) as weather_distance_miles
+        FROM poi_locations p
+        LEFT JOIN LATERAL (
+          SELECT 
+            l.id, l.name, l.lat, l.lng,
+            (
+              3959 * acos(
+                cos(radians(p.lat)) * cos(radians(l.lat)) * 
+                cos(radians(l.lng) - radians(p.lng)) + 
+                sin(radians(p.lat)) * sin(radians(l.lat))
+              )
+            ) as distance
+          FROM locations l
+          WHERE (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l.lat)) * 
+              cos(radians(l.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l.lat))
+            )
+          ) <= $4
+          ORDER BY distance
+          LIMIT 1
+        ) l ON true
+        LEFT JOIN weather_conditions w ON l.id = w.location_id
+        WHERE (
+          3959 * acos(
+            cos(radians($1)) * cos(radians(p.lat)) * 
+            cos(radians(p.lng) - radians($2)) + 
+            sin(radians($1)) * sin(radians(p.lat))
+          )
+        ) <= $3
+        ORDER BY p.id, distance_miles ASC
+        LIMIT $5
+      `
+      queryParams = [parseFloat(lat), parseFloat(lng), radiusNum, weatherRadiusNum, limitNum]
+    } else {
+      // General POI browsing with real weather JOIN
+      query = `
+        SELECT DISTINCT ON (p.id)
+          p.id,
+          p.name,
+          p.lat,
+          p.lng,
+          p.park_type,
+          p.description,
+          p.data_source,
+          p.place_rank,
+          NULL as distance_miles,
+          COALESCE(w.temperature, 70) as temperature,
+          COALESCE(w.condition, 'Clear') as condition,
+          COALESCE(w.description, p.name || ' area weather') as weather_description,
+          COALESCE(w.precipitation, 15) as precipitation,
+          COALESCE(w.wind_speed, 8) as wind_speed,
+          l.name as weather_station_name,
+          (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l.lat)) * 
+              cos(radians(l.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l.lat))
+            )
+          ) as weather_distance_miles
+        FROM poi_locations p
+        LEFT JOIN LATERAL (
+          SELECT 
+            l.id, l.name, l.lat, l.lng,
+            (
+              3959 * acos(
+                cos(radians(p.lat)) * cos(radians(l.lat)) * 
+                cos(radians(l.lng) - radians(p.lng)) + 
+                sin(radians(p.lat)) * sin(radians(l.lat))
+              )
+            ) as distance
+          FROM locations l
+          WHERE (
+            3959 * acos(
+              cos(radians(p.lat)) * cos(radians(l.lat)) * 
+              cos(radians(l.lng) - radians(p.lng)) + 
+              sin(radians(p.lat)) * sin(radians(l.lat))
+            )
+          ) <= $1
+          ORDER BY distance
+          LIMIT 1
+        ) l ON true
+        LEFT JOIN weather_conditions w ON l.id = w.location_id
+        ORDER BY p.id, p.place_rank ASC, p.name ASC
+        LIMIT $2
+      `
+      queryParams = [weatherRadiusNum, limitNum]
+    }
 
     const result = await client.query(query, queryParams)
 
@@ -737,14 +849,16 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       lng: parseFloat(row.lng),
       park_type: row.park_type,
       description: row.description,
+      data_source: row.data_source,
+      place_rank: row.place_rank,
       temperature: parseInt(row.temperature),
       condition: row.condition,
-      weather_description: row.weather_description,
+      weather_description: row.weather_description || row.description,
       precipitation: parseInt(row.precipitation),
       windSpeed: parseInt(row.wind_speed),
-      distance_miles: null,
+      distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
       weather_station_name: row.weather_station_name,
-      weather_distance_miles: null
+      weather_distance_miles: row.weather_distance_miles ? parseFloat(row.weather_distance_miles).toFixed(2) : null
     }))
 
     res.json({
@@ -753,8 +867,14 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       count: poiLocations.length,
       timestamp: new Date().toISOString(),
       debug: {
-        query_type: 'simplified_test',
-        data_source: 'poi_locations_simple'
+        query_type: lat && lng ? 'poi_proximity_with_weather' : 'all_pois_with_weather',
+        user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
+        poi_radius: lat && lng ? `${radius} miles` : 'N/A',
+        weather_radius: `${weather_radius} miles`,
+        limit: limitNum.toString(),
+        data_source: 'poi_locations_with_real_weather',
+        cache_strategy: 'development',
+        cache_duration: 'POI: 0s, Weather: 0s (no caching for fast iteration)'
       }
     })
 
