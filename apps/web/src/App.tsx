@@ -672,6 +672,7 @@ export default function App() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([46.7296, -94.6859]) // Default to Minnesota
   const [mapZoom, setMapZoom] = useState(7)
   const [userLocation, setUserLocationState] = useState<[number, number] | null>([46.7296, -94.6859]) // Start with Minnesota center
+  const [showLocationPrompt, setShowLocationPrompt] = useState(false) // Show location selection prompt
   
   const setUserLocation = (location: [number, number] | null) => {
     console.log('setUserLocation called with:', location)
@@ -1219,6 +1220,25 @@ export default function App() {
               }
             >
               Failed to load weather data: {poiError}
+            </Alert>
+          </div>
+        )}
+
+        {/* Location Prompt */}
+        {showLocationPrompt && (
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-[2000] max-w-md">
+            <Alert 
+              severity="info"
+              action={
+                <button 
+                  onClick={() => setShowLocationPrompt(false)}
+                  className="text-sm font-medium underline text-blue-800 hover:text-blue-900"
+                >
+                  Dismiss
+                </button>
+              }
+            >
+              Drag the blue marker to your location for personalized weather recommendations
             </Alert>
           </div>
         )}
