@@ -303,7 +303,7 @@ export const usePOINavigation = (
       currentPOIIndex: newPOIsStartIndex, // Jump to closest new POI
       lastClickTime: Date.now(),
       isAtClosest: false,
-      isAtFarthest: !checkCanExpand(allPOIs, newSliceMax),
+      isAtFarthest: newPOIsStartIndex >= newVisiblePOIs.length - 1 && !checkCanExpand(allPOIs, newSliceMax),
       canExpand: checkCanExpand(allPOIs, newSliceMax)
     }));
 
