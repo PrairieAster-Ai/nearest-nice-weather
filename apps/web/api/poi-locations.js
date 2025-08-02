@@ -37,10 +37,10 @@ export default async function handler(req, res) {
     const { lat, lng, limit = 50, radius = 50 } = req.query
     const limitNum = Math.min(parseInt(limit) || 50, 100) // Cap at 100
 
-    // Simple query - return POI locations from the locations table
-    // Handle park_type column gracefully (might not exist in all environments)
+    // Simple query - handle schema differences gracefully
     let result
     try {
+      // Try most complete query first
       result = await sql`
         SELECT 
           id, name, lat, lng, park_type, data_source, description, 
@@ -52,8 +52,8 @@ export default async function handler(req, res) {
         LIMIT ${limitNum}
       `
     } catch (error) {
-      if (error.message.includes('column "park_type" does not exist')) {
-        // Fallback query without park_type column
+      try {
+        // Fallback 1: Without park_type
         result = await sql`
           SELECT 
             id, name, lat, lng, data_source, description, 
@@ -65,8 +65,35 @@ export default async function handler(req, res) {
           ORDER BY place_rank ASC, name ASC
           LIMIT ${limitNum}
         `
-      } else {
-        throw error
+      } catch (error2) {
+        try {
+          // Fallback 2: Without data_source and park_type
+          result = await sql`
+            SELECT 
+              id, name, lat, lng, description, 
+              place_rank as importance_rank,
+              NULL as distance_miles,
+              NULL as park_type,
+              'unknown' as data_source
+            FROM locations
+            ORDER BY place_rank ASC, name ASC
+            LIMIT ${limitNum}
+          `
+        } catch (error3) {
+          // Final fallback: Basic columns only
+          result = await sql`
+            SELECT 
+              id, name, lat, lng,
+              NULL as description,
+              1 as importance_rank,
+              NULL as distance_miles,
+              NULL as park_type,
+              'unknown' as data_source
+            FROM locations
+            ORDER BY name ASC
+            LIMIT ${limitNum}
+          `
+        }
       }
     }
 
