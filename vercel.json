@@ -6,7 +6,7 @@
   "installCommand": "npm install --legacy-peer-deps",
   "functions": {
     "apps/web/api/*.js": {
-      "runtime": "nodejs22.x"
+      "runtime": "nodejs20.x"
     }
   },
   "rewrites": [
