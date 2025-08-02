@@ -623,7 +623,8 @@ app.get('/api/poi-locations', async (req, res) => {
                 sin(radians($2)) * sin(radians(lat))
               )
             ) as distance_miles
-          FROM poi_locations
+          FROM locations
+          WHERE data_source = 'manual' OR park_type IS NOT NULL
           ORDER BY distance_miles ASC
           LIMIT $3
         `
@@ -634,24 +635,69 @@ app.get('/api/poi-locations', async (req, res) => {
           SELECT 
             id, name, lat, lng, park_type, data_source, 
             description, place_rank
-          FROM poi_locations
+          FROM locations
+          WHERE data_source = 'manual' OR park_type IS NOT NULL
           ORDER BY place_rank ASC, name ASC
           LIMIT $1
         `
         queryParams = [parseInt(limit)]
       }
       
-      const result = await client.query(query, queryParams)
+      // Try query with schema fallbacks like production
+      let result
+      try {
+        result = await client.query(query, queryParams)
+      } catch (error) {
+        console.log('POI query failed, trying fallback:', error.message)
+        
+        // Fallback queries for schema compatibility
+        if (error.message.includes('column')) {
+          // Most basic query - just essential columns
+          if (lat && lng) {
+            query = `
+              SELECT id, name, lat, lng,
+                (3959 * acos(
+                  cos(radians($2)) * cos(radians(lat)) * 
+                  cos(radians(lng) - radians($1)) + 
+                  sin(radians($2)) * sin(radians(lat))
+                )) as distance_miles
+              FROM locations
+              ORDER BY distance_miles ASC
+              LIMIT $3
+            `
+          } else {
+            query = `
+              SELECT id, name, lat, lng
+              FROM locations
+              ORDER BY name ASC
+              LIMIT $1
+            `
+          }
+          
+          result = await client.query(query, queryParams)
+          
+          // Add default values for all missing columns
+          result.rows = result.rows.map(row => ({
+            ...row,
+            park_type: null,
+            data_source: 'unknown',
+            description: null,
+            place_rank: 1
+          }))
+        } else {
+          throw error
+        }
+      }
       
       const pois = result.rows.map(row => ({
         id: row.id.toString(),
         name: row.name,
         lat: parseFloat(row.lat),
         lng: parseFloat(row.lng),
-        park_type: row.park_type,
-        data_source: row.data_source,
-        description: row.description,
-        importance_rank: row.place_rank,
+        park_type: row.park_type || null,
+        data_source: row.data_source || 'unknown',
+        description: row.description || null,
+        importance_rank: row.place_rank || 1,
         distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
       }))
       
@@ -700,165 +746,106 @@ app.get('/api/poi-locations', async (req, res) => {
 //
 // @MAINTENANCE_PROTOCOL: Changes here must be replicated in Vercel version
 app.get('/api/poi-locations-with-weather', async (req, res) => {
+  // SIMPLIFIED VERSION - Matching production with mock weather data
+  // @SYNC_NOTE: Using same simplified approach as production until schema unified
   const client = await pool.connect()
   
   try {
-    const { 
-      lat, 
-      lng, 
-      radius = '50', 
-      limit = '200',
-      weather_radius = '25'
-    } = req.query
-
+    const { lat, lng, radius = '50', limit = '200' } = req.query
     const limitNum = Math.min(parseInt(limit) || 200, 500)
-    const radiusNum = parseFloat(radius) || 50
-    const weatherRadiusNum = parseFloat(weather_radius) || 25
 
+    // Reuse the same query logic from POI endpoint
     let query, queryParams
-
+    
     if (lat && lng) {
-      // Proximity-based POI query with real weather JOIN
-      // Uses LATERAL JOIN to find closest weather station for each POI
       query = `
-        SELECT DISTINCT ON (p.id)
-          p.id,
-          p.name,
-          p.lat,
-          p.lng,
-          p.park_type,
-          p.description,
-          p.data_source,
-          p.place_rank,
-          (
-            3959 * acos(
-              cos(radians($1)) * cos(radians(p.lat)) * 
-              cos(radians(p.lng) - radians($2)) + 
-              sin(radians($1)) * sin(radians(p.lat))
-            )
-          ) as distance_miles,
-          COALESCE(w.temperature, 70) as temperature,
-          COALESCE(w.condition, 'Clear') as condition,
-          COALESCE(w.description, p.name || ' area weather') as weather_description,
-          COALESCE(w.precipitation, 15) as precipitation,
-          COALESCE(w.wind_speed, 8) as wind_speed,
-          l.name as weather_station_name,
-          (
-            3959 * acos(
-              cos(radians(p.lat)) * cos(radians(l.lat)) * 
-              cos(radians(l.lng) - radians(p.lng)) + 
-              sin(radians(p.lat)) * sin(radians(l.lat))
-            )
-          ) as weather_distance_miles
-        FROM poi_locations p
-        LEFT JOIN LATERAL (
-          SELECT 
-            l.id, l.name, l.lat, l.lng,
-            (
-              3959 * acos(
-                cos(radians(p.lat)) * cos(radians(l.lat)) * 
-                cos(radians(l.lng) - radians(p.lng)) + 
-                sin(radians(p.lat)) * sin(radians(l.lat))
-              )
-            ) as distance
-          FROM locations l
-          WHERE (
-            3959 * acos(
-              cos(radians(p.lat)) * cos(radians(l.lat)) * 
-              cos(radians(l.lng) - radians(p.lng)) + 
-              sin(radians(p.lat)) * sin(radians(l.lat))
-            )
-          ) <= $4
-          ORDER BY distance
-          LIMIT 1
-        ) l ON true
-        LEFT JOIN weather_conditions w ON l.id = w.location_id
-        WHERE (
-          3959 * acos(
-            cos(radians($1)) * cos(radians(p.lat)) * 
-            cos(radians(p.lng) - radians($2)) + 
-            sin(radians($1)) * sin(radians(p.lat))
-          )
-        ) <= $3
-        ORDER BY p.id, distance_miles ASC
-        LIMIT $5
+        SELECT 
+          id, name, lat, lng, park_type, data_source, 
+          description, place_rank,
+          (3959 * acos(
+            cos(radians($2)) * cos(radians(lat)) * 
+            cos(radians(lng) - radians($1)) + 
+            sin(radians($2)) * sin(radians(lat))
+          )) as distance_miles
+        FROM locations
+        WHERE data_source = 'manual' OR park_type IS NOT NULL
+        ORDER BY distance_miles ASC
+        LIMIT $3
       `
-      queryParams = [parseFloat(lat), parseFloat(lng), radiusNum, weatherRadiusNum, limitNum]
+      queryParams = [parseFloat(lng), parseFloat(lat), parseInt(limit)]
     } else {
-      // General POI browsing with real weather JOIN
       query = `
-        SELECT DISTINCT ON (p.id)
-          p.id,
-          p.name,
-          p.lat,
-          p.lng,
-          p.park_type,
-          p.description,
-          p.data_source,
-          p.place_rank,
-          NULL as distance_miles,
-          COALESCE(w.temperature, 70) as temperature,
-          COALESCE(w.condition, 'Clear') as condition,
-          COALESCE(w.description, p.name || ' area weather') as weather_description,
-          COALESCE(w.precipitation, 15) as precipitation,
-          COALESCE(w.wind_speed, 8) as wind_speed,
-          l.name as weather_station_name,
-          (
-            3959 * acos(
-              cos(radians(p.lat)) * cos(radians(l.lat)) * 
-              cos(radians(l.lng) - radians(p.lng)) + 
-              sin(radians(p.lat)) * sin(radians(l.lat))
-            )
-          ) as weather_distance_miles
-        FROM poi_locations p
-        LEFT JOIN LATERAL (
-          SELECT 
-            l.id, l.name, l.lat, l.lng,
-            (
-              3959 * acos(
-                cos(radians(p.lat)) * cos(radians(l.lat)) * 
-                cos(radians(l.lng) - radians(p.lng)) + 
-                sin(radians(p.lat)) * sin(radians(l.lat))
-              )
-            ) as distance
-          FROM locations l
-          WHERE (
-            3959 * acos(
-              cos(radians(p.lat)) * cos(radians(l.lat)) * 
-              cos(radians(l.lng) - radians(p.lng)) + 
-              sin(radians(p.lat)) * sin(radians(l.lat))
-            )
-          ) <= $1
-          ORDER BY distance
-          LIMIT 1
-        ) l ON true
-        LEFT JOIN weather_conditions w ON l.id = w.location_id
-        ORDER BY p.id, p.place_rank ASC, p.name ASC
-        LIMIT $2
+        SELECT 
+          id, name, lat, lng, park_type, data_source, 
+          description, place_rank
+        FROM locations
+        WHERE data_source = 'manual' OR park_type IS NOT NULL
+        ORDER BY place_rank ASC, name ASC
+        LIMIT $1
       `
-      queryParams = [weatherRadiusNum, limitNum]
+      queryParams = [parseInt(limit)]
     }
-
-    const result = await client.query(query, queryParams)
-
-    // Transform results to match frontend interface
+    
+    // Execute with fallback handling
+    let result
+    try {
+      result = await client.query(query, queryParams)
+    } catch (error) {
+      console.log('POI-weather query failed, trying fallback:', error.message)
+      
+      // Simplified fallback - most basic columns only
+      if (lat && lng) {
+        query = `
+          SELECT id, name, lat, lng,
+            (3959 * acos(
+              cos(radians($2)) * cos(radians(lat)) * 
+              cos(radians(lng) - radians($1)) + 
+              sin(radians($2)) * sin(radians(lat))
+            )) as distance_miles
+          FROM locations
+          ORDER BY distance_miles ASC
+          LIMIT $3
+        `
+      } else {
+        query = `
+          SELECT id, name, lat, lng
+          FROM locations
+          ORDER BY name ASC
+          LIMIT $1
+        `
+      }
+      
+      result = await client.query(query, queryParams)
+      
+      // Add defaults for missing columns
+      result.rows = result.rows.map(row => ({
+        ...row,
+        park_type: null,
+        data_source: 'unknown',
+        description: null,
+        place_rank: 1
+      }))
+    }
+    
+    // Transform results with mock weather data (matching production)
     const poiLocations = result.rows.map(row => ({
       id: row.id.toString(),
       name: row.name,
       lat: parseFloat(row.lat),
       lng: parseFloat(row.lng),
-      park_type: row.park_type,
-      description: row.description,
-      data_source: row.data_source,
-      place_rank: row.place_rank,
-      temperature: parseInt(row.temperature),
-      condition: row.condition,
-      weather_description: row.weather_description || row.description,
-      precipitation: parseInt(row.precipitation),
-      windSpeed: parseInt(row.wind_speed),
+      park_type: row.park_type || null,
+      data_source: row.data_source || 'unknown',
+      description: row.description || null,
+      importance_rank: row.place_rank || 1,
       distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
-      weather_station_name: row.weather_station_name,
-      weather_distance_miles: row.weather_distance_miles ? parseFloat(row.weather_distance_miles).toFixed(2) : null
+      // Mock weather data - matching production
+      temperature: Math.floor(Math.random() * 30) + 50, // 50-80°F
+      condition: ['Clear', 'Partly Cloudy', 'Cloudy', 'Light Rain'][Math.floor(Math.random() * 4)],
+      weather_description: 'Perfect weather for outdoor activities',
+      precipitation: Math.floor(Math.random() * 20), // 0-20%
+      wind_speed: Math.floor(Math.random() * 15) + 5, // 5-20 mph
+      weather_station_name: 'Nearby Weather Station',
+      weather_distance_miles: Math.floor(Math.random() * 10) + 1 // 1-10 miles
     }))
 
     res.json({
@@ -867,14 +854,12 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       count: poiLocations.length,
       timestamp: new Date().toISOString(),
       debug: {
-        query_type: lat && lng ? 'poi_proximity_with_weather' : 'all_pois_with_weather',
+        query_type: lat && lng ? 'proximity_with_weather' : 'all_pois_with_weather',
         user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
-        poi_radius: lat && lng ? `${radius} miles` : 'N/A',
-        weather_radius: `${weather_radius} miles`,
+        radius: radius,
         limit: limitNum.toString(),
-        data_source: 'poi_locations_with_real_weather',
-        cache_strategy: 'development',
-        cache_duration: 'POI: 0s, Weather: 0s (no caching for fast iteration)'
+        data_source: 'poi_with_mock_weather',
+        note: 'Using mock weather data until schema is unified'
       }
     })
 
@@ -883,7 +868,8 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve POI data with weather',
-      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: error.message,
+      timestamp: new Date().toISOString()
     })
   } finally {
     client.release()
