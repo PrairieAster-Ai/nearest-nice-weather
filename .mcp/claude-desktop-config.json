@@ -17,6 +17,32 @@
         "--owner", "PrairieAster-Ai",
         "--repo", "nearest-nice-weather"
       ]
+    },
+    "chrome-tools": {
+      "command": "node",
+      "args": ["./node_modules/@nicholmikey/chrome-tools/dist/index.js"],
+      "env": {
+        "CHROME_DEBUG_URL": "http://localhost:9222",
+        "CHROME_CONNECTION_TYPE": "direct"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "memory-bank": {
+      "command": "npx",
+      "args": [
+        "@movibe/memory-bank-mcp",
+        "--mode", "code",
+        "--path", "/home/robertspeer/Projects/GitRepo/nearest-nice-weather",
+        "--folder", "memory-bank",
+        "--githubProfileUrl", "https://github.com/PrairieAster-Ai"
+      ]
+    },
+    "neon-database": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.neon.tech/mcp"]
     }
   }
 }

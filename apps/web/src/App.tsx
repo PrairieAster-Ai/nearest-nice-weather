@@ -57,16 +57,32 @@
  * LAST UPDATED: 2025-07-25
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline, CircularProgress, Alert } from '@mui/material'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
 import { usePOILocations } from './hooks/usePOILocations'
+import { usePOINavigation } from './hooks/usePOINavigation'
+import { escapeHtml, sanitizeUrl } from './utils/sanitize'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L from 'leaflet'
+
+// Distance calculation helper (returns miles)
+const calculateDistance = (point1: [number, number], point2: [number, number]) => {
+  const [lat1, lng1] = point1;
+  const [lat2, lng2] = point2;
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+};
 
 /**
  * CUSTOM POI LOCATION MARKER ICON
@@ -92,7 +108,7 @@ const asterIcon = new L.Icon({
 })
 
 // MapComponent with proper lifecycle management to handle React StrictMode
-const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange, showLocationPrompt }: {
+const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange, currentPOI, isAtClosest, isAtFarthest, canExpand, onNavigateCloser, onNavigateFarther }: {
   center: [number, number];
   zoom: number;
   locations: Array<{
@@ -104,15 +120,23 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
     condition: string;
     description: string;
     precipitation: number;
-    windSpeed: number;
+    windSpeed: string;
+    distance?: number;
   }>;
   userLocation: [number, number] | null;
   onLocationChange: (newPosition: [number, number]) => void;
-  showLocationPrompt: boolean;
+  currentPOI: any;
+  isAtClosest: boolean;
+  isAtFarthest: boolean;
+  canExpand: boolean;
+  onNavigateCloser: () => any;
+  onNavigateFarther: () => any;
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
+  const [currentMarkerIndex, setCurrentMarkerIndex] = useState(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -164,70 +188,155 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
     }
   }, [center, zoom]);
 
+  // TODO: New POI navigation system will be implemented here
+
+
   // Add markers when locations change
   useEffect(() => {
     if (!mapRef.current) return;
+    
+    console.log(`MapComponent received ${locations.length} locations`);
+    console.log(`Location IDs: [${locations.slice(0, 5).map(l => l.id).join(', ')}...]`);
+    
+    // Note: POI system now handles up to 50 markers with distance slicing
+    // Old 21-marker limit no longer applies
 
-    // Clear existing location markers only (preserve user marker)
-    mapRef.current.eachLayer((layer) => {
-      if (layer instanceof L.Marker && !(layer as any).options.isUserMarker) {
-        mapRef.current!.removeLayer(layer);
+    // Optimized incremental marker updates (instead of full rebuild)
+    const existingMarkerCount = markersRef.current.length;
+    const newLocationCount = locations.length;
+    
+    // If we have fewer locations now, remove excess markers
+    if (newLocationCount < existingMarkerCount) {
+      for (let i = newLocationCount; i < existingMarkerCount; i++) {
+        if (markersRef.current[i]) {
+          mapRef.current.removeLayer(markersRef.current[i]);
+        }
       }
-    });
+      // Trim the array
+      markersRef.current = markersRef.current.slice(0, newLocationCount);
+    }
+    
+    // If we have more locations now, expand the array
+    if (newLocationCount > existingMarkerCount) {
+      markersRef.current = [...markersRef.current, ...new Array(newLocationCount - existingMarkerCount)];
+    }
+    
+    console.log(`🔍 MapComponent updating markers: ${existingMarkerCount} -> ${newLocationCount} locations`);
 
-    // Add location markers
-    locations.forEach((location) => {
-      const marker = L.marker([location.lat, location.lng], { icon: asterIcon });
+    // Update existing markers and add new ones (incremental approach)
+    locations.forEach((location, index) => {
+      const existingMarker = markersRef.current[index];
       
-      const popupContent = `
+      // Check if we need to create a new marker or update existing
+      if (!existingMarker || 
+          existingMarker.getLatLng().lat !== location.lat || 
+          existingMarker.getLatLng().lng !== location.lng) {
+        
+        // Remove old marker if it exists
+        if (existingMarker) {
+          mapRef.current.removeLayer(existingMarker);
+        }
+        
+        // Create new marker
+        const marker = L.marker([location.lat, location.lng], { icon: asterIcon });
+        
+        // Track which marker was clicked to sync currentMarkerIndex
+        marker.on('popupopen', () => {
+          setCurrentMarkerIndex(index);
+          // Marker popup opened - navigation is now handled by POI hook
+        });
+        
+        // Create sanitized popup content for marker
+        const safeName = escapeHtml(location.name);
+        const safeParkType = (location as any).park_type ? escapeHtml((location as any).park_type) : '';
+        const safeDescription = escapeHtml(location.description);
+        const safeCondition = escapeHtml(location.condition);
+        const safeWindSpeed = escapeHtml(location.windSpeed);
+        const safeWeatherStation = (location as any).weather_station_name ? escapeHtml((location as any).weather_station_name) : '';
+        const safeWeatherDistance = (location as any).weather_distance_miles ? escapeHtml((location as any).weather_distance_miles) : '';
+        
+        // Sanitize URLs
+        const mapsUrl = sanitizeUrl(`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`);
+        const dnrUrl = sanitizeUrl(`https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&filter=all`);
+        
+        const popupContent = `
         <div class="p-2 text-xs leading-tight">
           <div class="mb-1">
-            <h3 class="font-bold text-sm text-black mb-0">${location.name}</h3>
-            ${(location as any).park_type ? `<div class="text-xs text-purple-800 font-medium">${(location as any).park_type}</div>` : ''}
-            <p class="text-xs text-gray-800 mt-0">${location.description}</p>
+            <h3 class="font-bold text-sm text-black mb-0">${safeName}</h3>
+            ${safeParkType ? `<div class="text-xs text-purple-800 font-medium">${safeParkType}</div>` : ''}
+            <p class="text-xs text-gray-800 mt-0">${safeDescription}</p>
           </div>
           <div class="bg-gray-100 rounded p-2 mb-2 border">
             <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
-              <span class="font-bold text-lg text-black">${location.temperature}°F</span>
+              <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
               <span class="text-lg">
-                ${location.condition === 'Sunny' ? '☀️' : 
-                  location.condition === 'Partly Cloudy' ? '⛅' :
-                  location.condition === 'Cloudy' ? '☁️' :
-                  location.condition === 'Overcast' ? '🌫️' :
-                  location.condition === 'Clear' ? '✨' : location.condition}
+                ${safeCondition === 'Sunny' ? '☀️' : 
+                  safeCondition === 'Partly Cloudy' ? '⛅' :
+                  safeCondition === 'Cloudy' ? '☁️' :
+                  safeCondition === 'Overcast' ? '🌫️' :
+                  safeCondition === 'Clear' ? '✨' : safeCondition}
               </span>
-              <span>💧 ${location.precipitation}%</span>
-              <span>💨 ${location.windSpeed}</span>
+              <span>💧 ${escapeHtml(location.precipitation)}%</span>
+              <span>💨 ${safeWindSpeed}</span>
             </div>
-            ${(location as any).weather_station_name ? `<div class="text-xs text-gray-600 mt-1">Weather from ${(location as any).weather_station_name}${(location as any).weather_distance_miles ? ` (${(location as any).weather_distance_miles} mi)` : ''}</div>` : ''}
+            ${safeWeatherStation ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>` : ''}
           </div>
           <div class="space-y-1">
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}" 
+            <a href="${mapsUrl}" 
                target="_blank" rel="noopener noreferrer"
                class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
                style="background-color: rgba(133, 109, 166, 0.5)">
               🗺️ Driving Directions
             </a>
-            <a href="https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&filter=all"
+            <a href="${dnrUrl}"
                target="_blank" rel="noopener noreferrer"
                class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
                style="background-color: rgba(127, 164, 207, 0.5)">
               🌲 MN DNR
             </a>
-            <a href="https://www.exploreminnesota.com/search?keys=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&field_page_type=All"
-               target="_blank" rel="noopener noreferrer"
-               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-               style="background-color: rgba(133, 109, 166, 0.5)">
-              ⭐ Explore MN
-            </a>
+            ${locations.length > 1 ? `
+            <div class="flex space-x-1 mb-1" data-popup-nav="true">
+              <button data-nav-action="closer" 
+                      ${isAtClosest ? 'disabled' : ''}
+                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtClosest ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'}"
+                      style="background-color: rgba(76, 175, 80, 0.5)">
+                ← Closer
+              </button>
+              <button data-nav-action="farther" 
+                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtFarthest && !canExpand ? 'opacity-75' : 'hover:bg-green-200'}"
+                      style="background-color: rgba(76, 175, 80, 0.5)">
+                ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
+              </button>
+            </div>
+            ` : ''}
           </div>
         </div>
-      `;
-      
-      marker.bindPopup(popupContent, { maxWidth: 280, className: "custom-popup" });
-      marker.addTo(mapRef.current!);
+        `;
+        
+        marker.bindPopup(popupContent, { maxWidth: 280, className: "custom-popup" });
+        marker.addTo(mapRef.current!);
+        
+        // Store marker reference for direct popup access - CRITICAL: exact index match
+        markersRef.current[index] = marker;
+      } else {
+        // Marker exists and position hasn't changed - just update popup content if needed
+        // This optimization avoids recreating markers unnecessarily
+        const existingPopup = existingMarker.getPopup();
+        if (existingPopup) {
+          // Use the updatePopupContent function for existing markers
+          updatePopupContent(index);
+        }
+      }
     });
-  }, [locations]);
+
+  }, [locations]); // Depend on locations changes
+
+  // DISABLED: Navigation functions disabled to prevent thrashing
+  useEffect(() => {
+    (window as any).navigateToCloser = () => console.log('Navigation disabled');
+    (window as any).navigateToFarther = () => console.log('Navigation disabled');
+    (window as any).applySuggestion = () => console.log('Navigation disabled');
+  }, []);
 
   // Create user location marker once and update position as needed
   useEffect(() => {
@@ -293,12 +402,229 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
     }
   }, [userLocation, onLocationChange]);
 
-  // Handle showLocationPrompt separately to avoid marker recreation
-  useEffect(() => {
-    if (userMarkerRef.current && showLocationPrompt) {
-      userMarkerRef.current.openPopup();
+  // Function to update popup content with current navigation state
+  const updatePopupContent = useCallback((markerIndex: number) => {
+    if (markerIndex >= 0 && markerIndex < locations.length && markersRef.current[markerIndex]) {
+      const location = locations[markerIndex];
+      
+      // Create updated popup content with current navigation state (SANITIZED)
+      const safeName = escapeHtml(location.name);
+      const safeParkType = (location as any).park_type ? escapeHtml((location as any).park_type) : '';
+      const safeDescription = escapeHtml(location.description);
+      const safeCondition = escapeHtml(location.condition);
+      const safeWindSpeed = escapeHtml(location.windSpeed);
+      const safeWeatherStation = (location as any).weather_station_name ? escapeHtml((location as any).weather_station_name) : '';
+      const safeWeatherDistance = (location as any).weather_distance_miles ? escapeHtml((location as any).weather_distance_miles) : '';
+      
+      // Sanitize URLs
+      const mapsUrl = sanitizeUrl(`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`);
+      const dnrUrl = sanitizeUrl(`https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&filter=all`);
+      
+      const updatedContent = `
+        <div class="p-2 text-xs leading-tight">
+          <div class="mb-1">
+            <h3 class="font-bold text-sm text-black mb-0">${safeName}</h3>
+            ${safeParkType ? `<div class="text-xs text-purple-800 font-medium">${safeParkType}</div>` : ''}
+            <p class="text-xs text-gray-800 mt-0">${safeDescription}</p>
+          </div>
+          <div class="bg-gray-100 rounded p-2 mb-2 border">
+            <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
+              <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
+              <span class="text-lg">
+                ${safeCondition === 'Sunny' ? '☀️' : 
+                  safeCondition === 'Partly Cloudy' ? '⛅' :
+                  safeCondition === 'Cloudy' ? '☁️' :
+                  safeCondition === 'Overcast' ? '🌫️' :
+                  safeCondition === 'Clear' ? '✨' : safeCondition}
+              </span>
+              <span>💧 ${escapeHtml(location.precipitation)}%</span>
+              <span>💨 ${safeWindSpeed}</span>
+            </div>
+            ${safeWeatherStation ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>` : ''}
+          </div>
+          <div class="space-y-1">
+            <a href="${mapsUrl}" 
+               target="_blank" rel="noopener noreferrer"
+               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
+               style="background-color: rgba(133, 109, 166, 0.5)">
+              🗺️ Driving Directions
+            </a>
+            <a href="${dnrUrl}"
+               target="_blank" rel="noopener noreferrer"
+               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
+               style="background-color: rgba(127, 164, 207, 0.5)">
+              🌲 MN DNR
+            </a>
+            ${locations.length > 1 ? `
+            <div class="flex space-x-1 mb-1" data-popup-nav="true">
+              <button data-nav-action="closer" 
+                      ${isAtClosest ? 'disabled' : ''}
+                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtClosest ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'}"
+                      style="background-color: rgba(76, 175, 80, 0.5)">
+                ← Closer
+              </button>
+              <button data-nav-action="farther" 
+                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtFarthest && !canExpand ? 'opacity-75' : 'hover:bg-green-200'}"
+                      style="background-color: rgba(76, 175, 80, 0.5)">
+                ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
+              </button>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      
+      // Update the popup content
+      markersRef.current[markerIndex].setPopupContent(updatedContent);
     }
-  }, [showLocationPrompt]);
+  }, [locations, isAtClosest, isAtFarthest, canExpand]);
+
+  // Set up secure event delegation for navigation buttons (replaces window globals)
+  useEffect(() => {
+    const handleNavigation = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (!target.matches('[data-nav-action]')) return;
+      
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const action = target.getAttribute('data-nav-action');
+      
+      if (action === 'closer') {
+        const result = onNavigateCloser();
+        if (result) {
+          console.log('Navigate closer result:', result);
+          // Find and open popup for the new current POI with updated content
+          const newPOIIndex = locations.findIndex(loc => loc.id === result.id);
+          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
+            updatePopupContent(newPOIIndex);
+            markersRef.current[newPOIIndex].openPopup();
+            
+            // Smart centering: only pan if marker is outside current viewport
+            const markerLatLng = L.latLng(result.lat, result.lng);
+            if (!mapRef.current.getBounds().contains(markerLatLng)) {
+              mapRef.current.panTo(markerLatLng);
+            }
+          }
+        }
+      } else if (action === 'farther') {
+        const result = onNavigateFarther();
+        if (result && result !== 'NO_MORE_RESULTS') {
+          console.log('Navigate farther result:', result);
+          // Find and open popup for the new current POI with updated content
+          const newPOIIndex = locations.findIndex(loc => loc.id === result.id);
+          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
+            updatePopupContent(newPOIIndex);
+            markersRef.current[newPOIIndex].openPopup();
+            
+            // Smart centering: only pan if marker is outside current viewport
+            const markerLatLng = L.latLng(result.lat, result.lng);
+            if (!mapRef.current.getBounds().contains(markerLatLng)) {
+              mapRef.current.panTo(markerLatLng);
+            }
+          }
+        } else if (result === 'NO_MORE_RESULTS') {
+          // Show "that's all the results" notification
+          console.log('No more results available');
+          showEndOfResultsNotification();
+        }
+      }
+    };
+    
+    // Add event listener to document for event delegation
+    document.addEventListener('click', handleNavigation);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('click', handleNavigation);
+    };
+  }, [onNavigateCloser, onNavigateFarther, locations, updatePopupContent]);
+  
+  // Custom notification function (extracted for reuse)
+  const showEndOfResultsNotification = useCallback(() => {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 10000;
+      text-align: center;
+      max-width: 300px;
+    `;
+    
+    notification.innerHTML = `
+      <h3 style="margin: 0 0 10px 0; color: #333;">End of Results</h3>
+      <p style="margin: 0 0 15px 0; color: #666;">That's all the results we have for this area!</p>
+      <button style="
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      ">OK</button>
+    `;
+    
+    // Add click handler to OK button
+    const okButton = notification.querySelector('button');
+    if (okButton) {
+      okButton.addEventListener('click', () => {
+        notification.remove();
+      });
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 5000);
+  }, []);
+
+  // Auto-open popup for currentPOI
+  useEffect(() => {
+    if (currentPOI && markersRef.current.length > 0) {
+      const currentPOIIndex = locations.findIndex(loc => loc.id === currentPOI.id);
+      
+      // Function to handle popup opening and centering
+      const openPopupAndCenter = () => {
+        if (currentPOIIndex >= 0 && markersRef.current[currentPOIIndex]) {
+          console.log(`🎯 Auto-opening popup for currentPOI: ${currentPOI.name} (index ${currentPOIIndex})`);
+          
+          // Smart centering: check if marker is outside current viewport and center first
+          const markerLatLng = L.latLng(currentPOI.lat, currentPOI.lng);
+          if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
+            console.log(`📍 Centering map on ${currentPOI.name} (outside viewport) - lat: ${currentPOI.lat}, lng: ${currentPOI.lng}`);
+            mapRef.current.panTo(markerLatLng);
+            
+            // Wait for pan animation to complete before opening popup
+            setTimeout(() => {
+              updatePopupContent(currentPOIIndex);
+              markersRef.current[currentPOIIndex].openPopup();
+            }, 300);
+          } else {
+            console.log(`📍 ${currentPOI.name} already in viewport - opening popup immediately`);
+            updatePopupContent(currentPOIIndex);
+            markersRef.current[currentPOIIndex].openPopup();
+          }
+        } else if (currentPOIIndex >= 0) {
+          // Marker not ready yet, retry after brief delay
+          console.log(`⏳ Marker ${currentPOIIndex} not ready, retrying in 100ms...`);
+          setTimeout(openPopupAndCenter, 100);
+        }
+      };
+      
+      openPopupAndCenter();
+    }
+  }, [currentPOI, locations, updatePopupContent]);
 
   return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
 };
@@ -336,38 +662,54 @@ interface Location {
 // Weather locations now fetched from database via API
 
 export default function App() {
+  // Simplified state with new POI navigation system
   const [filters, setFilters] = useState<WeatherFilters>({
     temperature: 'mild',
     precipitation: 'none',
     wind: 'calm'
   })
   
-  const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
   const [mapCenter, setMapCenter] = useState<[number, number]>([46.7296, -94.6859]) // Default to Minnesota
   const [mapZoom, setMapZoom] = useState(7)
-  const [, setMapReady] = useState(false)
-  const [userLocation, setUserLocationState] = useState<[number, number] | null>(null)
+  const [userLocation, setUserLocationState] = useState<[number, number] | null>([46.7296, -94.6859]) // Start with Minnesota center
   
   const setUserLocation = (location: [number, number] | null) => {
-    // DEBUG: Track user location updates for geolocation debugging and state management validation
     console.log('setUserLocation called with:', location)
     setUserLocationState(location)
   }
-  const [showLocationPrompt, setShowLocationPrompt] = useState(false)
   const locationInitialized = useRef(false)
+  const currentApiLocationsRef = useRef<Location[]>([])
+  const currentFilteredLocationsRef = useRef<Location[]>([])
 
-  // Fetch POI locations with weather from unified API
-  const { 
-    locations: apiLocations, 
-    loading: locationsLoading, 
-    error: locationsError, 
-    refetch: refetchLocations 
-  } = usePOILocations({ 
-    userLocation, 
-    limit: 200,      // Increased limit for expanded POI dataset
-    radius: 100,     // POI search radius in miles
-    weatherRadius: 25 // Weather station search radius in miles
-  })
+  // Fetch POI locations with weather from unified API (base search)
+  // New POI navigation system - single API call with distance slicing
+  const {
+    visiblePOIs,
+    currentPOI,
+    allPOICount,
+    currentSliceMax,
+    loading: poiLoading,
+    error: poiError,
+    isAtClosest,
+    isAtFarthest,
+    canExpand,
+    navigateCloser,
+    navigateFarther,
+    reload: reloadPOIs
+  } = usePOINavigation(userLocation, filters)
+
+  // Use POI data from new navigation hook
+  const apiLocations = React.useMemo(() => {
+    console.log(`POI locations: ${allPOICount} total, ${visiblePOIs.length} visible within ${currentSliceMax}mi`)
+    console.log(`Loading: ${poiLoading}, Error: ${poiError}`)
+    console.log(`User location:`, userLocation)
+    
+    // Update the refs with current locations for compatibility  
+    currentApiLocationsRef.current = visiblePOIs
+    currentFilteredLocationsRef.current = visiblePOIs
+    
+    return visiblePOIs
+  }, [visiblePOIs, allPOICount, currentSliceMax, poiLoading, poiError, userLocation])
 
   /**
    * RELATIVE WEATHER FILTERING ALGORITHM
@@ -394,78 +736,131 @@ export default function App() {
    * @BUSINESS_RULE: Relative filtering ensures seasonal relevance
    * @PERFORMANCE_CRITICAL: Efficient sorting and filtering for real-time UI updates
    */
-  const applyRelativeFilters = (locations: Location[], filters: WeatherFilters): Location[] => {
+  /**
+   * SIMPLE WEATHER FILTERING - STABLE IMPLEMENTATION
+   * 
+   * ⚠️  STOP RULES - DO NOT VIOLATE:
+   * 1. DO NOT MODIFY FILTER PERCENTAGES TO "SHOW MORE RESULTS"
+   * 2. DO NOT RECALCULATE THRESHOLDS DURING RADIUS EXPANSION
+   * 3. DO NOT CHANGE FILTERING LOGIC TO "IMPROVE" RESULTS
+   * 
+   * CRITICAL BEHAVIOR: During radius expansion, thresholds are calculated from
+   * BASE locations only (not expanded set) to ensure original results remain visible.
+   * This prevents the confusing UX where expanding radius causes locations to disappear.
+   * 
+   * @BUSINESS_RULE: Filter thresholds must remain constant during radius expansion
+   * @UX_RULE: Original filtered locations must remain visible after expansion
+   * @TECHNICAL_IMPLEMENTATION: useBaseForThresholds=true during expansion
+   */
+  const applyWeatherFilters = (locations: Location[], filters: WeatherFilters, maxDistance?: number): Location[] => {
+    if (locations.length === 0) return []
+    
     let filtered = [...locations]
+    console.log(`🎯 WEATHER FILTERING: ${locations.length} locations → applying filters`)
+    
+    // DISTANCE FILTERING - Apply distance constraint if provided
+    if (maxDistance && userLocation) {
+      const startCount = filtered.length
+      filtered = filtered.filter(loc => {
+        const distance = calculateDistance(userLocation, [loc.lat, loc.lng])
+        return distance <= maxDistance
+      })
+      console.log(`📏 Distance filter: ${startCount} → ${filtered.length} locations within ${maxDistance} miles`)
+    }
 
-    // TEMPERATURE FILTERING - Relative to current conditions across all locations
+    // TEMPERATURE FILTERING
+    // DO NOT ADJUST THESE PERCENTAGES - they determine what "mild/cold/hot" means
     if (filters.temperature && filters.temperature.length > 0) {
+      // Use all locations for calculating thresholds
       const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
       const tempCount = temps.length
       
       if (filters.temperature === 'cold') {
-        // BUSINESS LOGIC: Show coldest 20% for users preferring cooler weather
-        const threshold = temps[Math.floor(tempCount * 0.2)]
+        // Show coldest 40% of available temperatures
+        const threshold = temps[Math.floor(tempCount * 0.4)]
         filtered = filtered.filter(loc => loc.temperature <= threshold)
+        console.log(`❄️  Cold filter: temps ≤ ${threshold}°F`)
       } else if (filters.temperature === 'hot') {
-        // BUSINESS LOGIC: Show hottest 20% for users preferring warmer weather
-        const threshold = temps[Math.floor(tempCount * 0.8)]
+        // Show hottest 40% of available temperatures  
+        const threshold = temps[Math.floor(tempCount * 0.6)]
         filtered = filtered.filter(loc => loc.temperature >= threshold)
+        console.log(`🔥 Hot filter: temps ≥ ${threshold}°F`)
       } else if (filters.temperature === 'mild') {
-        // BUSINESS LOGIC: Show middle 60% for users preferring moderate temperatures
-        const lowThreshold = temps[Math.floor(tempCount * 0.2)]
-        const highThreshold = temps[Math.floor(tempCount * 0.8)]
-        filtered = filtered.filter(loc => loc.temperature > lowThreshold && loc.temperature < highThreshold)
+        // Show middle 80% of temperatures (exclude extreme 10% on each end)
+        const minThreshold = temps[Math.floor(tempCount * 0.1)]
+        const maxThreshold = temps[Math.floor(tempCount * 0.9)]
+        filtered = filtered.filter(loc => loc.temperature >= minThreshold && loc.temperature <= maxThreshold)
+        console.log(`🌤️  Mild filter: temps ${minThreshold}°F - ${maxThreshold}°F`)
       }
     }
 
-    // Precipitation filtering - relative to current conditions
+    // PRECIPITATION FILTERING
+    // DO NOT ADJUST THESE PERCENTAGES - they determine what "dry/light/heavy" means
     if (filters.precipitation && filters.precipitation.length > 0) {
       const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b)
       const precipCount = precips.length
       
       if (filters.precipitation === 'none') {
-        // Driest 30% (least precipitation)
-        const threshold = precips[Math.floor(precipCount * 0.3)]
+        // Show driest 60% of available locations
+        const threshold = precips[Math.floor(precipCount * 0.6)]
         filtered = filtered.filter(loc => loc.precipitation <= threshold)
+        console.log(`☀️  No precip filter: precip ≤ ${threshold}%`)
       } else if (filters.precipitation === 'light') {
-        // Middle 40% (moderate precipitation)
-        const lowThreshold = precips[Math.floor(precipCount * 0.3)]
-        const highThreshold = precips[Math.floor(precipCount * 0.7)]
-        filtered = filtered.filter(loc => loc.precipitation > lowThreshold && loc.precipitation <= highThreshold)
+        // Show middle precipitation range (20th-70th percentile)
+        const minThreshold = precips[Math.floor(precipCount * 0.2)]
+        const maxThreshold = precips[Math.floor(precipCount * 0.7)]
+        filtered = filtered.filter(loc => loc.precipitation >= minThreshold && loc.precipitation <= maxThreshold)
+        console.log(`🌦️  Light precip filter: precip ${minThreshold}% - ${maxThreshold}%`)
       } else if (filters.precipitation === 'heavy') {
-        // Wettest 30% (most precipitation)
+        // Show wettest 30% of available locations
         const threshold = precips[Math.floor(precipCount * 0.7)]
-        filtered = filtered.filter(loc => loc.precipitation > threshold)
+        filtered = filtered.filter(loc => loc.precipitation >= threshold)
+        console.log(`🌧️  Heavy precip filter: precip ≥ ${threshold}%`)
       }
     }
 
-    // Wind filtering - relative to current conditions
+    // WIND FILTERING  
+    // DO NOT ADJUST THESE PERCENTAGES - they determine what "calm/breezy/windy" means
     if (filters.wind && filters.wind.length > 0) {
       const winds = locations.map(loc => loc.windSpeed).sort((a, b) => a - b)
       const windCount = winds.length
       
       if (filters.wind === 'calm') {
-        // Calmest 30% (least wind)
-        const threshold = winds[Math.floor(windCount * 0.3)]
+        // Show calmest 50% of available locations
+        const threshold = winds[Math.floor(windCount * 0.5)]
         filtered = filtered.filter(loc => loc.windSpeed <= threshold)
+        console.log(`🍃 Calm filter: wind ≤ ${threshold}mph`)
       } else if (filters.wind === 'breezy') {
-        // Middle 40% (moderate wind)
-        const lowThreshold = winds[Math.floor(windCount * 0.3)]
-        const highThreshold = winds[Math.floor(windCount * 0.7)]
-        filtered = filtered.filter(loc => loc.windSpeed > lowThreshold && loc.windSpeed <= highThreshold)
+        // Show middle wind range (30th-70th percentile)
+        const minThreshold = winds[Math.floor(windCount * 0.3)]
+        const maxThreshold = winds[Math.floor(windCount * 0.7)]
+        filtered = filtered.filter(loc => loc.windSpeed >= minThreshold && loc.windSpeed <= maxThreshold)
+        console.log(`💨 Breezy filter: wind ${minThreshold} - ${maxThreshold}mph`)
       } else if (filters.wind === 'windy') {
-        // Windiest 30% (most wind)
+        // Show windiest 30% of available locations
         const threshold = winds[Math.floor(windCount * 0.7)]
-        filtered = filtered.filter(loc => loc.windSpeed > threshold)
+        filtered = filtered.filter(loc => loc.windSpeed >= threshold)
+        console.log(`🌪️  Windy filter: wind ≥ ${threshold}mph`)
       }
     }
 
-    // Ensure we always return at least some results
+    // Return empty array if no matches - let radius expansion find more locations
     if (filtered.length === 0) {
-      // If no results, return the closest match or fall back to all locations
-      return locations.slice(0, Math.min(3, locations.length))
+      console.log(`⚠️ No results after filtering within current radius`)
+      return []
     }
 
+    console.log(`✅ Filter results: ${locations.length} → ${filtered.length} locations`)
+    
+    // DEBUG: Total marker count validation
+    if (filtered.length > 21) {
+      console.error(`🚨 ERROR: Displaying ${filtered.length} markers but only 21 POI should match sensible defaults!`)
+      console.error(`🚨 This indicates a filtering or data issue - investigate immediately`)
+      console.error(`🚨 Locations passing filter:`, filtered.map(loc => `${loc.name} (${loc.temperature}°F, ${loc.precipitation}%, ${loc.windSpeed}mph)`))
+    } else {
+      console.log(`📍 Total markers to display: ${filtered.length} (Expected max: 21 POI)`)
+    }
+    
     return filtered
   }
 
@@ -629,15 +1024,16 @@ export default function App() {
       // Geolocation will be triggered by user interaction (e.g., "Find My Location" button)
       const ipSuccess = await getLocationFromIP()
       if (!ipSuccess) {
-        // Use fallback location if IP location fails
-        setFallbackLocation()
+        // Keep the default location and show prompt to move marker
+        setShowLocationPrompt(true)
       }
     }
 
     initializeLocation()
-  }, [apiLocations])
+  }, []) // Run once on mount
 
   // User-triggered geolocation (for "Find My Location" button or similar)
+  // Available for future use
   const requestUserLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -658,6 +1054,9 @@ export default function App() {
       )
     }
   }
+  
+  // Keep the function available for future features
+  if (false) requestUserLocation()
 
   // Apply filters when user location or API data changes
   useEffect(() => {
@@ -668,13 +1067,8 @@ export default function App() {
 
     if (userLocation === null) {
       // No user location yet - apply default filters to show good variety of locations
-      const defaultFilters = {
-        temperature: '', // Show all temperatures initially
-        precipitation: '', // Show all precipitation levels
-        wind: '' // Show all wind speeds
-      }
-      const filtered = applyRelativeFilters(apiLocations, defaultFilters)
-      setFilteredLocations(filtered)
+      // New system: POI hook handles all filtering and distance constraints
+      const filtered = visiblePOIs
       
       // Use smarter zoom calculation for filtered markers
       if (filtered.length > 0) {
@@ -727,24 +1121,31 @@ export default function App() {
         }, 100)
       }
     } else {
-      // User location available - use current filters with dynamic center calculation
-      const filtered = applyRelativeFilters(apiLocations, filters)
-      setFilteredLocations(filtered)
+      // User location available - use POI hook data (already filtered)
+      // New system: POI hook handles all filtering and distance constraints
+      const filtered = visiblePOIs
+      console.log(`POI hook locations: ${allPOICount} total, ${filtered.length} visible within ${currentSliceMax}mi`)
+      
+      // Filtered locations now managed by POI hook directly
+      
+      // Update map center to show current POI locations
       const { center, zoom } = calculateDynamicMapView(filtered, userLocation)
       setMapCenter(center)
       setMapZoom(zoom)
     }
     
-    setMapReady(true)
+    // Map ready state now managed by POI hook
   }, [userLocation, filters, apiLocations, calculateDynamicMapView])
+
+  // TODO: New suggestion application logic will be implemented here
 
   const handleFilterChange = (category: keyof WeatherFilters, value: string) => {
     const newFilters = { ...filters, [category]: value }
     setFilters(newFilters)
     
-    // Apply relative filtering logic
-    const filtered = applyRelativeFilters(apiLocations, newFilters)
-    setFilteredLocations(filtered)
+    // POI hook will automatically reload with new filters
+    // Filters will trigger POI hook reload automatically
+    console.log(`Filter change: POI hook will reload with new filters`)
     
     // Use consistent dynamic center calculation for all scenarios
     if (userLocation) {
@@ -763,10 +1164,13 @@ export default function App() {
     console.log('handleUserLocationChange called with:', newPosition)
     setUserLocation(newPosition)
     setShowLocationPrompt(false) // User has moved the marker, so hide the prompt
+    // Distance and expansion now managed by POI hook automatically
+    // POI hook will automatically reload with new user location
     
-    // Re-apply current filters with new user location
-    const filtered = applyRelativeFilters(apiLocations, filters)
-    setFilteredLocations(filtered)
+    // POI hook will reload automatically with new user location
+    console.log(`User location change: POI hook will reload data`)
+    
+    // Location change resets expansion state
     
     // Use dynamic center calculation for optimal view of user + closest results
     const { center, zoom } = calculateDynamicMapView(filtered, newPosition)
@@ -774,13 +1178,24 @@ export default function App() {
     setMapZoom(zoom)
   }
 
+  // Function to expand display distance (no API calls needed)
+  // TODO: New expansion logic will be implemented here
+
+  // TODO: New suggestion system will be implemented here
+
+  // TODO: New navigation and popup system will be implemented here
+
+  // TODO: New no-results handling will be implemented here
+
+  // TODO: All expansion and navigation logic now handled by usePOINavigation hook
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="h-screen w-screen flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
 
         {/* Loading State */}
-        {locationsLoading && (
+        {poiLoading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-[2000]">
             <div className="flex flex-col items-center space-y-4">
               <CircularProgress size={48} sx={{ color: '#7563A8' }} />
@@ -790,33 +1205,38 @@ export default function App() {
         )}
 
         {/* Error State */}
-        {locationsError && !locationsLoading && (
+        {poiError && !poiLoading && (
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[2000] max-w-md">
             <Alert 
               severity="error" 
               action={
                 <button 
-                  onClick={refetchLocations}
+                  onClick={reloadPOIs}
                   className="text-sm font-medium underline text-red-800 hover:text-red-900"
                 >
                   Retry
                 </button>
               }
             >
-              Failed to load weather data: {locationsError}
+              Failed to load weather data: {poiError}
             </Alert>
           </div>
         )}
 
         {/* Map Container - Full height, no padding, seamless with footer */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" style={{ zIndex: 1003 }}>
           <MapComponent
             center={mapCenter}
             zoom={mapZoom}
-            locations={filteredLocations}
+            locations={visiblePOIs}
             userLocation={userLocation}
             onLocationChange={handleUserLocationChange}
-            showLocationPrompt={showLocationPrompt}
+            currentPOI={currentPOI}
+            isAtClosest={isAtClosest}
+            isAtFarthest={isAtFarthest}
+            canExpand={canExpand}
+            onNavigateCloser={navigateCloser}
+            onNavigateFarther={navigateFarther}
           />
 
           {/* FAB Filter System - top right, expanding left */}

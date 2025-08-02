@@ -106,7 +106,7 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 - ✅ Frontend loading (HTML, static assets, JavaScript bundles)
 - ✅ Database connectivity and environment variables
 - ✅ Common deployment issues (blank screens, 404s, timeouts)
-- ✅ BrowserToolsMCP integration for screenshots and console logs
+- ✅ Browser testing capabilities via Playwright MCP (in development)
 
 **Exit codes**: 0=success, 1=API issues, 2=frontend issues, 3=both
 **Automation**: Run this script before asking "is the environment working?"
@@ -359,9 +359,9 @@ git push origin emergency-rollback --force
 ## Development Workflow Memories
 
 - **Always verify localhost sites are available** - Use automated screenshot capture to validate app loading
-  - **AUTOMATED VERIFICATION**: Use BrowserToolsMCP to capture screenshots WITHOUT asking permission
+  - **AUTOMATED VERIFICATION**: Use Playwright MCP for browser automation and screenshots
   - **Visual Validation**: Screenshots confirm UI loaded correctly and validate visual state
-  - **Command**: `curl -X POST http://localhost:3025/mcp/screenshot -H "Content-Type: application/json" -d '{"tabId": "TAB_ID", "filename": "validation.png"}'`
+  - **UI Interaction Testing**: Automated clicking, form filling, and navigation testing
 
 - **Use ./dev-startup.sh to startup localhost** and maintain to document and mitigate common issues
   - **Enhanced with health checks**: Now includes Docker networking validation
@@ -482,6 +482,45 @@ curl -s http://localhost:3050/health | jq '.'
 ## Data Integrity Memories
 
 - Mock data fallbacks are a bad idea, we need to maintain user's trust by only showing the most accurate data possible. If test data is necessary it needs to persist in the same way it will in production for full end to end testing.
+
+## Weather Filtering - Frequent Failure Point ⚠️
+
+**CRITICAL ISSUE**: Weather filtering logic is a recurring problem that wastes significant development time.
+
+**Pattern Recognition**:
+- Weather filter thresholds are consistently too restrictive (e.g., 77 locations → 5 results)
+- Threshold calculation based on small initial datasets creates overly narrow ranges
+- "Mild" temperature filters exclude reasonable weather conditions
+- Each attempt to "fix" filters creates new edge cases and unexpected behaviors
+- Multiple sessions have been consumed debugging filter percentiles instead of building features
+
+**Root Cause**: 
+- Percentile-based filtering on dynamic datasets creates unpredictable user experiences
+- "Quality over quantity" philosophy conflicts with practical usability needs
+- Complex threshold preservation logic during radius expansion adds unnecessary complexity
+
+**Historical Evidence**:
+- Session patterns show repeated filter adjustments: 0.4 → 0.6 → 0.7 percentiles
+- Users report "only 5 POI matching weather filter" as unrealistic
+- Filter logic consumes more development time than feature development
+- Each "improvement" introduces new failure modes
+
+**STOP RULE**: 
+- **DO NOT** adjust filter percentiles without explicit user request
+- **DO NOT** implement complex threshold preservation systems
+- **DO NOT** spend time debugging why filtering is "too restrictive" - this is expected behavior for niche weather preferences
+- **FOCUS** on core functionality, map display, and user experience over filter optimization
+
+**Alternative Approaches for Future Consideration**:
+- Simple absolute thresholds instead of percentile-based
+- User-configurable filter ranges 
+- Visual feedback showing "X locations match your weather preferences"
+- Default to showing all locations with weather overlay, filters as optional refinement
+
+**Decision Framework**:
+- If user requests filter changes: Ask for specific requirements before implementation
+- If filtering seems restrictive: Document but don't auto-adjust
+- If development time on filters exceeds 30 minutes: Stop and document issue instead
 
 ## Development Deployment Memories
 
