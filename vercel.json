@@ -2,8 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm install --legacy-peer-deps && cd apps/web && npm run build",
   "outputDirectory": "apps/web/dist",
-  "framework": "vite",
+  "framework": "vite", 
   "installCommand": "npm install --legacy-peer-deps",
+  "functions": {
+    "apps/web/api/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "rewrites": [
     {
       "source": "/health.json",
