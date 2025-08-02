@@ -38,16 +38,37 @@ export default async function handler(req, res) {
     const limitNum = Math.min(parseInt(limit) || 50, 100) // Cap at 100
 
     // Simple query - return POI locations from the locations table
-    const result = await sql`
-      SELECT 
-        id, name, lat, lng, park_type, data_source, description, 
-        place_rank as importance_rank,
-        NULL as distance_miles
-      FROM locations
-      WHERE data_source = 'manual' OR park_type IS NOT NULL
-      ORDER BY place_rank ASC, name ASC
-      LIMIT ${limitNum}
-    `
+    // Handle park_type column gracefully (might not exist in all environments)
+    let result
+    try {
+      result = await sql`
+        SELECT 
+          id, name, lat, lng, park_type, data_source, description, 
+          place_rank as importance_rank,
+          NULL as distance_miles
+        FROM locations
+        WHERE data_source = 'manual' OR park_type IS NOT NULL
+        ORDER BY place_rank ASC, name ASC
+        LIMIT ${limitNum}
+      `
+    } catch (error) {
+      if (error.message.includes('column "park_type" does not exist')) {
+        // Fallback query without park_type column
+        result = await sql`
+          SELECT 
+            id, name, lat, lng, data_source, description, 
+            place_rank as importance_rank,
+            NULL as distance_miles,
+            NULL as park_type
+          FROM locations
+          WHERE data_source = 'manual'
+          ORDER BY place_rank ASC, name ASC
+          LIMIT ${limitNum}
+        `
+      } else {
+        throw error
+      }
+    }
 
     // Transform database results to match localhost API format
     const transformedData = result.map(row => ({
