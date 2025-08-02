@@ -125,7 +125,7 @@ export default async function handler(req, res) {
               sin(radians(p.lat)) * sin(radians(l.lat))
             )
           ) as weather_distance_miles
-        FROM poi_locations p
+        FROM locations p
         CROSS JOIN LATERAL (
           SELECT 
             l2.id, l2.name, l2.lat, l2.lng
@@ -140,7 +140,7 @@ export default async function handler(req, res) {
           LIMIT 1
         ) l
         LEFT JOIN weather_conditions w ON l.id = w.location_id
-        WHERE (
+        WHERE (p.data_source = 'manual' OR p.park_type IS NOT NULL) AND (
           3959 * acos(
             cos(radians(${parseFloat(lat)})) * cos(radians(p.lat)) * 
             cos(radians(p.lng) - radians(${parseFloat(lng)})) + 
@@ -176,7 +176,7 @@ export default async function handler(req, res) {
               sin(radians(p.lat)) * sin(radians(l.lat))
             )
           ) as weather_distance_miles
-        FROM poi_locations p
+        FROM locations p
         CROSS JOIN LATERAL (
           SELECT 
             l2.id, l2.name, l2.lat, l2.lng
@@ -191,6 +191,7 @@ export default async function handler(req, res) {
           LIMIT 1
         ) l
         LEFT JOIN weather_conditions w ON l.id = w.location_id
+        WHERE p.data_source = 'manual' OR p.park_type IS NOT NULL
         ORDER BY p.place_rank ASC, p.name ASC
         LIMIT ${limitNum}
       `

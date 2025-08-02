@@ -37,13 +37,14 @@ export default async function handler(req, res) {
     const { lat, lng, limit = 50, radius = 50 } = req.query
     const limitNum = Math.min(parseInt(limit) || 50, 100) // Cap at 100
 
-    // Simple query - return all POIs with full details
+    // Simple query - return POI locations from the locations table
     const result = await sql`
       SELECT 
         id, name, lat, lng, park_type, data_source, description, 
         place_rank as importance_rank,
         NULL as distance_miles
-      FROM poi_locations 
+      FROM locations
+      WHERE data_source = 'manual' OR park_type IS NOT NULL
       ORDER BY place_rank ASC, name ASC
       LIMIT ${limitNum}
     `
