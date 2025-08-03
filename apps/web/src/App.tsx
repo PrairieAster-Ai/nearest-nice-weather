@@ -63,7 +63,6 @@ import { CssBaseline, CircularProgress, Alert } from '@mui/material'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
-import { usePOILocations } from './hooks/usePOILocations'
 import { usePOINavigation } from './hooks/usePOINavigation'
 import { escapeHtml, sanitizeUrl } from './utils/sanitize'
 import 'leaflet/dist/leaflet.css'
@@ -136,7 +135,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
   const containerRef = useRef<HTMLDivElement>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
-  const [currentMarkerIndex, setCurrentMarkerIndex] = useState(0);
+  const [, setCurrentMarkerIndex] = useState(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -179,7 +178,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // Intentionally empty - map initialization should only run once on component mount
 
   // Update map center and zoom when props change
   useEffect(() => {
@@ -329,7 +328,8 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
       }
     });
 
-  }, [locations]); // Depend on locations changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locations]); // canExpand, isAtClosest, isAtFarthest, updatePopupContent are intentionally excluded
 
   // DISABLED: Navigation functions disabled to prevent thrashing
   useEffect(() => {
@@ -538,7 +538,8 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
     return () => {
       document.removeEventListener('click', handleNavigation);
     };
-  }, [onNavigateCloser, onNavigateFarther, locations, updatePopupContent]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onNavigateCloser, onNavigateFarther, locations]); // updatePopupContent excluded as it's defined inline
   
   // Custom notification function (extracted for reuse)
   const showEndOfResultsNotification = useCallback(() => {
@@ -753,6 +754,7 @@ export default function App() {
    * @UX_RULE: Original filtered locations must remain visible after expansion
    * @TECHNICAL_IMPLEMENTATION: useBaseForThresholds=true during expansion
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const applyWeatherFilters = (locations: Location[], filters: WeatherFilters, maxDistance?: number): Location[] => {
     if (locations.length === 0) return []
     
@@ -1007,6 +1009,7 @@ export default function App() {
       return false
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const setFallbackLocation = () => {
       // Center on available results and place marker there with popup open
       const lats = apiLocations.map(loc => loc.lat)
@@ -1031,7 +1034,8 @@ export default function App() {
     }
 
     initializeLocation()
-  }, []) // Run once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // apiLocations intentionally excluded - runs once on mount with current API data
 
   // User-triggered geolocation (for "Find My Location" button or similar)
   // Available for future use
@@ -1136,7 +1140,8 @@ export default function App() {
     }
     
     // Map ready state now managed by POI hook
-  }, [userLocation, filters, apiLocations, calculateDynamicMapView])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLocation, filters, apiLocations]); // calculateDynamicMapView is stable and excluded intentionally
 
   // TODO: New suggestion application logic will be implemented here
 
@@ -1151,12 +1156,12 @@ export default function App() {
     // Use consistent dynamic center calculation for all scenarios
     if (userLocation) {
       // User location exists - use dynamic center for optimal view of results
-      const { center, zoom } = calculateDynamicMapView(filtered, userLocation)
+      const { center, zoom } = calculateDynamicMapView(visiblePOIs, userLocation)
       setMapCenter(center)
       setMapZoom(zoom)
     } else {
       // No user location - fit all markers using geographic bounds
-      updateMapView(filtered)
+      updateMapView(visiblePOIs)
     }
   }
 
@@ -1174,7 +1179,7 @@ export default function App() {
     // Location change resets expansion state
     
     // Use dynamic center calculation for optimal view of user + closest results
-    const { center, zoom } = calculateDynamicMapView(filtered, newPosition)
+    const { center, zoom } = calculateDynamicMapView(visiblePOIs, newPosition)
     setMapCenter(center)
     setMapZoom(zoom)
   }

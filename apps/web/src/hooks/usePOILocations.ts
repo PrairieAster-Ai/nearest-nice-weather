@@ -196,7 +196,7 @@ export function usePOILocations(options: UsePOILocationsOptions = {}) {
     uniqueParkTypes: [...new Set(locations.map(poi => poi.park_type).filter(Boolean))],
     averageWeatherDistance: locations
       .filter(poi => poi.weather_distance_miles)
-      .reduce((sum, poi, arr) => sum + parseFloat(poi.weather_distance_miles!), 0) / 
+      .reduce((sum, poi, _arr) => sum + parseFloat(poi.weather_distance_miles!), 0) / 
       locations.filter(poi => poi.weather_distance_miles).length || 0
   }
 }

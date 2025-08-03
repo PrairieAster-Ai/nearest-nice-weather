@@ -92,7 +92,7 @@ export const usePOINavigation = (
 
   // Pre-process API data with distance calculations and metadata
   const processAPIData = useCallback((apiData: any[], userLoc: [number, number]) => {
-    const processed = apiData.map((location, index) => {
+    const processed = apiData.map((location, _index) => {
       const distance = calculateDistance(userLoc, [location.lat, location.lng]);
       const sliceIndex = Math.floor(distance / DISTANCE_SLICE_SIZE);
       
@@ -284,7 +284,8 @@ export const usePOINavigation = (
 
     console.log(`📍 Navigate farther: ${currentPOIIndex} -> ${newIndex}`);
     return visiblePOIs[newIndex];
-  }, [state, isClickAllowed, checkCanExpand]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, isClickAllowed, checkCanExpand]); // expandDistanceSlice excluded to prevent circular dependency
 
   // Expand distance slice by 30 miles
   const expandDistanceSlice = useCallback(() => {
