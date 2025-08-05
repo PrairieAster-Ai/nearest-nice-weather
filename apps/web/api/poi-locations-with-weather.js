@@ -1,17 +1,19 @@
 /**
  * ========================================================================
- * SIMPLIFIED POI LOCATIONS WITH WEATHER API - Production Compatible
+ * POI LOCATIONS WITH REAL WEATHER API - Production Compatible
  * ========================================================================
  * 
- * @BUSINESS_PURPOSE: Temporary simplified POI-weather integration
- * @TECHNICAL_APPROACH: Use working POI API + mock weather data
+ * @BUSINESS_PURPOSE: POI discovery with real-time weather integration
+ * @TECHNICAL_APPROACH: Use working POI API + OpenWeather API service
+ * @SYNC_TARGET: dev-api-server.js poi-locations-with-weather endpoint
  * 
- * This is a simplified version that works with current production schema
- * while providing the expected API interface for the frontend.
+ * Provides Minnesota outdoor recreation POIs with real weather data
+ * matching localhost API functionality for deployment parity.
  * ========================================================================
  */
 
 import { neon } from '@neondatabase/serverless'
+import { fetchBatchWeather } from '../utils/weatherService.js'
 
 const sql = neon(process.env.DATABASE_URL)
 
@@ -77,8 +79,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // Add mock weather data to each POI
-    const transformedData = result.map(row => ({
+    // Transform database results to basic format for weather service
+    const baseData = result.map(row => ({
       id: row.id.toString(),
       name: row.name,
       lat: parseFloat(row.lat),
@@ -87,16 +89,14 @@ export default async function handler(req, res) {
       data_source: row.data_source,
       description: row.description,
       importance_rank: row.importance_rank,
-      distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
-      // Mock weather data - replace with real data when schema is ready
-      temperature: Math.floor(Math.random() * 30) + 50, // 50-80°F
-      condition: ['Clear', 'Partly Cloudy', 'Cloudy', 'Light Rain'][Math.floor(Math.random() * 4)],
-      weather_description: 'Perfect weather for outdoor activities',
-      precipitation: Math.floor(Math.random() * 20), // 0-20%
-      wind_speed: Math.floor(Math.random() * 15) + 5, // 5-20 mph
-      weather_station_name: 'Nearby Weather Station',
-      weather_distance_miles: Math.floor(Math.random() * 10) + 1 // 1-10 miles
+      distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
     }))
+
+    // Fetch real weather data for all POIs (batch processing)
+    console.log(`Fetching weather for ${baseData.length} POIs`)
+    const transformedData = await fetchBatchWeather(baseData, 5) // Max 5 concurrent requests
+
+    console.log(`Weather integration complete for ${transformedData.length} POIs`)
 
     res.json({
       success: true,
@@ -108,8 +108,9 @@ export default async function handler(req, res) {
         user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
         radius: radius,
         limit: limitNum.toString(),
-        data_source: 'poi_with_mock_weather',
-        note: 'Using mock weather data until schema is unified'
+        data_source: 'poi_with_real_weather',
+        weather_api: 'openweather',
+        note: 'Using real OpenWeather API data for production deployment'
       }
     })
 
