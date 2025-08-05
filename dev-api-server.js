@@ -45,6 +45,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import dotenv from 'dotenv'
+import { fetchWeatherData, fetchBatchWeather } from './src/services/weatherService.js'
 
 // Load environment variables
 dotenv.config()
@@ -214,145 +215,31 @@ app.post('/api/feedback', async (req, res) => {
 
 
 // ====================================================================
-// WEATHER LOCATIONS ENDPOINT - DUPLICATED API WARNING
+// 🗑️ LEGACY WEATHER-LOCATIONS API REMOVED (2025-08-05)
 // ====================================================================
-// ⚠️  CODE DUPLICATION ALERT: This endpoint is duplicated in apps/web/api/weather-locations.js
+// 
+// ❌ REMOVED: /api/weather-locations endpoint that queried cities from 'locations' table
+// ✅ REPLACED BY: /api/poi-locations-with-weather (outdoor recreation POIs)
 //
-// LOCALHOST VERSION (this file):
-// - Uses 'pg' library with $1, $2 parameter binding
-// - Connection pooling with client.connect() and client.release()
-// - Error handling optimized for development debugging
-// - Returns data types as pg client provides them
+// 🎯 BUSINESS RATIONALE: 
+// - Cities (Minneapolis, Brainerd, etc.) don't align with outdoor recreation focus
+// - POI-centric architecture provides better user experience  
+// - Eliminates code duplication and maintenance overhead
 //
-// VERCEL VERSION (apps/web/api/weather-locations.js):
-// - Uses '@neondatabase/serverless' with template literal queries
-// - Serverless connection (no pooling)
-// - Error handling optimized for production logging
-// - May have different data type coercion behavior
+// 🔄 MIGRATION IMPACT:
+// - Frontend never used this endpoint (used POI system exclusively)
+// - No breaking changes to user-facing functionality
+// - Reduced API surface area and complexity
 //
-// SYNC REQUIREMENTS:
-// ✅ Query logic must remain identical
-// ✅ Response format must match exactly
-// ✅ Business rule implementations must be consistent
-// ✅ Haversine distance calculations must be identical
+// 📚 HISTORICAL CONTEXT:
+// This endpoint was part of dual architecture experiment with weather stations
+// as primary data source. Business model pivoted to outdoor recreation POIs
+// as primary discovery mechanism, making weather stations obsolete.
 //
-// CURRENT SYNC CHALLENGES:
-// - Different query parameter styles: $1, $2 vs template literals  
-// - Different type coercion: pg may return strings, neon may return numbers
-// - Different error message formats and stack traces
-//
-// MAINTENANCE PROTOCOL:
-// 1. When modifying this endpoint, also update apps/web/api/weather-locations.js
-// 2. Test both localhost and preview environments before deployment
-// 3. Verify response format consistency with curl testing
-// 4. Run ./scripts/environment-validation.sh to confirm API parity
-//
-// @SYNC_TARGET: apps/web/api/weather-locations.js
-// @LAST_SYNC: 2025-07-31 (schema consistency fixes)
-// @MIGRATION_CANDIDATE: High priority for Vercel-only migration due to complexity
-//
-app.get('/api/weather-locations', async (req, res) => {
-  try {
-    const { lat, lng, radius = '50', limit = '150' } = req.query
-
-    const client = await pool.connect()
-    
-    try {
-      let query
-      let queryParams
-
-      if (lat && lng) {
-        // @CLAUDE_CONTEXT: Proximity query using Haversine distance for "nearest" weather
-        // @BUSINESS_RULE: All personas require location-based weather discovery
-        // @TECHNICAL_NOTE: Manual Haversine formula (could be replaced with PostGIS ST_Distance for better accuracy)
-        query = `
-          SELECT 
-            l.id,
-            l.name,
-            l.lat,
-            l.lng,
-            w.temperature,
-            w.condition,
-            w.description,
-            w.precipitation,
-            w.wind_speed,
-            (
-              3959 * acos(
-                cos(radians($2)) * cos(radians(l.lat)) * 
-                cos(radians(l.lng) - radians($1)) + 
-                sin(radians($2)) * sin(radians(l.lat))
-              )
-            ) as distance_miles
-          FROM locations l
-          LEFT JOIN weather_conditions w ON l.id = w.location_id
-          ORDER BY distance_miles ASC
-          LIMIT $3
-        `
-        queryParams = [parseFloat(lng), parseFloat(lat), parseInt(limit)]
-      } else {
-        // Query all available locations with stable weather data
-        query = `
-          SELECT 
-            l.id,
-            l.name,
-            l.lat,
-            l.lng,
-            w.temperature,
-            w.condition,
-            w.description,
-            w.precipitation,
-            w.wind_speed
-          FROM locations l
-          LEFT JOIN weather_conditions w ON l.id = w.location_id
-          ORDER BY l.name ASC
-          LIMIT $1
-        `
-        queryParams = [parseInt(limit)]
-      }
-
-      const result = await client.query(query, queryParams)
-
-      // Transform results to match frontend interface
-      const locations = result.rows.map(row => ({
-        id: row.id.toString(),
-        name: row.name,
-        lat: parseFloat(row.lat),
-        lng: parseFloat(row.lng),
-        temperature: parseInt(row.temperature || 70),
-        condition: row.condition || 'Clear',
-        description: row.description || `${row.name} area weather`,
-        precipitation: parseInt(row.precipitation || 15),
-        windSpeed: parseInt(row.wind_speed || 8)
-      }))
-
-      res.json({
-        success: true,
-        data: locations,
-        count: locations.length,
-        timestamp: new Date().toISOString(),
-        debug: {
-          query_type: lat && lng ? 'proximity_unlimited' : 'all_locations',
-          user_location: lat && lng ? { lat, lng } : null,
-          radius: radius + ' (legacy parameter, not used for distance restriction)',
-          limit: limit,
-          data_source: 'database'
-        }
-      })
-
-    } finally {
-      client.release()
-    }
-
-  } catch (error) {
-    console.error('Weather locations API error:', error)
-    
-    res.status(500).json({
-      success: false,
-      error: 'Database connection required - no fallback data available',
-      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
-  }
-})
+// @REMOVED_DATE: 2025-08-05
+// @REPLACED_BY: /api/poi-locations-with-weather  
+// @BUSINESS_IMPACT: None (unused by frontend)
+// ====================================================================
 
 // Database schema management endpoint
 app.post('/api/create-poi-schema', async (req, res) => {
@@ -551,37 +438,71 @@ app.post('/api/insert-sample-pois', async (req, res) => {
 })
 
 // ====================================================================
-// POI LOCATIONS ENDPOINT - CRITICAL SCHEMA SYNC POINT
+// 🏞️ POINTS OF INTEREST (POI) API - CORE OUTDOOR RECREATION SYSTEM
 // ====================================================================
-// ⚠️  CRITICAL DUPLICATION: This endpoint has different schema handling vs Vercel
+// 
+// 🎯 BUSINESS PURPOSE: 
+// Primary API for outdoor recreation discovery in Minnesota. Returns parks, trails,
+// forests, nature centers, and other outdoor destinations with proximity-based ranking.
 //
-// RECENT SYNC ISSUE (2025-07-31):
-// - Localhost correctly uses: place_rank (actual column name)
-// - Vercel incorrectly used: importance_rank (causing "column does not exist" error)
-// - Fixed by aliasing: place_rank as importance_rank in Vercel version
+// 📊 POI_LOCATIONS TABLE SCHEMA (Single Source of Truth):
+// - id: SERIAL PRIMARY KEY 
+// - name: VARCHAR(255) - "Gooseberry Falls State Park", "Paul Bunyan Trail", etc.
+// - lat/lng: DECIMAL(10,8)/DECIMAL(11,8) - Geographic coordinates
+// - park_type: VARCHAR(100) - "State Park", "Trail System", "Nature Center", etc.
+// - data_source: VARCHAR(50) - "seed_script", "manual", "osm_import" 
+// - description: TEXT - User-friendly description of the location
+// - place_rank: INTEGER - Importance ranking (10=National Park, 15=State Park, 20=Regional)
+// - osm_id/osm_type: External OpenStreetMap references (optional)
+// - search_name: JSONB - Alternative names and search variations
+// - external_id: VARCHAR(100) - Unique identifier from seeding script
 //
-// SCHEMA CONSISTENCY REQUIREMENTS:
-// ✅ Both environments must use same column aliasing: place_rank as importance_rank
-// ✅ Haversine distance formula must be identical (validated with curl testing)
-// ✅ Response transformation must match: importance_rank: row.place_rank
-// ✅ Query parameter validation must be consistent
+// 🗺️ GEOGRAPHIC CONSTRAINTS:
+// Minnesota-only bounds: lat BETWEEN 43.5 AND 49.4, lng BETWEEN -97.2 AND -89.5
 //
-// CURRENT SYNC STATE:
-// - Localhost: Uses place_rank directly, aliases in response transformation
-// - Vercel: Uses "place_rank as importance_rank" in SELECT, uses directly in response
-// - Both approaches work but use different implementation patterns
+// 🔍 QUERY PATTERNS:
+// 1. PROXIMITY SEARCH: Returns POIs ordered by distance from user location
+// 2. IMPORTANCE SEARCH: Returns all POIs ordered by place_rank (popularity/significance)
+// 3. FILTERED SEARCH: WHERE data_source = 'manual' OR park_type IS NOT NULL
 //
-// MAINTENANCE PROTOCOL FOR POI SCHEMA:
-// 1. Any schema changes must be tested in both localhost AND preview environments
-// 2. Column name mismatches are HIGH-RISK and cause immediate API failures
-// 3. Always use curl testing to verify both environments before deployment
-// 4. Schema migration requires coordinated deployment of both versions
+// 📐 HAVERSINE DISTANCE FORMULA:
+// Standard Earth radius = 3959 miles, calculates great-circle distance between coordinates
+// Formula: 3959 * acos(cos(radians(lat2)) * cos(radians(lat1)) * cos(radians(lng1) - radians(lng2)) + sin(radians(lat2)) * sin(radians(lat1)))
 //
-// @SYNC_TARGET: apps/web/api/poi-locations.js
-// @SCHEMA_RISK: HIGH - Column name mismatches cause immediate API failures
-// @LAST_SCHEMA_SYNC: 2025-07-31 (Fixed importance_rank column reference)
+// 🌐 API RESPONSE FORMAT:
+// {
+//   "success": true,
+//   "data": [
+//     {
+//       "id": "123",
+//       "name": "Gooseberry Falls State Park", 
+//       "lat": 47.1389, "lng": -91.4706,
+//       "park_type": "State Park",
+//       "data_source": "seed_script", 
+//       "description": "Famous waterfalls...",
+//       "importance_rank": 15,  // ← Alias for place_rank in response
+//       "distance_miles": "23.45" // Only present for proximity queries
+//     }
+//   ],
+//   "count": 50,
+//   "debug": { query_type, user_location, limit }
+// }
 //
-// POI test endpoint - validate POI data and test proximity queries
+// ⚠️ DUAL ENVIRONMENT SYNC WARNING:
+// This localhost Express.js endpoint must stay synchronized with apps/web/api/poi-locations.js (Vercel)
+// Key sync points: query logic, response format, column names, error handling
+//
+// @SYNC_TARGET: apps/web/api/poi-locations.js (Vercel serverless function)
+// @SCHEMA_TABLE: poi_locations (138 Minnesota outdoor recreation destinations)
+// @BUSINESS_MODEL: B2C outdoor recreation platform, NOT weather stations or cities
+// @LAST_UPDATED: 2025-08-05 (Eliminated legacy locations table, POI-only architecture)
+//
+// 📋 ENDPOINT: GET /api/poi-locations
+// Query Parameters:
+// - lat, lng: User coordinates for proximity search
+// - radius: Legacy parameter (not enforced, all results returned by distance)
+// - limit: Max results (default 20, max 500)
+//
 app.get('/api/poi-locations', async (req, res) => {
   try {
     const client = await pool.connect()
@@ -617,13 +538,18 @@ app.get('/api/poi-locations', async (req, res) => {
             description,
             place_rank,
             (
+              -- 📐 HAVERSINE DISTANCE FORMULA - Great Circle Distance Calculation
+              -- 🌍 3959 = Earth's radius in miles (use 6371 for kilometers)
+              -- 🧮 Formula: R * acos(cos(lat1) * cos(lat2) * cos(lng2-lng1) + sin(lat1) * sin(lat2))
+              -- 📍 Parameters: $1=lng (user), $2=lat (user), lat/lng are POI coordinates
+              -- ⚠️  SYNC CRITICAL: This exact formula used in 3+ locations, must stay identical
               3959 * acos(
                 cos(radians($2)) * cos(radians(lat)) * 
                 cos(radians(lng) - radians($1)) + 
                 sin(radians($2)) * sin(radians(lat))
               )
             ) as distance_miles
-          FROM locations
+          FROM poi_locations
           WHERE data_source = 'manual' OR park_type IS NOT NULL
           ORDER BY distance_miles ASC
           LIMIT $3
@@ -635,7 +561,7 @@ app.get('/api/poi-locations', async (req, res) => {
           SELECT 
             id, name, lat, lng, park_type, data_source, 
             description, place_rank
-          FROM locations
+          FROM poi_locations
           WHERE data_source = 'manual' OR park_type IS NOT NULL
           ORDER BY place_rank ASC, name ASC
           LIMIT $1
@@ -661,14 +587,14 @@ app.get('/api/poi-locations', async (req, res) => {
                   cos(radians(lng) - radians($1)) + 
                   sin(radians($2)) * sin(radians(lat))
                 )) as distance_miles
-              FROM locations
+              FROM poi_locations
               ORDER BY distance_miles ASC
               LIMIT $3
             `
           } else {
             query = `
               SELECT id, name, lat, lng
-              FROM locations
+              FROM poi_locations
               ORDER BY name ASC
               LIMIT $1
             `
@@ -730,21 +656,77 @@ app.get('/api/poi-locations', async (req, res) => {
 })
 
 // ====================================================================
-// POI LOCATIONS WITH WEATHER API - LOCALHOST VERSION
+// 🏞️🌤️ POI LOCATIONS WITH WEATHER API - PRIMARY FRONTEND DATA SOURCE
 // ====================================================================
-// ⚠️  SYNC TARGET: apps/web/api/poi-locations-with-weather.js
-// @CLAUDE_CONTEXT: Unified POI-weather integration for POI-centric architecture
 //
-// BUSINESS PURPOSE: Core API for showing parks with weather data
-// ARCHITECTURAL SHIFT: From weather-station-centric to POI-centric display
-// 
-// SYNC REQUIREMENTS:
-// 🔴 CRITICAL: Business logic must match Vercel serverless version exactly
-// 🔴 CRITICAL: Response format must be identical for frontend compatibility
-// 🔴 CRITICAL: Distance calculations must use same Haversine formula
-// 🟡 DIFFERENT: Database connection patterns (pg vs @neondatabase/serverless)
+// 🎯 BUSINESS PURPOSE:
+// **This is the MAIN API endpoint used by the frontend map interface.**
+// Combines outdoor recreation POIs with current weather data for each location.
+// Powers the core user experience: "Show me parks with nice weather nearby."
 //
-// @MAINTENANCE_PROTOCOL: Changes here must be replicated in Vercel version
+// 🔗 FRONTEND INTEGRATION:
+// - Used by: apps/web/src/hooks/usePOINavigation.ts (PRIMARY)
+// - Used by: apps/web/src/hooks/usePOILocations.ts (SECONDARY)
+// - Called from: Main map interface, POI navigation system, auto-expand search
+//
+// 📊 DATA SOURCES COMBINED:
+// 1. POI_LOCATIONS TABLE: Minnesota outdoor recreation destinations (parks, trails, forests)
+// 2. WEATHER SERVICE: Real-time weather data via OpenWeather API + fallback mock data
+// 3. PROXIMITY CALCULATION: Haversine distance formula for user-based ranking
+//
+// 🌤️ WEATHER DATA INTEGRATION:
+// - Primary: Live weather from src/services/weatherService.js (OpenWeather API)
+// - Fallback: Pleasant mock weather data (temperature 50-80°F, varied conditions)
+// - Cache: 5-minute weather data caching to prevent API rate limiting
+// - Format: temperature, condition, description, precipitation%, wind_speed
+//
+// 🔍 QUERY BEHAVIOR:
+// - WITH lat/lng: Returns POIs ordered by distance from user location
+// - WITHOUT lat/lng: Returns POIs ordered by importance (place_rank)
+// - Auto-expand compatible: Frontend can request increasing radius limits
+// - Filters: Only returns actual recreation POIs (park_type IS NOT NULL)
+//
+// 🌐 API RESPONSE FORMAT (Enhanced POI + Weather):
+// {
+//   "success": true,
+//   "data": [
+//     {
+//       // POI Data (from poi_locations table)
+//       "id": "123", "name": "Gooseberry Falls State Park",
+//       "lat": 47.1389, "lng": -91.4706,
+//       "park_type": "State Park", "data_source": "seed_script",
+//       "description": "Famous waterfalls on Lake Superior shore",
+//       "importance_rank": 15, "distance_miles": "23.45",
+//       
+//       // Weather Data (from weatherService.js)
+//       "temperature": 72, "condition": "Partly Cloudy",
+//       "weather_description": "Perfect weather for outdoor activities",
+//       "precipitation": 10, "wind_speed": 8,
+//       "weather_station_name": "Nearby Weather Station",
+//       "weather_distance_miles": 5
+//     }
+//   ],
+//   "debug": { 
+//     "query_type": "proximity_with_weather",
+//     "data_source": "poi_with_mock_weather" 
+//   }
+// }
+//
+// ⚠️ DUAL ENVIRONMENT SYNC WARNING:
+// This localhost Express.js endpoint must stay synchronized with apps/web/api/poi-locations-with-weather.js (Vercel)
+// Key sync points: POI query logic, weather integration, response format, error handling
+//
+// @SYNC_TARGET: apps/web/api/poi-locations-with-weather.js (Vercel serverless function)
+// @FRONTEND_DEPENDENCY: PRIMARY - Main map interface depends on this endpoint
+// @BUSINESS_CRITICAL: Core feature - outdoor recreation discovery with weather context
+// @LAST_UPDATED: 2025-08-05 (POI-only architecture, weather service integration)
+//
+// 📋 ENDPOINT: GET /api/poi-locations-with-weather  
+// Query Parameters:
+// - lat, lng: User coordinates for proximity-based ranking
+// - radius: Reference only (not enforced, distance-based ordering used)
+// - limit: Max results (default 200, max 500)
+//
 app.get('/api/poi-locations-with-weather', async (req, res) => {
   // SIMPLIFIED VERSION - Matching production with mock weather data
   // @SYNC_NOTE: Using same simplified approach as production until schema unified
@@ -767,7 +749,7 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
             cos(radians(lng) - radians($1)) + 
             sin(radians($2)) * sin(radians(lat))
           )) as distance_miles
-        FROM locations
+        FROM poi_locations
         WHERE data_source = 'manual' OR park_type IS NOT NULL
         ORDER BY distance_miles ASC
         LIMIT $3
@@ -778,7 +760,7 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
         SELECT 
           id, name, lat, lng, park_type, data_source, 
           description, place_rank
-        FROM locations
+        FROM poi_locations
         WHERE data_source = 'manual' OR park_type IS NOT NULL
         ORDER BY place_rank ASC, name ASC
         LIMIT $1
@@ -802,14 +784,14 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
               cos(radians(lng) - radians($1)) + 
               sin(radians($2)) * sin(radians(lat))
             )) as distance_miles
-          FROM locations
+          FROM poi_locations
           ORDER BY distance_miles ASC
           LIMIT $3
         `
       } else {
         query = `
           SELECT id, name, lat, lng
-          FROM locations
+          FROM poi_locations
           ORDER BY name ASC
           LIMIT $1
         `
@@ -827,25 +809,31 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       }))
     }
     
-    // Transform results with mock weather data (matching production)
-    const poiLocations = result.rows.map(row => ({
-      id: row.id.toString(),
-      name: row.name,
-      lat: parseFloat(row.lat),
-      lng: parseFloat(row.lng),
-      park_type: row.park_type || null,
-      data_source: row.data_source || 'unknown',
-      description: row.description || null,
-      importance_rank: row.place_rank || 1,
-      distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
-      // Mock weather data - matching production
-      temperature: Math.floor(Math.random() * 30) + 50, // 50-80°F
-      condition: ['Clear', 'Partly Cloudy', 'Cloudy', 'Light Rain'][Math.floor(Math.random() * 4)],
-      weather_description: 'Perfect weather for outdoor activities',
-      precipitation: Math.floor(Math.random() * 20), // 0-20%
-      wind_speed: Math.floor(Math.random() * 15) + 5, // 5-20 mph
-      weather_station_name: 'Nearby Weather Station',
-      weather_distance_miles: Math.floor(Math.random() * 10) + 1 // 1-10 miles
+    // Transform results with REAL weather data from OpenWeather API
+    const poiLocations = await Promise.all(result.rows.map(async (row) => {
+      // Fetch real weather for each POI location
+      const weatherData = await fetchWeatherData(parseFloat(row.lat), parseFloat(row.lng))
+      
+      return {
+        id: row.id.toString(),
+        name: row.name,
+        lat: parseFloat(row.lat),
+        lng: parseFloat(row.lng),
+        park_type: row.park_type || null,
+        data_source: row.data_source || 'unknown',
+        description: row.description || null,
+        importance_rank: row.place_rank || 1,
+        distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
+        
+        // REAL weather data from OpenWeather API
+        temperature: weatherData.temperature,
+        condition: weatherData.condition,
+        weather_description: weatherData.description,
+        precipitation: weatherData.precipitation,
+        wind_speed: weatherData.windSpeed,
+        weather_source: weatherData.source, // 'openweather' or 'fallback'
+        weather_timestamp: weatherData.timestamp
+      }
     }))
 
     res.json({
@@ -858,8 +846,9 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
         user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
         radius: radius,
         limit: limitNum.toString(),
-        data_source: 'poi_with_mock_weather',
-        note: 'Using mock weather data until schema is unified'
+        data_source: 'poi_with_real_weather',
+        weather_api: 'OpenWeather API',
+        note: 'Using real weather data from OpenWeather API with 5-minute caching'
       }
     })
 

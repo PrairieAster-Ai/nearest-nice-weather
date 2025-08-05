@@ -1,0 +1,162 @@
+{
+  "businessModel": {
+    "type": "B2C outdoor recreation platform",
+    "target": "Casual mass market consumers in Minneapolis metro area",
+    "focus": "Constraint-based weather optimization for free/frugal local activities",
+    "revenueModel": "Ad revenue platform targeting 10,000+ active users",
+    "antiPatterns": [
+      "B2B tourism operator features",
+      "Weather stations or meteorological data as primary focus",
+      "Cities instead of parks/trails",
+      "National expansion beyond Minnesota",
+      "Premium subscription features"
+    ]
+  },
+  "technicalStack": {
+    "backend": "Vercel Edge Functions (Node.js serverless)",
+    "database": "Neon PostgreSQL (serverless, geo-enabled)",
+    "frontend": "Vite + React Progressive Web App with Material-UI",
+    "deployment": "Vercel (frontend + serverless functions)",
+    "primaryTable": "poi_locations",
+    "legacyTables": [
+      "locations (deprecated)",
+      "weather_conditions (supplementary)"
+    ],
+    "dualApiPattern": {
+      "development": "Express.js server (dev-api-server.js)",
+      "production": "Vercel Serverless Functions (apps/web/api/*.js)",
+      "challenge": "Must maintain consistency between both implementations",
+      "maintenanceTime": "2-4 hours/week for synchronization"
+    }
+  },
+  "dataModel": {
+    "primaryEntity": "Point of Interest (POI)",
+    "primaryTable": "poi_locations",
+    "requiredFields": [
+      "name",
+      "latitude",
+      "longitude",
+      "park_type"
+    ],
+    "geographicBounds": {
+      "minnesota": {
+        "latitude": {
+          "min": 43,
+          "max": 49.5
+        },
+        "longitude": {
+          "min": -97.5,
+          "max": -89
+        }
+      }
+    },
+    "commonProblems": [
+      "Queries using legacy \"locations\" table instead of \"poi_locations\"",
+      "Cities appearing instead of parks/trails",
+      "POIs outside Minnesota geographic bounds",
+      "Missing park_type classification"
+    ]
+  },
+  "userJourney": {
+    "primary": "POI discovery with auto-expanding search radius",
+    "steps": [
+      "User opens app at current/selected location",
+      "Map loads with nearby parks/trails within 30-mile radius",
+      "If no results found, automatically expand radius by 30-mile increments",
+      "Weather data enhances decision-making (secondary)",
+      "Mobile-optimized experience across all interactions"
+    ],
+    "requirements": [
+      "Auto-expand search must work for remote users",
+      "Map markers must be clickable and show POI details",
+      "Footer must be visible (z-index: 1004, above map)",
+      "No blank screens on any environment",
+      "Responsive design for mobile/desktop/tablet"
+    ]
+  },
+  "developmentPatterns": {
+    "successPatterns": [
+      {
+        "pattern": "POI API endpoint structure",
+        "example": "Query poi_locations with latitude/longitude bounds",
+        "usage": "Use this pattern for all location-based queries"
+      },
+      {
+        "pattern": "Auto-expand search radius",
+        "example": "While visiblePOIs.length === 0 && currentRadius < 300",
+        "usage": "Progressive expansion for remote users"
+      },
+      {
+        "pattern": "Business context validation",
+        "example": "Check that results contain parks/trails, not cities",
+        "usage": "Validate all API responses match business model"
+      }
+    ],
+    "antiPatterns": [
+      {
+        "pattern": "Legacy locations table queries",
+        "problem": "Returns weather stations/cities instead of POIs",
+        "solution": "Always use poi_locations table"
+      },
+      {
+        "pattern": "Manual screenshot sharing",
+        "problem": "Inefficient and breaks workflow",
+        "solution": "Use Playwright MCP for automated screenshots"
+      },
+      {
+        "pattern": "Environment-specific fixes",
+        "problem": "Creates inconsistency between localhost/preview/production",
+        "solution": "Use unified environment validation scripts"
+      }
+    ]
+  },
+  "troubleshooting": {
+    "blankScreen": {
+      "rootCauses": [
+        "Vercel preview alias pointing to wrong deployment",
+        "JavaScript bundle compatibility issues",
+        "React hydration failures"
+      ],
+      "diagnosticScript": "./scripts/comprehensive-health-check.sh",
+      "solution": "Follow blank-screen-troubleshooting.md runbook"
+    },
+    "missingPOIs": {
+      "rootCauses": [
+        "API querying wrong table (locations vs poi_locations)",
+        "User location outside Minnesota bounds",
+        "Auto-expand radius not triggering"
+      ],
+      "diagnosticCommands": [
+        "curl localhost:4000/api/poi-locations?limit=5",
+        "Check console for auto-expand messages",
+        "Verify usePOINavigation.ts logic"
+      ]
+    },
+    "footerNotVisible": {
+      "rootCause": "Z-index conflict with map container",
+      "solution": "Set footer zIndex to 1004 (above map container 1003)",
+      "file": "apps/web/src/components/UnifiedStickyFooter.tsx"
+    }
+  },
+  "qaPatterns": {
+    "criticalTests": [
+      "POI discovery journey from remote location",
+      "Auto-expand radius functionality",
+      "Map marker interactions and popups",
+      "Footer visibility across all screen sizes",
+      "API response times < 1 second"
+    ],
+    "businessValidation": [
+      "Results show parks/trails, never cities",
+      "All POIs within Minnesota geographic bounds",
+      "No B2B features accidentally exposed",
+      "Weather data enhances, doesn't dominate experience"
+    ],
+    "performanceTargets": {
+      "mapLoadTime": "< 3 seconds",
+      "poiApiResponse": "< 500ms",
+      "autoExpandDelay": "< 1 second",
+      "firstContentfulPaint": "< 2 seconds"
+    }
+  }
+}

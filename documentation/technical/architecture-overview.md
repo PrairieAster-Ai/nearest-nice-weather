@@ -1,4 +1,11 @@
-# Simple Progressive Web App Technical Architecture
+# ⚠️ DEPRECATED - Legacy Architecture Documentation
+
+**❌ WARNING: This document describes a FastAPI/PostGIS architecture that was NEVER IMPLEMENTED.**  
+**✅ For ACTUAL architecture, see: [ACTUAL-ARCHITECTURE-2025.md](./ACTUAL-ARCHITECTURE-2025.md)**
+
+---
+
+# Simple Progressive Web App Technical Architecture (LEGACY - NOT IMPLEMENTED)
 
 ## MVP Technical Architecture for "Nearest Nice Weather" App
 

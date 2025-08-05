@@ -172,7 +172,7 @@ export default async function handler(req, res) {
               sin(radians(${parseFloat(lat)})) * sin(radians(l.lat))
             )
           ) as distance_miles
-        FROM locations l
+        FROM poi_locations l
         LEFT JOIN weather_conditions w ON l.id = w.location_id
         ORDER BY distance_miles ASC
         LIMIT ${parseInt(limit)}
@@ -205,7 +205,7 @@ export default async function handler(req, res) {
           w.description,
           w.precipitation,
           w.wind_speed
-        FROM locations l
+        FROM poi_locations l
         LEFT JOIN weather_conditions w ON l.id = w.location_id
         ORDER BY l.name ASC
         LIMIT ${parseInt(limit)}

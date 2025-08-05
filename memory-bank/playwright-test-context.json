@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-08-05T21:37:08.322Z",
+  "context": "playwright-test-run",
+  "businessModel": "B2C outdoor recreation",
+  "testResults": {
+    "timestamp": "2025-08-05T21:37:08.320Z",
+    "totalTests": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 0,
+    "businessModel": "B2C outdoor recreation platform",
+    "primaryTable": "poi_locations",
+    "environment": {
+      "nodeVersion": "v20.18.0",
+      "platform": "linux",
+      "baseURL": "http://localhost:3001"
+    },
+    "categories": {
+      "visualRegression": 0,
+      "functionalTesting": 0,
+      "performanceTesting": 0,
+      "accessibilityTesting": 0,
+      "businessValidation": 0
+    }
+  },
+  "knownIssues": [
+    {
+      "issue": "Map markers not loading",
+      "solution": "Check POI API endpoint and poi_locations table",
+      "frequency": "common"
+    },
+    {
+      "issue": "Auto-expand not working",
+      "solution": "Verify user location and distance calculation",
+      "frequency": "occasional"
+    }
+  ],
+  "performanceBenchmarks": {
+    "mapLoadTime": "< 3 seconds",
+    "poiApiResponse": "< 500ms",
+    "autoExpandDelay": "< 1 second"
+  }
+}

@@ -43,7 +43,7 @@ export default async function handler(req, res) {
           id, name, lat, lng, park_type, data_source, description, 
           place_rank as importance_rank,
           NULL as distance_miles
-        FROM locations
+        FROM poi_locations
         WHERE data_source = 'manual' OR park_type IS NOT NULL
         ORDER BY place_rank ASC, name ASC
         LIMIT ${limitNum}
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
             place_rank as importance_rank,
             NULL as distance_miles,
             NULL as park_type
-          FROM locations
+          FROM poi_locations
           WHERE data_source = 'manual'
           ORDER BY place_rank ASC, name ASC
           LIMIT ${limitNum}
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
             NULL as distance_miles,
             NULL as park_type,
             'unknown' as data_source
-          FROM locations
+          FROM poi_locations
           ORDER BY name ASC
           LIMIT ${limitNum}
         `

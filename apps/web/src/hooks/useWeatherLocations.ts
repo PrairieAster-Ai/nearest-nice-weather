@@ -1,4 +1,51 @@
-import { useState, useEffect, useCallback } from 'react'
+// ====================================================================
+// 🗑️ LEGACY WEATHER LOCATIONS HOOK - REMOVED (2025-08-05)
+// ====================================================================
+//
+// ❌ DEPRECATED: This hook queried cities from weather stations (not outdoor recreation POIs)
+// ✅ REPLACED BY: usePOINavigation.ts and usePOILocations.ts
+//
+// 🎯 BUSINESS RATIONALE:
+// - Weather stations in cities don't align with outdoor recreation focus
+// - POI-centric architecture provides better user experience
+// - Frontend now uses POI system exclusively via usePOINavigation hook
+//
+// 🔄 MIGRATION IMPACT:
+// - No components import this hook (verified via grep)
+// - Main App.tsx uses usePOINavigation exclusively
+// - Safe to remove without breaking changes
+//
+// 📚 HISTORICAL CONTEXT:
+// This hook was designed for weather-station-centric discovery model.
+// Business model evolved to outdoor recreation POI discovery, making
+// weather stations obsolete for primary user experience.
+//
+// @DEPRECATED_DATE: 2025-08-05
+// @REPLACED_BY: usePOINavigation.ts (primary), usePOILocations.ts (secondary)
+// @BUSINESS_IMPACT: None (unused by any components)
+// @REMOVAL_REASON: Code cleanup, eliminate legacy architecture
+// ====================================================================
+
+// This file intentionally left as documentation placeholder.
+// All functionality moved to POI-based hooks.
+
+export const DEPRECATED_useWeatherLocations = () => {
+  throw new Error(
+    'useWeatherLocations is deprecated. Use usePOINavigation or usePOILocations instead.'
+  )
+}
+
+export function useWeatherLocations() {
+  // Redirect to new POI-based hooks
+  return DEPRECATED_useWeatherLocations()
+}
+
+// Legacy interfaces kept for any remaining imports
+interface UseWeatherLocationsOptions {
+  userLocation?: [number, number] | null
+  radius?: number
+  limit?: number
+}
 
 interface WeatherLocation {
   id: string
@@ -8,119 +55,52 @@ interface WeatherLocation {
   temperature: number
   condition: string
   description: string
-  precipitation: number // 0-100 scale
-  windSpeed: number // mph
+  precipitation: number
+  windSpeed: number
 }
 
-interface WeatherLocationResponse {
-  success: boolean
-  data: WeatherLocation[]
-  count: number
-  timestamp: string
-  error?: string
-  debug?: any
-}
-
-interface UseWeatherLocationsOptions {
-  userLocation?: [number, number] | null
-  radius?: number // miles (legacy parameter, not used for distance restriction)  
-  limit?: number
-}
-
-
-export function useWeatherLocations(options: UseWeatherLocationsOptions = {}) {
-  const [locations, setLocations] = useState<WeatherLocation[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [lastFetch, setLastFetch] = useState<Date | null>(null)
-
-  const { userLocation, radius = 50, limit = 150 } = options
-
-  const fetchWeatherLocations = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      // Build query parameters
-      const params = new URLSearchParams({
-        limit: limit.toString()
-      })
-
-      if (userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined && 
-          !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
-        params.append('lat', userLocation[0].toString())
-        params.append('lng', userLocation[1].toString())
-        params.append('radius', radius.toString())
-      }
-
-      // Use proxy in all environments
-      const apiUrl = `/api/weather-locations?${params}`
-      
-      const response = await fetch(apiUrl)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      }
-
-      const result: WeatherLocationResponse = await response.json()
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch weather locations')
-      }
-
-      setLocations(result.data)
-      setLastFetch(new Date())
-
-      // DEBUG: Weather API data fetching and caching debug info for performance monitoring and API optimization
-      if (process.env.NODE_ENV === 'development' && result.debug) {
-        console.log('Weather locations fetched:', {
-          count: result.count,
-          query_type: result.debug.query_type,
-          user_location: result.debug.user_location,
-          timestamp: result.timestamp
-        })
-      }
-
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-      
-      // In development, provide more helpful error messages
-      if (process.env.NODE_ENV === 'development' && errorMessage.includes('fetch')) {
-        setError('Local API server not running. Start with: node dev-api-server.js')
-      } else if (errorMessage.includes('Database connection required')) {
-        setError('Database connection required - configure DATABASE_URL')
-      } else {
-        setError(errorMessage)
-      }
-      
-      console.error('Failed to fetch weather locations:', err)
-      
-      // Set empty array on error
-      setLocations([])
-    } finally {
-      setLoading(false)
-    }
-  }, [userLocation, radius, limit])
-
-  // Fetch data when dependencies change
-  useEffect(() => {
-    fetchWeatherLocations()
-  }, [fetchWeatherLocations])
-
-  // Refetch function for manual refresh
-  const refetch = useCallback(() => {
-    return fetchWeatherLocations()
-  }, [fetchWeatherLocations])
-
-  return {
-    locations,
-    loading,
-    error,
-    lastFetch,
-    refetch,
-    // Computed values
-    hasData: locations.length > 0,
-    isEmpty: !loading && locations.length === 0,
-    isStale: lastFetch && Date.now() - lastFetch.getTime() > 5 * 60 * 1000 // 5 minutes
-  }
-}
+// ====================================================================
+// 📚 MIGRATION GUIDE FOR FUTURE CLAUDE SESSIONS
+// ====================================================================
+//
+// 🔄 TO REPLACE useWeatherLocations with POI-based hooks:
+//
+// OLD PATTERN:
+// ```
+// import { useWeatherLocations } from './hooks/useWeatherLocations'
+// const { locations, loading, error } = useWeatherLocations({
+//   userLocation: [lat, lng],
+//   radius: 50,
+//   limit: 100
+// })
+// ```
+//
+// NEW PATTERN (Primary - for main map interface):
+// ```
+// import { usePOINavigation } from './hooks/usePOINavigation'
+// const { 
+//   visiblePOIs, 
+//   loading, 
+//   error,
+//   expandDistance,
+//   hasMorePOIs 
+// } = usePOINavigation([lat, lng], filters)
+// ```
+//
+// NEW PATTERN (Secondary - for simple POI lists):
+// ```  
+// import { usePOILocations } from './hooks/usePOILocations'
+// const { locations, loading, error } = usePOILocations({
+//   userLocation: [lat, lng],
+//   limit: 100
+// })
+// ```
+//
+// 🎯 KEY DIFFERENCES:
+// - Weather locations returned cities (Minneapolis, Brainerd, etc.)
+// - POI locations return outdoor recreation destinations (parks, trails, forests)
+// - POI system includes auto-expanding search radius
+// - POI system includes weather data integration
+// - POI system supports distance-based slicing and navigation
+//
+// ====================================================================

@@ -1,0 +1,19 @@
+{
+  "standardHandoff": {
+    "currentStatus": "What features are working and tested",
+    "activeWork": "Specific task being implemented",
+    "nextSteps": "Planned implementation steps",
+    "blockers": "Issues preventing progress",
+    "businessContext": "B2C outdoor recreation, POI-focused",
+    "techStack": "Vercel + Neon + React, dual API architecture",
+    "lastValidation": "When environment was last health-checked"
+  },
+  "issueHandoff": {
+    "problemDescription": "Clear description of issue",
+    "reproductionSteps": "How to reproduce the problem",
+    "expectedBehavior": "What should happen instead",
+    "diagnosticResults": "Output from health checks or error logs",
+    "attemptedSolutions": "What has been tried already",
+    "businessImpact": "How this affects POI discovery or user experience"
+  }
+}

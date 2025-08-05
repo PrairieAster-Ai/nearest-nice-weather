@@ -1,0 +1,17 @@
+{
+  "primaryTable": "poi_locations",
+  "businessFocus": "B2C outdoor recreation (NOT B2B tourism)",
+  "geographicScope": "Minnesota only",
+  "userJourney": "POI discovery with auto-expand",
+  "techStack": "Vercel + Neon + React",
+  "healthCheck": "./scripts/comprehensive-health-check.sh localhost",
+  "qaAutomation": "npm run qa:deployment-gate",
+  "environmentStart": "npm start",
+  "redFlags": [
+    "Cities appearing instead of parks",
+    "Blank screen on any environment",
+    "API querying locations table",
+    "Manual screenshot workflow",
+    "B2B features being developed"
+  ]
+}

@@ -1,32 +1,79 @@
-/**
- * POI Navigation Hook - Clean algorithm implementation
- * 
- * Manages distance-based POI slicing, localStorage caching, and atomic navigation
- * Based on the anti-thrashing algorithm:
- * 1. Single API call with 50 results limit
- * 2. Distance-based slicing (0-30mi, 30-60mi, 60-90mi...)  
- * 3. Sequential navigation from closest to farthest
- * 4. Click throttling to prevent rapid clicking issues
- */
+// ====================================================================
+// 🏞️ POI NAVIGATION HOOK - PRIMARY FRONTEND DATA INTEGRATION
+// ====================================================================
+//
+// 🎯 BUSINESS PURPOSE:
+// **This is the MAIN hook used by the frontend map interface (App.tsx).**
+// Provides outdoor recreation discovery with intelligent distance-based navigation,
+// auto-expanding search, and weather-integrated POI data.
+//
+// 🔗 FRONTEND INTEGRATION:
+// - Used by: apps/web/src/App.tsx (PRIMARY - main map interface)
+// - Powers: Map markers, POI popup navigation, auto-expand search
+// - Replaces: Legacy useWeatherLocations hook (cities → outdoor recreation POIs)
+//
+// 🧠 INTELLIGENT ALGORITHM FEATURES:
+// 1. **Distance-Based Slicing**: POIs organized in 30-mile increments (0-30mi, 30-60mi, etc.)
+// 2. **Auto-Expanding Search**: If no POIs found in current radius, automatically expands
+// 3. **Anti-Thrashing Navigation**: Sequential POI discovery from closest to farthest
+// 4. **localStorage Caching**: Prevents API re-calls during same session
+// 5. **Click Throttling**: Prevents rapid navigation button clicking issues
+//
+// 📊 DATA FLOW:
+// 1. Fetch POIs from /api/poi-locations-with-weather (outdoor recreation + weather)
+// 2. Calculate distances and organize into 30-mile slices
+// 3. Show closest slice first, expand automatically if empty
+// 4. Provide navigation between distance slices
+// 5. Cache results to prevent unnecessary API calls
+//
+// 🌤️ WEATHER INTEGRATION:
+// Each POI includes real-time weather data: temperature, condition, precipitation, wind
+// Weather data fetched via src/services/weatherService.js with OpenWeather API
+//
+// 🔍 AUTO-EXPAND BEHAVIOR:  
+// If user location has 0 POIs within 30 miles, automatically searches 60mi, then 90mi, etc.
+// Ensures users in remote areas (like northern Minnesota) always find outdoor destinations.
+//
+// @USED_BY: apps/web/src/App.tsx (main map interface)
+// @API_ENDPOINT: /api/poi-locations-with-weather
+// @BUSINESS_CRITICAL: Core user experience - outdoor recreation discovery
+// @REPLACES: useWeatherLocations hook (deprecated weather station approach)
+// @LAST_UPDATED: 2025-08-05 (Auto-expand feature, POI-only architecture)
+//
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-// Data structures
+// ====================================================================
+// 🏞️ POI DATA STRUCTURES - Outdoor Recreation with Weather Integration
+// ====================================================================
+
+/**
+ * POI with Metadata - Complete outdoor recreation destination with weather
+ * 
+ * 📊 DATA SOURCES:
+ * - POI data: poi_locations table (name, lat/lng, park_type, description)
+ * - Weather data: OpenWeather API via weatherService.js (temperature, condition, etc.)
+ * - Distance data: Calculated via Haversine formula from user location
+ * - Navigation data: Calculated slice index and display state for UI
+ */
 export interface POIWithMetadata {
-  id: string;
-  name: string;
-  lat: number; 
+  // 🏞️ POI CORE DATA (from poi_locations table)
+  id: string;                    // Database ID
+  name: string;                  // "Gooseberry Falls State Park", "Paul Bunyan Trail", etc.
+  lat: number;                   // Geographic coordinates 
   lng: number;
-  temperature: number;
-  precipitation: number;
-  windSpeed: string;
-  condition: string;
-  description: string;
   
-  // Calculated metadata
-  distance: number; // Pre-calculated from user location
-  displayed: boolean; // Has this been shown to user?
-  sliceIndex: number; // Which 30mi slice (0=0-30mi, 1=30-60mi, etc)
+  // 🌤️ WEATHER DATA (from weatherService.js + OpenWeather API)
+  temperature: number;           // Degrees Fahrenheit
+  precipitation: number;         // Chance of precipitation (0-100%)
+  windSpeed: string;            // Wind speed in mph
+  condition: string;            // "Clear", "Partly Cloudy", "Light Rain", etc.
+  description: string;          // User-friendly weather description
+  
+  // 🧮 CALCULATED NAVIGATION METADATA (computed by this hook)
+  distance: number;             // Pre-calculated distance from user location (miles)
+  displayed: boolean;           // Has this POI been shown to user in current session?
+  sliceIndex: number;           // Which 30mi slice: 0=0-30mi, 1=30-60mi, 2=60-90mi, etc.
 }
 
 export interface POINavigationState {
@@ -185,7 +232,22 @@ export const usePOINavigation = (
 
       // Process and cache the data
       const processedPOIs = processAPIData(data.data, userLocation);
-      const visiblePOIs = getVisiblePOIs(processedPOIs, DISTANCE_SLICE_SIZE);
+      
+      // Auto-expand search radius if no results found
+      let currentRadius = DISTANCE_SLICE_SIZE;
+      let visiblePOIs = getVisiblePOIs(processedPOIs, currentRadius);
+      
+      // Keep expanding by 30mi increments until we find results or reach all POIs
+      while (visiblePOIs.length === 0 && currentRadius < 300) { // Max 300mi search
+        currentRadius += DISTANCE_SLICE_SIZE;
+        visiblePOIs = getVisiblePOIs(processedPOIs, currentRadius);
+        console.log(`🔍 Auto-expanding search to ${currentRadius}mi...`);
+      }
+      
+      // If we auto-expanded, log it
+      if (currentRadius > DISTANCE_SLICE_SIZE) {
+        console.log(`✅ Auto-expanded search from ${DISTANCE_SLICE_SIZE}mi to ${currentRadius}mi to show ${visiblePOIs.length} results`);
+      }
       
       // Cache in localStorage
       const cacheData = {
@@ -199,19 +261,19 @@ export const usePOINavigation = (
       // Update cache reference
       lastAPICallRef.current = { location: locationKey, filters: filtersKey, timestamp: now };
 
-      // Update state
+      // Update state with the expanded radius
       setState(prevState => ({
         ...prevState,
         allPOIs: processedPOIs,
         visiblePOIs,
-        currentSliceMax: DISTANCE_SLICE_SIZE,
+        currentSliceMax: currentRadius, // Use the auto-expanded radius
         currentPOIIndex: 0, // Start with closest
         isAtClosest: true,
         isAtFarthest: visiblePOIs.length <= 1,
-        canExpand: checkCanExpand(processedPOIs, DISTANCE_SLICE_SIZE)
+        canExpand: checkCanExpand(processedPOIs, currentRadius)
       }));
 
-      console.log(`📍 Loaded ${processedPOIs.length} POIs, showing ${visiblePOIs.length} within ${DISTANCE_SLICE_SIZE}mi`);
+      console.log(`📍 Loaded ${processedPOIs.length} POIs, showing ${visiblePOIs.length} within ${currentRadius}mi`);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load POI data';

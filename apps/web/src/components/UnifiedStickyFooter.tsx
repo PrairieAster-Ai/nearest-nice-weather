@@ -11,7 +11,7 @@ export function UnifiedStickyFooter() {
         right: 0,
         bgcolor: '#f8f4ff', // Light purple background
         borderTop: '2px solid #e0d4f7', // Purple border
-        zIndex: 1002, // Above map and FABs
+        zIndex: 1004, // Above map container (1003) and FABs (1000)
         backdropFilter: 'blur(8px)',
         boxShadow: '0 -4px 20px rgba(117, 99, 168, 0.15)',
         margin: 0,

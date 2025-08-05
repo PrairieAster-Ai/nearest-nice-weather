@@ -113,7 +113,9 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 
 ### **Database Schema Validation**
 - **Always verify table structure** before deploying API changes
-- **Required tables**: `locations`, `weather_conditions`, `tourism_operators` (NOTE: tourism_operators table exists for data completeness, but B2C focus means it's used only for location/activity data, not B2B features)
+- **Primary table**: `poi_locations` (138 Minnesota outdoor recreation destinations: parks, trails, forests, nature centers)
+- **Deprecated tables**: `locations` (legacy cities/weather stations), `weather_conditions` (legacy weather data) - replaced by POI-centric architecture
+- **Note**: tourism_operators table may exist for future data completeness, but B2C focus means outdoor recreation POIs are the primary data source
 - **Test with known good data** before production deployment
 
 **Development Environment** (UNIFIED STARTUP EXPERIENCE):
@@ -263,23 +265,26 @@ vercel --prod                          # BLOCKED - use npm run deploy:production
 
 ## Development Status Update
 
-**TECHNICAL FOUNDATION COMPLETED** ✅ (December 2024):
-1. ✅ **Technical Foundation**: FastAPI + PostGIS + Redis infrastructure validated
-2. ✅ **Database Implementation**: Sample Minnesota locations and outdoor activities loaded
-3. ✅ **API Development**: Infrastructure validation endpoints operational  
-4. ✅ **Frontend Dashboard**: Real-time infrastructure monitoring interface
+**CURRENT IMPLEMENTATION STATUS** ✅ (2025):
+1. ✅ **Technical Foundation**: Vercel Functions + Neon PostgreSQL fully operational
+2. ✅ **Database Implementation**: 138 Minnesota outdoor recreation POIs loaded (parks, trails, forests)
+3. ✅ **API Development**: POI discovery endpoints with weather integration live
+4. ✅ **Frontend**: React PWA with Material-UI displaying outdoor destinations on map
+5. ✅ **Weather Integration**: Real-time weather data via OpenWeather API (needs API key)
+6. ✅ **Core Features**: Distance-based discovery, auto-expanding search, weather enhancement
 
-**NEXT DEVELOPMENT PRIORITIES**:
-1. **Weather API Integration**: Connect OpenWeather, Weather API, NOAA services
-2. **Core Algorithm**: Weather-activity matching for Minnesota conditions  
-3. **Consumer Features**: B2C interface optimization and user experience
-4. **Customer Discovery**: Market validation with live platform demos
+**BUSINESS MODEL IMPLEMENTATION**:
+- ✅ **B2C Focus**: Pure consumer platform for outdoor enthusiasts
+- ✅ **POI-Centric**: 138 real Minnesota parks/trails (NOT weather stations)
+- ❌ **No B2B Features**: Tourism operator functionality NOT implemented
 
 ## File Organization
 
-**CURRENT IMPLEMENTATION** (Ready for Feature Development):
-- `application/app/` - ✅ FastAPI application with infrastructure validation
-- `application/frontend/` - ✅ Next.js Progressive Web App with status dashboard
+**ACTUAL IMPLEMENTATION** (What's Really Built):
+- `apps/web/` - ✅ React + Vite frontend with Material-UI
+- `apps/web/api/` - ✅ Vercel serverless functions (production APIs)
+- `dev-api-server.js` - ✅ Express.js localhost API for fast development
+- `scripts/` - ✅ Development tools and POI seeding scripts
 - `application/database/` - ✅ PostgreSQL schema with sample data loaded
 - `application/logs/` - Application logging directory
 - `docker-compose.yml` - ✅ Complete development environment configuration

@@ -1,0 +1,136 @@
+{
+  "config": {
+    "configFile": "/home/robertspeer/Projects/GitRepo/nearest-nice-weather/playwright.config.js",
+    "rootDir": "/home/robertspeer/Projects/GitRepo/nearest-nice-weather/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/robertspeer/Projects/GitRepo/nearest-nice-weather/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/robertspeer/Projects/GitRepo/nearest-nice-weather/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "verify-parks.spec.js",
+      "file": "verify-parks.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Verify parks are showing instead of cities",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8240,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "\n=== PAGE CONTENT ANALYSIS ===\n"
+                    },
+                    {
+                      "text": "Looking for park indicators in page...\n"
+                    },
+                    {
+                      "text": "✅ Found park indicator: Deep Portage\n"
+                    },
+                    {
+                      "text": "\nPark indicators found: 1\n"
+                    },
+                    {
+                      "text": "City indicators found: 0\n"
+                    },
+                    {
+                      "text": "🎉 SUCCESS: Parks are now showing in the frontend!\n"
+                    },
+                    {
+                      "text": "\n=== CONSOLE LOGS ===\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-05T18:23:25.839Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d6d3ddcbaba598a9a2b1-62bb68f297da2e2e481e",
+          "file": "verify-parks.spec.js",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-05T18:23:25.352Z",
+    "duration": 8875.339,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

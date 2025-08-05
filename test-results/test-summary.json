@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-08-05T21:37:08.320Z",
+  "totalTests": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "duration": 0,
+  "businessModel": "B2C outdoor recreation platform",
+  "primaryTable": "poi_locations",
+  "environment": {
+    "nodeVersion": "v20.18.0",
+    "platform": "linux",
+    "baseURL": "http://localhost:3001"
+  },
+  "categories": {
+    "visualRegression": 0,
+    "functionalTesting": 0,
+    "performanceTesting": 0,
+    "accessibilityTesting": 0,
+    "businessValidation": 0
+  }
+}

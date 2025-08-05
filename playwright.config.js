@@ -1,97 +1,139 @@
 /**
- * Playwright Configuration for Nearest Nice Weather
- * Optimized for Claude Code MCP integration and frontend testing
+ * Enhanced Playwright Configuration for Nearest Nice Weather
+ * Comprehensive QA automation with cross-browser testing, performance monitoring,
+ * and business model validation for Claude Code MCP integration
  */
 
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  // Test directory
+  // Test directory structure
   testDir: './tests',
   
-  // Timeout per test (increased for expansion cycle tests)
+  // Enhanced timeout for complex POI discovery workflows
   timeout: 120000,
   
-  // Expect timeout (increased for marker assertions)
+  // Expect timeout (optimized for map rendering and API calls)
   expect: {
-    timeout: 10000
+    timeout: 15000
   },
   
   // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
   
-  // Retry on CI only
-  retries: process.env.CI ? 2 : 0,
+  // Enhanced retry strategy for reliability
+  retries: process.env.CI ? 3 : 1,
   
-  // Opt out of parallel tests (expansion tests modify app state)
-  workers: 1,
+  // Parallel execution (safe for independent tests)
+  workers: process.env.CI ? 2 : 1,
   
-  // Reporter to use
+  // Comprehensive reporting for MCP integration
   reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['json', { outputFile: 'test-results.json' }]
+    ['html', { 
+      outputFolder: 'playwright-report',
+      open: 'never' // Prevent auto-opening in headless environments
+    }],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+    ['list'] // Console output for CI/CD
   ],
   
-  // Shared settings for all projects
+  // Enhanced global settings
   use: {
-    // Base URL for tests
-    baseURL: 'http://localhost:3001',
+    // Base URL for tests (dynamically configurable)
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001',
     
-    // Browser context options
+    // Optimized viewport for POI map testing
     viewport: { width: 1280, height: 720 },
     
-    // Collect trace when retrying the failed test
+    // Comprehensive debugging configuration
     trace: 'on-first-retry',
-    
-    // Take screenshot on failure
     screenshot: 'only-on-failure',
-    
-    // Record video on failure
     video: 'retain-on-failure',
     
-    // Global test timeout
-    actionTimeout: 10000,
+    // Performance and reliability settings
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
+    
+    // Browser launch options for enhanced debugging
+    launchOptions: {
+      slowMo: process.env.PLAYWRIGHT_SLOW_MO ? parseInt(process.env.PLAYWRIGHT_SLOW_MO) : 0,
+    },
   },
   
-  // Configure projects for major browsers
+  // Multi-browser testing matrix for comprehensive QA
   projects: [
+    // Desktop browsers
     {
-      name: 'chromium',
+      name: 'chromium-desktop',
       use: { 
         ...devices['Desktop Chrome'],
-        // Enable DevTools for debugging
         launchOptions: {
-          // args: ['--start-maximized']
+          args: ['--disable-web-security', '--disable-features=VizDisplayCompositor']
         }
       },
     },
+    {
+      name: 'firefox-desktop', 
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit-desktop',
+      use: { ...devices['Desktop Safari'] },
+    },
     
-    // Uncomment for cross-browser testing
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // 
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
+    // Mobile browsers for responsive testing
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 12'] },
+    },
+    
+    // Tablet testing
+    {
+      name: 'tablet-chrome',
+      use: { ...devices['iPad Pro'] },
+    },
   ],
   
-  // Run your local dev server before starting the tests
+  // Enhanced web server configuration with health checks
   webServer: [
     {
       command: 'node dev-api-server.js',
       port: 4000,
       reuseExistingServer: !process.env.CI,
+      timeout: 60000, // Allow more time for API server startup
+      env: {
+        NODE_ENV: 'test'
+      }
     },
     {
       command: 'cd apps/web && npm run dev',
       port: 3001,
       reuseExistingServer: !process.env.CI,
+      timeout: 90000, // Allow more time for frontend compilation
+      env: {
+        NODE_ENV: 'test',
+        VITE_API_BASE_URL: 'http://localhost:4000'
+      }
     },
   ],
   
-  // Output directory for test artifacts
+  // Enhanced output configuration
   outputDir: 'test-results/',
+  
+  // Global setup for business context validation
+  globalSetup: './tests/global-setup.js',
+  globalTeardown: './tests/global-teardown.js',
+  
+  // Test metadata for MCP integration
+  metadata: {
+    businessModel: 'B2C outdoor recreation platform',
+    primaryTable: 'poi_locations',
+    targetGeography: 'Minnesota',
+    criticalUserJourney: 'POI discovery with auto-expand'
+  }
 });

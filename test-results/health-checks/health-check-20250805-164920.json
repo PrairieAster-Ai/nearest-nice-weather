@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-08-05T21:49:20Z",
+  "environment": "localhost",
+  "baseUrl": "http://localhost:3001",
+  "apiUrl": "http://localhost:4000",
+  "checks": {
+    "api_health": {
+      "status": "passed",
+      "details": "API health endpoint responding",
+      "score": 15,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "poi_api": {
+      "status": "passed",
+      "details": "POI endpoint returning 1 results",
+      "score": 15,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "weather_api": {
+      "status": "degraded",
+      "details": "Weather API endpoint not responding (non-critical)",
+      "score": 5,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "frontend_html": {
+      "status": "failed",
+      "details": "Frontend HTML not loading",
+      "score": 0,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "javascript_bundles": {
+      "status": "warning",
+      "details": "Could not find JavaScript bundle reference",
+      "score": 5,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "poi_data_integrity": {
+      "status": "passed",
+      "details": "10 valid Minnesota POIs found",
+      "score": 15,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "business_model": {
+      "status": "passed",
+      "details": "Data reflects B2C outdoor recreation focus",
+      "score": 10,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "api_performance": {
+      "status": "passed",
+      "details": "API response time: 70ms",
+      "score": 10,
+      "timestamp": "2025-08-05T21:49:20Z"
+    },
+    "playwright_mcp": {
+      "status": "passed",
+      "details": "Playwright MCP available and functional",
+      "score": 5,
+      "timestamp": "2025-08-05T21:49:21Z"
+    },
+    "memory_bank_mcp": {
+      "status": "passed",
+      "details": "Memory Bank directory exists",
+      "score": 5,
+      "timestamp": "2025-08-05T21:49:21Z"
+    }
+  },
+  "healthScore": 75,
+  "status": "completed",
+  "maxScore": 100,
+  "finalScore": 75
+}

@@ -1,0 +1,46 @@
+{
+  "accelerators": [
+    {
+      "technique": "Comprehensive health checks before coding",
+      "benefit": "Prevents 2-4 hours of environment troubleshooting",
+      "script": "./scripts/comprehensive-health-check.sh"
+    },
+    {
+      "technique": "Playwright MCP for automated QA",
+      "benefit": "Reduces manual testing time by 85%",
+      "usage": "Use for all UI changes and deployments"
+    },
+    {
+      "technique": "Business context validation",
+      "benefit": "Prevents building wrong features",
+      "pattern": "Always validate POI-centric results"
+    },
+    {
+      "technique": "Unified development startup",
+      "benefit": "Consistent environment in 30 seconds",
+      "command": "npm start"
+    }
+  ],
+  "decelerators": [
+    {
+      "problem": "Manual screenshot sharing workflow",
+      "cost": "15-30 minutes per debug session",
+      "solution": "Use Playwright MCP automated screenshots"
+    },
+    {
+      "problem": "Environment state inconsistency",
+      "cost": "14-19 hours/week historical loss",
+      "solution": "Use comprehensive health check automation"
+    },
+    {
+      "problem": "Breaking working features during changes",
+      "cost": "6-8 hours debugging + rollback time",
+      "solution": "Use deployment gate QA automation"
+    },
+    {
+      "problem": "Business model misalignment",
+      "cost": "Days of wrong-direction development",
+      "solution": "Automated business validation in all tests"
+    }
+  ]
+}
