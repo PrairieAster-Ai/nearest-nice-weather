@@ -293,7 +293,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
                style="background-color: rgba(127, 164, 207, 0.5)">
               🌲 MN DNR
             </a>
-            ${locations.length > 1 ? `
+            ${(allPOICount > 1 || canExpand) ? `
             <div class="flex space-x-1 mb-1" data-popup-nav="true">
               <button data-nav-action="closer" 
                       ${isAtClosest ? 'disabled' : ''}
@@ -455,7 +455,7 @@ const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange,
                style="background-color: rgba(127, 164, 207, 0.5)">
               🌲 MN DNR
             </a>
-            ${locations.length > 1 ? `
+            ${(allPOICount > 1 || canExpand) ? `
             <div class="flex space-x-1 mb-1" data-popup-nav="true">
               <button data-nav-action="closer" 
                       ${isAtClosest ? 'disabled' : ''}
