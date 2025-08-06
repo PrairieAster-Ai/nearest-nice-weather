@@ -28,8 +28,8 @@ import { config } from 'dotenv'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Load environment variables
-config({ path: join(__dirname, '..', '.env') })
+// Load environment variables (suppress output)
+config({ path: join(__dirname, '..', '.env'), override: false, debug: false })
 
 // Database connection function
 async function connectToDatabase(databaseUrl) {
