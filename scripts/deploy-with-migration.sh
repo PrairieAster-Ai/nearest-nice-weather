@@ -19,6 +19,13 @@
 
 set -e
 
+# Load environment variables from .env file
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
+
 # Color codes for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
