@@ -144,27 +144,87 @@ curl https://nearestniceweather.com/api/health
 curl https://nearestniceweather.com/api/poi-locations?limit=2
 ```
 
-## 🗄️ Database Strategy
+## 🗄️ Database Strategy - Multi-Environment Architecture
 
-### Current Schema Status
-**Production Database (Neon)**:
-- ✅ `poi_locations` table populated with Minnesota outdoor recreation data
+### Current Database Architecture (UPDATED 2025-08-05)
+**Neon Database Branching Strategy**:
+- 🔧 **Development Branch**: localhost environment (source of truth for POI data)
+- 🔍 **Preview Branch**: p.nearestniceweather.com staging environment  
+- 🚀 **Production Branch**: nearestniceweather.com live environment
+
+### Database Configuration
+**Environment Variables Required**:
+```bash
+# Development (localhost)
+DEV_DATABASE_URL="postgresql://neondb_owner:npg_8kgcq7LIGvUy@ep-soft-surf-advwzunc-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# Preview (Vercel environment variable)
+PREVIEW_DATABASE_URL="postgresql://username:password@ep-preview-xxxxx.region.neon.tech/neondb?sslmode=require"
+
+# Production (Vercel environment variable)  
+PRODUCTION_DATABASE_URL="postgresql://username:password@ep-production-xxxxx.region.neon.tech/neondb?sslmode=require"
+```
+
+### Schema Status by Environment
+**Development Branch (Source of Truth)**:
+- ✅ `poi_locations` table: 138 Minnesota outdoor recreation POIs
 - ✅ Geographic data properly formatted (lat/lng as decimal)
-- ✅ Business model aligned (parks/trails, not weather stations)
-- ⚠️ Legacy `locations` table still exists but unused
+- ✅ Business model aligned (parks/trails/forests, not cities)
+- ✅ Data source: manual curation + park_type classification
 
-### Migration Plan
-**No schema changes required** for this deployment:
-- POI data already migrated and validated
-- Weather integration uses external API (no schema changes)
-- Legacy table can remain for safety (optional cleanup later)
+**Preview Branch (NEEDS MIGRATION)**:
+- ❌ Current data: Cities (Albert Lea, etc.) - business model violation
+- ⚠️ Requires POI data migration from development branch
+- ❌ Legacy schema with incorrect data focus
+
+**Production Branch (UNKNOWN STATUS)**:
+- ❓ Schema status unknown - requires validation
+- ❓ POI data status unknown - likely needs migration
+- ⚠️ Must be validated before production deployment
+
+### Migration Plan (CRITICAL FOR DEPLOYMENT)
+**Required Actions Before Preview Deployment**:
+
+1. **Export POI Data from Development**:
+   ```bash
+   DEV_DATABASE_URL="postgresql://..." node scripts/database-migration.js export-dev > poi-backup.json
+   ```
+
+2. **Import to Preview Branch**:
+   ```bash
+   PREVIEW_DATABASE_URL="postgresql://..." node scripts/database-migration.js import-preview < poi-backup.json
+   ```
+
+3. **Validate Preview Data**:
+   ```bash
+   PREVIEW_DATABASE_URL="postgresql://..." node scripts/database-migration.js validate preview
+   ```
+
+**Automated Migration Workflow**:
+```bash
+# Deploy with automatic migration
+./scripts/deploy-with-migration.sh preview
+./scripts/deploy-with-migration.sh production
+```
+
+### Data Flow Architecture
+```
+[Development Branch] --export--> [POI Data JSON] --import--> [Preview Branch]
+        ↓                                                          ↓
+    (Source of Truth)                                       (Staging Validation)
+   138 POI Records                                              ↓
+                                                        [Preview Testing]
+                                                              ↓
+                                                     [Production Branch]
+                                                        (Live Data)
+```
 
 ### Rollback Strategy
-**If deployment fails**:
-1. **Immediate**: Revert to previous Vercel deployment
-2. **API Issues**: Temporarily point to fallback mock data
-3. **Database Issues**: Neon database is unchanged (safe)
-4. **Frontend Issues**: Previous build available for instant rollback
+**If migration/deployment fails**:
+1. **Database Issues**: Each branch is isolated - development unaffected
+2. **Preview Issues**: Revert to previous Vercel deployment, restore backup
+3. **Production Issues**: Emergency rollback preserves production data
+4. **Data Corruption**: Restore from development branch (source of truth)
 
 ## 🎯 Success Criteria
 

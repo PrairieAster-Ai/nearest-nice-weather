@@ -147,10 +147,10 @@ npm run health:monitor     # Run persistent health monitor independently
 cd apps/web && npm run dev  # Frontend only
 node dev-api-server.js      # API only
 
-# STEP 3: Database Environment Deployment Strategy
-# LOCALHOST: Uses Neon development branch (.env)
-# PREVIEW: Uses Neon production branch (.env.production in Vercel)
-# PRODUCTION: Uses Neon production branch (.env.production in Vercel)
+# STEP 3: Database Environment Deployment Strategy (UPDATED 2025-08-05)
+# LOCALHOST: Uses Neon development branch (.env) - SOURCE OF TRUTH for POI data
+# PREVIEW: Uses Neon preview branch (Vercel environment variables) - REQUIRES MIGRATION
+# PRODUCTION: Uses Neon production branch (Vercel environment variables) - REQUIRES MIGRATION
 
 # Production-style process management (optional)
 npm install -g pm2
@@ -176,29 +176,38 @@ cp .env.example .env
 
 # The development server will proxy API calls to localhost:4000 automatically
 # Each environment uses its own database branch:
-# - localhost: development branch (isolated testing)
-# - preview: production branch (staging validation)  
-# - production: production branch (live data)
+# - localhost: development branch (source of truth - 138 POI records)
+# - preview: preview branch (staging validation - requires POI migration)  
+# - production: production branch (live data - requires POI migration)
 
 # Optional: Set custom development port
 export DEV_PORT=3001  # Default port if not specified
 cd apps/web && npm run dev
 ```
 
-**Deployment Commands** (PRODUCTION SAFETY):
+**Deployment Commands** (PRODUCTION SAFETY WITH DATABASE MIGRATION):
 ```bash
-# Preview deployment (safe, with automatic validation)
-npm run deploy:preview
+# Preview deployment with POI data migration (RECOMMENDED)
+./scripts/deploy-with-migration.sh preview
 
-# Production deployment (requires explicit confirmation)
-npm run deploy:production              # Interactive confirmation required
-npm run deploy:production -- --force   # Skip confirmation (emergency use only)
+# Production deployment with POI data migration (RECOMMENDED)  
+./scripts/deploy-with-migration.sh production
+
+# Alternative: Manual deployment without migration (REQUIRES MANUAL DATABASE SYNC)
+npm run deploy:preview              # Must manually sync POI data afterward
+npm run deploy:production           # Interactive confirmation + manual data sync required
+npm run deploy:production -- --force # Emergency use only (skip confirmation)
+
+# Database migration only (without deployment)
+node scripts/database-migration.js export-dev > poi-backup.json
+node scripts/database-migration.js import-preview < poi-backup.json
+node scripts/database-migration.js validate preview
 
 # Legacy deploy command (disabled for safety)
-npm run deploy                         # Returns error message with correct commands
+npm run deploy                      # Returns error message with correct commands
 
 # DANGEROUS: Raw vercel commands (blocked by safety wrapper)
-vercel --prod                          # BLOCKED - use npm run deploy:production instead
+vercel --prod                       # BLOCKED - use deployment scripts instead
 ```
 
 **Deployment Safety Features**:

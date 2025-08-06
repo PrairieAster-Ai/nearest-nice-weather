@@ -25,7 +25,7 @@ MAX_SCORE=100
 # Set environment URLs
 case $ENVIRONMENT in
   "localhost")
-    BASE_URL="http://localhost:3001"
+    BASE_URL="http://localhost:3002"
     API_URL="http://localhost:4000"
     ;;
   "preview")
