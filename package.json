@@ -115,6 +115,7 @@
     "wait-on": "^8.0.1"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
     "@octokit/graphql": "^9.0.1",
     "@octokit/rest": "^22.0.0",
     "@vercel/node": "^2.3.0",

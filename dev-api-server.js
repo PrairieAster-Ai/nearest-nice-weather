@@ -527,16 +527,11 @@ app.get('/api/poi-locations', async (req, res) => {
         //
         // SYNC RISK: HIGH - Math errors cause incorrect distance calculations
         // MITIGATION: Extract to shared GeographyUtils class (post-MVP)
+        // Try expanded table first for 1000+ POI dataset
         query = `
           SELECT 
-            id,
-            name,
-            lat,
-            lng,
-            park_type,
-            data_source,
-            description,
-            place_rank,
+            id, name, lat, lng, park_type, park_level, ownership, operator,
+            data_source, description, place_rank, phone, website, amenities, activities,
             (
               -- 📐 HAVERSINE DISTANCE FORMULA - Great Circle Distance Calculation
               -- 🌍 3959 = Earth's radius in miles (use 6371 for kilometers)
@@ -549,20 +544,18 @@ app.get('/api/poi-locations', async (req, res) => {
                 sin(radians($2)) * sin(radians(lat))
               )
             ) as distance_miles
-          FROM poi_locations
-          WHERE data_source = 'manual' OR park_type IS NOT NULL
+          FROM poi_locations_expanded
           ORDER BY distance_miles ASC
           LIMIT $3
         `
         queryParams = [parseFloat(lng), parseFloat(lat), parseInt(limit)]
       } else {
-        // All POIs ordered by importance
+        // All POIs ordered by importance (expanded table)
         query = `
           SELECT 
-            id, name, lat, lng, park_type, data_source, 
-            description, place_rank
-          FROM poi_locations
-          WHERE data_source = 'manual' OR park_type IS NOT NULL
+            id, name, lat, lng, park_type, park_level, ownership, operator,
+            data_source, description, place_rank, phone, website, amenities, activities
+          FROM poi_locations_expanded
           ORDER BY place_rank ASC, name ASC
           LIMIT $1
         `
@@ -576,26 +569,35 @@ app.get('/api/poi-locations', async (req, res) => {
       } catch (error) {
         console.log('POI query failed, trying fallback:', error.message)
         
-        // Fallback queries for schema compatibility
-        if (error.message.includes('column')) {
-          // Most basic query - just essential columns
+        // Fallback to original table for schema compatibility
+        if (error.message.includes('poi_locations_expanded')) {
+          console.log('Expanded table not found, falling back to original poi_locations table')
+          // Fallback to original table structure
           if (lat && lng) {
             query = `
-              SELECT id, name, lat, lng,
+              SELECT id, name, lat, lng, park_type, data_source, 
+                     description, place_rank,
+                     NULL as park_level, NULL as ownership, NULL as operator,
+                     NULL as phone, NULL as website, NULL as amenities, NULL as activities,
                 (3959 * acos(
                   cos(radians($2)) * cos(radians(lat)) * 
                   cos(radians(lng) - radians($1)) + 
                   sin(radians($2)) * sin(radians(lat))
                 )) as distance_miles
               FROM poi_locations
+              WHERE data_source = 'manual' OR park_type IS NOT NULL
               ORDER BY distance_miles ASC
               LIMIT $3
             `
           } else {
             query = `
-              SELECT id, name, lat, lng
+              SELECT id, name, lat, lng, park_type, data_source, 
+                     description, place_rank,
+                     NULL as park_level, NULL as ownership, NULL as operator,
+                     NULL as phone, NULL as website, NULL as amenities, NULL as activities
               FROM poi_locations
-              ORDER BY name ASC
+              WHERE data_source = 'manual' OR park_type IS NOT NULL
+              ORDER BY place_rank ASC, name ASC
               LIMIT $1
             `
           }
@@ -621,9 +623,17 @@ app.get('/api/poi-locations', async (req, res) => {
         lat: parseFloat(row.lat),
         lng: parseFloat(row.lng),
         park_type: row.park_type || null,
+        park_level: row.park_level || null,
+        ownership: row.ownership || null,
+        operator: row.operator || null,
         data_source: row.data_source || 'unknown',
         description: row.description || null,
         importance_rank: row.place_rank || 1,
+        phone: row.phone || null,
+        website: row.website || null,
+        amenities: row.amenities || [],
+        activities: row.activities || [],
+        place_rank: row.place_rank || row.importance_rank,
         distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
       }))
       
@@ -742,15 +752,14 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
     if (lat && lng) {
       query = `
         SELECT 
-          id, name, lat, lng, park_type, data_source, 
-          description, place_rank,
+          id, name, lat, lng, park_type, park_level, ownership, operator,
+          data_source, description, place_rank, phone, website, amenities, activities,
           (3959 * acos(
             cos(radians($2)) * cos(radians(lat)) * 
             cos(radians(lng) - radians($1)) + 
             sin(radians($2)) * sin(radians(lat))
           )) as distance_miles
-        FROM poi_locations
-        WHERE data_source = 'manual' OR park_type IS NOT NULL
+        FROM poi_locations_expanded
         ORDER BY distance_miles ASC
         LIMIT $3
       `
@@ -758,10 +767,9 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
     } else {
       query = `
         SELECT 
-          id, name, lat, lng, park_type, data_source, 
-          description, place_rank
-        FROM poi_locations
-        WHERE data_source = 'manual' OR park_type IS NOT NULL
+          id, name, lat, lng, park_type, park_level, ownership, operator,
+          data_source, description, place_rank, phone, website, amenities, activities
+        FROM poi_locations_expanded
         ORDER BY place_rank ASC, name ASC
         LIMIT $1
       `
@@ -775,38 +783,37 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
     } catch (error) {
       console.log('POI-weather query failed, trying fallback:', error.message)
       
-      // Simplified fallback - most basic columns only
+      // Fallback to original table for schema compatibility
       if (lat && lng) {
         query = `
-          SELECT id, name, lat, lng,
+          SELECT id, name, lat, lng, park_type, data_source, 
+                 description, place_rank,
+                 NULL as park_level, NULL as ownership, NULL as operator,
+                 NULL as phone, NULL as website, NULL as amenities, NULL as activities,
             (3959 * acos(
               cos(radians($2)) * cos(radians(lat)) * 
               cos(radians(lng) - radians($1)) + 
               sin(radians($2)) * sin(radians(lat))
             )) as distance_miles
           FROM poi_locations
+          WHERE data_source = 'manual' OR park_type IS NOT NULL
           ORDER BY distance_miles ASC
           LIMIT $3
         `
       } else {
         query = `
-          SELECT id, name, lat, lng
+          SELECT id, name, lat, lng, park_type, data_source, 
+                 description, place_rank,
+                 NULL as park_level, NULL as ownership, NULL as operator,
+                 NULL as phone, NULL as website, NULL as amenities, NULL as activities
           FROM poi_locations
-          ORDER BY name ASC
+          WHERE data_source = 'manual' OR park_type IS NOT NULL
+          ORDER BY place_rank ASC, name ASC
           LIMIT $1
         `
       }
       
       result = await client.query(query, queryParams)
-      
-      // Add defaults for missing columns
-      result.rows = result.rows.map(row => ({
-        ...row,
-        park_type: null,
-        data_source: 'unknown',
-        description: null,
-        place_rank: 1
-      }))
     }
     
     // Transform results with REAL weather data from OpenWeather API
@@ -820,9 +827,17 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
         lat: parseFloat(row.lat),
         lng: parseFloat(row.lng),
         park_type: row.park_type || null,
+        park_level: row.park_level || null,
+        ownership: row.ownership || null,
+        operator: row.operator || null,
         data_source: row.data_source || 'unknown',
         description: row.description || null,
         importance_rank: row.place_rank || 1,
+        phone: row.phone || null,
+        website: row.website || null,
+        amenities: row.amenities || [],
+        activities: row.activities || [],
+        place_rank: row.place_rank || row.importance_rank,
         distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
         
         // REAL weather data from OpenWeather API

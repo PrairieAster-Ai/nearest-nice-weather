@@ -37,62 +37,104 @@ export default async function handler(req, res) {
     const { lat, lng, limit = 50, radius = 50 } = req.query
     const limitNum = Math.min(parseInt(limit) || 50, 100) // Cap at 100
 
-    // Simple query - handle schema differences gracefully
+    // Simple query - handle both legacy and expanded tables
     let result
     try {
-      // Try most complete query first
+      // Try expanded table first (new 1000+ POI dataset)
       result = await sql`
         SELECT 
-          id, name, lat, lng, park_type, data_source, description, 
-          place_rank as importance_rank,
+          id, name, lat, lng, park_type, park_level, ownership, operator,
+          data_source, description, place_rank as importance_rank,
+          phone, website, amenities, activities,
           NULL as distance_miles
-        FROM poi_locations
-        WHERE data_source = 'manual' OR park_type IS NOT NULL
+        FROM poi_locations_expanded
         ORDER BY place_rank ASC, name ASC
         LIMIT ${limitNum}
       `
-    } catch (error) {
+    } catch (expandedError) {
       try {
-        // Fallback 1: Without park_type
+        // Fallback to original table for backwards compatibility
         result = await sql`
           SELECT 
-            id, name, lat, lng, data_source, description, 
+            id, name, lat, lng, park_type, data_source, description, 
             place_rank as importance_rank,
             NULL as distance_miles,
-            NULL as park_type
+            NULL as park_level,
+            NULL as ownership,
+            NULL as operator,
+            NULL as phone,
+            NULL as website,
+            NULL as amenities,
+            NULL as activities
           FROM poi_locations
-          WHERE data_source = 'manual'
+          WHERE data_source = 'manual' OR park_type IS NOT NULL
           ORDER BY place_rank ASC, name ASC
           LIMIT ${limitNum}
         `
-      } catch (error2) {
+      } catch (fallbackError) {
         try {
-          // Fallback 2: Without data_source and park_type
+          // Fallback 2: Without park_type (minimal original table)
           result = await sql`
             SELECT 
-              id, name, lat, lng, description, 
+              id, name, lat, lng, data_source, description, 
               place_rank as importance_rank,
               NULL as distance_miles,
               NULL as park_type,
-              'unknown' as data_source
+              NULL as park_level,
+              NULL as ownership,
+              NULL as operator,
+              NULL as phone,
+              NULL as website,
+              NULL as amenities,
+              NULL as activities
             FROM poi_locations
+            WHERE data_source = 'manual'
             ORDER BY place_rank ASC, name ASC
             LIMIT ${limitNum}
           `
-        } catch (error3) {
-          // Final fallback: Basic columns only
-          result = await sql`
-            SELECT 
-              id, name, lat, lng,
-              NULL as description,
-              1 as importance_rank,
-              NULL as distance_miles,
-              NULL as park_type,
-              'unknown' as data_source
-            FROM poi_locations
-            ORDER BY name ASC
-            LIMIT ${limitNum}
-          `
+        } catch (error2) {
+          try {
+            // Fallback 3: Basic columns only
+            result = await sql`
+              SELECT 
+                id, name, lat, lng, description, 
+                place_rank as importance_rank,
+                NULL as distance_miles,
+                NULL as park_type,
+                NULL as park_level,
+                NULL as ownership,
+                NULL as operator,
+                NULL as phone,
+                NULL as website,
+                NULL as amenities,
+                NULL as activities,
+                'unknown' as data_source
+              FROM poi_locations
+              ORDER BY place_rank ASC, name ASC
+              LIMIT ${limitNum}
+            `
+          } catch (error3) {
+            // Final fallback: Absolute minimum
+            result = await sql`
+              SELECT 
+                id, name, lat, lng,
+                NULL as description,
+                1 as importance_rank,
+                NULL as distance_miles,
+                NULL as park_type,
+                NULL as park_level,
+                NULL as ownership,
+                NULL as operator,
+                NULL as phone,
+                NULL as website,
+                NULL as amenities,
+                NULL as activities,
+                'unknown' as data_source
+              FROM poi_locations
+              ORDER BY name ASC
+              LIMIT ${limitNum}
+            `
+          }
         }
       }
     }
@@ -104,13 +146,20 @@ export default async function handler(req, res) {
       lat: parseFloat(row.lat),
       lng: parseFloat(row.lng),
       park_type: row.park_type,
+      park_level: row.park_level,
+      ownership: row.ownership,
+      operator: row.operator,
       data_source: row.data_source,
       description: row.description,
       importance_rank: row.importance_rank,
+      phone: row.phone,
+      website: row.website,
+      amenities: row.amenities || [],
+      activities: row.activities || [],
       osm_id: row.osm_id,
       osm_type: row.osm_type,
       search_name: row.search_name,
-      place_rank: row.place_rank,
+      place_rank: row.place_rank || row.importance_rank,
       external_id: row.external_id,
       distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
     }))
