@@ -59,7 +59,7 @@ export async function fetchWeatherData(lat, lng) {
       condition: mapWeatherCondition(data.weather[0].main),
       weather_description: data.weather[0].description,
       precipitation: calculatePrecipitationChance(data),
-      wind_speed: Math.round(data.wind?.speed || 0),
+      windSpeed: Math.round(data.wind?.speed || 0),
       weather_source: 'openweather',
       weather_timestamp: new Date().toISOString()
     }
@@ -119,7 +119,7 @@ function getFallbackWeather(lat, lng) {
     condition: 'Partly Cloudy',
     weather_description: 'Pleasant outdoor conditions',
     precipitation: 15,
-    wind_speed: 8,
+    windSpeed: 8,
     weather_source: 'fallback',
     weather_timestamp: new Date().toISOString()
   }

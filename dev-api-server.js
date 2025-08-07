@@ -107,27 +107,27 @@ function applyWeatherFilters(locations, filters) {
 
   // Wind filtering - based on percentiles of available wind speeds
   if (filters.wind && filters.wind !== '') {
-    const winds = locations.map(loc => loc.wind_speed || loc.windSpeed || 0).sort((a, b) => a - b)
+    const winds = locations.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
     const windCount = winds.length
 
     if (filters.wind === 'calm') {
       // Show calmest 50% of available locations
       const threshold = winds[Math.floor(windCount * 0.5)]
-      filtered = filtered.filter(loc => (loc.wind_speed || loc.windSpeed || 0) <= threshold)
+      filtered = filtered.filter(loc => (loc.windSpeed || 0) <= threshold)
       console.log(`🍃 Calm filter: wind ≤ ${threshold}mph`)
     } else if (filters.wind === 'breezy') {
       // Show middle wind range (30th-70th percentile)
       const minThreshold = winds[Math.floor(windCount * 0.3)]
       const maxThreshold = winds[Math.floor(windCount * 0.7)]
       filtered = filtered.filter(loc => {
-        const windSpeed = loc.wind_speed || loc.windSpeed || 0
+        const windSpeed = loc.windSpeed || 0
         return windSpeed >= minThreshold && windSpeed <= maxThreshold
       })
       console.log(`💨 Breezy filter: wind ${minThreshold} - ${maxThreshold}mph`)
     } else if (filters.wind === 'windy') {
       // Show windiest 30% of available locations
       const threshold = winds[Math.floor(windCount * 0.7)]
-      filtered = filtered.filter(loc => (loc.wind_speed || loc.windSpeed || 0) >= threshold)
+      filtered = filtered.filter(loc => (loc.windSpeed || 0) >= threshold)
       console.log(`🌪️ Windy filter: wind ≥ ${threshold}mph`)
     }
   }
@@ -936,7 +936,7 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
         condition: weatherData.condition,
         weather_description: weatherData.description,
         precipitation: weatherData.precipitation,
-        wind_speed: weatherData.windSpeed,
+        windSpeed: weatherData.windSpeed,
         weather_source: weatherData.source, // 'openweather' or 'fallback'
         weather_timestamp: weatherData.timestamp
       }
