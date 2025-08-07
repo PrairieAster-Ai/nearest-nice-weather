@@ -47,6 +47,95 @@ import { dirname } from 'path'
 import dotenv from 'dotenv'
 import { fetchWeatherData, fetchBatchWeather } from './src/services/weatherService.js'
 
+/**
+ * Apply weather-based filtering to POI results
+ * Uses percentile-based filtering for relative weather preferences
+ */
+function applyWeatherFilters(locations, filters) {
+  if (!locations || locations.length === 0) return []
+
+  let filtered = [...locations]
+  const startCount = filtered.length
+
+  // Temperature filtering - uses percentile-based approach for seasonal relevance
+  if (filters.temperature && filters.temperature !== '') {
+    const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
+    const tempCount = temps.length
+
+    if (filters.temperature === 'cold') {
+      // Show coldest 40% of available temperatures
+      const threshold = temps[Math.floor(tempCount * 0.4)]
+      filtered = filtered.filter(loc => loc.temperature <= threshold)
+      console.log(`❄️ Cold filter: temps ≤ ${threshold}°F`)
+    } else if (filters.temperature === 'hot') {
+      // Show hottest 40% of available temperatures
+      const threshold = temps[Math.floor(tempCount * 0.6)]
+      filtered = filtered.filter(loc => loc.temperature >= threshold)
+      console.log(`🔥 Hot filter: temps ≥ ${threshold}°F`)
+    } else if (filters.temperature === 'mild') {
+      // Show middle 80% of temperatures (exclude extreme 10% on each end)
+      const minThreshold = temps[Math.floor(tempCount * 0.1)]
+      const maxThreshold = temps[Math.floor(tempCount * 0.9)]
+      filtered = filtered.filter(loc => loc.temperature >= minThreshold && loc.temperature <= maxThreshold)
+      console.log(`🌤️ Mild filter: temps ${minThreshold}°F - ${maxThreshold}°F`)
+    }
+  }
+
+  // Precipitation filtering - based on percentiles of available data
+  if (filters.precipitation && filters.precipitation !== '') {
+    const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b)
+    const precipCount = precips.length
+
+    if (filters.precipitation === 'none') {
+      // Show driest 60% of available locations
+      const threshold = precips[Math.floor(precipCount * 0.6)]
+      filtered = filtered.filter(loc => loc.precipitation <= threshold)
+      console.log(`☀️ No precip filter: precip ≤ ${threshold}%`)
+    } else if (filters.precipitation === 'light') {
+      // Show middle precipitation range (20th-70th percentile)
+      const minThreshold = precips[Math.floor(precipCount * 0.2)]
+      const maxThreshold = precips[Math.floor(precipCount * 0.7)]
+      filtered = filtered.filter(loc => loc.precipitation >= minThreshold && loc.precipitation <= maxThreshold)
+      console.log(`🌦️ Light precip filter: precip ${minThreshold}% - ${maxThreshold}%`)
+    } else if (filters.precipitation === 'heavy') {
+      // Show wettest 30% of available locations
+      const threshold = precips[Math.floor(precipCount * 0.7)]
+      filtered = filtered.filter(loc => loc.precipitation >= threshold)
+      console.log(`🌧️ Heavy precip filter: precip ≥ ${threshold}%`)
+    }
+  }
+
+  // Wind filtering - based on percentiles of available wind speeds
+  if (filters.wind && filters.wind !== '') {
+    const winds = locations.map(loc => loc.wind_speed || loc.windSpeed || 0).sort((a, b) => a - b)
+    const windCount = winds.length
+
+    if (filters.wind === 'calm') {
+      // Show calmest 50% of available locations
+      const threshold = winds[Math.floor(windCount * 0.5)]
+      filtered = filtered.filter(loc => (loc.wind_speed || loc.windSpeed || 0) <= threshold)
+      console.log(`🍃 Calm filter: wind ≤ ${threshold}mph`)
+    } else if (filters.wind === 'breezy') {
+      // Show middle wind range (30th-70th percentile)
+      const minThreshold = winds[Math.floor(windCount * 0.3)]
+      const maxThreshold = winds[Math.floor(windCount * 0.7)]
+      filtered = filtered.filter(loc => {
+        const windSpeed = loc.wind_speed || loc.windSpeed || 0
+        return windSpeed >= minThreshold && windSpeed <= maxThreshold
+      })
+      console.log(`💨 Breezy filter: wind ${minThreshold} - ${maxThreshold}mph`)
+    } else if (filters.wind === 'windy') {
+      // Show windiest 30% of available locations
+      const threshold = winds[Math.floor(windCount * 0.7)]
+      filtered = filtered.filter(loc => (loc.wind_speed || loc.windSpeed || 0) >= threshold)
+      console.log(`🌪️ Windy filter: wind ≥ ${threshold}mph`)
+    }
+  }
+
+  console.log(`🎯 Weather filtering: ${startCount} → ${filtered.length} POIs`)
+  return filtered
+}
+
 // Load environment variables
 dotenv.config()
 
@@ -743,8 +832,10 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
   const client = await pool.connect()
   
   try {
-    const { lat, lng, radius = '50', limit = '200' } = req.query
+    const { lat, lng, radius = '50', limit = '200', temperature, precipitation, wind } = req.query
     const limitNum = Math.min(parseInt(limit) || 200, 500)
+    
+    console.log('🔍 Query parameters:', { lat, lng, radius, limit, temperature, precipitation, wind })
 
     // Reuse the same query logic from POI endpoint
     let query, queryParams
@@ -851,10 +942,14 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       }
     }))
 
+    // Apply weather-based filtering if filters are provided
+    const filteredPOIs = applyWeatherFilters(poiLocations, { temperature, precipitation, wind })
+    console.log(`After weather filtering: ${filteredPOIs.length} POIs`)
+
     res.json({
       success: true,
-      data: poiLocations,
-      count: poiLocations.length,
+      data: filteredPOIs,
+      count: filteredPOIs.length,
       timestamp: new Date().toISOString(),
       debug: {
         query_type: lat && lng ? 'proximity_with_weather' : 'all_pois_with_weather',
