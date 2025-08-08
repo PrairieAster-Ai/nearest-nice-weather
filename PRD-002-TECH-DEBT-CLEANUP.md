@@ -20,7 +20,7 @@ Three critical developer experience issues are hampering productivity: 1) Browse
 - **Task 1**: BrowserToolsMCP server-side restoration with multi-environment support
 - **Task 2**: Vercel preview authentication for Claude Code inspection
 - **Task 3**: Automated testing and CI/CD pipeline review and implementation
-- Integration with existing development workflow (dev-startup.sh)
+- Integration with existing development workflow (npm start)
 - Screenshot location standardization to `/home/robertspeer/Projects/screenshots`
 
 ### **Out of Scope** (Prevents Scope Creep)
@@ -36,7 +36,7 @@ Three critical developer experience issues are hampering productivity: 1) Browse
 - **Port**: localhost:3025
 - **Screenshot Location**: `/home/robertspeer/Projects/screenshots`
 - **Console Log Scope**: All three environments
-- **Integration**: Auto-start with dev-startup.sh
+- **Integration**: Auto-start with npm start
 
 ### **Task 2: Vercel Preview Auth**
 - **Target**: p.nearestniceweather.com automated access
@@ -94,7 +94,7 @@ Three critical developer experience issues are hampering productivity: 1) Browse
 ### **Rollback Steps**
 1. `git checkout v1.1-leaflet-fix-working`
 2. Verify production functionality: test nearestniceweather.com
-3. Test development environment: `./dev-startup.sh`
+3. Test development environment: `npm start`
 4. If confirmed working, deploy to preview first
 5. If preview works, deploy to production
 

@@ -51,7 +51,7 @@
 ### Problem Statement
 
 **Primary Pain Point for Weekend Warriors on a Budget**:
-- "Where can I get tacos when it's nice out?" - Simple, focused value avoiding feature creep
+- "Where is the nearest park with nice weather?" - Simple, focused value avoiding feature creep
 - Weather apps show local conditions but don't suggest better free/cheap activities nearby
 - People want different weather conditions: some prefer cold, others warm; some like rain, others avoid it
 - No simple tool exists to find preferred weather conditions within driving distance for budget-conscious activities
@@ -127,7 +127,7 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 
 **Primary Persona**: Weekend Warriors on a budget seeking spontaneous local outdoor activities
 - **Demographics**: 2M+ Minneapolis metro area residents who use mobile apps for local discovery - NOT enterprise travel managers
-- **Critical Pain Point**: "Where can I get tacos when it's nice out?" - Simple value proposition avoiding feature creep
+- **Critical Pain Point**: "Where is the nearest park with nice weather?" - Simple value proposition avoiding feature creep
 - **Current Behavior**: Struggles with multiple apps (weather, maps, reviews) to find suitable free/budget activities
 - **Solution Value**: <100ms dopamine hit through instant discovery of free/frugal activities matching weather preferences
 - **Revenue Model**: Ad-supported with contextual local business promotion and judo marketing against big tech enshittification
@@ -190,7 +190,7 @@ Your Location + Weather Preferences → Nearest Matching Weather → Social Shar
 - User account system for unlimited saved filter combinations
 - Time-based feature voting system with scarcity mechanics
 - Basic ad integration for revenue generation
-- **Risk Mitigation**: Validate "Where can I get tacos when it's nice out?" core value before feature expansion
+- **Risk Mitigation**: Validate "Where is the nearest park with nice weather?" core value before feature expansion
 
 **Measure Phase**:
 - User adoption rate: 1,000+ users in first month

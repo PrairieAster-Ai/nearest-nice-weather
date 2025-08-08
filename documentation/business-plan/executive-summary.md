@@ -21,7 +21,7 @@
 ## 💡 Business Concept
 
 ### The Problem
-- **"Where can I get tacos when it's nice out?"** - Core value avoiding feature creep
+- **"Where is the nearest park with nice weather?"** - Core value avoiding feature creep
 - People have different weather preferences: some prefer cold, others warm; some like rain, others avoid it
 - Weather apps only show local conditions, don't suggest better budget-friendly locations nearby
 - No simple tool exists to find preferred weather conditions within driving distance for free/cheap activities
@@ -58,7 +58,7 @@ Your Location + Weather Preferences → Nearest Matching Weather → User Data +
 ### 🎣 Primary B2C MVP: Weekend Warriors on a Budget
 - **Market**: 1.2M Minnesota Weekend Warriors seeking free/cheap outdoor activities across all seasons
 - **User Focus**: Weekend Warriors on a budget, NOT enterprise travel managers
-- **Pain Point**: "Where can I get tacos when it's nice out?" - weather ruins budget outdoor plans
+- **Pain Point**: "Where is the nearest park with nice weather?" - weather ruins budget outdoor plans
 - **Solution**: <100ms dopamine hit through instant discovery of free/frugal activities with optimal weather
 - **Pricing**: Ad-supported free tier with premium features determined by user voting
 - **MVP Strategy**: Risk-aware sprint planning - validate core value before feature expansion
@@ -104,7 +104,7 @@ Your Location + Weather Preferences → Nearest Matching Weather → User Data +
 ### Phase 1: Minnesota Market Validation (Months 1-6) - Weekend Warriors Focus
 - **Focus**: Weekend Warriors on a budget + risk-aware MVP development + biological UX optimization
 - **Investment**: $25,000 leveraging existing technical architecture
-- **Goal**: Validate "Where can I get tacos when it's nice out?" core value, 10,000+ daily users milestone
+- **Goal**: Validate "Where is the nearest park with nice weather?" core value, 10,000+ daily users milestone
 
 ### Phase 2: Regional Expansion (Months 7-18)  
 - **Focus**: Wisconsin/Iowa + team expansion

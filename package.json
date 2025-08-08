@@ -13,8 +13,12 @@
     "packages/*"
   ],
   "scripts": {
-    "start": "bash ./scripts/unified-dev-start.sh",
-    "start:simple": "bash ./scripts/unified-dev-start.sh --no-monitor",
+    "start": "bash ./dev-startup-optimized.sh",
+    "start:quick": "bash ./dev-startup-optimized.sh --quick",
+    "start:clean": "bash ./dev-startup-optimized.sh --clean",
+    "start:verbose": "bash ./dev-startup-optimized.sh --verbose",
+    "start:no-monitor": "bash ./dev-startup-optimized.sh --no-monitor",
+    "start:legacy": "bash ./scripts/unified-dev-start.sh",
     "start:pm2": "pm2 start ecosystem.config.js",
     "stop:pm2": "pm2 stop ecosystem.config.js",
     "restart:pm2": "pm2 restart ecosystem.config.js",

@@ -146,7 +146,7 @@ echo "@reboot $(whoami) /path/to/project/apply-docker-fix.sh" | crontab -
 ### 2. Development Workflow
 ```bash
 # Always test localhost after restart
-./dev-startup.sh
+npm start
 
 # Monitor for conflicts
 alias docker-health="docker network ls && ip route | grep docker"

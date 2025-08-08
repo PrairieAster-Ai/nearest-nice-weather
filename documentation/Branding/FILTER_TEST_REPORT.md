@@ -103,7 +103,7 @@ Filter FAB System (Top-Right):
 ### 1. Open Application
 ```bash
 # If not already running:
-./dev-startup.sh
+npm start
 
 # Then navigate to:
 http://localhost:3001/

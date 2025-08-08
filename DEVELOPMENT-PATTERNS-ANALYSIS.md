@@ -159,7 +159,7 @@ if (ports.bound.includes(5432) && !database.reachable) {
 # Port conflict detected → Auto-restart services in correct order
 # Database connection failure → Auto-restart PostgreSQL container
 # Docker networking issue → Auto-restart Docker daemon (with user prompt)
-# Service health check failure → Auto-run dev-startup.sh
+# Service health check failure → Auto-run npm start
 ```
 
 #### **Proactive Maintenance**

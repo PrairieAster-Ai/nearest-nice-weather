@@ -77,7 +77,7 @@ historical_impact: "8-10 hours/week troubleshooting time"
 claude_action_priority: "IMMEDIATE - Environment takes precedence over feature work"
 resolution_commands:
   - "pkill -f 'node.*vite' && npm run dev"
-  - "./dev-startup.sh"
+  - "npm start"
   - "Check vite.config.ts proxy configuration"
 ```
 
@@ -113,7 +113,7 @@ claude_action_priority: "MEDIUM - Known issue with specific fix"
 resolution_commands:
   - "sudo systemctl restart docker"
   - "docker restart weather-postgres"
-  - "./dev-startup.sh"
+  - "npm start"
 ```
 
 ### **Pattern 4: Configuration Drift**

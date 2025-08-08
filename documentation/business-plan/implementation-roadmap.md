@@ -13,7 +13,7 @@
 - **Sprints 12-13**: Launch Preparation & Core Value Validation (Weeks 23-26)
 
 ### Success Metrics (Risk-Aware Validation)
-- **Month 3**: Weekend Warriors problem validation >80%, "Where can I get tacos when it's nice out?" core value confirmed
+- **Month 3**: Weekend Warriors problem validation >80%, "Where is the nearest park with nice weather?" core value confirmed
 - **Month 6**: Core value validation with biological UX optimization (<100ms response), user engagement metrics
 - **Month 9**: Product-market fit confirmed for budget outdoor activities
 - **Month 12**: 10,000+ daily users milestone - proven consumer value before B2B consideration
@@ -62,7 +62,7 @@
 #### Week 3 Tasks
 - [ ] **Weekend Warriors Consumer Interviews**
   - Contact 50+ Weekend Warriors seeking budget outdoor activities
-  - Conduct 15+ structured problem validation interviews focused on "Where can I get tacos when it's nice out?"
+  - Conduct 15+ structured problem validation interviews focused on "Where is the nearest park with nice weather?"
   - Document pain points, time constraints, and budget limitations
   - **Deliverable**: B2C Weekend Warriors problem validation data
 

@@ -118,7 +118,7 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 - **Note**: tourism_operators table may exist for future data completeness, but B2C focus means outdoor recreation POIs are the primary data source
 - **Test with known good data** before production deployment
 
-**Development Environment** (UNIFIED STARTUP EXPERIENCE):
+**Development Environment** (OPTIMIZED UNIFIED STARTUP):
 ```bash
 # ONE COMMAND TO START EVERYTHING:
 npm start
@@ -129,21 +129,24 @@ npm start
 # - Starts frontend server (port 3001)
 # - Runs health checks for both services
 # - Provides monitoring and auto-restart capabilities
-# - Ready in under 30 seconds
+# - Ready in under 30 seconds with color-coded output
 
-# PERSISTENT MONITORING (Runs in background even after Ctrl+C):
+# STARTUP OPTIONS:
+npm start                  # Standard startup with monitoring
+npm run start:quick        # Fast startup, skip optional features  
+npm run start:clean        # Clean restart (clear caches)
+npm run start:verbose      # Detailed output for debugging
+npm run start:no-monitor   # Start without continuous monitoring
+
+# PERSISTENT MONITORING (PM2 option):
 npm run start:pm2          # Start all services with PM2 process manager
 npm run stop:pm2           # Stop all PM2 services
 npm run restart:pm2        # Restart all PM2 services
 npm run status:pm2         # Check PM2 service status
 npm run logs:pm2           # View PM2 logs
 
-# ENHANCED HEALTH CHECKS:
-npm run health:visual      # Visual validation with screenshots & console analysis
-npm run health:monitor     # Run persistent health monitor independently
-
-# Alternative: Legacy startup (still available)
-./dev-startup.sh           # Original complex startup
+# ALTERNATIVE STARTUP (if needed):
+npm run start:legacy       # Archived unified-dev-start.sh
 cd apps/web && npm run dev  # Frontend only
 node dev-api-server.js      # API only
 
@@ -172,7 +175,10 @@ cp .env.example .env
 # Set environment variables in Vercel project settings
 
 # 3. Run development environment
-./dev-startup.sh
+npm start                   # Uses dev-startup-optimized.sh
+# OR with options:
+npm run start:quick         # Fast startup
+npm run start:clean         # Clean restart
 
 # The development server will proxy API calls to localhost:4000 automatically
 # Each environment uses its own database branch:
@@ -377,8 +383,9 @@ git push origin emergency-rollback --force
   - **Visual Validation**: Screenshots confirm UI loaded correctly and validate visual state
   - **UI Interaction Testing**: Automated clicking, form filling, and navigation testing
 
-- **Use ./dev-startup.sh to startup localhost** and maintain to document and mitigate common issues
-  - **Enhanced with health checks**: Now includes Docker networking validation
+- **Use npm start to startup localhost** (dev-startup-optimized.sh) - single unified startup script
+  - **Enhanced with health checks**: Comprehensive monitoring and auto-restart capabilities
+  - **Command options**: --quick, --clean, --verbose, --no-monitor for different scenarios
   - **Automated diagnostics**: Reports issues with specific fix recommendations
 
 - **Daily workflow starts with health validation**:
