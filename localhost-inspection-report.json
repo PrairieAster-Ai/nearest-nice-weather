@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-08-07T16:44:41.356Z",
+  "url": "http://localhost:3001",
+  "summary": {
+    "consoleMessages": 345,
+    "errors": 6,
+    "warnings": 0,
+    "userMarkerFound": true,
+    "mapExists": true,
+    "fabExists": true
+  },
+  "errors": [
+    {
+      "timestamp": "2025-08-07T16:44:38.381Z",
+      "type": "error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+      "location": {
+        "url": "http://localhost:3001/node_modules/.vite/deps/react-dom_client.js?v=50bc6480",
+        "lineNumber": 3003,
+        "columnNumber": 142
+      }
+    },
+    {
+      "timestamp": "2025-08-07T16:44:39.026Z",
+      "type": "error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+      "location": {
+        "url": "http://localhost:3001/node_modules/.vite/deps/react-dom_client.js?v=50bc6480",
+        "lineNumber": 3003,
+        "columnNumber": 142
+      }
+    },
+    {
+      "timestamp": "2025-08-07T16:44:39.600Z",
+      "type": "error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+      "location": {
+        "url": "http://localhost:3001/node_modules/.vite/deps/react-dom_client.js?v=50bc6480",
+        "lineNumber": 3003,
+        "columnNumber": 142
+      }
+    },
+    {
+      "timestamp": "2025-08-07T16:44:40.127Z",
+      "type": "error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+      "location": {
+        "url": "http://localhost:3001/node_modules/.vite/deps/react-dom_client.js?v=50bc6480",
+        "lineNumber": 3003,
+        "columnNumber": 142
+      }
+    },
+    {
+      "timestamp": "2025-08-07T16:44:40.814Z",
+      "type": "error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+      "location": {
+        "url": "http://localhost:3001/node_modules/.vite/deps/react-dom_client.js?v=50bc6480",
+        "lineNumber": 3003,
+        "columnNumber": 142
+      }
+    },
+    {
+      "timestamp": "2025-08-07T16:44:41.266Z",
+      "type": "error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+      "location": {
+        "url": "http://localhost:3001/node_modules/.vite/deps/react-dom_client.js?v=50bc6480",
+        "lineNumber": 3003,
+        "columnNumber": 142
+      }
+    }
+  ],
+  "warnings": [],
+  "geolocationSupport": {
+    "hasNavigator": true,
+    "hasGeolocation": true,
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  "issues": []
+}

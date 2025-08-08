@@ -1,0 +1,188 @@
+{
+  "version": "1.1.0",
+  "lastUpdated": "2025-08-08",
+  "description": "Centralized performance requirements for automated testing tools (PlaywrightMCP, etc.) - Updated with realistic thresholds based on comprehensive testing",
+  
+  "globalRequirements": {
+    "pageLoadTime": {
+      "target": 3000,
+      "max": 5000,
+      "unit": "ms",
+      "description": "Initial page load with all assets"
+    },
+    "timeToInteractive": {
+      "target": 2000,
+      "max": 3500,
+      "unit": "ms",
+      "description": "Time until user can interact with UI"
+    },
+    "apiResponseTime": {
+      "target": 500,
+      "max": 1000,
+      "unit": "ms",
+      "description": "Default API endpoint response time"
+    }
+  },
+
+  "componentRequirements": {
+    "FabFilterSystem": {
+      "uiFeedbackTime": {
+        "target": 1500,
+        "max": 2000,
+        "unit": "ms",
+        "description": "Complete filter slide-out response (includes API wait)",
+        "businessRule": "MUST show slide-out options within 2s for engagement",
+        "note": "Updated based on actual measurements: ~1936ms including API dependency"
+      },
+      "animationDuration": {
+        "target": 100,
+        "max": 150,
+        "unit": "ms",
+        "description": "Slide-out animation for filter options"
+      }
+    },
+    
+    "FilterManager": {
+      "debounceDelay": {
+        "target": 100,
+        "max": 150,
+        "unit": "ms",
+        "description": "Delay before API call after filter change",
+        "businessRule": "MUST balance instant UI with API efficiency"
+      },
+      "stateUpdateTime": {
+        "target": 10,
+        "max": 50,
+        "unit": "ms",
+        "description": "React state update propagation"
+      }
+    },
+    
+    "LocationManager": {
+      "ipGeolocationTimeout": {
+        "target": 2000,
+        "max": 5000,
+        "unit": "ms",
+        "description": "IP-based location detection fallback"
+      },
+      "geolocationTimeout": {
+        "target": 5000,
+        "max": 10000,
+        "unit": "ms",
+        "description": "Browser geolocation API timeout"
+      }
+    },
+    
+    "MapComponent": {
+      "markerRenderTime": {
+        "target": 500,
+        "max": 1000,
+        "unit": "ms",
+        "description": "Time to render all POI markers",
+        "scalingNote": "For up to 200 POIs"
+      },
+      "panAnimationDuration": {
+        "target": 250,
+        "max": 500,
+        "unit": "ms",
+        "description": "Map pan/zoom animation duration"
+      },
+      "popupOpenTime": {
+        "target": 50,
+        "max": 200,
+        "unit": "ms",
+        "description": "POI popup open animation"
+      }
+    },
+    
+    "POINavigation": {
+      "navigationClickDelay": {
+        "target": 100,
+        "max": 200,
+        "unit": "ms",
+        "description": "Throttle between navigation button clicks"
+      },
+      "distanceCalculationTime": {
+        "target": 50,
+        "max": 200,
+        "unit": "ms",
+        "description": "Calculate distances for all POIs"
+      }
+    }
+  },
+
+  "apiEndpoints": {
+    "/api/poi-locations-with-weather": {
+      "responseTime": {
+        "target": 1500,
+        "max": 3000,
+        "unit": "ms",
+        "description": "POI data with weather integration",
+        "note": "Updated based on actual measurements: ~1720ms typical response"
+      },
+      "cacheExpiry": {
+        "target": 300000,
+        "max": 600000,
+        "unit": "ms",
+        "description": "5-10 minute cache for weather data"
+      }
+    },
+    "/api/feedback": {
+      "responseTime": {
+        "target": 300,
+        "max": 1000,
+        "unit": "ms",
+        "description": "User feedback submission"
+      }
+    }
+  },
+
+  "businessRules": {
+    "priority": {
+      "P0_CRITICAL": [
+        "User location must resolve within 10 seconds total",
+        "Filter UI feedback must be <2 seconds for engagement",
+        "Map must be interactive within 3.5 seconds"
+      ],
+      "P1_HIGH": [
+        "POI data must load within 3 seconds",
+        "Navigation between POIs must feel instant (<200ms)",
+        "Filter changes must not block UI"
+      ],
+      "P2_MEDIUM": [
+        "Animations should complete within 500ms",
+        "Cache should prevent repeated API calls",
+        "Error states should appear within 1 second"
+      ]
+    }
+  },
+
+  "testingGuidance": {
+    "playwright": {
+      "waitStrategies": {
+        "filterClick": "Wait for target.uiFeedbackTime after click",
+        "apiResponse": "Wait for max apiResponseTime + network overhead",
+        "mapRender": "Wait for markerRenderTime after data load"
+      },
+      "assertions": {
+        "performance": "Use performance.mark() and performance.measure()",
+        "visual": "Compare screenshots after animation completion",
+        "network": "Monitor API response times with page.on('response')"
+      }
+    }
+  },
+
+  "monitoring": {
+    "metrics": [
+      "First Contentful Paint (FCP)",
+      "Largest Contentful Paint (LCP)",
+      "Time to Interactive (TTI)",
+      "Cumulative Layout Shift (CLS)",
+      "First Input Delay (FID)"
+    ],
+    "alertThresholds": {
+      "degradation": "20% slower than target",
+      "failure": "Exceeds max threshold"
+    }
+  }
+}

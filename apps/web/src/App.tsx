@@ -24,7 +24,7 @@
  * 
  * COMPONENT ARCHITECTURE:
  * - App (this file): Main container with state management and business logic
- * - MapComponent: Leaflet map integration with markers and popups
+ * - MapContainer: Leaflet map integration with markers and popups
  * - FabFilterSystem: Floating action button filter interface
  * - FeedbackFab: User feedback collection system
  * - UnifiedStickyFooter: Navigation and branding footer
@@ -49,12 +49,36 @@
  * - Graceful degradation: Works without geolocation or with slow connections
  * 
  * @CLAUDE_CONTEXT: Primary application entry point containing all business logic
- * @BUSINESS_RULE: B2C consumer platform focused on Minnesota outdoor recreation market
+ * @BUSINESS_RULE: P1 MUST focus on B2C consumer platform for Minnesota outdoor recreation market
  * @ARCHITECTURE_NOTE: Single-page application with real-time map interactions
  * @INTEGRATION_POINT: Connects all UI components with backend weather data
  * @PERFORMANCE_CRITICAL: Map rendering and filter calculations must be responsive
  * 
- * LAST UPDATED: 2025-07-25
+ * 📚 DOCUMENTATION LINKS:
+ * - Business Plan: /documentation/business-plan/master-plan.md
+ * - Architecture: /documentation/architecture-overview.md  
+ * - User Stories: /documentation/user-personas/casual-outdoor-enthusiast.md
+ * - Development Guide: /CLAUDE.md
+ * 
+ * 🔗 COMPONENT INTEGRATIONS:
+ * - LocationManager.tsx: Intelligent user positioning system
+ * - FilterManager.tsx: Weather preference state management
+ * - FabFilterSystem.tsx: Weather filter UI interface
+ * - MapContainer.tsx: Extracted Leaflet map component with POI markers
+ * - FeedbackFab.tsx: User feedback collection
+ * - UnifiedStickyFooter.tsx: Navigation and branding
+ * 
+ * 🔗 HOOK INTEGRATIONS:
+ * - usePOINavigation.ts: POI discovery and distance-based navigation
+ * - useLocalStorageState.ts: Cross-session preference persistence
+ * - useFilterManager: Debounced weather filter state management
+ * 
+ * 🔗 API INTEGRATIONS:
+ * - /api/poi-locations-with-weather: Primary POI-weather data source
+ * - /api/feedback: User feedback collection endpoint
+ * - External: ipapi.co for IP-based geolocation
+ * 
+ * LAST UPDATED: 2025-08-08
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
@@ -63,7 +87,12 @@ import { CssBaseline, CircularProgress, Alert } from '@mui/material'
 import { FabFilterSystem } from './components/FabFilterSystem'
 import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
+import { LocationManager } from './components/LocationManager'
+import { useFilterManager } from './components/FilterManager'
+import { MapContainer, asterIcon } from './components/MapContainer'
+import { useMapViewManager } from './components/MapViewManager'
 import { usePOINavigation } from './hooks/usePOINavigation'
+import { useLastVisitStorage, LocationMethod, WeatherFilters } from './hooks/useLocalStorageState'
 import { escapeHtml, sanitizeUrl } from './utils/sanitize'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
@@ -83,552 +112,9 @@ const calculateDistance = (point1: [number, number], point2: [number, number]) =
   return R * c;
 };
 
-/**
- * CUSTOM POI LOCATION MARKER ICON
- * @CLAUDE_CONTEXT: Branded visual element for POI locations on map
- * 
- * BUSINESS CONTEXT: Purple aster (prairie aster) represents Minnesota native flora
- * - Reinforces "Prairie Aster" brand identity and Minnesota focus
- * - Visually distinct from standard map markers for POI locations (parks, recreation areas)
- * - Consistent 40px size for touch-friendly mobile interaction
- * 
- * TECHNICAL IMPLEMENTATION: Leaflet custom icon configuration
- * - Uses SVG for scalable, crisp rendering at all zoom levels
- * - Icon anchor positioned at bottom center for accurate POI location marking
- * - Popup anchor offset above icon to avoid overlap with marker
- * 
- * @BUSINESS_RULE: Consistent branding across all POI map markers
- */
-const asterIcon = new L.Icon({
-  iconUrl: '/aster-marker.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -20]
-})
+// 🔗 INTEGRATION: asterIcon now imported from MapContainer.tsx for component encapsulation
 
-// MapComponent with proper lifecycle management to handle React StrictMode
-const MapComponent = ({ center, zoom, locations, userLocation, onLocationChange, currentPOI, isAtClosest, isAtFarthest, canExpand, onNavigateCloser, onNavigateFarther }: {
-  center: [number, number];
-  zoom: number;
-  locations: Array<{
-    id: string;
-    name: string;
-    lat: number;
-    lng: number;
-    temperature: number;
-    condition: string;
-    description: string;
-    precipitation: number;
-    windSpeed: string;
-    distance?: number;
-  }>;
-  userLocation: [number, number] | null;
-  onLocationChange: (newPosition: [number, number]) => void;
-  currentPOI: any;
-  isAtClosest: boolean;
-  isAtFarthest: boolean;
-  canExpand: boolean;
-  onNavigateCloser: () => any;
-  onNavigateFarther: () => any;
-}) => {
-  const mapRef = useRef<L.Map | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const userMarkerRef = useRef<L.Marker | null>(null);
-  const markersRef = useRef<L.Marker[]>([]);
-  const [, setCurrentMarkerIndex] = useState(0);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    // Clear any existing map instance
-    if (mapRef.current) {
-      mapRef.current.remove();
-      mapRef.current = null;
-    }
-
-    // Validate center and zoom before creating map
-    if (!center || isNaN(center[0]) || isNaN(center[1]) || !zoom || isNaN(zoom)) {
-      console.warn('Invalid center or zoom provided to MapComponent:', { center, zoom });
-      return;
-    }
-
-    // Create new map instance
-    const map = L.map(containerRef.current, {
-      center: center,
-      zoom: zoom,
-      scrollWheelZoom: true,
-      zoomControl: false
-    });
-
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    mapRef.current = map;
-
-    // Cleanup function
-    return () => {
-      if (userMarkerRef.current) {
-        userMarkerRef.current = null;
-      }
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally empty - map initialization should only run once on component mount
-
-  // Update map center and zoom when props change
-  useEffect(() => {
-    if (mapRef.current && center && !isNaN(center[0]) && !isNaN(center[1]) && zoom && !isNaN(zoom)) {
-      mapRef.current.setView(center, zoom);
-    }
-  }, [center, zoom]);
-
-  // TODO: New POI navigation system will be implemented here
-
-
-  // Add markers when locations change
-  useEffect(() => {
-    if (!mapRef.current) return;
-    
-    console.log(`MapComponent received ${locations.length} locations`);
-    console.log(`Location IDs: [${locations.slice(0, 5).map(l => l.id).join(', ')}...]`);
-    
-    // Note: POI system now handles up to 50 markers with distance slicing
-    // Old 21-marker limit no longer applies
-
-    // Optimized incremental marker updates (instead of full rebuild)
-    const existingMarkerCount = markersRef.current.length;
-    const newLocationCount = locations.length;
-    
-    // If we have fewer locations now, remove excess markers
-    if (newLocationCount < existingMarkerCount) {
-      for (let i = newLocationCount; i < existingMarkerCount; i++) {
-        if (markersRef.current[i]) {
-          mapRef.current.removeLayer(markersRef.current[i]);
-        }
-      }
-      // Trim the array
-      markersRef.current = markersRef.current.slice(0, newLocationCount);
-    }
-    
-    // If we have more locations now, expand the array
-    if (newLocationCount > existingMarkerCount) {
-      markersRef.current = [...markersRef.current, ...new Array(newLocationCount - existingMarkerCount)];
-    }
-    
-    console.log(`🔍 MapComponent updating markers: ${existingMarkerCount} -> ${newLocationCount} locations`);
-
-    // Update existing markers and add new ones (incremental approach)
-    locations.forEach((location, index) => {
-      const existingMarker = markersRef.current[index];
-      
-      // Check if we need to create a new marker or update existing
-      if (!existingMarker || 
-          existingMarker.getLatLng().lat !== location.lat || 
-          existingMarker.getLatLng().lng !== location.lng) {
-        
-        // Remove old marker if it exists
-        if (existingMarker) {
-          mapRef.current.removeLayer(existingMarker);
-        }
-        
-        // Create new marker
-        const marker = L.marker([location.lat, location.lng], { icon: asterIcon });
-        
-        // Track which marker was clicked to sync currentMarkerIndex
-        marker.on('popupopen', () => {
-          setCurrentMarkerIndex(index);
-          // Marker popup opened - navigation is now handled by POI hook
-        });
-        
-        // Create sanitized popup content for marker
-        const safeName = escapeHtml(location.name);
-        const safeParkType = (location as any).park_type ? escapeHtml((location as any).park_type) : '';
-        const safeDescription = escapeHtml(location.description);
-        const safeCondition = escapeHtml(location.condition);
-        const safeWindSpeed = escapeHtml(location.windSpeed);
-        const safeWeatherStation = (location as any).weather_station_name ? escapeHtml((location as any).weather_station_name) : '';
-        const safeWeatherDistance = (location as any).weather_distance_miles ? escapeHtml((location as any).weather_distance_miles) : '';
-        
-        // Sanitize URLs
-        const mapsUrl = sanitizeUrl(`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`);
-        const dnrUrl = sanitizeUrl(`https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&filter=all`);
-        
-        const popupContent = `
-        <div class="p-2 text-xs leading-tight">
-          <div class="mb-1">
-            <h3 class="font-bold text-sm text-black mb-0">${safeName}</h3>
-            ${safeParkType ? `<div class="text-xs text-purple-800 font-medium">${safeParkType}</div>` : ''}
-            <p class="text-xs text-gray-800 mt-0">${safeDescription}</p>
-          </div>
-          <div class="bg-gray-100 rounded p-2 mb-2 border">
-            <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
-              <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
-              <span class="text-lg">
-                ${safeCondition === 'Sunny' ? '☀️' : 
-                  safeCondition === 'Partly Cloudy' ? '⛅' :
-                  safeCondition === 'Cloudy' ? '☁️' :
-                  safeCondition === 'Overcast' ? '🌫️' :
-                  safeCondition === 'Clear' ? '✨' : safeCondition}
-              </span>
-              <span>💧 ${escapeHtml(location.precipitation)}%</span>
-              <span>💨 ${safeWindSpeed}</span>
-            </div>
-            ${safeWeatherStation ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>` : ''}
-          </div>
-          <div class="space-y-1">
-            <a href="${mapsUrl}" 
-               target="_blank" rel="noopener noreferrer"
-               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-               style="background-color: rgba(133, 109, 166, 0.5)">
-              🗺️ Driving Directions
-            </a>
-            <a href="${dnrUrl}"
-               target="_blank" rel="noopener noreferrer"
-               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-               style="background-color: rgba(127, 164, 207, 0.5)">
-              🌲 MN DNR
-            </a>
-            ${(locations.length > 1 || canExpand) ? `
-            <div class="flex space-x-1 mb-1" data-popup-nav="true">
-              <button data-nav-action="closer" 
-                      ${isAtClosest ? 'disabled' : ''}
-                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtClosest ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'}"
-                      style="background-color: rgba(76, 175, 80, 0.5)">
-                ← Closer
-              </button>
-              <button data-nav-action="farther" 
-                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtFarthest && !canExpand ? 'opacity-75' : 'hover:bg-green-200'}"
-                      style="background-color: rgba(76, 175, 80, 0.5)">
-                ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
-              </button>
-            </div>
-            ` : ''}
-          </div>
-        </div>
-        `;
-        
-        marker.bindPopup(popupContent, { maxWidth: 280, className: "custom-popup" });
-        marker.addTo(mapRef.current!);
-        
-        // Store marker reference for direct popup access - CRITICAL: exact index match
-        markersRef.current[index] = marker;
-      } else {
-        // Marker exists and position hasn't changed - just update popup content if needed
-        // This optimization avoids recreating markers unnecessarily
-        const existingPopup = existingMarker.getPopup();
-        if (existingPopup) {
-          // Use the updatePopupContent function for existing markers
-          updatePopupContent(index);
-        }
-      }
-    });
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locations]); // canExpand, isAtClosest, isAtFarthest, updatePopupContent are intentionally excluded
-
-  // DISABLED: Navigation functions disabled to prevent thrashing
-  useEffect(() => {
-    (window as any).navigateToCloser = () => console.log('Navigation disabled');
-    (window as any).navigateToFarther = () => console.log('Navigation disabled');
-    (window as any).applySuggestion = () => console.log('Navigation disabled');
-  }, []);
-
-  // Create user location marker once and update position as needed
-  useEffect(() => {
-    if (!mapRef.current) return;
-
-    // Create marker only if it doesn't exist and we have valid location
-    if (!userMarkerRef.current && userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined &&
-        !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
-      
-      // Use standard cool guy emoji (😎) with white circular background
-      const coolGuyIcon = new L.Icon({
-        iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
-          <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="20" cy="20" r="15" fill="white" stroke="#ddd" stroke-width="1"/>
-            <text x="20" y="28" text-anchor="middle" font-size="24" font-family="Arial, sans-serif">😎</text>
-          </svg>
-        `),
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
-        popupAnchor: [0, -20]
-      });
-
-      const userMarker = L.marker(userLocation, { 
-        draggable: true,
-        icon: coolGuyIcon
-      }) as any;
-      userMarker.options.isUserMarker = true;
-      
-      userMarker.on('dragend', (e: L.LeafletEvent) => {
-        const marker = (e as any).target;
-        const position = marker.getLatLng();
-        if (position && !isNaN(position.lat) && !isNaN(position.lng)) {
-          onLocationChange([position.lat, position.lng]);
-        }
-      });
-
-      // Add popup matching original DraggableUserMarker functionality
-      const popupContent = `
-        <div class="text-center p-2">
-          <div class="text-sm font-bold text-gray-800 mb-1">Our best guess at your location</div>
-          <div class="text-xs text-gray-600">Drag and drop for more accuracy</div>
-        </div>
-      `;
-      
-      userMarker.bindPopup(popupContent, { className: "custom-popup" });
-      userMarker.addTo(mapRef.current!);
-      
-      // Store reference to the marker
-      userMarkerRef.current = userMarker;
-    }
-    
-    // Update existing marker position if it exists and we have valid location
-    if (userMarkerRef.current && userLocation && userLocation[0] !== undefined && userLocation[1] !== undefined &&
-        !isNaN(userLocation[0]) && !isNaN(userLocation[1])) {
-      userMarkerRef.current.setLatLng(userLocation);
-    }
-    
-    // Remove marker if location becomes invalid
-    if (userMarkerRef.current && (!userLocation || userLocation[0] === undefined || userLocation[1] === undefined ||
-        isNaN(userLocation[0]) || isNaN(userLocation[1]))) {
-      mapRef.current.removeLayer(userMarkerRef.current);
-      userMarkerRef.current = null;
-    }
-  }, [userLocation, onLocationChange]);
-
-  // Function to update popup content with current navigation state
-  const updatePopupContent = useCallback((markerIndex: number) => {
-    if (markerIndex >= 0 && markerIndex < locations.length && markersRef.current[markerIndex]) {
-      const location = locations[markerIndex];
-      
-      // Create updated popup content with current navigation state (SANITIZED)
-      const safeName = escapeHtml(location.name);
-      const safeParkType = (location as any).park_type ? escapeHtml((location as any).park_type) : '';
-      const safeDescription = escapeHtml(location.description);
-      const safeCondition = escapeHtml(location.condition);
-      const safeWindSpeed = escapeHtml(location.windSpeed);
-      const safeWeatherStation = (location as any).weather_station_name ? escapeHtml((location as any).weather_station_name) : '';
-      const safeWeatherDistance = (location as any).weather_distance_miles ? escapeHtml((location as any).weather_distance_miles) : '';
-      
-      // Sanitize URLs
-      const mapsUrl = sanitizeUrl(`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`);
-      const dnrUrl = sanitizeUrl(`https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\s+/g, '+'))}&filter=all`);
-      
-      const updatedContent = `
-        <div class="p-2 text-xs leading-tight">
-          <div class="mb-1">
-            <h3 class="font-bold text-sm text-black mb-0">${safeName}</h3>
-            ${safeParkType ? `<div class="text-xs text-purple-800 font-medium">${safeParkType}</div>` : ''}
-            <p class="text-xs text-gray-800 mt-0">${safeDescription}</p>
-          </div>
-          <div class="bg-gray-100 rounded p-2 mb-2 border">
-            <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
-              <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
-              <span class="text-lg">
-                ${safeCondition === 'Sunny' ? '☀️' : 
-                  safeCondition === 'Partly Cloudy' ? '⛅' :
-                  safeCondition === 'Cloudy' ? '☁️' :
-                  safeCondition === 'Overcast' ? '🌫️' :
-                  safeCondition === 'Clear' ? '✨' : safeCondition}
-              </span>
-              <span>💧 ${escapeHtml(location.precipitation)}%</span>
-              <span>💨 ${safeWindSpeed}</span>
-            </div>
-            ${safeWeatherStation ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>` : ''}
-          </div>
-          <div class="space-y-1">
-            <a href="${mapsUrl}" 
-               target="_blank" rel="noopener noreferrer"
-               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-               style="background-color: rgba(133, 109, 166, 0.5)">
-              🗺️ Driving Directions
-            </a>
-            <a href="${dnrUrl}"
-               target="_blank" rel="noopener noreferrer"
-               class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-               style="background-color: rgba(127, 164, 207, 0.5)">
-              🌲 MN DNR
-            </a>
-            ${(locations.length > 1 || canExpand) ? `
-            <div class="flex space-x-1 mb-1" data-popup-nav="true">
-              <button data-nav-action="closer" 
-                      ${isAtClosest ? 'disabled' : ''}
-                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtClosest ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'}"
-                      style="background-color: rgba(76, 175, 80, 0.5)">
-                ← Closer
-              </button>
-              <button data-nav-action="farther" 
-                      class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtFarthest && !canExpand ? 'opacity-75' : 'hover:bg-green-200'}"
-                      style="background-color: rgba(76, 175, 80, 0.5)">
-                ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
-              </button>
-            </div>
-            ` : ''}
-          </div>
-        </div>
-      `;
-      
-      // Update the popup content
-      markersRef.current[markerIndex].setPopupContent(updatedContent);
-    }
-  }, [locations, isAtClosest, isAtFarthest, canExpand]);
-
-  // Set up secure event delegation for navigation buttons (replaces window globals)
-  useEffect(() => {
-    const handleNavigation = (event: Event) => {
-      const target = event.target as HTMLElement;
-      if (!target.matches('[data-nav-action]')) return;
-      
-      event.preventDefault();
-      event.stopPropagation();
-      
-      const action = target.getAttribute('data-nav-action');
-      
-      if (action === 'closer') {
-        const result = onNavigateCloser();
-        if (result) {
-          console.log('Navigate closer result:', result);
-          // Find and open popup for the new current POI with updated content
-          const newPOIIndex = locations.findIndex(loc => loc.id === result.id);
-          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
-            updatePopupContent(newPOIIndex);
-            markersRef.current[newPOIIndex].openPopup();
-            
-            // Smart centering: only pan if marker is outside current viewport
-            const markerLatLng = L.latLng(result.lat, result.lng);
-            if (!mapRef.current.getBounds().contains(markerLatLng)) {
-              mapRef.current.panTo(markerLatLng);
-            }
-          }
-        }
-      } else if (action === 'farther') {
-        const result = onNavigateFarther();
-        if (result && result !== 'NO_MORE_RESULTS') {
-          console.log('Navigate farther result:', result);
-          // Find and open popup for the new current POI with updated content
-          const newPOIIndex = locations.findIndex(loc => loc.id === result.id);
-          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
-            updatePopupContent(newPOIIndex);
-            markersRef.current[newPOIIndex].openPopup();
-            
-            // Smart centering: only pan if marker is outside current viewport
-            const markerLatLng = L.latLng(result.lat, result.lng);
-            if (!mapRef.current.getBounds().contains(markerLatLng)) {
-              mapRef.current.panTo(markerLatLng);
-            }
-          }
-        } else if (result === 'NO_MORE_RESULTS') {
-          // Show "that's all the results" notification
-          console.log('No more results available');
-          showEndOfResultsNotification();
-        }
-      }
-    };
-    
-    // Add event listener to document for event delegation
-    document.addEventListener('click', handleNavigation);
-    
-    // Cleanup
-    return () => {
-      document.removeEventListener('click', handleNavigation);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onNavigateCloser, onNavigateFarther, locations]); // updatePopupContent excluded as it's defined inline
-  
-  // Custom notification function (extracted for reuse)
-  const showEndOfResultsNotification = useCallback(() => {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 10000;
-      text-align: center;
-      max-width: 300px;
-    `;
-    
-    notification.innerHTML = `
-      <h3 style="margin: 0 0 10px 0; color: #333;">End of Results</h3>
-      <p style="margin: 0 0 15px 0; color: #666;">That's all the results we have for this area!</p>
-      <button style="
-        background: #4CAF50;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">OK</button>
-    `;
-    
-    // Add click handler to OK button
-    const okButton = notification.querySelector('button');
-    if (okButton) {
-      okButton.addEventListener('click', () => {
-        notification.remove();
-      });
-    }
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 5000);
-  }, []);
-
-  // Auto-open popup for currentPOI
-  useEffect(() => {
-    if (currentPOI && markersRef.current.length > 0) {
-      const currentPOIIndex = locations.findIndex(loc => loc.id === currentPOI.id);
-      
-      // Function to handle popup opening and centering
-      const openPopupAndCenter = () => {
-        if (currentPOIIndex >= 0 && markersRef.current[currentPOIIndex]) {
-          console.log(`🎯 Auto-opening popup for currentPOI: ${currentPOI.name} (index ${currentPOIIndex})`);
-          
-          // Smart centering: check if marker is outside current viewport and center first
-          const markerLatLng = L.latLng(currentPOI.lat, currentPOI.lng);
-          if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
-            console.log(`📍 Centering map on ${currentPOI.name} (outside viewport) - lat: ${currentPOI.lat}, lng: ${currentPOI.lng}`);
-            mapRef.current.panTo(markerLatLng);
-            
-            // Wait for pan animation to complete before opening popup
-            setTimeout(() => {
-              updatePopupContent(currentPOIIndex);
-              markersRef.current[currentPOIIndex].openPopup();
-            }, 300);
-          } else {
-            console.log(`📍 ${currentPOI.name} already in viewport - opening popup immediately`);
-            updatePopupContent(currentPOIIndex);
-            markersRef.current[currentPOIIndex].openPopup();
-          }
-        } else if (currentPOIIndex >= 0) {
-          // Marker not ready yet, retry after brief delay
-          console.log(`⏳ Marker ${currentPOIIndex} not ready, retrying in 100ms...`);
-          setTimeout(openPopupAndCenter, 100);
-        }
-      };
-      
-      openPopupAndCenter();
-    }
-  }, [currentPOI, locations, updatePopupContent]);
-
-  return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
-};
+// 🔗 INTEGRATION: MapComponent extracted to MapContainer.tsx component for maintainability
 
 // PrairieAster.Ai theme
 const theme = createTheme({
@@ -663,23 +149,31 @@ interface Location {
 // Weather locations now fetched from database via API
 
 export default function App() {
-  // Simplified state with new POI navigation system
-  const [filters, setFilters] = useState<WeatherFilters>({
-    temperature: 'mild',
-    precipitation: 'none',
-    wind: 'calm'
-  })
+  // Persistent user preferences with localStorage
+  const [lastVisit, setLastVisit] = useLastVisitStorage()
   
-  const [mapCenter, setMapCenter] = useState<[number, number]>([46.7296, -94.6859]) // Default to Minnesota
-  const [mapZoom, setMapZoom] = useState(7)
-  const [userLocation, setUserLocationState] = useState<[number, number] | null>([46.7296, -94.6859]) // Start with Minnesota center
-  const [showLocationPrompt, setShowLocationPrompt] = useState(false) // Show location selection prompt
+  // Location state (managed by LocationManager)
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [locationMethod, setLocationMethod] = useState<LocationMethod>('none')
+  const [showLocationPrompt, setShowLocationPrompt] = useState(true)
   
-  const setUserLocation = (location: [number, number] | null) => {
-    console.log('setUserLocation called with:', location)
-    setUserLocationState(location)
-  }
-  const locationInitialized = useRef(false)
+  // Filter state (managed by useFilterManager hook)
+  const {
+    filters,
+    debouncedFilters,
+    instantFilters,
+    isFiltering,
+    handleFilterChange
+  } = useFilterManager()
+  
+  // Map view management (extracted to MapViewManager hook)
+  const {
+    mapCenter,
+    mapZoom,
+    updateMapView,
+    setMapCenter,
+    setMapZoom
+  } = useMapViewManager(userLocation)
   const currentApiLocationsRef = useRef<Location[]>([])
   const currentFilteredLocationsRef = useRef<Location[]>([])
 
@@ -699,6 +193,38 @@ export default function App() {
     navigateFarther,
     reload: reloadPOIs
   } = usePOINavigation(userLocation, filters)
+
+  // Filter management is now handled by FilterManager component
+  
+  // Update last visit timestamp
+  useEffect(() => {
+    const currentVisit = new Date().toISOString()
+    if (lastVisit !== currentVisit.split('T')[0]) { // Only update once per day
+      setLastVisit(currentVisit.split('T')[0]) // Fixed: only store date part, not full timestamp
+      console.log('📅 Visit recorded:', currentVisit.split('T')[0])
+    }
+  }, [lastVisit, setLastVisit]) // Re-enabled with proper date comparison
+  
+  // 🔗 INTEGRATION: Map view persistence now handled by MapViewManager hook
+
+  // Simplified filter result counts for FAB badges (to prevent performance issues)
+  const filterResultCounts = React.useMemo(() => {
+    if (!visiblePOIs || visiblePOIs.length === 0) return {}
+    
+    // Simplified approach: just return the current visible POI count for all options
+    // This prevents expensive recalculations and potential infinite loops
+    const count = visiblePOIs.length
+    const counts: { [key: string]: number } = {}
+    
+    const filterOptions = ['cold', 'mild', 'hot', 'none', 'light', 'heavy', 'calm', 'breezy', 'windy']
+    filterOptions.forEach(option => {
+      counts[`temperature_${option}`] = count
+      counts[`precipitation_${option}`] = count
+      counts[`wind_${option}`] = count
+    })
+    
+    return counts
+  }, [visiblePOIs.length]) // Only depend on length to reduce recalculations
 
   // Use POI data from new navigation hook
   const apiLocations = React.useMemo(() => {
@@ -867,207 +393,28 @@ export default function App() {
     return filtered
   }
 
-  // Helper function to calculate dynamic center and zoom from user location + closest 5 results
-  const calculateDynamicMapView = useCallback((filtered: Location[], userPos: [number, number] | null): { center: [number, number], zoom: number } => {
-    if (!userPos || filtered.length === 0) {
-      return { center: [46.7296, -94.6859], zoom: 15 } // Default Minnesota center (12 + 30% = ~15)
-    }
-    
-    // Calculate distances from user location to all results
-    const distancesWithLocations = filtered.map(location => {
-      const latDiff = location.lat - userPos[0]
-      const lngDiff = location.lng - userPos[1]
-      return {
-        distance: Math.sqrt(latDiff * latDiff + lngDiff * lngDiff),
-        location
-      }
-    })
-    
-    // Sort by distance (closest first)
-    distancesWithLocations.sort((a, b) => a.distance - b.distance)
-    
-    // Get the closest 5 results (or all if less than 5)
-    const targetCount = Math.min(5, filtered.length)
-    const closestResults = distancesWithLocations.slice(0, targetCount)
-    
-    // Calculate bounds including user location and closest 5 results
-    const allLats = [userPos[0], ...closestResults.map(r => r.location.lat)]
-    const allLngs = [userPos[1], ...closestResults.map(r => r.location.lng)]
-    
-    const minLat = Math.min(...allLats)
-    const maxLat = Math.max(...allLats)
-    const minLng = Math.min(...allLngs)
-    const maxLng = Math.max(...allLngs)
-    
-    // Calculate dynamic center that optimizes the view of user + closest results
-    const centerLat = (minLat + maxLat) / 2
-    const centerLng = (minLng + maxLng) / 2
-    
-    // Calculate the geographic spread for zoom optimization
-    const latRange = maxLat - minLat
-    const lngRange = maxLng - minLng
-    const maxRange = Math.max(latRange, lngRange)
-    
-    // Minimal padding factor for edge visibility - maximum zoom while keeping all points visible
-    const paddedRange = maxRange * 1.1
-    
-    // Convert range to zoom level - granular increments for precise control
-    let zoom = 18 // Start with maximum zoom
-    if (paddedRange > 0.008) zoom = 17.5   // Ultra-fine adjustment
-    if (paddedRange > 0.012) zoom = 17     // Extremely close grouping
-    if (paddedRange > 0.018) zoom = 16.5   // Fine adjustment
-    if (paddedRange > 0.025) zoom = 16     // Very close grouping
-    if (paddedRange > 0.035) zoom = 15.5   // Fine adjustment
-    if (paddedRange > 0.050) zoom = 15     // Close grouping
-    if (paddedRange > 0.070) zoom = 14.5   // Fine adjustment
-    if (paddedRange > 0.095) zoom = 14     // Medium-close grouping
-    if (paddedRange > 0.125) zoom = 13.5   // Fine adjustment
-    if (paddedRange > 0.165) zoom = 13     // Medium grouping
-    if (paddedRange > 0.220) zoom = 12.5   // Fine adjustment
-    if (paddedRange > 0.290) zoom = 12     // Medium-wide grouping
-    if (paddedRange > 0.380) zoom = 11.5   // Fine adjustment
-    if (paddedRange > 0.500) zoom = 11     // Wide grouping
-    if (paddedRange > 0.650) zoom = 10.5   // Fine adjustment
-    if (paddedRange > 0.850) zoom = 10     // Very wide grouping
-    if (paddedRange > 1.100) zoom = 9.5    // Fine adjustment
-    if (paddedRange > 1.450) zoom = 9      // Extra wide grouping
-    if (paddedRange > 1.900) zoom = 8.5    // Fine adjustment
-    if (paddedRange > 2.500) zoom = 8      // Continental grouping
-    
-    return { center: [centerLat, centerLng], zoom }
-  }, [])
+  // 🔗 INTEGRATION: Map view calculations now handled by MapViewManager hook
 
-  // Helper function to update map view - uses dynamic center calculation
-  const updateMapView = useCallback((filtered: Location[]) => {
-    if (userLocation) {
-      // When user location exists, use dynamic center calculation
-      const { center, zoom } = calculateDynamicMapView(filtered, userLocation)
-      setMapCenter(center)
-      setMapZoom(zoom)
-    } else if (filtered.length > 0) {
-      // No user location - fit all markers with geographic bounds
-      const lats = filtered.map(loc => loc.lat)
-      const lngs = filtered.map(loc => loc.lng)
-      
-      const minLat = Math.min(...lats)
-      const maxLat = Math.max(...lats)
-      const minLng = Math.min(...lngs)
-      const maxLng = Math.max(...lngs)
-      
-      // Calculate center
-      const centerLat = (minLat + maxLat) / 2
-      const centerLng = (minLng + maxLng) / 2
-      setMapCenter([centerLat, centerLng])
-      
-      // Calculate zoom to fit all markers with padding
-      const latRange = maxLat - minLat
-      const lngRange = maxLng - minLng
-      const maxRange = Math.max(latRange, lngRange)
-      
-      // Dynamic zoom based on geographic spread
-      let zoom = 9 // default higher zoom
-      if (maxRange < 0.1) zoom = 12      // Very close
-      else if (maxRange < 0.5) zoom = 10  // Close
-      else if (maxRange < 1.0) zoom = 9   // Medium spread
-      else if (maxRange < 2.0) zoom = 8   // Wide spread
-      else if (maxRange < 5.0) zoom = 7   // Very wide spread
-      else zoom = 6                       // Continental spread
-      
-      setMapZoom(zoom)
-    }
-  }, [userLocation, calculateDynamicMapView])
+  // Location management is now handled by LocationManager component
 
-  // Comprehensive location strategy: geolocation → IP → fallback position
-  useEffect(() => {
-    // Prevent re-initialization if already done
-    if (locationInitialized.current) {
-      return
-    }
-
-    // Wait for initial API data before attempting location initialization
-    if (apiLocations.length === 0) {
-      return
-    }
-
-    locationInitialized.current = true
-
-    const getLocationFromIP = async () => {
-      try {
-        const response = await fetch('https://ipapi.co/json/')
-        const data = await response.json()
-        if (data.latitude && data.longitude) {
-          const ipLocation: [number, number] = [data.latitude, data.longitude]
-          setUserLocation(ipLocation)
-          setMapCenter(ipLocation)
-          setShowLocationPrompt(false)
-          // Location set from IP
-          return true
-        }
-      } catch {
-        // IP location failed
-      }
-      return false
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const setFallbackLocation = () => {
-      // Center on available results and place marker there with popup open
-      const lats = apiLocations.map(loc => loc.lat)
-      const lngs = apiLocations.map(loc => loc.lng)
-      const centerLat = lats.reduce((a, b) => a + b, 0) / lats.length
-      const centerLng = lngs.reduce((a, b) => a + b, 0) / lngs.length
-      const fallbackLocation: [number, number] = [centerLat, centerLng]
-      setUserLocation(fallbackLocation)
-      setMapCenter(fallbackLocation)
-      setShowLocationPrompt(true) // Show popup to prompt user to move marker
-      // Location set to results center (fallback)
-    }
-
-    const initializeLocation = async () => {
-      // Start with IP location (no user gesture required) to avoid geolocation violation
-      // Geolocation will be triggered by user interaction (e.g., "Find My Location" button)
-      const ipSuccess = await getLocationFromIP()
-      if (!ipSuccess) {
-        // Keep the default location and show prompt to move marker
-        setShowLocationPrompt(true)
-      }
-    }
-
-    initializeLocation()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // apiLocations intentionally excluded - runs once on mount with current API data
-
-  // User-triggered geolocation (for "Find My Location" button or similar)
-  // Available for future use
-  const requestUserLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPos: [number, number] = [position.coords.latitude, position.coords.longitude]
-          setUserLocation(userPos)
-          setMapCenter(userPos)
-          setShowLocationPrompt(false)
-          // DEBUG: Confirm successful geolocation for UX flow validation and user-triggered location requests
-          console.log('Location set from user-requested geolocation')
-        },
-        (error) => {
-          // DEBUG: Track geolocation failures to measure user-triggered location request success rate
-          console.log('User-requested geolocation failed:', error.message)
-          // Could show a user-friendly error message here
-        },
-        { timeout: 10000, enableHighAccuracy: false }
-      )
-    }
-  }
-  
-  // Keep the function available for future features
-  if (false) requestUserLocation()
+  // Track previous values to prevent infinite loops
+  const prevMapState = useRef({ userLocation, filters, apiLocationsLength: apiLocations.length });
 
   // Apply filters when user location or API data changes
   useEffect(() => {
     // Wait for API data to load before any map calculations
     if (apiLocations.length === 0) {
       return
+    }
+
+    // Check if relevant data actually changed
+    const prevState = prevMapState.current;
+    const hasLocationChanged = JSON.stringify(prevState.userLocation) !== JSON.stringify(userLocation);
+    const hasFiltersChanged = JSON.stringify(prevState.filters) !== JSON.stringify(filters);
+    const hasDataChanged = prevState.apiLocationsLength !== apiLocations.length;
+
+    if (!hasLocationChanged && !hasFiltersChanged && !hasDataChanged) {
+      return; // No relevant changes, skip update
     }
 
     if (userLocation === null) {
@@ -1133,55 +480,47 @@ export default function App() {
       
       // Filtered locations now managed by POI hook directly
       
-      // Update map center to show current POI locations
-      const { center, zoom } = calculateDynamicMapView(filtered, userLocation)
-      setMapCenter(center)
-      setMapZoom(zoom)
+      // Update map center to show current POI locations (using MapViewManager)
+      updateMapView(filtered)
     }
     
     // Map ready state now managed by POI hook
+    // Update previous state tracking
+    prevMapState.current = { userLocation, filters, apiLocationsLength: apiLocations.length };
+    
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLocation, filters, apiLocations]); // calculateDynamicMapView is stable and excluded intentionally
+  }, [userLocation, filters, apiLocations, updateMapView]); // updateMapView from MapViewManager hook
 
   // TODO: New suggestion application logic will be implemented here
-
-  const handleFilterChange = (category: keyof WeatherFilters, value: string) => {
-    const newFilters = { ...filters, [category]: value }
-    setFilters(newFilters)
-    
-    // POI hook will automatically reload with new filters
-    // Filters will trigger POI hook reload automatically
-    console.log(`Filter change: POI hook will reload with new filters`)
-    
-    // Use consistent dynamic center calculation for all scenarios
-    if (userLocation) {
-      // User location exists - use dynamic center for optimal view of results
-      const { center, zoom } = calculateDynamicMapView(visiblePOIs, userLocation)
-      setMapCenter(center)
-      setMapZoom(zoom)
-    } else {
-      // No user location - fit all markers using geographic bounds
-      updateMapView(visiblePOIs)
-    }
-  }
+  
+  // Filter handling is now managed by FilterManager component
 
   const handleUserLocationChange = (newPosition: [number, number]) => {
-    // DEBUG: User location change tracking for state management and map interaction validation
-    console.log('handleUserLocationChange called with:', newPosition)
+    console.log('📍 User location changed manually:', newPosition)
+    
+    // Update component state
     setUserLocation(newPosition)
+    setLocationMethod('manual')
     setShowLocationPrompt(false) // User has moved the marker, so hide the prompt
+    
+    // CRITICAL: Also save to localStorage for persistence
+    try {
+      localStorage.setItem('userLocation', JSON.stringify(newPosition));
+      localStorage.setItem('locationMethod', JSON.stringify('manual'));
+      localStorage.setItem('showLocationPrompt', JSON.stringify(false));
+      console.log('📍 Location saved to localStorage:', newPosition);
+    } catch (error) {
+      console.warn('Failed to save location to localStorage:', error);
+    }
+    
     // Distance and expansion now managed by POI hook automatically
     // POI hook will automatically reload with new user location
-    
-    // POI hook will reload automatically with new user location
     console.log(`User location change: POI hook will reload data`)
     
     // Location change resets expansion state
     
-    // Use dynamic center calculation for optimal view of user + closest results
-    const { center, zoom } = calculateDynamicMapView(visiblePOIs, newPosition)
-    setMapCenter(center)
-    setMapZoom(zoom)
+    // Use MapViewManager for optimal view calculation
+    updateMapView(visiblePOIs)
   }
 
   // Function to expand display distance (no API calls needed)
@@ -1198,6 +537,17 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      
+      {/* Location Management Component */}
+      <LocationManager
+        onLocationChange={setUserLocation}
+        onLocationMethodChange={setLocationMethod}
+        onShowPromptChange={setShowLocationPrompt}
+        onMapCenterChange={setMapCenter}
+      />
+      
+      {/* Filter management is now handled by useFilterManager hook */}
+      
       <div className="h-screen w-screen flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
 
         {/* Loading State */}
@@ -1250,7 +600,7 @@ export default function App() {
 
         {/* Map Container - Full height, no padding, seamless with footer */}
         <div className="flex-1 relative" style={{ zIndex: 1003 }}>
-          <MapComponent
+          <MapContainer
             center={mapCenter}
             zoom={mapZoom}
             locations={visiblePOIs}
@@ -1267,8 +617,11 @@ export default function App() {
           {/* FAB Filter System - top right, expanding left */}
           <div className="absolute top-6 right-6 z-[1000]">
             <FabFilterSystem
-              filters={filters}
+              filters={debouncedFilters}
               onFilterChange={handleFilterChange}
+              isLoading={isFiltering}
+              resultCounts={filterResultCounts}
+              totalPOIs={visiblePOIs.length}
             />
           </div>
 

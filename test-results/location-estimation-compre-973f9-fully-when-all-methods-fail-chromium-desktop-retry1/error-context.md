@@ -1,0 +1,65 @@
+# Page snapshot
+
+```yaml
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- heading "Orvin \"Ole\" Olson Park" [level=3]
+- paragraph
+- text: 74°F ✨ 💧 10% 💨 17
+- link "🗺️ Driving Directions":
+  - /url: https://www.google.com/maps/dir/?api=1&destination=44.9987978,-93.2769483
+- link "🌲 MN DNR":
+  - /url: https://www.dnr.state.mn.us/search?terms=Orvin%20%22Ole%22%20Olson%20Park&filter=all
+- button "← Closer" [disabled]
+- button "Farther →"
+- button "Close popup"
+- link "Leaflet":
+  - /url: https://leafletjs.com
+- text: ©
+- link "OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright
+- text: contributors
+- button "Temperature": 😊 ✓
+- button "Precipitation": ☀️ ✓
+- button "Wind": 🌱 ✓
+- button "feedback"
+- contentinfo:
+  - img "Nearest Nice Weather"
+  - paragraph: Nearest Nice Weather
+  - paragraph: by PrairieAster.Ai
+  - link "MVP Plan":
+    - /url: /presentation/index-reveal.html
+```

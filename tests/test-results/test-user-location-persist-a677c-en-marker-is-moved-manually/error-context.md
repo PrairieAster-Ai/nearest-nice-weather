@@ -1,0 +1,76 @@
+# Page snapshot
+
+```yaml
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- button "Marker"
+- heading "Bohemian Flats Park" [level=3]
+- paragraph
+- text: 86°F ⛅ 💧 20% 💨 8
+- link "🗺️ Driving Directions":
+  - /url: https://www.google.com/maps/dir/?api=1&destination=44.9753051,-93.2410397
+- link "🌲 MN DNR":
+  - /url: https://www.dnr.state.mn.us/search?terms=Bohemian%2BFlats%2BPark&filter=all
+- button "← Closer" [disabled]
+- button "Farther →"
+- button "Close popup"
+- link "Leaflet":
+  - /url: https://leafletjs.com
+- text: ©
+- link "OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright
+- text: contributors
+- button "Temperature": 😊 ✓
+- button "Precipitation": ☀️ ✓
+- button "Wind": 🌱 ✓
+- button "feedback"
+- contentinfo:
+  - img "Nearest Nice Weather"
+  - paragraph: Nearest Nice Weather
+  - paragraph: by PrairieAster.Ai
+  - link "MVP Plan":
+    - /url: /presentation/index-reveal.html
+```

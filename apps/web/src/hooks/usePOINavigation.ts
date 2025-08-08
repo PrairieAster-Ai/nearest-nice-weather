@@ -43,6 +43,11 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+// 🔗 INTEGRATION: Primary data source for App.tsx map interface and POI rendering
+// 🔗 INTEGRATION: Works with LocationManager.tsx for distance-based POI calculations
+// 🔗 INTEGRATION: Integrates with FilterManager.tsx for weather-based POI filtering
+// 🔗 SEE ALSO: /api/poi-locations-with-weather for backend POI-weather data endpoint
+
 // ====================================================================
 // 🏞️ POI DATA STRUCTURES - Outdoor Recreation with Weather Integration
 // ====================================================================
@@ -282,7 +287,7 @@ export const usePOINavigation = (
     } finally {
       setLoading(false);
     }
-  }, [userLocation, filters, processAPIData, getVisiblePOIs, checkCanExpand]);
+  }, [userLocation, filters, processAPIData, getVisiblePOIs, checkCanExpand]); // Re-enabled with proper dependencies
 
   // Navigate to closer POI
   const navigateCloser = useCallback(() => {
@@ -379,7 +384,7 @@ export const usePOINavigation = (
     if (userLocation) {
       loadPOIData();
     }
-  }, [userLocation, filters, loadPOIData]);
+  }, [userLocation, filters, loadPOIData]); // Re-enabled with proper dependencies
 
   // Return the hook interface
   return {

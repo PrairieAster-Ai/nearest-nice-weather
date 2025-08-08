@@ -1,0 +1,639 @@
+{
+  "timestamp": "2025-08-07T17:31:28.468Z",
+  "url": "http://localhost:3001",
+  "markerAnalysis": {
+    "mapDimensions": {
+      "width": 1920,
+      "height": 1080,
+      "x": 0,
+      "y": 0
+    },
+    "totalMarkers": 30,
+    "markers": [
+      {
+        "index": 0,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 940,
+          "y": 520,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive leaflet-marker-draggable",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1091px, 774px, 0px); z-index: 774;",
+        "isUserMarker": false
+      },
+      {
+        "index": 1,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 940,
+          "y": 502,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1091px, 756px, 0px); z-index: 756;",
+        "isUserMarker": false
+      },
+      {
+        "index": 2,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 921,
+          "y": 534,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1072px, 788px, 0px); z-index: 788;",
+        "isUserMarker": false
+      },
+      {
+        "index": 3,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 923,
+          "y": 502,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1074px, 756px, 0px); z-index: 756;",
+        "isUserMarker": false
+      },
+      {
+        "index": 4,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 927,
+          "y": 544,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1078px, 798px, 0px); z-index: 798;",
+        "isUserMarker": false
+      },
+      {
+        "index": 5,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 919,
+          "y": 503,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1070px, 757px, 0px); z-index: 757;",
+        "isUserMarker": false
+      },
+      {
+        "index": 6,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 961,
+          "y": 502,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1112px, 756px, 0px); z-index: 756;",
+        "isUserMarker": false
+      },
+      {
+        "index": 7,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 943,
+          "y": 492,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1094px, 746px, 0px); z-index: 746;",
+        "isUserMarker": false
+      },
+      {
+        "index": 8,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 943,
+          "y": 492,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1094px, 746px, 0px); z-index: 746;",
+        "isUserMarker": false
+      },
+      {
+        "index": 9,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 911,
+          "y": 522,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1062px, 776px, 0px); z-index: 776;",
+        "isUserMarker": false
+      },
+      {
+        "index": 10,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 959,
+          "y": 499,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1110px, 753px, 0px); z-index: 753;",
+        "isUserMarker": false
+      },
+      {
+        "index": 11,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 929,
+          "y": 547,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1080px, 801px, 0px); z-index: 801;",
+        "isUserMarker": false
+      },
+      {
+        "index": 12,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 909,
+          "y": 530,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1060px, 784px, 0px); z-index: 784;",
+        "isUserMarker": false
+      },
+      {
+        "index": 13,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 927,
+          "y": 489,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1078px, 743px, 0px); z-index: 743;",
+        "isUserMarker": false
+      },
+      {
+        "index": 14,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 964,
+          "y": 544,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1115px, 798px, 0px); z-index: 798;",
+        "isUserMarker": false
+      },
+      {
+        "index": 15,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 962,
+          "y": 494,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1113px, 748px, 0px); z-index: 748;",
+        "isUserMarker": false
+      },
+      {
+        "index": 16,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 924,
+          "y": 489,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1075px, 743px, 0px); z-index: 743;",
+        "isUserMarker": false
+      },
+      {
+        "index": 17,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 932,
+          "y": 485,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1083px, 739px, 0px); z-index: 739;",
+        "isUserMarker": false
+      },
+      {
+        "index": 18,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 931,
+          "y": 486,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1082px, 740px, 0px); z-index: 740;",
+        "isUserMarker": false
+      },
+      {
+        "index": 19,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 974,
+          "y": 533,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1125px, 787px, 0px); z-index: 787;",
+        "isUserMarker": false
+      },
+      {
+        "index": 20,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 932,
+          "y": 484,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1083px, 738px, 0px); z-index: 738;",
+        "isUserMarker": false
+      },
+      {
+        "index": 21,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 941,
+          "y": 558,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1092px, 812px, 0px); z-index: 812;",
+        "isUserMarker": false
+      },
+      {
+        "index": 22,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 937,
+          "y": 482,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1088px, 736px, 0px); z-index: 736;",
+        "isUserMarker": false
+      },
+      {
+        "index": 23,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 934,
+          "y": 481,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1085px, 735px, 0px); z-index: 735;",
+        "isUserMarker": false
+      },
+      {
+        "index": 24,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 901,
+          "y": 531,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1052px, 785px, 0px); z-index: 785;",
+        "isUserMarker": false
+      },
+      {
+        "index": 25,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 926,
+          "y": 482,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1077px, 736px, 0px); z-index: 736;",
+        "isUserMarker": false
+      },
+      {
+        "index": 26,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 924,
+          "y": 482,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1075px, 736px, 0px); z-index: 736;",
+        "isUserMarker": false
+      },
+      {
+        "index": 27,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 935,
+          "y": 478,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1086px, 732px, 0px); z-index: 732;",
+        "isUserMarker": false
+      },
+      {
+        "index": 28,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 921,
+          "y": 482,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1072px, 736px, 0px); z-index: 736;",
+        "isUserMarker": false
+      },
+      {
+        "index": 29,
+        "isVisible": true,
+        "boundingBox": {
+          "x": 982,
+          "y": 532,
+          "width": 40,
+          "height": 40
+        },
+        "innerHTML": "",
+        "className": "leaflet-marker-icon leaflet-zoom-animated leaflet-interactive",
+        "style": "margin-left: -20px; margin-top: -20px; width: 40px; height: 40px; transform: translate3d(1133px, 786px, 0px); z-index: 786;",
+        "isUserMarker": false
+      }
+    ],
+    "markersOutsideViewport": 0
+  },
+  "screenshots": [
+    {
+      "type": "fullpage",
+      "filename": "location-avatar-fullpage.png"
+    },
+    {
+      "type": "map-focused",
+      "filename": "location-avatar-map-focus.png"
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-0-poi.png",
+      "markerIndex": 0,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-1-poi.png",
+      "markerIndex": 1,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-2-poi.png",
+      "markerIndex": 2,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-3-poi.png",
+      "markerIndex": 3,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-4-poi.png",
+      "markerIndex": 4,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-5-poi.png",
+      "markerIndex": 5,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-6-poi.png",
+      "markerIndex": 6,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-7-poi.png",
+      "markerIndex": 7,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-8-poi.png",
+      "markerIndex": 8,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-9-poi.png",
+      "markerIndex": 9,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-10-poi.png",
+      "markerIndex": 10,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-11-poi.png",
+      "markerIndex": 11,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-12-poi.png",
+      "markerIndex": 12,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-13-poi.png",
+      "markerIndex": 13,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-14-poi.png",
+      "markerIndex": 14,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-15-poi.png",
+      "markerIndex": 15,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-16-poi.png",
+      "markerIndex": 16,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-17-poi.png",
+      "markerIndex": 17,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-18-poi.png",
+      "markerIndex": 18,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-19-poi.png",
+      "markerIndex": 19,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-20-poi.png",
+      "markerIndex": 20,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-21-poi.png",
+      "markerIndex": 21,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-22-poi.png",
+      "markerIndex": 22,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-23-poi.png",
+      "markerIndex": 23,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-24-poi.png",
+      "markerIndex": 24,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-25-poi.png",
+      "markerIndex": 25,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-26-poi.png",
+      "markerIndex": 26,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-27-poi.png",
+      "markerIndex": 27,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-28-poi.png",
+      "markerIndex": 28,
+      "isUserMarker": false
+    },
+    {
+      "type": "individual-marker",
+      "filename": "marker-29-poi.png",
+      "markerIndex": 29,
+      "isUserMarker": false
+    }
+  ],
+  "consoleErrors": [],
+  "recommendations": [
+    {
+      "priority": "medium",
+      "issue": "User location marker not clearly identifiable",
+      "solution": "Add distinct styling, icon, or aria-label to user location marker"
+    }
+  ],
+  "infiniteLoopAnalysis": {
+    "errorsIn3Seconds": 0,
+    "errorsPerSecond": 0,
+    "severity": "low"
+  }
+}
