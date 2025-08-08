@@ -15,9 +15,9 @@
  * - Consistent data integrity across cached/uncached requests
  */
 
-const https = require('https')
-const http = require('http')
-const { URL } = require('url')
+import https from 'https'
+import http from 'http'
+import { URL } from 'url'
 
 class CachePerformanceTester {
   constructor(baseUrl = 'http://localhost:3001') {
@@ -284,8 +284,9 @@ async function main() {
   }
 }
 
-if (require.main === module) {
+// Run if this is the main module
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }
 
-module.exports = CachePerformanceTester
+export default CachePerformanceTester
