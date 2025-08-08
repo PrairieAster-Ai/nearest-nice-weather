@@ -94,6 +94,7 @@ import { useMapViewManager } from './components/MapViewManager'
 import { usePOINavigation } from './hooks/usePOINavigation'
 import { useLastVisitStorage, LocationMethod, WeatherFilters } from './hooks/useLocalStorageState'
 import { escapeHtml, sanitizeUrl } from './utils/sanitize'
+import { AdManagerProvider, AdUnit } from './components/ads'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L from 'leaflet'
@@ -537,18 +538,29 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      
-      {/* Location Management Component */}
-      <LocationManager
-        onLocationChange={setUserLocation}
-        onLocationMethodChange={setLocationMethod}
-        onShowPromptChange={setShowLocationPrompt}
-        onMapCenterChange={setMapCenter}
-      />
-      
-      {/* Filter management is now handled by useFilterManager hook */}
-      
-      <div className="h-screen w-screen flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+      <AdManagerProvider enableAds={true} testMode={process.env.NODE_ENV === 'development'}>
+        {/* Location Management Component */}
+        <LocationManager
+          onLocationChange={setUserLocation}
+          onLocationMethodChange={setLocationMethod}
+          onShowPromptChange={setShowLocationPrompt}
+          onMapCenterChange={setMapCenter}
+        />
+        
+        {/* Filter management is now handled by useFilterManager hook */}
+        
+        <div className="h-screen w-screen flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+
+          {/* Homepage Banner Ad - Above fold placement */}
+          <div className="w-full bg-white border-b border-gray-200">
+            <AdUnit 
+              slot="1234567890"
+              placement="homepage-banner"
+              format="auto"
+              testMode={process.env.NODE_ENV === 'development'}
+              showLabel={true}
+            />
+          </div>
 
         {/* Loading State */}
         {poiLoading && (
@@ -636,6 +648,7 @@ export default function App() {
         {/* Unified Sticky Footer */}
         <UnifiedStickyFooter />
       </div>
+      </AdManagerProvider>
     </ThemeProvider>
   )
 }// ATTEMPT 3: Force frontend cache refresh $(date +%s)
