@@ -181,20 +181,24 @@ export default async function handler(req, res) {
       distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
     }))
 
-    // Fetch real weather data for all POIs (batch processing)
+    // Fetch real weather data for all POIs (batch processing with cache integration)
     console.log(`Fetching weather for ${baseData.length} POIs`)
-    let transformedData = await fetchBatchWeather(baseData, 5) // Max 5 concurrent requests
-
+    const weatherResult = await fetchBatchWeather(baseData, 5) // Max 5 concurrent requests
+    
+    const transformedData = weatherResult.locations || []
+    const cacheStats = weatherResult.cache_stats || {}
+    
     console.log(`Weather integration complete for ${transformedData.length} POIs`)
+    console.log(`Cache performance: ${cacheStats.hits || 0} hits, ${cacheStats.misses || 0} misses, ${cacheStats.api_requests || 0} API calls`)
 
     // Apply weather-based filtering if filters are provided
-    transformedData = applyWeatherFilters(transformedData, { temperature, precipitation, wind })
-    console.log(`After weather filtering: ${transformedData.length} POIs`)
+    const filteredData = applyWeatherFilters(transformedData, { temperature, precipitation, wind })
+    console.log(`After weather filtering: ${filteredData.length} POIs`)
 
     res.json({
       success: true,
-      data: transformedData,
-      count: transformedData.length,
+      data: filteredData,
+      count: filteredData.length,
       timestamp: new Date().toISOString(),
       debug: {
         query_type: lat && lng ? 'proximity_with_weather' : 'all_pois_with_weather',
@@ -203,7 +207,10 @@ export default async function handler(req, res) {
         limit: limitNum.toString(),
         data_source: 'poi_with_real_weather',
         weather_api: 'openweather',
-        note: 'Using real OpenWeather API data for production deployment'
+        cache_strategy: `Redis cache - ${cacheStats.hit_rate?.toFixed(1) || 0}% hit rate`,
+        cache_duration: '6 hours',
+        cache_stats: cacheStats,
+        note: 'Using real OpenWeather API data with Redis caching for production deployment'
       }
     })
 
