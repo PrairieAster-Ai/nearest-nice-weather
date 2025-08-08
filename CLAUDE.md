@@ -31,7 +31,7 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 - `scripts/` - **Automated development environment tools**
   - `environment-validation.sh` - **Comprehensive multi-environment validation (localhost/preview/production)**
   - `localhost-health-check.sh` - Legacy localhost-specific validation
-  - `quick-docker-health.sh` - Fast Docker networking check
+  - `scripts/utilities/quick-docker-health.sh` - Fast Docker networking check
   - `development-dashboard.sh` - Real-time environment monitoring
 
 ## Development Commands
@@ -392,7 +392,7 @@ git push origin emergency-rollback --force
   ```bash
   ./scripts/localhost-health-check.sh  # Comprehensive validation
   # OR
-  ./scripts/quick-docker-health.sh     # Fast Docker check
+  ./scripts/utilities/quick-docker-health.sh     # Fast Docker check
   ```
 
 - **When environment issues occur**:
@@ -405,7 +405,7 @@ git push origin emergency-rollback --force
 ```bash
 # Required environment check at session start:
 curl -s http://localhost:3050/health | jq '.'
-./environment-health-check.sh
+./scripts/utilities/environment-health-check.sh
 ```
 
 **Development Environment KPIs** (see [CLAUDE-PRODUCTIVITY-KPIs.md](CLAUDE-PRODUCTIVITY-KPIs.md)):
@@ -463,7 +463,7 @@ curl -s http://localhost:3050/health | jq '.'
 
 ### Daily Maintenance
 - **Health Check**: Run `./scripts/localhost-health-check.sh` when starting development work
-- **Docker Status**: Verify Docker networking with `./scripts/quick-docker-health.sh`
+- **Docker Status**: Verify Docker networking with `./scripts/utilities/quick-docker-health.sh`
 - **Node.js Version**: Ensure LTS version (20.18.0) with `node --version`
 - **Environment Validation**: Use `./scripts/development-dashboard.sh` for real-time status
 - **Blank Screen Check**: If preview shows blank screen, run `./scripts/blank-screen-diagnostic.sh preview`
