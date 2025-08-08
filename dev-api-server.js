@@ -45,7 +45,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import dotenv from 'dotenv'
-import { fetchWeatherData, fetchBatchWeather } from './src/services/weatherService.js'
+import { fetchWeatherData, fetchBatchWeather } from './apps/web/utils/weatherService.js'
 
 /**
  * Apply weather-based filtering to POI results
