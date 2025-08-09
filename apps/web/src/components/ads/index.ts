@@ -11,4 +11,5 @@
 
 export { AdUnit } from './AdUnit'
 export { AdManagerProvider, useAdManager } from './AdManager'
+export { POIContextualAd, generatePOIAdHTML } from './POIContextualAd'
 export type { default as AdUnitProps } from './AdUnit'

@@ -53,6 +53,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import { escapeHtml, sanitizeUrl } from '../utils/sanitize';
+import { generatePOIAdHTML } from './ads';
 
 // 🔗 INTEGRATION: Import asterIcon from App.tsx for consistent branding
 export const asterIcon = new L.Icon({
@@ -328,15 +329,35 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     
     // Sanitize URLs
     const mapsUrl = sanitizeUrl(`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`);
-    const dnrUrl = sanitizeUrl(`https://www.dnr.state.mn.us/search?terms=${encodeURIComponent(location.name.replace(/\\s+/g, '+'))}&filter=all`);
+    
+    // Generate contextual ad content
+    const contextualAdHTML = generatePOIAdHTML(location, process.env.NODE_ENV === 'development');
     
     return `
       <div class="p-2 text-xs leading-tight">
-        <div class="mb-1">
-          <h3 class="font-bold text-sm text-black mb-0">${safeName}</h3>
-          ${safeParkType ? `<div class="text-xs text-purple-800 font-medium">${safeParkType}</div>` : ''}
-          <p class="text-xs text-gray-800 mt-0">${safeDescription}</p>
+        <div class="mb-2">
+          <h3 class="font-bold text-sm text-black mb-1">${safeName}</h3>
+          ${safeParkType ? `<div class="text-xs text-purple-800 font-medium mb-1">${safeParkType}</div>` : ''}
+          
+          <!-- Redesigned layout: Map emoji + Description + Ad Container -->
+          <div class="flex items-start gap-2 mb-2">
+            <a href="${mapsUrl}" 
+               target="_blank" rel="noopener noreferrer"
+               class="flex-shrink-0 text-lg hover:text-purple-700 cursor-pointer"
+               title="Get driving directions"
+               style="text-decoration: none; margin-top: 1px;">
+              🗺️
+            </a>
+            <div class="flex-1">
+              <p class="text-xs text-gray-800 mt-0 leading-tight">${safeDescription}</p>
+              
+              <!-- Contextual Ad Container -->
+              ${contextualAdHTML}
+            </div>
+          </div>
         </div>
+        
+        <!-- Weather Information -->
         <div class="bg-gray-100 rounded p-2 mb-2 border">
           <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
             <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
@@ -352,35 +373,23 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           </div>
           ${safeWeatherStation ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>` : ''}
         </div>
-        <div class="space-y-1">
-          <a href="${mapsUrl}" 
-             target="_blank" rel="noopener noreferrer"
-             class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-             style="background-color: rgba(133, 109, 166, 0.5)">
-            🗺️ Driving Directions
-          </a>
-          <a href="${dnrUrl}"
-             target="_blank" rel="noopener noreferrer"
-             class="block w-full text-black text-center py-2 px-2 rounded text-xs font-bold border"
-             style="background-color: rgba(127, 164, 207, 0.5)">
-            🌲 MN DNR
-          </a>
-          ${(locations.length > 1 || canExpand) ? `
-          <div class="flex space-x-1 mb-1" data-popup-nav="true">
-            <button data-nav-action="closer" 
-                    ${isAtClosest ? 'disabled' : ''}
-                    class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtClosest ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'}"
-                    style="background-color: rgba(76, 175, 80, 0.5)">
-              ← Closer
-            </button>
-            <button data-nav-action="farther" 
-                    class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtFarthest && !canExpand ? 'opacity-75' : 'hover:bg-green-200'}"
-                    style="background-color: rgba(76, 175, 80, 0.5)">
-              ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
-            </button>
-          </div>
-          ` : ''}
+        
+        <!-- Navigation Controls -->
+        ${(locations.length > 1 || canExpand) ? `
+        <div class="flex space-x-1" data-popup-nav="true">
+          <button data-nav-action="closer" 
+                  ${isAtClosest ? 'disabled' : ''}
+                  class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtClosest ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'}"
+                  style="background-color: rgba(76, 175, 80, 0.5)">
+            ← Closer
+          </button>
+          <button data-nav-action="farther" 
+                  class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtFarthest && !canExpand ? 'opacity-75' : 'hover:bg-green-200'}"
+                  style="background-color: rgba(76, 175, 80, 0.5)">
+            ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
+          </button>
         </div>
+        ` : ''}
       </div>
     `;
   }, [isAtClosest, isAtFarthest, canExpand, locations.length]);

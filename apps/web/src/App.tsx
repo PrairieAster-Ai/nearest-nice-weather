@@ -551,17 +551,6 @@ export default function App() {
         
         <div className="h-screen w-screen flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
 
-          {/* Homepage Banner Ad - Above fold placement */}
-          <div className="w-full bg-white border-b border-gray-200">
-            <AdUnit 
-              slot="1234567890"
-              placement="homepage-banner"
-              format="auto"
-              testMode={process.env.NODE_ENV === 'development'}
-              showLabel={true}
-            />
-          </div>
-
         {/* Loading State */}
         {poiLoading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-[2000]">
