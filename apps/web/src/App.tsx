@@ -95,6 +95,7 @@ import { usePOINavigation } from './hooks/usePOINavigation'
 import { useLastVisitStorage, LocationMethod, WeatherFilters } from './hooks/useLocalStorageState'
 import { escapeHtml, sanitizeUrl } from './utils/sanitize'
 import { AdManagerProvider, AdUnit } from './components/ads'
+import { loadUmamiAnalytics, trackPageView, trackLocationUpdate, trackWeatherFilter, trackPOIInteraction } from './utils/analytics'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L from 'leaflet'
@@ -150,6 +151,15 @@ interface Location {
 // Weather locations now fetched from database via API
 
 export default function App() {
+  // Initialize analytics on app load
+  useEffect(() => {
+    loadUmamiAnalytics().then((loaded) => {
+      if (loaded) {
+        trackPageView();
+      }
+    });
+  }, []);
+
   // Persistent user preferences with localStorage
   const [lastVisit, setLastVisit] = useLastVisitStorage()
   
@@ -498,6 +508,13 @@ export default function App() {
 
   const handleUserLocationChange = (newPosition: [number, number]) => {
     console.log('📍 User location changed manually:', newPosition)
+    
+    // Track location update for analytics
+    trackLocationUpdate({
+      lat: newPosition[0],
+      lng: newPosition[1],
+      source: 'manual'
+    });
     
     // Update component state
     setUserLocation(newPosition)

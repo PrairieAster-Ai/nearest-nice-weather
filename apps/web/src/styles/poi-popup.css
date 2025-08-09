@@ -1,0 +1,162 @@
+/**
+ * POI Popup Styles
+ * Extracted from inline styles for better caching and reduced page size
+ */
+
+/* Directions Button - Mini FAB */
+.poi-directions-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: #7563A8;
+  color: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.poi-directions-button:hover {
+  background-color: #6B5B95;
+  transform: scale(1.1);
+}
+
+/* Navigation Buttons */
+.poi-nav-button {
+  flex: 1;
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border: none;
+  transition: all 0.3s;
+  background-color: #7563A8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.poi-nav-button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.poi-nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.poi-nav-button.farther-disabled {
+  opacity: 0.75;
+}
+
+/* Popup Container */
+.poi-popup-container {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+/* Title Row */
+.poi-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* POI Title */
+.poi-title {
+  font-weight: bold;
+  font-size: 0.875rem;
+  color: black;
+  flex: 1;
+  padding-left: 0.5rem;
+}
+
+/* Park Type */
+.poi-park-type {
+  font-size: 0.75rem;
+  color: #7c3aed;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+/* Description */
+.poi-description {
+  font-size: 0.75rem;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+
+/* Weather Info */
+.poi-weather-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.poi-weather-item {
+  text-align: center;
+  padding: 0.25rem;
+  background-color: #f8f4ff;
+  border-radius: 0.25rem;
+  border: 1px solid #e0d4f7;
+}
+
+.poi-weather-value {
+  font-weight: bold;
+  font-size: 0.625rem;
+  color: #7563A8;
+}
+
+.poi-weather-label {
+  font-size: 0.5rem;
+  color: #6b7280;
+  margin-top: 0.125rem;
+}
+
+/* Navigation Container */
+.poi-nav-container {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Contextual Ad Container */
+.poi-ad-container {
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  padding: 6px;
+  background-color: #f8f9fa;
+  text-align: center;
+  font-size: 9px;
+  color: #666;
+  margin-top: 6px;
+}
+
+.poi-ad-label {
+  font-size: 8px;
+  margin-bottom: 3px;
+  opacity: 0.7;
+}
+
+.poi-ad-title {
+  font-weight: bold;
+  margin-bottom: 3px;
+  font-size: 10px;
+}
+
+.poi-ad-weather {
+  font-size: 8px;
+  opacity: 0.8;
+}
+
+.poi-ad-description {
+  font-size: 7px;
+  margin-top: 3px;
+  opacity: 0.6;
+}

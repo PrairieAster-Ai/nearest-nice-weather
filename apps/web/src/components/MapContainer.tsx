@@ -54,6 +54,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import { escapeHtml, sanitizeUrl } from '../utils/sanitize';
 import { generatePOIAdHTML } from './ads';
+import { trackPOIInteraction, trackFeatureUsage } from '../utils/analytics';
+// Import POI popup styles
+import '../styles/poi-popup.css';
 
 // 🔗 INTEGRATION: Import asterIcon from App.tsx for consistent branding
 export const asterIcon = new L.Icon({
@@ -220,6 +223,15 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         // Track which marker was clicked to sync currentMarkerIndex
         marker.on('popupopen', () => {
           setCurrentMarkerIndex(index);
+          
+          // Track POI interaction for analytics
+          trackPOIInteraction('popup-opened', {
+            name: location.name,
+            temperature: location.temperature,
+            condition: location.condition,
+            distance: location.distance,
+            park_type: location.park_type
+          });
         });
         
         // Create sanitized popup content for marker
@@ -316,6 +328,33 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     userMarkerRef.current.setLatLng(userLocation);
   }, [userLocation]);
 
+  // Helper function to detect platform and generate appropriate mapping URL
+  const generateMappingUrl = useCallback((location: POILocation): string => {
+    const coords = `${location.lat},${location.lng}`;
+    const locationName = encodeURIComponent(location.name);
+    
+    // Detect platform based on user agent
+    const userAgent = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isAndroid = /Android/.test(userAgent);
+    const isMobile = /Mobi|Android/i.test(userAgent);
+    
+    // Platform-specific URL generation
+    if (isIOS) {
+      // iOS: Use Apple Maps
+      return `http://maps.apple.com/?daddr=${coords}&dirflg=d`;
+    } else if (isAndroid) {
+      // Android: Use geo: URL for Google Maps
+      return `geo:${coords}?q=${coords}(${locationName})`;
+    } else if (isMobile) {
+      // Other mobile: Try geo: first
+      return `geo:${coords}?q=${coords}(${locationName})`;
+    } else {
+      // Desktop: Use Google Maps web interface
+      return `https://www.google.com/maps/dir/?api=1&destination=${coords}`;
+    }
+  }, []);
+
   // Helper function to create popup content
   const createPopupContent = useCallback((location: POILocation): string => {
     // Sanitize all user content
@@ -327,31 +366,32 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     const safeWeatherStation = location.weather_station_name ? escapeHtml(location.weather_station_name) : '';
     const safeWeatherDistance = location.weather_distance_miles ? escapeHtml(location.weather_distance_miles) : '';
     
-    // Sanitize URLs
-    const mapsUrl = sanitizeUrl(`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`);
+    // Generate platform-appropriate mapping URL
+    const mapsUrl = sanitizeUrl(generateMappingUrl(location));
     
     // Generate contextual ad content
     const contextualAdHTML = generatePOIAdHTML(location, process.env.NODE_ENV === 'development');
     
     return `
-      <div class="p-2 text-xs leading-tight">
+      <div class="poi-popup-container">
         <div class="mb-2">
-          <!-- Title row with map emoji -->
-          <div class="flex items-center gap-2 mb-1">
+          <!-- Title row with directions button -->
+          <div class="poi-title-row">
             <a href="${mapsUrl}" 
                target="_blank" rel="noopener noreferrer"
-               class="flex-shrink-0 text-lg hover:text-purple-700 cursor-pointer"
-               title="Get driving directions"
-               style="text-decoration: none;">
-              🗺️
+               title="Get directions"
+               class="poi-directions-button"
+               data-analytics-poi="${safeName}"
+               data-analytics-action="directions-clicked">
+              🧭
             </a>
-            <h3 class="font-bold text-sm text-black flex-1">${safeName}</h3>
+            <h3 class="poi-title">${safeName}</h3>
           </div>
           
-          ${safeParkType ? `<div class="text-xs text-purple-800 font-medium mb-1">${safeParkType}</div>` : ''}
+          ${safeParkType ? `<div class="poi-park-type">${safeParkType}</div>` : ''}
           
           <!-- Full width description -->
-          <p class="text-xs text-gray-800 mb-2 leading-tight">${safeDescription}</p>
+          <p class="poi-description">${safeDescription}</p>
           
           <!-- Full width contextual Ad Container -->
           ${contextualAdHTML}
@@ -376,23 +416,21 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         
         <!-- Navigation Controls -->
         ${(locations.length > 1 || canExpand) ? `
-        <div class="flex space-x-1" data-popup-nav="true">
+        <div class="poi-nav-container" data-popup-nav="true">
           <button data-nav-action="closer" 
                   ${isAtClosest ? 'disabled' : ''}
-                  class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtClosest ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'}"
-                  style="background-color: rgba(76, 175, 80, 0.5)">
+                  class="poi-nav-button ${isAtClosest ? '' : ''}">
             ← Closer
           </button>
           <button data-nav-action="farther" 
-                  class="flex-1 text-black text-center py-2 px-2 rounded text-xs font-bold border ${isAtFarthest && !canExpand ? 'opacity-75' : 'hover:bg-green-200'}"
-                  style="background-color: rgba(76, 175, 80, 0.5)">
+                  class="poi-nav-button ${isAtFarthest && !canExpand ? 'farther-disabled' : ''}">
             ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
           </button>
         </div>
         ` : ''}
       </div>
     `;
-  }, [isAtClosest, isAtFarthest, canExpand, locations.length]);
+  }, [isAtClosest, isAtFarthest, canExpand, locations.length, generateMappingUrl]);
 
   // Function to update popup content with current navigation state
   const updatePopupContent = useCallback((markerIndex: number) => {
@@ -403,10 +441,21 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
   }, [locations, createPopupContent]);
 
-  // Event delegation for popup navigation buttons
+  // Event delegation for popup navigation buttons and analytics tracking
   useEffect(() => {
     const handleNavigation = (event: Event) => {
       const target = event.target as HTMLElement;
+      
+      // Handle directions button analytics
+      if (target.matches('[data-analytics-action="directions-clicked"]')) {
+        const poiName = target.getAttribute('data-analytics-poi');
+        if (poiName) {
+          trackFeatureUsage('directions', { poi_name: poiName });
+        }
+        return; // Let the link work normally
+      }
+      
+      // Handle navigation buttons
       if (!target.matches('[data-nav-action]')) return;
       
       event.preventDefault();
