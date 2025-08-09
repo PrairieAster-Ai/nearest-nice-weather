@@ -168,7 +168,7 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false, re
                 {!isLoading && (
                   <Chip
                     size="small"
-                    label={isSelected ? '✓' : (totalPOIs || '0')}
+                    label={totalPOIs || '0'}
                     sx={{
                       position: 'absolute',
                       top: -8,

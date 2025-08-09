@@ -89,44 +89,6 @@ export function UnifiedStickyFooter() {
               by PrairieAster.Ai
             </Typography>
           </Box>
-          
-          {/* MVP Plan Link */}
-          <Box sx={{ 
-            ml: 1.5, // Space from text
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%'
-          }}>
-            <Box 
-              component="a"
-              href="/presentation/index-reveal.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ 
-                color: '#7563A8', 
-                textDecoration: 'none',
-                fontSize: { 
-                  xs: 'clamp(0.56rem, 1.8vw, 0.67rem)', // Slightly smaller than main text
-                  sm: 'clamp(0.85rem, 2.2vw, 1rem)',
-                  md: 'clamp(0.95rem, 1.8vw, 1.1rem)'
-                },
-                fontWeight: 'medium',
-                px: 1,
-                py: 0.5,
-                borderRadius: 1,
-                border: '1px solid #e0d4f7',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  backgroundColor: 'rgba(117, 99, 168, 0.1)',
-                  borderColor: '#7563A8',
-                  transform: 'translateY(-1px)'
-                }
-              }}
-            >
-              MVP Plan
-            </Box>
-          </Box>
         </Box>
 
       </Box>
