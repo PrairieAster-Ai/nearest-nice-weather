@@ -336,25 +336,25 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     return `
       <div class="p-2 text-xs leading-tight">
         <div class="mb-2">
-          <h3 class="font-bold text-sm text-black mb-1">${safeName}</h3>
-          ${safeParkType ? `<div class="text-xs text-purple-800 font-medium mb-1">${safeParkType}</div>` : ''}
-          
-          <!-- Redesigned layout: Map emoji + Description + Ad Container -->
-          <div class="flex items-start gap-2 mb-2">
+          <!-- Title row with map emoji -->
+          <div class="flex items-center gap-2 mb-1">
             <a href="${mapsUrl}" 
                target="_blank" rel="noopener noreferrer"
                class="flex-shrink-0 text-lg hover:text-purple-700 cursor-pointer"
                title="Get driving directions"
-               style="text-decoration: none; margin-top: 1px;">
+               style="text-decoration: none;">
               🗺️
             </a>
-            <div class="flex-1">
-              <p class="text-xs text-gray-800 mt-0 leading-tight">${safeDescription}</p>
-              
-              <!-- Contextual Ad Container -->
-              ${contextualAdHTML}
-            </div>
+            <h3 class="font-bold text-sm text-black flex-1">${safeName}</h3>
           </div>
+          
+          ${safeParkType ? `<div class="text-xs text-purple-800 font-medium mb-1">${safeParkType}</div>` : ''}
+          
+          <!-- Full width description -->
+          <p class="text-xs text-gray-800 mb-2 leading-tight">${safeDescription}</p>
+          
+          <!-- Full width contextual Ad Container -->
+          ${contextualAdHTML}
         </div>
         
         <!-- Weather Information -->
