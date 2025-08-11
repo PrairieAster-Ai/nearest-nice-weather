@@ -19,10 +19,6 @@
       "destination": "/manifest.json"
     },
     {
-      "source": "/claude-code-auth",
-      "destination": "/api/auth-bypass"
-    },
-    {
       "source": "/((?!api).*)",
       "destination": "/index.html"
     }
