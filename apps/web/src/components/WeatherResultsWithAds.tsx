@@ -118,7 +118,7 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
         {shouldShowAd && (
           <Box key={`ad-${index}`} sx={{ mb: 3 }}>
             <AdUnit
-              slot="1234567891" // Different slot for weather results
+              slot="3456789012" // Weather results inline ad slot
               placement="weather-results"
               format="auto"
               testMode={process.env.NODE_ENV === 'development'}
@@ -170,7 +170,7 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
       {displayLocations.length >= 8 && (
         <Box mt={3}>
           <AdUnit
-            slot="1234567892" // Different slot for bottom placement
+            slot="5678901234" // Weather results bottom ad slot
             placement="weather-results"
             format="auto"
             testMode={process.env.NODE_ENV === 'development'}
