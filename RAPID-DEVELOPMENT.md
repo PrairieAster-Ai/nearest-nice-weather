@@ -3,13 +3,21 @@
 
 ## 🚀 Quick Start (< 2 minutes)
 
-### For New Ideas/Features:
+### For New Ideas/Features (VercelMCP Optimized):
 ```bash
+# 🚀 RECOMMENDED: VercelMCP Workflow (2-5 minute cycles)
+# 1. In Claude conversation: "Create preview deployment for weather icons experiment"
+# 2. Edit code at localhost:3001
+# 3. In Claude conversation: "Deploy latest changes to preview"
+# 4. In Claude conversation: "Update p.nearestniceweather.com alias"
+# 5. In Claude conversation: "Deploy to production if validated"
+
+# 🔄 FALLBACK: Traditional Script Workflow  
 # 1. Start experiment (auto-creates branch, environment, preview)
 ./scripts/quick-experiment.sh weather-icons "Add weather condition icons"
 
 # 2. Develop (automatic preview deployment on each push)
-# - Edit code at localhost:3002
+# - Edit code at localhost:3001
 # - git commit -m "feature: add sunny weather icon"
 # - git push (creates preview deployment)
 

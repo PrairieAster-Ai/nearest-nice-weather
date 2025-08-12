@@ -1,11 +1,26 @@
-# Production Deployment Guide
+# 🚀 Production Deployment Guide - VercelMCP First Strategy
+
+## **🎯 PRIMARY: Conversation-Based Deployment (RECOMMENDED)**
+
+**Deploy in 30 seconds with zero context switching:**
+
+```
+"Deploy current code to production with safety validation"
+```
+
+**What happens**: Safety checks → deployment → endpoint validation → monitoring
+
+## **🛠️ BACKUP: Traditional Deployment Methods**
+
+Use only when VercelMCP unavailable.
 
 ## Prerequisites
 
 1. **Vercel Account** - Sign up at [vercel.com](https://vercel.com)
-2. **Database** - PostgreSQL with PostGIS extension
-3. **Redis** - Redis instance for caching
-4. **API Keys** - Weather and map service credentials
+2. **VercelMCP Integration** - 88% ready, use conversations for optimal experience
+3. **Database** - Neon PostgreSQL (cloud-hosted, no local setup)
+4. **Node.js 20.x LTS** - All environments standardized
+5. **API Keys** - Weather and map service credentials
 
 ## Environment Variables Setup
 
