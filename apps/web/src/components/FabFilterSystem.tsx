@@ -3,11 +3,17 @@
  * FAB FILTER SYSTEM - WEATHER PREFERENCE INTERFACE
  * ========================================================================
  * 
- * 📋 PURPOSE: Floating action button interface for weather filtering preferences
+ * 📋 PURPOSE: Floating action button interface showing SELECTED weather preferences
  * 🔗 CONNECTS TO: App.tsx (main container), FilterManager hook (state logic)
- * 📊 DATA FLOW: User clicks → instant UI feedback → debounced filter update → POI refresh
- * ⚙️ STATE: filters (current), isLoading (feedback), resultCounts (badges)
+ * 📊 DATA FLOW: User clicks FAB → slide-out options → selection → instant UI update → debounced filter → POI refresh
+ * ⚙️ STATE: filters (current selections), isLoading (feedback), resultCounts (badges)
  * 🎯 USER IMPACT: Immediate visual feedback for weather preference changes
+ * 
+ * DISPLAY PATTERN: FABs show CURRENT SELECTIONS, not category icons
+ * - Temperature FAB shows: 😊 (mild), 🥶 (cold), or 🥵 (hot) 
+ * - Precipitation FAB shows: ☀️ (none), 🌦️ (light), or 🌧️ (heavy)
+ * - Wind FAB shows: 🌱 (calm), 🍃 (breezy), or 💨 (windy)
+ * - Clicking opens slide-out with all 3 options for that category
  * 
  * BUSINESS CONTEXT: Core UX for Minnesota outdoor recreation weather optimization
  * - Enables users to find POIs matching their weather comfort preferences  
@@ -21,6 +27,7 @@
  * 
  * 🏗️ ARCHITECTURAL DECISIONS:
  * - FAB pattern chosen for mobile-first outdoor use case (thumb-friendly)
+ * - Selected preference display eliminates cognitive load (user sees current state)
  * - Slide-out animation for premium app feel without complexity
  * - Badge system for decision confidence (shows available results)
  * 
@@ -75,28 +82,31 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false, re
     temperature: {
       icon: '🌡️',
       label: 'Temperature',
+      testId: 'filter-temperature',
       options: [
-        { value: 'cold', icon: '🥶', label: 'Cold' },
-        { value: 'mild', icon: '😊', label: 'Mild' },
-        { value: 'hot', icon: '🥵', label: 'Hot' }
+        { value: 'cold', icon: '🥶', label: 'Cold', testId: 'temperature-cold' },
+        { value: 'mild', icon: '😊', label: 'Mild', testId: 'temperature-mild' },
+        { value: 'hot', icon: '🥵', label: 'Hot', testId: 'temperature-hot' }
       ]
     },
     precipitation: {
       icon: '🌧️', 
       label: 'Precipitation',
+      testId: 'filter-precipitation',
       options: [
-        { value: 'none', icon: '☀️', label: 'None' },
-        { value: 'light', icon: '🌦️', label: 'Light' },
-        { value: 'heavy', icon: '🌧️', label: 'Heavy' }
+        { value: 'none', icon: '☀️', label: 'None', testId: 'precipitation-none' },
+        { value: 'light', icon: '🌦️', label: 'Light', testId: 'precipitation-light' },
+        { value: 'heavy', icon: '🌧️', label: 'Heavy', testId: 'precipitation-heavy' }
       ]
     },
     wind: {
       icon: '💨',
       label: 'Wind',
+      testId: 'filter-wind',
       options: [
-        { value: 'calm', icon: '🌱', label: 'Calm' },
-        { value: 'breezy', icon: '🍃', label: 'Breezy' },
-        { value: 'windy', icon: '💨', label: 'Windy' }
+        { value: 'calm', icon: '🌱', label: 'Calm', testId: 'wind-calm' },
+        { value: 'breezy', icon: '🍃', label: 'Breezy', testId: 'wind-breezy' },
+        { value: 'windy', icon: '💨', label: 'Windy', testId: 'wind-windy' }
       ]
     }
   }), [])
@@ -128,6 +138,10 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false, re
             <Tooltip title={config.label} placement="right">
               <Fab
                 size="large"
+                data-testid={config.testId}
+                aria-label={`${config.label} filter: ${selectedOption?.label || 'All'}`}
+                aria-expanded={isOpen}
+                role="button"
                 onClick={() => handleCategoryClick(category)}
                 sx={{
                   backgroundColor: isSelected ? '#7563A8' : 'white',
@@ -209,6 +223,10 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false, re
                       <Tooltip title={option.label} placement="top">
                         <Fab
                           size="medium"
+                          data-testid={option.testId}
+                          aria-label={`Select ${option.label} ${config.label.toLowerCase()}`}
+                          aria-pressed={filters[category] === option.value}
+                          role="button"
                           onClick={() => handleOptionSelect(category, option.value)}
                           sx={{
                             backgroundColor: filters[category] === option.value ? '#7563A8' : 'white',

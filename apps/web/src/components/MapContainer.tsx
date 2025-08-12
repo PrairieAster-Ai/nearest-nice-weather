@@ -596,5 +596,13 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
   }, [currentPOI, locations, updatePopupContent]);
 
-  return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
+  return (
+    <div 
+      ref={containerRef} 
+      data-testid="map-container"
+      aria-label="Interactive map showing outdoor recreation locations"
+      role="application"
+      style={{ height: '100%', width: '100%' }} 
+    />
+  );
 };
