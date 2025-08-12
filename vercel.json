@@ -5,10 +5,6 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/apps/web/api/$1"
-    },
-    {
       "source": "/health.json",
       "destination": "/health.json"
     },
@@ -104,10 +100,5 @@
       ]
     }
   ],
-  "regions": ["cle1", "iad1"],
-  "functions": {
-    "apps/web/api/*.js": {
-      "runtime": "@vercel/node@3.1.7"
-    }
-  }
+  "regions": ["cle1", "iad1"]
 }
