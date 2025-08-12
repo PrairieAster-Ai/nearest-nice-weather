@@ -101,10 +101,5 @@
       ]
     }
   ],
-  "regions": ["cle1", "iad1"],
-  "functions": {
-    "apps/web/api/*.js": {
-      "runtime": "@vercel/node@3"
-    }
-  }
+  "regions": ["cle1", "iad1"]
 }
