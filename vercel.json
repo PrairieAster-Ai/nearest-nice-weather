@@ -104,7 +104,7 @@
   "regions": ["cle1", "iad1"],
   "functions": {
     "apps/web/api/*.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "@vercel/node@3"
     }
   }
 }
