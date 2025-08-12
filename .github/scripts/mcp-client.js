@@ -19,7 +19,7 @@ class MCPClient {
     const serverProcess = spawn('docker', [
       'run', '-i', '--rm',
       '-e', 'GITHUB_PERSONAL_ACCESS_TOKEN=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',
-      '-e', 'GITHUB_TOOLSETS=repos,issues,projects,pull_requests',
+      '-e', 'GITHUB_TOOLSETS=repos,issues,pull_requests',
       'ghcr.io/github/github-mcp-server',
       'stdio'
     ]);
@@ -48,7 +48,7 @@ class MCPClient {
         const message = data.toString();
         console.log(`📨 [${serverName}] ${message.trim()}`);
         
-        if (!isConnected && message.includes('running')) {
+        if (!isConnected && (message.includes('running on stdio') || message.includes('GitHub MCP Server running') || message.includes('server running'))) {
           isConnected = true;
           console.log(`✅ Connected to ${serverName} MCP Server`);
           resolve(serverProcess);
