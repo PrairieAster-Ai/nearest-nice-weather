@@ -13,7 +13,6 @@
  */
 
 import { neon } from '@neondatabase/serverless'
-import { fetchBatchWeather } from '../utils/weatherService.js'
 
 const sql = neon(process.env.DATABASE_URL)
 
@@ -181,15 +180,16 @@ export default async function handler(req, res) {
       distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
     }))
 
-    // Fetch real weather data for all POIs (batch processing with cache integration)
-    console.log(`Fetching weather for ${baseData.length} POIs`)
-    const weatherResult = await fetchBatchWeather(baseData, 5) // Max 5 concurrent requests
-    
-    const transformedData = weatherResult.locations || []
-    const cacheStats = weatherResult.cache_stats || {}
-    
-    console.log(`Weather integration complete for ${transformedData.length} POIs`)
-    console.log(`Cache performance: ${cacheStats.hits || 0} hits, ${cacheStats.misses || 0} misses, ${cacheStats.api_requests || 0} API calls`)
+    // Add mock weather data for now (TODO: Implement proper weather service)
+    console.log(`Adding mock weather data for ${baseData.length} POIs`)
+    const transformedData = baseData.map(poi => ({
+      ...poi,
+      temperature: Math.floor(Math.random() * 60) + 40, // 40-100°F
+      condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain'][Math.floor(Math.random() * 4)],
+      precipitation: Math.floor(Math.random() * 100), // 0-100%
+      windSpeed: Math.floor(Math.random() * 20) + 5 // 5-25mph
+    }))
+    const cacheStats = { hits: 0, misses: baseData.length, hit_rate: 0, api_requests: 0 }
 
     // Apply weather-based filtering if filters are provided
     const filteredData = applyWeatherFilters(transformedData, { temperature, precipitation, wind })
