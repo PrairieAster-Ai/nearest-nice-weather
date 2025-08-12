@@ -1,10 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm install --legacy-peer-deps && cd apps/web && npm run build",
+  "buildCommand": "cd apps/web && npm install --legacy-peer-deps && npm run build",
   "outputDirectory": "apps/web/dist",
-  "framework": "vite", 
-  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "vite",
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/apps/web/api/$1"
+    },
     {
       "source": "/health.json",
       "destination": "/health.json"
@@ -101,5 +104,16 @@
       ]
     }
   ],
-  "regions": ["cle1", "iad1"]
+  "regions": ["cle1", "iad1"],
+  "functions": {
+    "apps/web/api/health.js": {
+      "runtime": "@vercel/node"
+    },
+    "apps/web/api/poi-locations-with-weather.js": {
+      "runtime": "@vercel/node"
+    },
+    "apps/web/api/feedback.js": {
+      "runtime": "@vercel/node"
+    }
+  }
 }
