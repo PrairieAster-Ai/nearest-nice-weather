@@ -1,9 +1,12 @@
 /**
  * Jest Configuration for Unit Testing
- * Simple setup that works with existing dependencies
+ * Simplified setup for current dependencies
  */
 module.exports = {
   testEnvironment: 'jsdom',
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
+  },
   setupFilesAfterEnv: ['<rootDir>/tests/config/jest.setup.js'],
   testMatch: [
     '<rootDir>/tests/unit/**/*.test.js',
