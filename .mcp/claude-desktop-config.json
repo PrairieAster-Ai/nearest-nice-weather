@@ -3,9 +3,13 @@
     "github-official": {
       "command": "docker",
       "args": [
-        "run", "-i", "--rm",
-        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN=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",
-        "-e", "GITHUB_TOOLSETS=repos,issues,pull_requests",
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN=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",
+        "-e",
+        "GITHUB_TOOLSETS=repos,issues,pull_requests",
         "ghcr.io/github/github-mcp-server",
         "stdio"
       ]
@@ -13,14 +17,19 @@
     "github-project-manager": {
       "command": "mcp-github-project-manager",
       "args": [
-        "--token", "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",
-        "--owner", "PrairieAster-Ai",
-        "--repo", "nearest-nice-weather"
+        "--token",
+        "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",
+        "--owner",
+        "PrairieAster-Ai",
+        "--repo",
+        "nearest-nice-weather"
       ]
     },
     "chrome-tools": {
       "command": "node",
-      "args": ["./node_modules/@nicholmikey/chrome-tools/dist/index.js"],
+      "args": [
+        "./node_modules/@nicholmikey/chrome-tools/dist/index.js"
+      ],
       "env": {
         "CHROME_DEBUG_URL": "http://localhost:9222",
         "CHROME_CONNECTION_TYPE": "direct"
@@ -28,21 +37,52 @@
     },
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {
+        "PLAYWRIGHT_CONFIG": "./playwright.config.js",
+        "PLAYWRIGHT_BASE_URL": "http://localhost:3001",
+        "PLAYWRIGHT_WORKERS": "4",
+        "PLAYWRIGHT_PROJECT_DIR": "/home/robertspeer/Projects/GitRepo/nearest-nice-weather",
+        "PLAYWRIGHT_TEST_DIR": "./tests",
+        "PLAYWRIGHT_TIMEOUT": "30000",
+        "PLAYWRIGHT_REPORTER": "list",
+        "PLAYWRIGHT_BROWSER": "chromium"
+      }
     },
     "memory-bank": {
       "command": "npx",
       "args": [
         "@movibe/memory-bank-mcp",
-        "--mode", "code",
-        "--path", "/home/robertspeer/Projects/GitRepo/nearest-nice-weather",
-        "--folder", "memory-bank",
-        "--githubProfileUrl", "https://github.com/PrairieAster-Ai"
+        "--mode",
+        "code",
+        "--path",
+        "/home/robertspeer/Projects/GitRepo/nearest-nice-weather",
+        "--folder",
+        "memory-bank",
+        "--githubProfileUrl",
+        "https://github.com/PrairieAster-Ai"
       ]
     },
     "neon-database": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.neon.tech/mcp"]
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.neon.tech/mcp"
+      ]
+    },
+    "vercel": {
+      "command": "npx",
+      "args": [
+        "@mistertk/vercel-mcp@latest"
+      ],
+      "env": {
+        "VERCEL_PROJECT_NAME": "nearest-nice-weather",
+        "VERCEL_ORG_ID": "PrairieAster-Ai",
+        "VERCEL_INTEGRATION_STATUS": "100% - Using CLI authentication"
+      }
     }
   }
 }

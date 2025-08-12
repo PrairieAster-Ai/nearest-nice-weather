@@ -184,6 +184,14 @@ deploy_production() {
 main() {
     log "🛡️  Safe Deployment Script"
     log "Deployment type: $DEPLOYMENT_TYPE"
+    echo
+    warning "🚀 RECOMMENDED: Use VercelMCP for faster deployments"
+    log "Deploy directly from Claude conversations with VercelMCP tools"
+    log "• Instant deployment commands via Claude"
+    log "• Real-time status monitoring"  
+    log "• Automated preview aliasing"
+    log "• No context switching required"
+    echo
     
     case "$DEPLOYMENT_TYPE" in
         "preview"|"p")
@@ -206,6 +214,12 @@ main() {
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Safe Deployment Script"
     echo "Usage: $0 [preview|production] [--force]"
+    echo
+    echo "🚀 RECOMMENDED: Use VercelMCP for optimal deployment experience"
+    echo "Deploy directly from Claude conversations with VercelMCP tools"
+    echo "• No command-line switching required"
+    echo "• Real-time deployment monitoring"  
+    echo "• Instant preview URL management"
     echo
     echo "Deployment Types:"
     echo "  preview          Deploy to preview environment (safe)"

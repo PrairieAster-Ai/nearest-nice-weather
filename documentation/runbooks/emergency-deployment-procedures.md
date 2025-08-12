@@ -3,6 +3,13 @@
 ## Overview
 Critical procedures for emergency deployments, rollbacks, and incident response based on real-world deployment challenges and solutions.
 
+## 🚀 Primary Response: VercelMCP Integration
+**All emergency deployments prioritize VercelMCP for maximum speed and reliability:**
+- **Instant Deployment**: Deploy fixes directly from Claude conversations
+- **Real-time Monitoring**: Track deployment status without context switching
+- **Automated Validation**: Built-in environment validation and health checks
+- **Rollback Capability**: Quick reversion using VercelMCP tools
+
 ## Emergency Response Team
 **Primary**: Development Lead
 **Secondary**: DevOps Engineer  
