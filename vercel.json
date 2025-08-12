@@ -106,14 +106,8 @@
   ],
   "regions": ["cle1", "iad1"],
   "functions": {
-    "apps/web/api/health.js": {
-      "runtime": "@vercel/node"
-    },
-    "apps/web/api/poi-locations-with-weather.js": {
-      "runtime": "@vercel/node"
-    },
-    "apps/web/api/feedback.js": {
-      "runtime": "@vercel/node"
+    "apps/web/api/*.js": {
+      "runtime": "@vercel/node@3.1.7"
     }
   }
 }
