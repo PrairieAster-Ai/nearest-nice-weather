@@ -3,11 +3,6 @@
   "buildCommand": "cd apps/web && npm install --legacy-peer-deps && npm run build",
   "outputDirectory": "apps/web/dist",
   "framework": "vite",
-  "functions": {
-    "apps/web/api/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/health.json",
