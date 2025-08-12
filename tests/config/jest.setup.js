@@ -1,7 +1,20 @@
 /**
- * Jest Setup Configuration
+ * Jest Setup Configuration  
  * Global test setup and utilities
  */
+
+// Import React Testing Library matchers
+import '@testing-library/jest-dom';
+
+// Mock fetch for integration tests
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({}),
+    text: () => Promise.resolve(''),
+  })
+);
 
 // Mock console to reduce noise in tests (optional)
 // global.console = {

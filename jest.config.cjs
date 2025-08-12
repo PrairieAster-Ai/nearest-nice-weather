@@ -1,17 +1,17 @@
 /**
  * Jest Configuration for Unit Testing
- * Simplified setup for current dependencies
+ * Enhanced setup with import.meta support
  */
 module.exports = {
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
+    '^.+\\.(js|jsx|ts|tsx)$': '<rootDir>/tests/config/combinedTransform.js'
   },
   setupFilesAfterEnv: ['<rootDir>/tests/config/jest.setup.js'],
   testMatch: [
-    '<rootDir>/tests/unit/**/*.test.js',
-    '<rootDir>/tests/unit/**/*.spec.js',
-    '<rootDir>/tests/integration/**/*.test.js',
+    '<rootDir>/tests/unit/**/*.test.[jt]s?(x)',
+    '<rootDir>/tests/unit/**/*.spec.[jt]s?(x)',
+    '<rootDir>/tests/integration/**/*.test.[jt]s?(x)',
   ],
   collectCoverageFrom: [
     'apps/web/src/**/*.{js,jsx,ts,tsx}',
@@ -31,5 +31,8 @@ module.exports = {
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/apps/web/src/$1',
+    '^@mui/material$': '<rootDir>/apps/web/node_modules/@mui/material',
+    '^@mui/material/(.*)$': '<rootDir>/apps/web/node_modules/@mui/material/$1',
   },
+  moduleDirectories: ['node_modules', 'apps/web/node_modules'],
 };
