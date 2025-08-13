@@ -96,23 +96,16 @@ import { useLastVisitStorage, LocationMethod, WeatherFilters } from './hooks/use
 import { escapeHtml, sanitizeUrl } from './utils/sanitize'
 import { AdManagerProvider, AdUnit } from './components/ads'
 import { loadUmamiAnalytics, trackPageView, trackLocationUpdate, trackWeatherFilter, trackPOIInteraction } from './utils/analytics'
+import { weatherFilteringService, WeatherFilters as ServiceWeatherFilters, Location as ServiceLocation } from './services/WeatherFilteringService'
+import { mapCalculationService } from './services/MapCalculationService'
+import { useWeatherFiltering } from './hooks/useWeatherFiltering'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 import L from 'leaflet'
 
 // Distance calculation helper (returns miles)
-const calculateDistance = (point1: [number, number], point2: [number, number]) => {
-  const [lat1, lng1] = point1;
-  const [lat2, lng2] = point2;
-  const R = 3959; // Earth's radius in miles
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng/2) * Math.sin(dLng/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-};
+// Distance calculation now handled by WeatherFilteringService
+const calculateDistance = weatherFilteringService.calculateDistance;
 
 // 🔗 INTEGRATION: asterIcon now imported from MapContainer.tsx for component encapsulation
 
@@ -218,24 +211,8 @@ export default function App() {
   
   // 🔗 INTEGRATION: Map view persistence now handled by MapViewManager hook
 
-  // Simplified filter result counts for FAB badges (to prevent performance issues)
-  const filterResultCounts = React.useMemo(() => {
-    if (!visiblePOIs || visiblePOIs.length === 0) return {}
-    
-    // Simplified approach: just return the current visible POI count for all options
-    // This prevents expensive recalculations and potential infinite loops
-    const count = visiblePOIs.length
-    const counts: { [key: string]: number } = {}
-    
-    const filterOptions = ['cold', 'mild', 'hot', 'none', 'light', 'heavy', 'calm', 'breezy', 'windy']
-    filterOptions.forEach(option => {
-      counts[`temperature_${option}`] = count
-      counts[`precipitation_${option}`] = count
-      counts[`wind_${option}`] = count
-    })
-    
-    return counts
-  }, [visiblePOIs.length]) // Only depend on length to reduce recalculations
+  // Weather filtering operations now handled by useWeatherFiltering hook
+  const { filterResultCounts, applyWeatherFilters } = useWeatherFiltering(visiblePOIs, userLocation);
 
   // Use POI data from new navigation hook
   const apiLocations = React.useMemo(() => {
@@ -275,134 +252,7 @@ export default function App() {
    * @BUSINESS_RULE: Relative filtering ensures seasonal relevance
    * @PERFORMANCE_CRITICAL: Efficient sorting and filtering for real-time UI updates
    */
-  /**
-   * SIMPLE WEATHER FILTERING - STABLE IMPLEMENTATION
-   * 
-   * ⚠️  STOP RULES - DO NOT VIOLATE:
-   * 1. DO NOT MODIFY FILTER PERCENTAGES TO "SHOW MORE RESULTS"
-   * 2. DO NOT RECALCULATE THRESHOLDS DURING RADIUS EXPANSION
-   * 3. DO NOT CHANGE FILTERING LOGIC TO "IMPROVE" RESULTS
-   * 
-   * CRITICAL BEHAVIOR: During radius expansion, thresholds are calculated from
-   * BASE locations only (not expanded set) to ensure original results remain visible.
-   * This prevents the confusing UX where expanding radius causes locations to disappear.
-   * 
-   * @BUSINESS_RULE: Filter thresholds must remain constant during radius expansion
-   * @UX_RULE: Original filtered locations must remain visible after expansion
-   * @TECHNICAL_IMPLEMENTATION: useBaseForThresholds=true during expansion
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const applyWeatherFilters = (locations: Location[], filters: WeatherFilters, maxDistance?: number): Location[] => {
-    if (locations.length === 0) return []
-    
-    let filtered = [...locations]
-    console.log(`🎯 WEATHER FILTERING: ${locations.length} locations → applying filters`)
-    
-    // DISTANCE FILTERING - Apply distance constraint if provided
-    if (maxDistance && userLocation) {
-      const startCount = filtered.length
-      filtered = filtered.filter(loc => {
-        const distance = calculateDistance(userLocation, [loc.lat, loc.lng])
-        return distance <= maxDistance
-      })
-      console.log(`📏 Distance filter: ${startCount} → ${filtered.length} locations within ${maxDistance} miles`)
-    }
-
-    // TEMPERATURE FILTERING
-    // DO NOT ADJUST THESE PERCENTAGES - they determine what "mild/cold/hot" means
-    if (filters.temperature && filters.temperature.length > 0) {
-      // Use all locations for calculating thresholds
-      const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
-      const tempCount = temps.length
-      
-      if (filters.temperature === 'cold') {
-        // Show coldest 40% of available temperatures
-        const threshold = temps[Math.floor(tempCount * 0.4)]
-        filtered = filtered.filter(loc => loc.temperature <= threshold)
-        console.log(`❄️  Cold filter: temps ≤ ${threshold}°F`)
-      } else if (filters.temperature === 'hot') {
-        // Show hottest 40% of available temperatures  
-        const threshold = temps[Math.floor(tempCount * 0.6)]
-        filtered = filtered.filter(loc => loc.temperature >= threshold)
-        console.log(`🔥 Hot filter: temps ≥ ${threshold}°F`)
-      } else if (filters.temperature === 'mild') {
-        // Show middle 80% of temperatures (exclude extreme 10% on each end)
-        const minThreshold = temps[Math.floor(tempCount * 0.1)]
-        const maxThreshold = temps[Math.floor(tempCount * 0.9)]
-        filtered = filtered.filter(loc => loc.temperature >= minThreshold && loc.temperature <= maxThreshold)
-        console.log(`🌤️  Mild filter: temps ${minThreshold}°F - ${maxThreshold}°F`)
-      }
-    }
-
-    // PRECIPITATION FILTERING
-    // DO NOT ADJUST THESE PERCENTAGES - they determine what "dry/light/heavy" means
-    if (filters.precipitation && filters.precipitation.length > 0) {
-      const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b)
-      const precipCount = precips.length
-      
-      if (filters.precipitation === 'none') {
-        // Show driest 60% of available locations
-        const threshold = precips[Math.floor(precipCount * 0.6)]
-        filtered = filtered.filter(loc => loc.precipitation <= threshold)
-        console.log(`☀️  No precip filter: precip ≤ ${threshold}%`)
-      } else if (filters.precipitation === 'light') {
-        // Show middle precipitation range (20th-70th percentile)
-        const minThreshold = precips[Math.floor(precipCount * 0.2)]
-        const maxThreshold = precips[Math.floor(precipCount * 0.7)]
-        filtered = filtered.filter(loc => loc.precipitation >= minThreshold && loc.precipitation <= maxThreshold)
-        console.log(`🌦️  Light precip filter: precip ${minThreshold}% - ${maxThreshold}%`)
-      } else if (filters.precipitation === 'heavy') {
-        // Show wettest 30% of available locations
-        const threshold = precips[Math.floor(precipCount * 0.7)]
-        filtered = filtered.filter(loc => loc.precipitation >= threshold)
-        console.log(`🌧️  Heavy precip filter: precip ≥ ${threshold}%`)
-      }
-    }
-
-    // WIND FILTERING  
-    // DO NOT ADJUST THESE PERCENTAGES - they determine what "calm/breezy/windy" means
-    if (filters.wind && filters.wind.length > 0) {
-      const winds = locations.map(loc => loc.windSpeed).sort((a, b) => a - b)
-      const windCount = winds.length
-      
-      if (filters.wind === 'calm') {
-        // Show calmest 50% of available locations
-        const threshold = winds[Math.floor(windCount * 0.5)]
-        filtered = filtered.filter(loc => loc.windSpeed <= threshold)
-        console.log(`🍃 Calm filter: wind ≤ ${threshold}mph`)
-      } else if (filters.wind === 'breezy') {
-        // Show middle wind range (30th-70th percentile)
-        const minThreshold = winds[Math.floor(windCount * 0.3)]
-        const maxThreshold = winds[Math.floor(windCount * 0.7)]
-        filtered = filtered.filter(loc => loc.windSpeed >= minThreshold && loc.windSpeed <= maxThreshold)
-        console.log(`💨 Breezy filter: wind ${minThreshold} - ${maxThreshold}mph`)
-      } else if (filters.wind === 'windy') {
-        // Show windiest 30% of available locations
-        const threshold = winds[Math.floor(windCount * 0.7)]
-        filtered = filtered.filter(loc => loc.windSpeed >= threshold)
-        console.log(`🌪️  Windy filter: wind ≥ ${threshold}mph`)
-      }
-    }
-
-    // Return empty array if no matches - let radius expansion find more locations
-    if (filtered.length === 0) {
-      console.log(`⚠️ No results after filtering within current radius`)
-      return []
-    }
-
-    console.log(`✅ Filter results: ${locations.length} → ${filtered.length} locations`)
-    
-    // DEBUG: Total marker count validation
-    if (filtered.length > 21) {
-      console.error(`🚨 ERROR: Displaying ${filtered.length} markers but only 21 POI should match sensible defaults!`)
-      console.error(`🚨 This indicates a filtering or data issue - investigate immediately`)
-      console.error(`🚨 Locations passing filter:`, filtered.map(loc => `${loc.name} (${loc.temperature}°F, ${loc.precipitation}%, ${loc.windSpeed}mph)`))
-    } else {
-      console.log(`📍 Total markers to display: ${filtered.length} (Expected max: 21 POI)`)
-    }
-    
-    return filtered
-  }
+  // 🔗 INTEGRATION: Weather filtering operations now handled by useWeatherFiltering hook
 
   // 🔗 INTEGRATION: Map view calculations now handled by MapViewManager hook
 
@@ -433,55 +283,28 @@ export default function App() {
       // New system: POI hook handles all filtering and distance constraints
       const filtered = visiblePOIs
       
-      // Use smarter zoom calculation for filtered markers
+      // Use MapCalculationService for optimal view calculation
       if (filtered.length > 0) {
-        // For Minnesota weather platform, show regional context with all filtered markers
-        // Use all filtered markers to provide comprehensive regional view
-        const markersToShow = filtered
+        // Convert to MapCalculationService format
+        const locationPoints = filtered.map(loc => ({
+          id: loc.id,
+          name: loc.name,
+          lat: loc.lat,
+          lng: loc.lng
+        }));
         
-        const lats = markersToShow.map(loc => loc.lat)
-        const lngs = markersToShow.map(loc => loc.lng)
-        
-        const minLat = Math.min(...lats)
-        const maxLat = Math.max(...lats)
-        const minLng = Math.min(...lngs)
-        const maxLng = Math.max(...lngs)
-        
-        // Calculate center of the closest markers
-        const centerLat = (minLat + maxLat) / 2
-        const centerLng = (minLng + maxLng) / 2
-        setMapCenter([centerLat, centerLng])
-        
-        // Use tighter zoom calculation for initial view focused on marker cluster
-        const latRange = maxLat - minLat
-        const lngRange = maxLng - minLng
-        const maxRange = Math.max(latRange, lngRange)
-        
-        // Use appropriate padding for regional Minnesota view
-        const paddedRange = Math.max(maxRange * 1.2, 0.5) // Ensure good regional context for Minnesota
-        
-        // Use zoom levels optimized for Minnesota regional weather view
-        let zoom = 8 // Start with regional view for statewide weather
-        if (paddedRange < 4.0) zoom = 8   // Statewide view
-        if (paddedRange < 3.0) zoom = 8.5 // Large regional view  
-        if (paddedRange < 2.0) zoom = 9   // Regional view
-        if (paddedRange < 1.5) zoom = 9.5 // Sub-regional view
-        if (paddedRange < 1.0) zoom = 10  // Multi-city view
-        if (paddedRange < 0.7) zoom = 10.5
-        if (paddedRange < 0.5) zoom = 11  // City cluster view
-        if (paddedRange < 0.3) zoom = 11.5
-        if (paddedRange < 0.2) zoom = 12  // Close cluster view
-        if (paddedRange < 0.1) zoom = 13  // Very close markers
-        
-        setMapZoom(zoom)
+        // Calculate optimal view using the service
+        const optimalView = mapCalculationService.calculateOptimalView(locationPoints);
+        setMapCenter(optimalView.center);
+        setMapZoom(optimalView.zoom);
         
         // Give markers time to render, then ensure they're visible
         setTimeout(() => {
           // DEBUG: Map viewport debugging for responsive design issues and marker visibility problems
-          console.log('Zoom fix active:', zoom, 'Center:', centerLat.toFixed(3), centerLng.toFixed(3))
-          setMapCenter([centerLat, centerLng])
-          setMapZoom(zoom)
-        }, 100)
+          console.log('Zoom fix active:', optimalView.zoom, 'Center:', optimalView.center[0].toFixed(3), optimalView.center[1].toFixed(3))
+          setMapCenter(optimalView.center);
+          setMapZoom(optimalView.zoom);
+        }, 100);
       }
     } else {
       // User location available - use POI hook data (already filtered)
@@ -638,8 +461,6 @@ export default function App() {
               filters={debouncedFilters}
               onFilterChange={handleFilterChange}
               isLoading={isFiltering}
-              resultCounts={filterResultCounts}
-              totalPOIs={visiblePOIs.length}
             />
           </div>
 

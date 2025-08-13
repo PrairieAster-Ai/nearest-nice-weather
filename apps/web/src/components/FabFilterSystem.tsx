@@ -6,7 +6,7 @@
  * 📋 PURPOSE: Floating action button interface showing SELECTED weather preferences
  * 🔗 CONNECTS TO: App.tsx (main container), FilterManager hook (state logic)
  * 📊 DATA FLOW: User clicks FAB → slide-out options → selection → instant UI update → debounced filter → POI refresh
- * ⚙️ STATE: filters (current selections), isLoading (feedback), resultCounts (badges)
+ * ⚙️ STATE: filters (current selections), isLoading (feedback)
  * 🎯 USER IMPACT: Immediate visual feedback for weather preference changes
  * 
  * DISPLAY PATTERN: FABs show CURRENT SELECTIONS, not category icons
@@ -18,18 +18,18 @@
  * BUSINESS CONTEXT: Core UX for Minnesota outdoor recreation weather optimization
  * - Enables users to find POIs matching their weather comfort preferences  
  * - Instant gratification UI with <100ms feedback for biological UX optimization
- * - Result count badges provide confidence in filter effectiveness
+ * - Clean interface focused on preference selection
  * 
  * TECHNICAL IMPLEMENTATION: Material-UI FAB with animated slide-out options
  * - Debounced filtering prevents API thrashing during rapid user interactions
  * - Optimistic UI updates provide instant feedback before API completion
- * - Result count integration shows available POIs for each filter option
+ * - Streamlined UI focused on preference selection
  * 
  * 🏗️ ARCHITECTURAL DECISIONS:
  * - FAB pattern chosen for mobile-first outdoor use case (thumb-friendly)
  * - Selected preference display eliminates cognitive load (user sees current state)
  * - Slide-out animation for premium app feel without complexity
- * - Badge system for decision confidence (shows available results)
+ * - Clean aesthetic for focused user experience
  * 
  * @CLAUDE_CONTEXT: Primary filter interface for weather-based POI discovery
  * @BUSINESS_RULE: P0 MUST provide instant visual feedback for user engagement
@@ -70,11 +70,9 @@ interface FabFilterSystemProps {
   filters: WeatherFilters
   onFilterChange: (category: keyof WeatherFilters, value: string) => void
   isLoading?: boolean // Optional loading state for instant feedback
-  resultCounts?: { [key: string]: number } // Optional POI counts for each filter option
-  totalPOIs?: number // Total number of POIs available
 }
 
-export function FabFilterSystem({ filters, onFilterChange, isLoading = false, resultCounts = {}, totalPOIs = 0 }: FabFilterSystemProps) {
+export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: FabFilterSystemProps) {
   const [openCategory, setOpenCategory] = useState<keyof WeatherFilters | null>(null)
 
   // Memoized filter configurations for performance
@@ -177,27 +175,6 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false, re
                     {isSelected ? selectedOption?.icon : config.icon}
                   </span>
                 )}
-                
-                {/* Result count badge - always show if we have data */}
-                {!isLoading && (
-                  <Chip
-                    size="small"
-                    label={totalPOIs || '0'}
-                    sx={{
-                      position: 'absolute',
-                      top: -8,
-                      right: -8,
-                      backgroundColor: isSelected ? '#4CAF50' : '#2196F3',
-                      color: 'white',
-                      fontSize: '0.65rem',
-                      height: '20px',
-                      minWidth: '20px',
-                      '& .MuiChip-label': {
-                        padding: '0 6px'
-                      }
-                    }}
-                  />
-                )}
               </Fab>
             </Tooltip>
 
@@ -258,25 +235,6 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false, re
                               }}
                             />
                           )}
-                          
-                          {/* Result count badge for option - show count or ? */}
-                          <Chip
-                            size="small"
-                            label={resultCounts[`${category}_${option.value}`] || '?'}
-                            sx={{
-                              position: 'absolute',
-                              top: -6,
-                              right: -6,
-                              backgroundColor: 'rgba(33, 150, 243, 0.9)',
-                              color: 'white',
-                              fontSize: '0.6rem',
-                              height: '16px',
-                              minWidth: '16px',
-                              '& .MuiChip-label': {
-                                padding: '0 4px'
-                              }
-                            }}
-                          />
                         </Fab>
                       </Tooltip>
                     </Box>
