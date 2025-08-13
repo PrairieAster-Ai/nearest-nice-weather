@@ -14,13 +14,13 @@
  */
 
 import { neon } from '@neondatabase/serverless'
-import { applyWeatherFilters, generateMockWeather } from '../../../shared/weather/filters.js'
+import { applyWeatherFilters, generateMockWeather } from '../../shared/weather/filters.js'
 import { 
   buildNeonPOIQuery, 
   transformPOIResults, 
   createErrorResponse, 
   createSuccessResponse 
-} from '../../../shared/database/queries.js'
+} from '../../shared/database/queries.js'
 
 const sql = neon(process.env.DATABASE_URL)
 

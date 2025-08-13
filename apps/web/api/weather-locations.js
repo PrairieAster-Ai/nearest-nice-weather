@@ -22,7 +22,7 @@ import {
   transformPOIResults, 
   createErrorResponse, 
   createSuccessResponse 
-} from '../../../shared/database/queries.js'
+} from '../../shared/database/queries.js'
 
 const sql = neon(process.env.DATABASE_URL)
 
