@@ -1,111 +1,31 @@
 /**
  * ========================================================================
- * POI LOCATIONS WITH REAL WEATHER API - Production Compatible
+ * POI LOCATIONS WITH WEATHER API - Production Vercel Function
  * ========================================================================
  * 
- * @BUSINESS_PURPOSE: POI discovery with real-time weather integration
- * @TECHNICAL_APPROACH: Use working POI API + OpenWeather API service
- * @SYNC_TARGET: dev-api-server.js poi-locations-with-weather endpoint
+ * @PURPOSE: Primary frontend API - POI discovery with weather integration
+ * @SYNC_TARGET: dev-api-server.js /api/poi-locations-with-weather endpoint
+ * @SHARED_LOGIC: Uses shared/database/queries.js and shared/weather/filters.js
  * 
- * Provides Minnesota outdoor recreation POIs with real weather data
- * matching localhost API functionality for deployment parity.
+ * This is the main API endpoint used by the frontend map interface.
+ * Combines outdoor recreation POIs with weather data and filtering.
+ * Uses shared logic modules to eliminate dual maintenance overhead.
  * ========================================================================
  */
 
 import { neon } from '@neondatabase/serverless'
+import { applyWeatherFilters, generateMockWeather } from '../../../shared/weather/filters.js'
+import { 
+  buildNeonPOIQuery, 
+  transformPOIResults, 
+  createErrorResponse, 
+  createSuccessResponse 
+} from '../../../shared/database/queries.js'
 
 const sql = neon(process.env.DATABASE_URL)
 
-/**
- * Apply weather-based filtering to POI results
- * Uses percentile-based filtering for relative weather preferences
- */
-function applyWeatherFilters(locations, filters) {
-  if (!locations || locations.length === 0) return []
-
-  let filtered = [...locations]
-  const startCount = filtered.length
-
-  // Temperature filtering - uses percentile-based approach for seasonal relevance
-  if (filters.temperature && filters.temperature !== '') {
-    const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
-    const tempCount = temps.length
-
-    if (filters.temperature === 'cold') {
-      // Show coldest 40% of available temperatures
-      const threshold = temps[Math.floor(tempCount * 0.4)]
-      filtered = filtered.filter(loc => loc.temperature <= threshold)
-      console.log(`❄️ Cold filter: temps ≤ ${threshold}°F`)
-    } else if (filters.temperature === 'hot') {
-      // Show hottest 40% of available temperatures
-      const threshold = temps[Math.floor(tempCount * 0.6)]
-      filtered = filtered.filter(loc => loc.temperature >= threshold)
-      console.log(`🔥 Hot filter: temps ≥ ${threshold}°F`)
-    } else if (filters.temperature === 'mild') {
-      // Show middle 80% of temperatures (exclude extreme 10% on each end)
-      const minThreshold = temps[Math.floor(tempCount * 0.1)]
-      const maxThreshold = temps[Math.floor(tempCount * 0.9)]
-      filtered = filtered.filter(loc => loc.temperature >= minThreshold && loc.temperature <= maxThreshold)
-      console.log(`🌤️ Mild filter: temps ${minThreshold}°F - ${maxThreshold}°F`)
-    }
-  }
-
-  // Precipitation filtering - based on percentiles of available data
-  if (filters.precipitation && filters.precipitation !== '') {
-    const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b)
-    const precipCount = precips.length
-
-    if (filters.precipitation === 'none') {
-      // Show driest 60% of available locations
-      const threshold = precips[Math.floor(precipCount * 0.6)]
-      filtered = filtered.filter(loc => loc.precipitation <= threshold)
-      console.log(`☀️ No precip filter: precip ≤ ${threshold}%`)
-    } else if (filters.precipitation === 'light') {
-      // Show middle precipitation range (20th-70th percentile)
-      const minThreshold = precips[Math.floor(precipCount * 0.2)]
-      const maxThreshold = precips[Math.floor(precipCount * 0.7)]
-      filtered = filtered.filter(loc => loc.precipitation >= minThreshold && loc.precipitation <= maxThreshold)
-      console.log(`🌦️ Light precip filter: precip ${minThreshold}% - ${maxThreshold}%`)
-    } else if (filters.precipitation === 'heavy') {
-      // Show wettest 30% of available locations
-      const threshold = precips[Math.floor(precipCount * 0.7)]
-      filtered = filtered.filter(loc => loc.precipitation >= threshold)
-      console.log(`🌧️ Heavy precip filter: precip ≥ ${threshold}%`)
-    }
-  }
-
-  // Wind filtering - based on percentiles of available wind speeds
-  if (filters.wind && filters.wind !== '') {
-    const winds = locations.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
-    const windCount = winds.length
-
-    if (filters.wind === 'calm') {
-      // Show calmest 50% of available locations
-      const threshold = winds[Math.floor(windCount * 0.5)]
-      filtered = filtered.filter(loc => (loc.windSpeed || 0) <= threshold)
-      console.log(`🍃 Calm filter: wind ≤ ${threshold}mph`)
-    } else if (filters.wind === 'breezy') {
-      // Show middle wind range (30th-70th percentile)
-      const minThreshold = winds[Math.floor(windCount * 0.3)]
-      const maxThreshold = winds[Math.floor(windCount * 0.7)]
-      filtered = filtered.filter(loc => {
-        const windSpeed = loc.windSpeed || 0
-        return windSpeed >= minThreshold && windSpeed <= maxThreshold
-      })
-      console.log(`💨 Breezy filter: wind ${minThreshold} - ${maxThreshold}mph`)
-    } else if (filters.wind === 'windy') {
-      // Show windiest 30% of available locations
-      const threshold = winds[Math.floor(windCount * 0.7)]
-      filtered = filtered.filter(loc => (loc.windSpeed || 0) >= threshold)
-      console.log(`🌪️ Windy filter: wind ≥ ${threshold}mph`)
-    }
-  }
-
-  console.log(`🎯 Weather filtering: ${startCount} → ${filtered.length} POIs`)
-  return filtered
-}
-
 export default async function handler(req, res) {
+  // CORS headers for frontend access
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -125,103 +45,60 @@ export default async function handler(req, res) {
     const { lat, lng, radius = '50', limit = '200', temperature, precipitation, wind } = req.query
     const limitNum = Math.min(parseInt(limit) || 200, 500)
 
-    // Use the same fallback logic as poi-locations.js
+    console.log('🔍 POI-Weather query parameters:', { lat, lng, radius, limit, temperature, precipitation, wind })
+
+    // Use shared query logic for consistency with localhost API
+    const queryBuilder = buildNeonPOIQuery({ lat, lng, limit: limitNum })
+    
     let result
     try {
-      result = await sql`
-        SELECT 
-          id, name, lat, lng, park_type, data_source, description, 
-          place_rank as importance_rank,
-          NULL as distance_miles
-        FROM poi_locations
-        WHERE data_source = 'manual' OR park_type IS NOT NULL
-        ORDER BY place_rank ASC, name ASC
-        LIMIT ${limitNum}
-      `
+      // Try primary query first (expanded schema)
+      result = await queryBuilder.primaryQuery(sql)
     } catch (error) {
-      try {
-        result = await sql`
-          SELECT 
-            id, name, lat, lng, data_source, description, 
-            place_rank as importance_rank,
-            NULL as distance_miles,
-            NULL as park_type
-          FROM poi_locations
-          WHERE data_source = 'manual'
-          ORDER BY place_rank ASC, name ASC
-          LIMIT ${limitNum}
-        `
-      } catch (error2) {
-        result = await sql`
-          SELECT 
-            id, name, lat, lng,
-            NULL as description,
-            1 as importance_rank,
-            NULL as distance_miles,
-            NULL as park_type,
-            'unknown' as data_source
-          FROM poi_locations
-          ORDER BY name ASC
-          LIMIT ${limitNum}
-        `
+      console.log('Primary query failed, trying fallback:', error.message)
+      
+      if (error.message.includes('poi_locations_expanded') || 
+          error.message.includes('does not exist')) {
+        // Fallback to basic schema
+        result = await queryBuilder.fallbackQuery(sql)
+      } else {
+        throw error
       }
     }
+    
+    // Transform results using shared logic
+    const baseData = transformPOIResults(result)
 
-    // Transform database results to basic format for weather service
-    const baseData = result.map(row => ({
-      id: row.id.toString(),
-      name: row.name,
-      lat: parseFloat(row.lat),
-      lng: parseFloat(row.lng),
-      park_type: row.park_type,
-      data_source: row.data_source,
-      description: row.description,
-      importance_rank: row.importance_rank,
-      distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
-    }))
-
-    // Add mock weather data for now (TODO: Implement proper weather service)
+    // Add mock weather data using shared logic for consistency
     console.log(`Adding mock weather data for ${baseData.length} POIs`)
-    const transformedData = baseData.map(poi => ({
+    const transformedData = baseData.map((poi, index) => ({
       ...poi,
-      temperature: Math.floor(Math.random() * 60) + 40, // 40-100°F
-      condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain'][Math.floor(Math.random() * 4)],
-      precipitation: Math.floor(Math.random() * 100), // 0-100%
-      windSpeed: Math.floor(Math.random() * 20) + 5 // 5-25mph
+      ...generateMockWeather(poi.id + index) // Consistent mock data based on POI
     }))
-    const cacheStats = { hits: 0, misses: baseData.length, hit_rate: 0, api_requests: 0 }
 
-    // Apply weather-based filtering if filters are provided
+    // Apply weather-based filtering using shared logic
     const filteredData = applyWeatherFilters(transformedData, { temperature, precipitation, wind })
     console.log(`After weather filtering: ${filteredData.length} POIs`)
 
-    res.json({
-      success: true,
-      data: filteredData,
-      count: filteredData.length,
-      timestamp: new Date().toISOString(),
-      debug: {
-        query_type: lat && lng ? 'proximity_with_weather' : 'all_pois_with_weather',
-        user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
-        radius: radius,
-        limit: limitNum.toString(),
-        data_source: 'poi_with_real_weather',
-        weather_api: 'openweather',
-        cache_strategy: `Redis cache - ${cacheStats.hit_rate?.toFixed(1) || 0}% hit rate`,
-        cache_duration: '6 hours',
-        cache_stats: cacheStats,
-        note: 'Using real OpenWeather API data with Redis caching for production deployment'
-      }
+    // Create standardized response using shared logic
+    const response = createSuccessResponse(filteredData, {
+      query_type: lat && lng ? 'proximity_with_weather' : 'all_pois_with_weather',
+      user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
+      radius: radius,
+      limit: limitNum.toString(),
+      data_source: 'poi_with_mock_weather',
+      weather_api: 'mock_weather_service',
+      environment: 'vercel-serverless',
+      note: 'Using consistent mock weather data - upgrade to real API when needed'
     })
+    
+    res.json(response)
 
   } catch (error) {
     console.error('POI-Weather API error:', error)
     
-    res.status(500).json({
-      success: false,
-      error: 'Database query failed',
-      message: error.message,
-      timestamp: new Date().toISOString()
-    })
+    // Use shared error response format
+    const errorResponse = createErrorResponse(error, 'poi-locations-with-weather endpoint')
+    res.status(500).json(errorResponse)
   }
 }
