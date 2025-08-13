@@ -186,7 +186,7 @@ get_port_pid() {
     lsof -ti :$port 2>/dev/null | head -1
 }
 
-# Free a port
+# Free a port with enhanced zombie process detection
 free_port() {
     local port=$1
     local service=$2
@@ -194,21 +194,55 @@ free_port() {
     if port_in_use $port; then
         local pid=$(get_port_pid $port)
         if [ -n "$pid" ]; then
+            # Get process info for contextual debugging
+            local process_info=$(ps -p $pid -o pid,ppid,etime,cpu,command --no-headers 2>/dev/null || echo "Process info unavailable")
+            local process_name=$(ps -p $pid -o comm --no-headers 2>/dev/null || echo "unknown")
+            
             warning "Port $port in use by PID $pid, freeing for $service..."
+            
+            # Check for common zombie process patterns
+            if [[ "$process_info" == *"chrome"* ]] || [[ "$process_info" == *"chromium"* ]]; then
+                warning "🧟 ZOMBIE CHROME DETECTED: $process_name (PID: $pid)"
+                warning "📊 Process details: $process_info"
+                if [[ "$process_info" == *"presentation"* ]] || [[ "$process_info" == *"screenshot"* ]]; then
+                    warning "🖼️  Likely stale screenshot/presentation process from previous session"
+                fi
+                
+                # Kill all related Chrome processes for this session
+                local chrome_pids=$(pgrep -f "chrome.*$port" 2>/dev/null || true)
+                if [ -n "$chrome_pids" ]; then
+                    warning "🔧 Killing related Chrome processes: $chrome_pids"
+                    echo "$chrome_pids" | xargs -r kill -KILL 2>/dev/null || true
+                fi
+            elif [[ "$process_info" == *"node"* ]] || [[ "$process_info" == *"npm"* ]] || [[ "$process_info" == *"vite"* ]]; then
+                warning "🟢 NODE/VITE PROCESS: $process_name (PID: $pid)"
+                warning "📊 Process details: $process_info"
+                if [[ "$process_info" == *"days"* ]] || [[ "$process_info" == *"hours"* ]]; then
+                    warning "⏰ Long-running process detected - likely from previous session"
+                fi
+            else
+                warning "❓ UNKNOWN PROCESS: $process_name (PID: $pid)"
+                warning "📊 Process details: $process_info"
+            fi
+            
+            # Attempt graceful termination first
             kill -TERM $pid 2>/dev/null || true
-            sleep 1
+            sleep 2
             
             # Force kill if still running
             if kill -0 $pid 2>/dev/null; then
+                warning "🔨 Process $pid didn't respond to TERM, using KILL signal"
                 kill -KILL $pid 2>/dev/null || true
+                sleep 1
             fi
             
             # Verify port is free
             if port_in_use $port; then
-                error "Failed to free port $port"
+                error "❌ Failed to free port $port - may require manual intervention"
+                error "💡 Manual fix: sudo fuser -k $port/tcp or sudo lsof -ti:$port | xargs kill -9"
                 return 1
             else
-                success "Port $port freed"
+                success "✅ Port $port freed successfully"
                 return 0
             fi
         fi
