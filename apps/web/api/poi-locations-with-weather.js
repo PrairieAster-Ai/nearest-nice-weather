@@ -130,70 +130,32 @@ export default async function handler(req, res) {
     console.log('🔍 POI-Weather query parameters:', { lat, lng, radius, limit, temperature, precipitation, wind })
 
     let result
-    try {
-      // Try expanded schema first (production)
-      if (lat && lng) {
-        const userLat = parseFloat(lat)
-        const userLng = parseFloat(lng)
-        
-        result = await sql`
-          SELECT 
-            id, name, lat, lng, park_type, park_level, ownership, operator,
-            data_source, description, place_rank, phone, website, amenities, activities,
-            (3959 * acos(
-              cos(radians(${userLat})) * cos(radians(lat)) * 
-              cos(radians(lng) - radians(${userLng})) + 
-              sin(radians(${userLat})) * sin(radians(lat))
-            )) as distance_miles
-          FROM poi_locations_expanded
-          ORDER BY distance_miles ASC
-          LIMIT ${limitNum}
-        `
-      } else {
-        result = await sql`
-          SELECT 
-            id, name, lat, lng, park_type, park_level, ownership, operator,
-            data_source, description, place_rank, phone, website, amenities, activities
-          FROM poi_locations_expanded
-          ORDER BY place_rank ASC, name ASC
-          LIMIT ${limitNum}
-        `
-      }
-    } catch (error) {
-      console.log('Expanded table query failed, trying basic schema:', error.message)
+    if (lat && lng) {
+      const userLat = parseFloat(lat)
+      const userLng = parseFloat(lng)
       
-      // Fallback to basic schema
-      if (lat && lng) {
-        const userLat = parseFloat(lat)
-        const userLng = parseFloat(lng)
-        
-        result = await sql`
-          SELECT id, name, lat, lng, park_type, data_source, 
-                 description, place_rank,
-                 NULL as park_level, NULL as ownership, NULL as operator,
-                 NULL as phone, NULL as website, NULL as amenities, NULL as activities,
-            (3959 * acos(
-              cos(radians(${userLat})) * cos(radians(lat)) * 
-              cos(radians(lng) - radians(${userLng})) + 
-              sin(radians(${userLat})) * sin(radians(lat))
-            )) as distance_miles
-          FROM poi_locations
-          WHERE data_source = 'manual' OR park_type IS NOT NULL
-          ORDER BY distance_miles ASC
-          LIMIT ${limitNum}
-        `
-      } else {
-        result = await sql`
-          SELECT id, name, lat, lng, park_type, data_source, 
-                 description, place_rank,
-                 NULL as park_level, NULL as ownership, NULL as operator,
-                 NULL as phone, NULL as website, NULL as amenities, NULL as activities
-          FROM poi_locations
-          WHERE data_source = 'manual' OR park_type IS NOT NULL
-          ORDER BY place_rank ASC, name ASC
-          LIMIT ${limitNum}
-        `
-      }
+      result = await sql`
+        SELECT 
+          id, name, lat, lng, park_type, park_level, ownership, operator,
+          data_source, description, place_rank, phone, website, amenities, activities,
+          (3959 * acos(
+            cos(radians(${userLat})) * cos(radians(lat)) * 
+            cos(radians(lng) - radians(${userLng})) + 
+            sin(radians(${userLat})) * sin(radians(lat))
+          )) as distance_miles
+        FROM poi_locations
+        ORDER BY distance_miles ASC
+        LIMIT ${limitNum}
+      `
+    } else {
+      result = await sql`
+        SELECT 
+          id, name, lat, lng, park_type, park_level, ownership, operator,
+          data_source, description, place_rank, phone, website, amenities, activities
+        FROM poi_locations
+        ORDER BY place_rank ASC, name ASC
+        LIMIT ${limitNum}
+      `
     }
     
     // Transform results and add mock weather data

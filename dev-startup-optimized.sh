@@ -33,9 +33,24 @@ LOG_DIR="$PROJECT_ROOT/logs"
 PID_DIR="$PROJECT_ROOT/.pids"
 TEMP_DIR="$PROJECT_ROOT/.tmp"
 
-# Service ports
+# ========================================================================
+# SERVICE PORTS - STANDARD DEVELOPMENT CONFIGURATION
+# ========================================================================
+#
+# 🚨 ZOMBIE PROCESS WARNING:
+# If you see the frontend running on ports 3002, 3003, 3004, etc., this is a 
+# KEY INDICATOR that zombie Vite processes are blocking port 3001.
+#
+# SOLUTION: Kill zombie processes and restart clean
+#   lsof -ti:3001 | xargs kill -9
+#   ./kill-zombies-and-restart.sh
+#
+# Port 3001 is the STANDARD for Vite development servers.
+# Any deviation indicates process management issues that need cleanup.
+# ========================================================================
+
 API_PORT=${API_PORT:-4000}
-FRONTEND_PORT=${DEV_PORT:-3001}
+FRONTEND_PORT=${DEV_PORT:-3001}    # Standard Vite dev port - deviations indicate zombies
 PLAYWRIGHT_PORT=${PLAYWRIGHT_PORT:-3026}
 DASHBOARD_PORT=${DASHBOARD_PORT:-3099}
 
@@ -168,6 +183,34 @@ debug() {
 # ========================================================================
 # UTILITY FUNCTIONS
 # ========================================================================
+
+# Check for zombie processes blocking standard ports
+detect_zombie_processes() {
+    local zombies_found=false
+    
+    # Check if anything is running on port 3001 (standard Vite port)
+    if lsof -ti:3001 >/dev/null 2>&1; then
+        warning "🧟‍♂️ ZOMBIE PROCESS DETECTED: Something is blocking port 3001"
+        warning "   This will cause Vite to use port 3002+ which indicates zombie processes"
+        warning "   Run: ./kill-zombies-and-restart.sh to fix this issue"
+        zombies_found=true
+    fi
+    
+    # Check for multiple Vite processes (another zombie indicator)
+    local vite_count=$(ps aux | grep -c "[n]ode.*vite" || echo "0")
+    if [ "$vite_count" -gt 1 ]; then
+        warning "🧟‍♂️ MULTIPLE VITE PROCESSES: Found $vite_count Vite processes running"
+        warning "   This indicates zombie processes from previous sessions"
+        warning "   Run: pkill -f 'node.*vite' to clean up"
+        zombies_found=true
+    fi
+    
+    if [ "$zombies_found" = true ]; then
+        warning ""
+        warning "⚡ RECOMMENDED ACTION: Run './kill-zombies-and-restart.sh' for clean startup"
+        warning ""
+    fi
+}
 
 # Check if command exists
 command_exists() {
@@ -484,6 +527,9 @@ main() {
     echo -e "${PURPLE}${ROCKET} NEAREST NICE WEATHER - OPTIMIZED DEVELOPMENT STARTUP${NC}"
     echo -e "${BLUE}========================================================${NC}"
     echo
+    
+    # 🧟‍♂️ Check for zombie processes early (prevents port conflicts)
+    detect_zombie_processes
     
     # Show configuration
     if [ "$VERBOSE" = true ]; then

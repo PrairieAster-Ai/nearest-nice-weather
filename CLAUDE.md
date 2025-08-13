@@ -38,12 +38,33 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 
 **⚠️ CRITICAL: Database & API Deployment Guidelines** (Updated July 13, 2025):
 
-### **Environment Variable Management**
+### **Environment Variable Management & Database Architecture**
 - **NEVER mix local and cloud database connections** - leads to 2+ hour debugging sessions
 - **Always use Neon serverless driver** (`@neondatabase/serverless`) for Vercel functions
 - **Use consistent variable names** across all environments:
-  - Production: `WEATHERDB_URL` or `POSTGRES_URL` 
-  - Must point to same database with known schema
+  - Production: `WEATHERDB_URL` or `POSTGRES_URL`
+
+**🗄️ NEON DATABASE BRANCHING ARCHITECTURE:**
+- **Single Connection Variable**: `DATABASE_URL` environment variable used across all environments
+- **Localhost**: Points to Neon development branch (configured in `.env` file) - SOURCE OF TRUTH for POI data
+- **Preview**: Points to separate Neon preview branch (configured in Vercel environment variables) - INDEPENDENT database
+- **Production**: Points to Neon production branch (configured in Vercel environment variables) - INDEPENDENT database
+
+**Database Branches:**
+- Each environment connects to a different Neon PostgreSQL branch using the same `DATABASE_URL` variable
+- Branches are isolated - data changes in one branch do not affect others
+- Migration required to sync POI data between branches
+
+**⚠️ CRITICAL**: Preview and production branches may be empty after deployment. Always verify POI data exists:
+```bash
+# Check POI count in any environment
+curl -s "https://[environment-url]/api/poi-locations-with-weather?limit=1" | jq '.count'
+```
+
+**📋 POI TABLE SCHEMA**: 
+- Primary table: `poi_locations` (refactored from `poi_locations_expanded`)
+- Contains all POI metadata: name, coordinates, park_type, amenities, activities, etc.
+- Run `node scripts/refactor-poi-tables.js [environment]` to consolidate tables
 
 ### **Vercel Deployment Checklist**
 1. **Verify API functions location**: Must be in `apps/web/api/` directory
@@ -111,12 +132,20 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 **Exit codes**: 0=success, 1=API issues, 2=frontend issues, 3=both
 **Automation**: Run this script before asking "is the environment working?"
 
-### **Database Schema Validation**
+### **Database Schema Validation & Weather API Integration**
 - **Always verify table structure** before deploying API changes
 - **Primary table**: `poi_locations` (138 Minnesota outdoor recreation destinations: parks, trails, forests, nature centers)
 - **Deprecated tables**: `locations` (legacy cities/weather stations), `weather_conditions` (legacy weather data) - replaced by POI-centric architecture
 - **Note**: tourism_operators table may exist for future data completeness, but B2C focus means outdoor recreation POIs are the primary data source
-- **Test with known good data** before production deployment
+
+**🌤️ WEATHER DATA INTEGRATION:**
+- **Weather Source**: Real-time weather data from OpenWeather API (NOT mock data)
+- **API Integration**: `apps/web/utils/weatherService.js` provides OpenWeather API integration with 5-minute caching
+- **Localhost**: Uses real weather API with API key from `.env` file  
+- **Preview/Production**: Uses real weather API with API key from Vercel environment variables
+- **Fallback**: If weather API fails, no fallback to mock data - investigate API key or rate limits
+
+**⚠️ CRITICAL**: Weather API requires valid OpenWeather API key in environment variables. Test with known good data before production deployment.
 
 **Development Environment** (OPTIMIZED UNIFIED STARTUP):
 ```bash
