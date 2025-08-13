@@ -67,7 +67,7 @@ If any migration part fails:
 ## 🔄 FINAL STEPS AFTER MIGRATION
 
 1. **Test API endpoints**:
-   - `https://www.nearestniceweather.com/api/weather-locations?limit=5`
+   - `https://www.nearestniceweather.com/api/poi-locations-with-weather?limit=5`
    - `https://www.nearestniceweather.com/api/health`
 
 2. **Configure Redis environment variables** (optional - for caching)

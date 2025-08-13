@@ -42,6 +42,18 @@
 //
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  calculateDistance,
+  processAPIData,
+  getVisiblePOIs,
+  checkCanExpand,
+  calculateNextExpansionDistance,
+  findOptimalStartingSlice,
+  isValidCoordinates,
+  DISTANCE_SLICE_SIZE,
+  MAX_RESULTS,
+  type POIWithMetadata
+} from '../utils/poiNavigationUtils';
 
 // 🔗 INTEGRATION: Primary data source for App.tsx map interface and POI rendering
 // 🔗 INTEGRATION: Works with LocationManager.tsx for distance-based POI calculations
@@ -61,25 +73,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * - Distance data: Calculated via Haversine formula from user location
  * - Navigation data: Calculated slice index and display state for UI
  */
-export interface POIWithMetadata {
-  // 🏞️ POI CORE DATA (from poi_locations table)
-  id: string;                    // Database ID
-  name: string;                  // "Gooseberry Falls State Park", "Paul Bunyan Trail", etc.
-  lat: number;                   // Geographic coordinates 
-  lng: number;
-  
-  // 🌤️ WEATHER DATA (from weatherService.js + OpenWeather API)
-  temperature: number;           // Degrees Fahrenheit
-  precipitation: number;         // Chance of precipitation (0-100%)
-  windSpeed: string;            // Wind speed in mph
-  condition: string;            // "Clear", "Partly Cloudy", "Light Rain", etc.
-  description: string;          // User-friendly weather description
-  
-  // 🧮 CALCULATED NAVIGATION METADATA (computed by this hook)
-  distance: number;             // Pre-calculated distance from user location (miles)
-  displayed: boolean;           // Has this POI been shown to user in current session?
-  sliceIndex: number;           // Which 30mi slice: 0=0-30mi, 1=30-60mi, 2=60-90mi, etc.
-}
+// Re-export POIWithMetadata type for backwards compatibility
+export type { POIWithMetadata };
 
 export interface POINavigationState {
   allPOIs: POIWithMetadata[]; // All 50 from API
@@ -99,9 +94,7 @@ interface WeatherFilters {
 }
 
 const STORAGE_KEY = 'poi-navigation-cache';
-const DISTANCE_SLICE_SIZE = 30; // 30 mile slices
 const CLICK_THROTTLE_MS = 500; // 0.5 second throttling
-const MAX_RESULTS = 50; // Hard-coded API limit
 
 export const usePOINavigation = (
   userLocation: [number, number] | null,
@@ -128,60 +121,7 @@ export const usePOINavigation = (
     timestamp: number;
   } | null>(null);
 
-  // Calculate distance between two points (Haversine formula)
-  const calculateDistance = useCallback((point1: [number, number], point2: [number, number]) => {
-    const [lat1, lng1] = point1;
-    const [lat2, lng2] = point2;
-    const R = 3959; // Earth's radius in miles
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  }, []);
-
-  // Pre-process API data with distance calculations and metadata
-  const processAPIData = useCallback((apiData: any[], userLoc: [number, number]) => {
-    const processed = apiData.map((location, _index) => {
-      const distance = calculateDistance(userLoc, [location.lat, location.lng]);
-      const sliceIndex = Math.floor(distance / DISTANCE_SLICE_SIZE);
-      
-      return {
-        id: location.id,
-        name: location.name,
-        lat: location.lat,
-        lng: location.lng,
-        temperature: location.temperature,
-        precipitation: location.precipitation,
-        windSpeed: location.windSpeed,
-        condition: location.condition,
-        description: location.description,
-        distance,
-        displayed: false, // Initially not displayed
-        sliceIndex
-      } as POIWithMetadata;
-    });
-
-    // Sort by distance (closest first) with alphabetical secondary sort
-    return processed.sort((a, b) => {
-      if (Math.abs(a.distance - b.distance) < 0.01) { // Same distance (within 0.01 miles)
-        return a.name.localeCompare(b.name);
-      }
-      return a.distance - b.distance;
-    });
-  }, [calculateDistance]);
-
-  // Distance-based slicer - returns only visible subset
-  const getVisiblePOIs = useCallback((allPOIs: POIWithMetadata[], maxDistance: number) => {
-    return allPOIs.filter(poi => poi.distance <= maxDistance);
-  }, []);
-
-  // Check if we can expand (more POIs available beyond current slice)
-  const checkCanExpand = useCallback((allPOIs: POIWithMetadata[], currentMax: number) => {
-    return allPOIs.some(poi => poi.distance > currentMax);
-  }, []);
+  // Note: Distance calculation and data processing functions moved to utils/poiNavigationUtils.ts
 
   // Click throttling check
   const isClickAllowed = useCallback(() => {
@@ -236,7 +176,8 @@ export const usePOINavigation = (
       }
 
       // Process and cache the data
-      const processedPOIs = processAPIData(data.data, userLocation);
+      const processedResult = processAPIData(data.data, userLocation);
+      const processedPOIs = processedResult.processedPOIs;
       
       // Auto-expand search radius if no results found
       let currentRadius = DISTANCE_SLICE_SIZE;

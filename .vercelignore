@@ -1,0 +1,93 @@
+# Test and development files
+test-results/
+tests/
+*.test.js
+*.spec.js
+*.test.tsx
+*.spec.tsx
+playwright-report/
+coverage/
+__tests__/
+
+# Development logs and cache
+logs/
+*.log
+.cache/
+.mcp-cache/
+.npm/
+.turbo/
+.vercel/
+
+# Development tools and scripts
+scripts/
+.github/
+.vscode/
+.idea/
+dev-*.sh
+dev-*.js
+*-server.js
+console-test.html
+debug-*.html
+
+# Documentation (now in wiki)
+documentation/
+wiki-content-prepared/
+wiki-repo/
+*.md
+!README.md
+
+# Environment files
+.env*
+!.env.example
+
+# Large development dependencies
+BrowserTools-*.zip
+node_modules/@playwright/
+node_modules/playwright/
+node_modules/@nicholmikey/
+node_modules/@movibe/
+node_modules/@types/jest
+node_modules/jest/
+node_modules/axe-playwright/
+
+# Archived presentation assets (removed from repo)
+presentation/
+reveal.js-dist/
+reveal.js-plugin/
+*-test.html
+test-*.html
+
+# Source maps and debug files
+*.map
+*.tsbuildinfo
+
+# Development configs
+playwright.config.js
+jest.config.js
+vitest.config.ts
+.eslintrc*
+.prettierrc*
+tsconfig.json
+!tsconfig.json
+tsconfig.node.json
+
+# Database and migration files
+*.sql
+*.json
+!package.json
+!manifest.json
+!health.json
+migration-*.json
+*-export.json
+*-migration.sql
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Archive directories
+archive/
+old-*/
+*-backup/

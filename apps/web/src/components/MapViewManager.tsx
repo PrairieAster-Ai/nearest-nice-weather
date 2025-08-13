@@ -42,6 +42,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useMapViewStorage } from '../hooks/useLocalStorageState';
+import { mapCalculationService } from '../services/MapCalculationService';
 
 // 🔗 INTEGRATION: TypeScript interfaces for POI data structure
 interface Location {
@@ -81,7 +82,7 @@ export const useMapViewManager = (
     setMapView({ center: mapCenter, zoom: mapZoom });
   }, [mapCenter, mapZoom, setMapView]);
 
-  // 🎯 PERFORMANCE_CRITICAL: Geographic bounds calculation with granular zoom optimization
+  // 🎯 PERFORMANCE_CRITICAL: Geographic bounds calculation using MapCalculationService
   const calculateDynamicMapView = useCallback((filtered: Location[], userPos: [number, number]) => {
     if (filtered.length === 0) {
       // No POIs available - center on user location with medium zoom
@@ -89,69 +90,25 @@ export const useMapViewManager = (
       return { center: userPos, zoom: 11 };
     }
     
-    // Calculate distances from user location to all results
-    const distancesWithLocations = filtered.map(location => {
-      const latDiff = location.lat - userPos[0];
-      const lngDiff = location.lng - userPos[1];
-      return {
-        distance: Math.sqrt(latDiff * latDiff + lngDiff * lngDiff),
-        location
-      };
-    });
+    // Find closest 5 results for focused view
+    const locationPoints = filtered.map(loc => ({
+      id: loc.id,
+      name: loc.name,
+      lat: loc.lat,
+      lng: loc.lng
+    }));
     
-    // Sort by distance (closest first)
-    distancesWithLocations.sort((a, b) => a.distance - b.distance);
+    const closestResults = mapCalculationService.findClosestLocations(locationPoints, userPos, 5);
     
-    // Get the closest 5 results (or all if less than 5)
-    const targetCount = Math.min(5, filtered.length);
-    const closestResults = distancesWithLocations.slice(0, targetCount);
+    // Calculate optimal view including user location and closest 5 results  
+    const optimalView = mapCalculationService.calculateViewWithUserLocation(
+      closestResults,
+      userPos,
+      { padding: 1.1, minZoom: 8, maxZoom: 18 } // Tighter padding for dynamic view
+    );
     
-    // Calculate bounds including user location and closest 5 results
-    const allLats = [userPos[0], ...closestResults.map(r => r.location.lat)];
-    const allLngs = [userPos[1], ...closestResults.map(r => r.location.lng)];
-    
-    const minLat = Math.min(...allLats);
-    const maxLat = Math.max(...allLats);
-    const minLng = Math.min(...allLngs);
-    const maxLng = Math.max(...allLngs);
-    
-    // Calculate dynamic center that optimizes the view of user + closest results
-    const centerLat = (minLat + maxLat) / 2;
-    const centerLng = (minLng + maxLng) / 2;
-    
-    // Calculate the geographic spread for zoom optimization
-    const latRange = maxLat - minLat;
-    const lngRange = maxLng - minLng;
-    const maxRange = Math.max(latRange, lngRange);
-    
-    // Minimal padding factor for edge visibility - maximum zoom while keeping all points visible
-    const paddedRange = maxRange * 1.1;
-    
-    // Convert range to zoom level - granular increments for precise control
-    let zoom = 18; // Start with maximum zoom
-    if (paddedRange > 0.008) zoom = 17.5;   // Ultra-fine adjustment
-    if (paddedRange > 0.012) zoom = 17;     // Extremely close grouping
-    if (paddedRange > 0.018) zoom = 16.5;   // Fine adjustment
-    if (paddedRange > 0.025) zoom = 16;     // Very close grouping
-    if (paddedRange > 0.035) zoom = 15.5;   // Fine adjustment
-    if (paddedRange > 0.050) zoom = 15;     // Close grouping
-    if (paddedRange > 0.070) zoom = 14.5;   // Fine adjustment
-    if (paddedRange > 0.095) zoom = 14;     // Medium-close grouping
-    if (paddedRange > 0.125) zoom = 13.5;   // Fine adjustment
-    if (paddedRange > 0.165) zoom = 13;     // Medium grouping
-    if (paddedRange > 0.220) zoom = 12.5;   // Fine adjustment
-    if (paddedRange > 0.290) zoom = 12;     // Medium-wide grouping
-    if (paddedRange > 0.380) zoom = 11.5;   // Fine adjustment
-    if (paddedRange > 0.500) zoom = 11;     // Wide grouping
-    if (paddedRange > 0.650) zoom = 10.5;   // Fine adjustment
-    if (paddedRange > 0.850) zoom = 10;     // Very wide grouping
-    if (paddedRange > 1.100) zoom = 9.5;    // Fine adjustment
-    if (paddedRange > 1.450) zoom = 9;      // Extra wide grouping
-    if (paddedRange > 1.900) zoom = 8.5;    // Fine adjustment
-    if (paddedRange > 2.500) zoom = 8;      // Continental grouping
-    
-    console.log(`📍 Dynamic map view: center=[${centerLat.toFixed(4)}, ${centerLng.toFixed(4)}], zoom=${zoom}, range=${paddedRange.toFixed(4)}`);
-    return { center: [centerLat, centerLng], zoom };
+    console.log(`📍 Dynamic map view: center=[${optimalView.center[0].toFixed(4)}, ${optimalView.center[1].toFixed(4)}], zoom=${optimalView.zoom}`);
+    return { center: optimalView.center, zoom: optimalView.zoom };
   }, []);
 
   // Helper function to update map view - uses dynamic center calculation  
@@ -162,36 +119,22 @@ export const useMapViewManager = (
       setMapCenter(center);
       setMapZoom(zoom);
     } else if (locations.length > 0) {
-      // No user location - fit all markers with geographic bounds
+      // No user location - fit all markers using MapCalculationService
       console.log('📍 No user location, fitting all POI markers');
-      const lats = locations.map(loc => loc.lat);
-      const lngs = locations.map(loc => loc.lng);
+      const locationPoints = locations.map(loc => ({
+        id: loc.id,
+        name: loc.name,
+        lat: loc.lat,
+        lng: loc.lng
+      }));
       
-      const minLat = Math.min(...lats);
-      const maxLat = Math.max(...lats);
-      const minLng = Math.min(...lngs);
-      const maxLng = Math.max(...lngs);
+      const optimalView = mapCalculationService.calculateOptimalView(locationPoints, {
+        fallbackCenter: defaultCenter,
+        defaultZoom: defaultZoom
+      });
       
-      // Calculate center
-      const centerLat = (minLat + maxLat) / 2;
-      const centerLng = (minLng + maxLng) / 2;
-      setMapCenter([centerLat, centerLng]);
-      
-      // Calculate zoom to fit all markers with padding
-      const latRange = maxLat - minLat;
-      const lngRange = maxLng - minLng;
-      const maxRange = Math.max(latRange, lngRange);
-      
-      // Dynamic zoom based on geographic spread
-      let zoom = 9; // default higher zoom
-      if (maxRange < 0.1) zoom = 12;      // Very close
-      else if (maxRange < 0.5) zoom = 10;  // Close
-      else if (maxRange < 1.0) zoom = 9;   // Medium spread
-      else if (maxRange < 2.0) zoom = 8;   // Wide spread
-      else if (maxRange < 5.0) zoom = 7;   // Very wide spread
-      else zoom = 6;                      // Extremely wide spread
-      
-      setMapZoom(zoom);
+      setMapCenter(optimalView.center);
+      setMapZoom(optimalView.zoom);
     } else {
       // No locations and no user location - use Minneapolis default
       console.log('📍 No POIs or user location, using Minneapolis default');

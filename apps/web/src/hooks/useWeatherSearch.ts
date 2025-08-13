@@ -29,7 +29,7 @@ export const useWeatherSearch = (): UseWeatherSearchReturn => {
       const timeoutId = setTimeout(() => controller.abort(), 
         parseInt(import.meta.env.VITE_API_TIMEOUT || '10000'))
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api'}/weather-locations`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api'}/poi-locations-with-weather`, {
         method: 'GET',
         signal: controller.signal
       })

@@ -12,7 +12,7 @@ async function testDirectAPI() {
   console.log('\n📡 Testing Direct API Call...');
   
   try {
-    const response = await fetch('http://localhost:4000/api/weather-locations?limit=5');
+    const response = await fetch('http://localhost:4000/api/poi-locations-with-weather?limit=5');
     const data = await response.json();
     
     console.log('✅ API Response Status:', response.status);
@@ -40,7 +40,7 @@ async function testWithUserLocation() {
       limit: '10'
     });
     
-    const response = await fetch(`http://localhost:4000/api/weather-locations?${params}`);
+    const response = await fetch(`http://localhost:4000/api/poi-locations-with-weather?${params}`);
     const data = await response.json();
     
     console.log('✅ User Location Response Status:', response.status);
@@ -80,7 +80,7 @@ async function testCORS() {
   console.log('\n🔒 Testing CORS Headers...');
   
   try {
-    const response = await fetch('http://localhost:4000/api/weather-locations?limit=1');
+    const response = await fetch('http://localhost:4000/api/poi-locations-with-weather?limit=1');
     
     console.log('✅ CORS Access-Control-Allow-Origin:', response.headers.get('Access-Control-Allow-Origin'));
     console.log('✅ CORS Access-Control-Allow-Methods:', response.headers.get('Access-Control-Allow-Methods'));
@@ -126,7 +126,7 @@ async function simulateBrowserEnvironment() {
     params.append('radius', options.radius.toString());
   }
   
-  const apiUrl = `http://localhost:4000/api/weather-locations?${params}`;
+  const apiUrl = `http://localhost:4000/api/poi-locations-with-weather?${params}`;
   console.log('🔗 API URL:', apiUrl);
   
   try {

@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-08-13T00:13:37.070Z",
+  "tests": [
+    {
+      "name": "Page Loading",
+      "status": "PASS",
+      "time": 1555
+    },
+    {
+      "name": "Page Title",
+      "status": "PASS",
+      "value": "Nearest Nice Weather"
+    },
+    {
+      "name": "Map Container",
+      "status": "PASS"
+    },
+    {
+      "name": "API Health",
+      "status": "PASS",
+      "data": {
+        "success": true,
+        "message": "API server is running",
+        "timestamp": "2025-08-13T00:13:39.759Z",
+        "port": 4000
+      }
+    },
+    {
+      "name": "API Locations",
+      "status": "PASS",
+      "count": 0
+    },
+    {
+      "name": "Console Errors",
+      "status": "PASS",
+      "errors": []
+    },
+    {
+      "name": "Umami Analytics",
+      "status": "PASS"
+    },
+    {
+      "name": "Filter Controls",
+      "status": "PASS",
+      "count": 12
+    },
+    {
+      "name": "Screenshot Capture",
+      "status": "PASS",
+      "path": "/home/robertspeer/Projects/GitRepo/nearest-nice-weather/documentation/Branding/localhost-verification-screenshot.png"
+    }
+  ],
+  "overall": "PASS",
+  "errors": [],
+  "performance": {
+    "pageLoadTime": 1555
+  }
+}

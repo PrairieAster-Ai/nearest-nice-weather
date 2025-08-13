@@ -20,7 +20,7 @@ export const weatherApi = {
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)
 
     try {
-      const response = await fetch(`${API_CONFIG.baseURL}/weather-locations`, {
+      const response = await fetch(`${API_CONFIG.baseURL}/poi-locations-with-weather`, {
         method: 'GET',
         signal: controller.signal,
       })

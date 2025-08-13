@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-08-13T02:08:53.993Z",
+  "url": "https://p.nearestniceweather.com",
+  "summary": {
+    "apiRequestsCount": 2,
+    "mapMarkersFound": 1,
+    "filterControlsFound": 6,
+    "consoleMessagesCount": 0,
+    "jsErrorsCount": 0
+  },
+  "apiRequests": [
+    {
+      "method": "POST",
+      "url": "https://api-gateway.umami.dev/api/send"
+    },
+    {
+      "method": "GET",
+      "url": "https://p.nearestniceweather.com/api/poi-locations-with-weather?lat=44.9399&lng=-93.2548&limit=50&temperature=mild&precipitation=none&wind=calm"
+    }
+  ],
+  "jsErrors": [],
+  "consoleMessages": [],
+  "recommendations": []
+}

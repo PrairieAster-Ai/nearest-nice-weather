@@ -4,11 +4,12 @@
  */
 
 // Weather utilities for testing
-export function filterPOIsByWeather(pois, filters) {
+function filterPOIsByWeather(pois, filters) {
   if (!pois || !Array.isArray(pois)) return [];
+  if (!filters) return pois;
   
   return pois.filter(poi => {
-    if (filters.temperature) {
+    if (filters && filters.temperature) {
       const temp = poi.temperature;
       switch (filters.temperature) {
         case 'cold':
@@ -57,7 +58,7 @@ export function filterPOIsByWeather(pois, filters) {
   });
 }
 
-export function getWeatherDescription(temperature, condition, precipitation) {
+function getWeatherDescription(temperature, condition, precipitation) {
   const temp = temperature || 70;
   const precip = precipitation || 0;
   
@@ -75,7 +76,7 @@ describe('Weather Utilities', () => {
     { id: '1', name: 'Cold Park', temperature: 45, precipitation: 10, windSpeed: 5 },
     { id: '2', name: 'Mild Park', temperature: 70, precipitation: 0, windSpeed: 8 },
     { id: '3', name: 'Hot Park', temperature: 85, precipitation: 5, windSpeed: 12 },
-    { id: '4', name: 'Rainy Park', temperature: 65, precipitation: 80, windSpeed: 15 }
+    { id: '4', name: 'Rainy Park', temperature: 65, precipitation: 80, windSpeed: 25 }
   ];
 
   describe('filterPOIsByWeather', () => {
