@@ -39,26 +39,16 @@ import {
   type MapViewSettings,
   type LocationMethod
 } from '../useLocalStorageState'
+import { createLocalStorageMock } from '../../test/localStorage-setup'
 
-// Mock localStorage for testing
-const localStorageMock = {
-  store: {} as Record<string, string>,
-  getItem: vi.fn((key: string) => localStorageMock.store[key] || null),
-  setItem: vi.fn((key: string, value: string) => {
-    localStorageMock.store[key] = value
-  }),
-  removeItem: vi.fn((key: string) => {
-    delete localStorageMock.store[key]
-  }),
-  clear: vi.fn(() => {
-    localStorageMock.store = {}
-  })
-}
+// Create isolated localStorage mock for this test file
+const localStorageMock = createLocalStorageMock()
 
 // Replace global localStorage with mock
 Object.defineProperty(global, 'localStorage', {
   value: localStorageMock,
-  writable: true
+  writable: true,
+  configurable: true
 })
 
 // Mock window object for SSR tests
@@ -66,17 +56,22 @@ Object.defineProperty(global, 'window', {
   value: {
     localStorage: localStorageMock
   },
-  writable: true
+  writable: true,
+  configurable: true
 })
 
 describe('useLocalStorageState Hook', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorageMock.clear()
+    // Reset the store
+    Object.keys(localStorageMock.store).forEach(key => {
+      delete localStorageMock.store[key]
+    })
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('✅ Basic Functionality', () => {

@@ -68,3 +68,4 @@ application/logs/
 *.db
 # AI environment files (contains API keys)
 .mcp/ai-env
+.vercel

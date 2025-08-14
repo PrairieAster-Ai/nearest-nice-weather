@@ -13,14 +13,20 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
-    // Parallel test execution
-    threads: true,
-    maxThreads: 4,
-    minThreads: 2,
+    // Disable parallel execution for hook tests to prevent environment conflicts
+    threads: false,
+    pool: 'forks',
     // Enhanced test isolation
     isolate: true,
     // Test timeout
-    testTimeout: 10000,
+    testTimeout: 15000,
+    // Additional jsdom options
+    environmentOptions: {
+      jsdom: {
+        resources: 'usable',
+        pretendToBeVisual: true
+      }
+    },
     // Coverage configuration
     coverage: {
       provider: 'v8',

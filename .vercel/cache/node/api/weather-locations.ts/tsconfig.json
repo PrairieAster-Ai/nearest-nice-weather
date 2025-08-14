@@ -1,5 +1,0 @@
-{
-	"include": [
-		"../../../../../api/weather-locations.ts"
-	]
-}

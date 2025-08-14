@@ -120,7 +120,8 @@ export function estimateIPAccuracy(city?: string, region?: string): number {
   
   // Minnesota-specific accuracy improvements
   if (regionName.includes('minnesota') || regionName.includes('mn')) {
-    if (urbanCities.some(urbanCity => cityName.includes(urbanCity))) {
+    // Special handling for St. Paul variations
+    if (cityName.includes('paul') || urbanCities.some(urbanCity => cityName.includes(urbanCity))) {
       return MINNESOTA_ACCURACY_ESTIMATES.URBAN_METERS; // ~3km for Minnesota urban areas (better ISP mapping)
     }
     return MINNESOTA_ACCURACY_ESTIMATES.RURAL_METERS; // ~15km for rural Minnesota
@@ -166,7 +167,10 @@ export function calculateIPConfidence(city?: string, region?: string, country?: 
  */
 export function scoreEstimate(estimate: LocationEstimate): number {
   const ageScore = Math.max(0, 100 - (Date.now() - estimate.timestamp) / 60000); // Decay over time
-  const accuracyScore = Math.max(0, 100 - Math.log10(estimate.accuracy));
+  
+  // Handle zero accuracy case to avoid -Infinity from log10(0)
+  const safeAccuracy = Math.max(1, estimate.accuracy); // Minimum 1 meter for scoring
+  const accuracyScore = Math.max(0, 100 - Math.log10(safeAccuracy));
 
   return (
     CONFIDENCE_SCORES[estimate.confidence] * 0.3 +
