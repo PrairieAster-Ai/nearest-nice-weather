@@ -34,6 +34,15 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
   - `scripts/utilities/quick-docker-health.sh` - Fast Docker networking check
   - `development-dashboard.sh` - Real-time environment monitoring
 
+## GitHub Tools and Automation
+
+**📚 GITHUB TOOLS CONTEXT**: [Complete GitHub Tools Guide](GITHUB-TOOLS-CONTEXT.md) - **MUST READ** for choosing the right GitHub tool (CLI vs MCP servers). Contains decision trees, authentication setup, and quick reference for common tasks.
+
+### Tool Selection Quick Guide:
+- **GitHub CLI (`gh`)**: Wiki management, releases, CI/CD, emergency fixes
+- **Project Manager MCP**: Sprint planning, PRD generation, issue management
+- **Official GitHub MCP**: Backup option for basic operations
+
 ## Development Commands
 
 **⚠️ CRITICAL: Database & API Deployment Guidelines** (Updated July 13, 2025):
@@ -669,7 +678,7 @@ curl -s http://localhost:3050/health | jq '.'
 - **Incident Documentation**: Update runbooks after resolving new issues
 
 ### Key Documentation Files
-- `documentation/DEVELOPMENT-ENVIRONMENT-SUMMARY.md` - Overview of all improvements
+- **[GitHub Wiki](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki)** - Complete technical documentation
 - `documentation/runbooks/` - Complete operational procedures
 - `scripts/` - Automated health check and validation tools
 - `apply-docker-fix.sh` - Docker networking issue resolution

@@ -68,4 +68,9 @@ application/logs/
 *.db
 # AI environment files (contains API keys)
 .mcp/ai-env
+.vscode/mcp-settings.json
+.vscode/mcp-ai-settings.json
 .vercel
+
+# Archived legacy documentation
+archived-legacy-docs/

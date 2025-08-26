@@ -115,5 +115,12 @@ npm run deploy:production
 
 ---
 
-**For detailed technical documentation, see `/documentation/`**  
-**For Claude AI context, see `/CLAUDE.md` and `/PROJECT-OVERVIEW-FOR-CLAUDE.md`**
+## 📚 Documentation
+
+**📖 [Complete Technical Documentation](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki)** - GitHub Wiki  
+⭐ **[Developer Quick Start Guide](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Developer-Quick-Start-Guide)** - 5-minute onboarding  
+🏗️ **[API Reference](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/API-Reference)** - Complete endpoint documentation  
+⚛️ **[Frontend Architecture](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Frontend-Architecture)** - React patterns and components  
+🗄️ **[Database Schema](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Database-Schema)** - POI data model and queries
+
+**For Claude AI context, see `/CLAUDE.md`**
