@@ -72,7 +72,13 @@
         "-y",
         "mcp-remote",
         "https://mcp.neon.tech/mcp"
-      ]
+      ],
+      "env": {
+        "NEON_DATABASE_URL": "${DATABASE_URL}",
+        "NEON_PROJECT_ID": "${NEON_PROJECT_ID}",
+        "NEON_API_KEY": "${NEON_API_KEY}",
+        "DATABASE_URL": "${DATABASE_URL}"
+      }
     },
     "vercel": {
       "command": "npx",
@@ -81,8 +87,11 @@
       ],
       "env": {
         "VERCEL_PROJECT_NAME": "nearest-nice-weather",
-        "VERCEL_ORG_ID": "PrairieAster-Ai",
-        "VERCEL_INTEGRATION_STATUS": "100% - Using CLI authentication"
+        "VERCEL_ORG_ID": "roberts-projects-3488152a",
+        "VERCEL_PROJECT_ID": "nearest-nice-weather",
+        "VERCEL_TEAM_ID": "roberts-projects-3488152a",
+        "VERCEL_INTEGRATION_STATUS": "100% - Enhanced with project details",
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       }
     }
   }

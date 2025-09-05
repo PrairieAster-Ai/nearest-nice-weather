@@ -90,7 +90,7 @@ const result = await sql`
 **Vercel Configuration Required**:
 ```bash
 # Add to Vercel environment variables
-OPENWEATHER_API_KEY=2a1b36f7044dd1626bd2ace3d2601d1d
+OPENWEATHER_API_KEY=your-openweather-api-key
 DATABASE_URL=[Neon production connection string]
 ```
 

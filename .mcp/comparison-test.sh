@@ -8,7 +8,7 @@ echo "Testing with Sprint 3: Real-Time Weather Data Pipeline"
 echo ""
 
 # Configuration
-GITHUB_TOKEN='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'
+GITHUB_TOKEN='${GITHUB_TOKEN}'
 REPO_OWNER="PrairieAster-Ai"
 REPO_NAME="nearest-nice-weather"
 

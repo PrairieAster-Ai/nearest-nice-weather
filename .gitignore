@@ -75,9 +75,42 @@ application/logs/
 # Archived legacy documentation
 archived-legacy-docs/
 
-# Security - GitHub tokens and test scripts
+# Security - Credentials and Tokens (Comprehensive)
 test-env-vs-direct.sh
 *github_pat*
 *personal_access_token*
 .env.github
 setup-github-token-local.sh
+
+# All credential patterns
+*secret*
+*password*
+*token*
+*credentials*
+*apikey*
+*api_key*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Environment files (additional patterns)
+.env.*
+.env.*.local
+.environment
+.secrets/
+config/secrets/
+
+# SSH and certificates  
+id_rsa*
+id_dsa*
+id_ed25519*
+*.crt
+*.cert
+
+# Database credentials
+database.json
+db.json
+*connection_string*
+*neon*
+*NEON*

@@ -18,7 +18,7 @@ class MCPClient {
     
     const serverProcess = spawn('docker', [
       'run', '-i', '--rm',
-      '-e', 'GITHUB_PERSONAL_ACCESS_TOKEN=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',
+      '-e', 'GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}',
       '-e', 'GITHUB_TOOLSETS=repos,issues,pull_requests',
       'ghcr.io/github/github-mcp-server',
       'stdio'
@@ -31,7 +31,7 @@ class MCPClient {
     console.log('🔌 Connecting to Project Manager MCP Server...');
     
     const serverProcess = spawn('mcp-github-project-manager', [
-      '--token', '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',
+      '--token', '${GITHUB_TOKEN}',
       '--owner', 'PrairieAster-Ai',
       '--repo', 'nearest-nice-weather',
       '--verbose'

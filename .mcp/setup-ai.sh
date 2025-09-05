@@ -68,7 +68,7 @@ if prompt_for_api_key; then
 # Generated: $(date)
 
 # GitHub Configuration
-GITHUB_TOKEN=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
+GITHUB_TOKEN=${GITHUB_TOKEN}
 GITHUB_OWNER=PrairieAster-Ai
 GITHUB_REPO=nearest-nice-weather
 

@@ -8,7 +8,7 @@
 import { Octokit } from '@octokit/rest';
 
 // Configuration
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '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';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '${GITHUB_TOKEN}';
 const REPO_OWNER = 'PrairieAster-Ai';
 const REPO_NAME = 'nearest-nice-weather';
 const PROJECT_NUMBER = 2; // From the URL: /orgs/PrairieAster-Ai/projects/2
