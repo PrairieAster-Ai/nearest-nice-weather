@@ -62,7 +62,7 @@ module.exports = {
 
   // Database intelligence configuration
   databaseConfig: {
-    connectionString: process.env.DATABASE_URL || "postgresql://username:password@localhost:5432/weather_intelligence",
+    connectionString: process.env.DATABASE_URL || "postgresql://username:password@localhost:5432/weather_intelligence", // pragma: allowlist secret
     maxConnections: 20,
     monitorQueries: true,
     trackPerformance: true,

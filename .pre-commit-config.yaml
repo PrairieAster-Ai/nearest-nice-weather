@@ -27,7 +27,8 @@ repos:
               .*\.lock|
               node_modules/.*|
               \.git/.*|
-              tests/.*\.json
+              tests/.*\.json|
+              .*\.vercel/.*
           )$
 
   # Secret detection with gitleaks
@@ -35,6 +36,7 @@ repos:
     rev: v8.21.2
     hooks:
       - id: gitleaks
+        exclude: '\.secrets\.baseline$'
 
   # Local security validation hooks
   - repo: local
@@ -48,7 +50,7 @@ repos:
 
       - id: credential-pattern-check
         name: Credential Pattern Check
-        entry: bash -c 'if grep -r "github_pat_\|sk-[a-zA-Z0-9]\{48\}\|ssk_[a-zA-Z0-9]\+\|postgresql://[^@]\+:[^@]\+@" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" 2>/dev/null; then echo "❌ Potential credentials found!"; exit 1; fi'
+        entry: bash -c 'node scripts/security/validate-env.cjs'
         language: system
         pass_filenames: false
         stages: [pre-commit]

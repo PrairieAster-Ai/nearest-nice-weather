@@ -141,10 +141,10 @@ class SecurityValidator {
 
         matches.forEach(match => {
           // Skip if this matches a template pattern
-          const isTemplate = TEMPLATE_PATTERNS.some(templatePattern => 
+          const isTemplate = TEMPLATE_PATTERNS.some(templatePattern =>
             templatePattern.test(match[0])
           );
-          
+
           if (!isTemplate) {
             this.issues.push({
               file: filePath,
