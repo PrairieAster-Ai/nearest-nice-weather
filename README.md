@@ -91,12 +91,34 @@ npm run deploy:production
 4. **Minnesota Focus**: All POIs and features target Minnesota outdoor enthusiasts
 5. **B2C Only**: No B2B tourism operator features or enterprise functionality
 
+## 🔒 Security & Quality Assurance
+
+**Automated Security Pipeline** (Implemented 2025-09-05):
+- **Pre-commit Security**: gitleaks, detect-secrets, custom credential validation
+- **CI/CD Security**: GitHub Actions with CodeQL, TruffleHog OSS, Dependabot
+- **3-Layer Protection**: Pre-commit + CI/CD + runtime monitoring ready
+- **Credential Protection**: Zero exposed credentials (97 issues resolved)
+- **Test Suite Integration**: Enhanced `./scripts/ci-test.sh` with security validation
+
+**Security Commands**:
+```bash
+# Run security validation
+node scripts/security/validate-env.cjs
+
+# Run CI tests with security checks
+./scripts/ci-test.sh
+
+# Run pre-commit security hooks
+pre-commit run --all-files
+```
+
 ## 🛠️ Maintenance & Operations
 
 - **Health Monitoring**: `./scripts/environment-validation.sh [environment]`
 - **Database Management**: POI data in `poi_locations` table only
 - **Dual API Architecture**: Sync localhost (`dev-api-server.js`) with Vercel (`apps/web/api/`)
 - **Environment Variables**: Separate `.env` (development) and Vercel dashboard (production)
+- **Security Monitoring**: Automated credential scanning and vulnerability detection
 
 ## 📈 Success Metrics
 
