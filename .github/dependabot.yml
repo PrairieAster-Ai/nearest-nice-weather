@@ -13,6 +13,12 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    ignore:
+      # Block React 19 until planned LTS upgrade
+      - dependency-name: "react"
+        versions: [">= 19.0.0"]
+      - dependency-name: "react-dom"
+        versions: [">= 19.0.0"]
 
   # Web app dependencies
   - package-ecosystem: "npm"
@@ -27,6 +33,22 @@ updates:
     commit-message:
       prefix: "deps(web)"
       include: "scope"
+    ignore:
+      # Block react-leaflet 5.x until React 19 upgrade
+      - dependency-name: "react-leaflet"
+        versions: ["5.x", ">= 5.0.0"]
+      # Block major Vite versions until compatibility verified
+      - dependency-name: "vite"
+        versions: [">= 7.0.0"]
+      # Block React 19 ecosystem until planned LTS upgrade
+      - dependency-name: "react"
+        versions: [">= 19.0.0"]
+      - dependency-name: "react-dom"
+        versions: [">= 19.0.0"]
+      - dependency-name: "@types/react"
+        versions: [">= 19.0.0"]
+      - dependency-name: "@types/react-dom"
+        versions: [">= 19.0.0"]
 
   # Test dependencies
   - package-ecosystem: "npm"
