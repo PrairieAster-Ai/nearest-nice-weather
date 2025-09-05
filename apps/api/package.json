@@ -10,7 +10,7 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "@vercel/node": "^2.1.0",
+    "@vercel/node": "^5.3.21",
     "pg": "^8.11.0"
   },
   "devDependencies": {
