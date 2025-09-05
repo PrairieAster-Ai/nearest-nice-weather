@@ -81,7 +81,7 @@
  * LAST UPDATED: 2025-08-08
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline, CircularProgress, Alert } from '@mui/material'
 import { FabFilterSystem } from './components/FabFilterSystem'
@@ -89,23 +89,17 @@ import { FeedbackFab } from './components/FeedbackFab'
 import { UnifiedStickyFooter } from './components/UnifiedStickyFooter'
 import { LocationManager } from './components/LocationManager'
 import { useFilterManager } from './components/FilterManager'
-import { MapContainer, asterIcon } from './components/MapContainer'
+import { MapContainer } from './components/MapContainer'
 import { useMapViewManager } from './components/MapViewManager'
 import { usePOINavigation } from './hooks/usePOINavigation'
-import { useLastVisitStorage, LocationMethod, WeatherFilters } from './hooks/useLocalStorageState'
-import { escapeHtml, sanitizeUrl } from './utils/sanitize'
-import { AdManagerProvider, AdUnit } from './components/ads'
-import { loadUmamiAnalytics, trackPageView, trackLocationUpdate, trackWeatherFilter, trackPOIInteraction } from './utils/analytics'
-import { weatherFilteringService, WeatherFilters as ServiceWeatherFilters, Location as ServiceLocation } from './services/WeatherFilteringService'
+import { useLastVisitStorage, LocationMethod } from './hooks/useLocalStorageState'
+import { AdManagerProvider } from './components/ads'
+import { loadUmamiAnalytics, trackPageView, trackLocationUpdate } from './utils/analytics'
+import { weatherFilteringService } from './services/WeatherFilteringService'
 import { mapCalculationService } from './services/MapCalculationService'
 import { useWeatherFiltering } from './hooks/useWeatherFiltering'
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
-import L from 'leaflet'
-
-// Distance calculation helper (returns miles)
-// Distance calculation now handled by WeatherFilteringService
-const calculateDistance = weatherFilteringService.calculateDistance;
 
 // 🔗 INTEGRATION: asterIcon now imported from MapContainer.tsx for component encapsulation
 
@@ -158,14 +152,12 @@ export default function App() {
 
   // Location state (managed by LocationManager)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
-  const [locationMethod, setLocationMethod] = useState<LocationMethod>('none')
   const [showLocationPrompt, setShowLocationPrompt] = useState(true)
 
   // Filter state (managed by useFilterManager hook)
   const {
     filters,
     debouncedFilters,
-    instantFilters,
     isFiltering,
     handleFilterChange
   } = useFilterManager()
@@ -212,7 +204,7 @@ export default function App() {
   // 🔗 INTEGRATION: Map view persistence now handled by MapViewManager hook
 
   // Weather filtering operations now handled by useWeatherFiltering hook
-  const { filterResultCounts, applyWeatherFilters } = useWeatherFiltering(visiblePOIs, userLocation);
+  const { } = useWeatherFiltering(visiblePOIs, userLocation);
 
   // Use POI data from new navigation hook
   const apiLocations = React.useMemo(() => {

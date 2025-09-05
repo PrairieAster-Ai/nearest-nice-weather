@@ -27,21 +27,34 @@
 
 ## 🚀 Quick Start
 
-### Development Setup
+### Team Member Onboarding (<15 minutes)
 ```bash
-# Install dependencies
-npm install
+# NEW TEAM MEMBERS: Use automated onboarding script
+./scripts/team-onboarding.sh
+# Automated: dependencies, environment, validation, startup
+# Target: Productive development in <15 minutes
 
-# Configure environment (copy and add your API keys)
-cp .env.example .env
+# ALTERNATIVE: Manual setup
+npm install                                    # Install dependencies
+cp .env.example .env                          # Configure environment
+npm start                                     # Start development servers
+./scripts/environment-validation.sh localhost # Validate setup
+```
 
-# Start development environment (frontend + API)
-npm start
-# Frontend: http://localhost:3003
-# API: http://localhost:4000
+### Development Environment
+```bash
+# Start all services (recommended)
+npm start                    # Frontend (3002) + API (4000) + health checks
+npm run start:quick          # Fast startup, skip optional features
+npm run start:clean          # Clean restart (clear caches)
 
-# Run health checks
-./scripts/environment-validation.sh localhost
+# Individual services
+cd apps/web && npm run dev   # Frontend only (port 3002)
+node dev-api-server.js       # API only (port 4000)
+
+# Environment validation
+./scripts/environment-validation.sh localhost   # Comprehensive validation
+./scripts/localhost-health-check.sh            # Quick health check
 ```
 
 ### Key API Endpoints
@@ -93,24 +106,31 @@ npm run deploy:production
 
 ## 🔒 Security & Quality Assurance
 
-**Automated Security Pipeline** (Implemented 2025-09-05):
+**Team Development Quality Gates** (Optimized 2025-09-05):
+- **ESLint Configuration**: Warnings instead of blocking errors for rapid team onboarding
+- **GitHub Actions CI/CD**: Automated testing, security scanning, and deployment
 - **Pre-commit Security**: gitleaks, detect-secrets, custom credential validation
-- **CI/CD Security**: GitHub Actions with CodeQL, TruffleHog OSS, Dependabot
-- **3-Layer Protection**: Pre-commit + CI/CD + runtime monitoring ready
-- **Credential Protection**: Zero exposed credentials (97 issues resolved)
-- **Test Suite Integration**: Enhanced `./scripts/ci-test.sh` with security validation
+- **Automated Testing**: Quality checks on every pull request
+- **3-Layer Protection**: Pre-commit + CI/CD + runtime monitoring
 
-**Security Commands**:
+**Quality Commands**:
 ```bash
-# Run security validation
+# Team-friendly quality checks
+npm run lint              # ESLint warnings (non-blocking)
+npm run build             # Build validation
+npm run ci:quality        # Complete quality suite
+
+# Security validation
 node scripts/security/validate-env.cjs
-
-# Run CI tests with security checks
-./scripts/ci-test.sh
-
-# Run pre-commit security hooks
+./scripts/ci-test.sh      # CI tests with security checks
 pre-commit run --all-files
 ```
+
+**GitHub Actions Pipeline**:
+- ✅ **Quality Gates**: Lint, type-check, build validation on all PRs
+- ✅ **Security Scanning**: Automated vulnerability detection
+- ✅ **Preview Deployments**: Automatic preview environment for PRs
+- ✅ **Production Protection**: Manual approval required for production deployments
 
 ## 🛠️ Maintenance & Operations
 
