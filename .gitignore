@@ -74,3 +74,10 @@ application/logs/
 
 # Archived legacy documentation
 archived-legacy-docs/
+
+# Security - GitHub tokens and test scripts
+test-env-vs-direct.sh
+*github_pat*
+*personal_access_token*
+.env.github
+setup-github-token-local.sh

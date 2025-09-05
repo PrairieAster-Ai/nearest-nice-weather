@@ -43,6 +43,15 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 - **Project Manager MCP**: Sprint planning, PRD generation, issue management
 - **Official GitHub MCP**: Backup option for basic operations
 
+### GitHub Project Configuration:
+- **Project Name**: NearestNiceWeather App Development
+- **Organization**: PrairieAster-Ai
+- **Default Labels for New Issues**:
+  - Capabilities: `type: capability` (cross-sprint platform features)
+  - Epics: `type: epic` (major work containers)
+  - Stories: `type: story` (user-focused work items)
+- **Work Item Type**: Custom field in project for categorization
+
 ## Development Commands
 
 **⚠️ CRITICAL: Database & API Deployment Guidelines** (Updated July 13, 2025):
