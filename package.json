@@ -171,7 +171,7 @@
     "@octokit/rest": "^22.0.0",
     "@vercel/node": "^2.3.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "json-rpc-2.0": "^1.7.1",
     "leaflet": "^1.9.4",
