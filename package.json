@@ -169,7 +169,7 @@
     "@neondatabase/serverless": "^1.0.1",
     "@octokit/graphql": "^9.0.1",
     "@octokit/rest": "^22.0.0",
-    "@vercel/node": "^2.3.0",
+    "@vercel/node": "^5.3.21",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
