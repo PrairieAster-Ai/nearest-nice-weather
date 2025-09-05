@@ -164,49 +164,49 @@ INSERT INTO poi_locations (name, lat, lng, park_type, data_source, description, 
 -- ========================================================================
 
 -- Final count check - should be exactly 138
-SELECT 
+SELECT
     COUNT(*) as total_poi_locations,
     'Expected: 138' as target
 FROM poi_locations;
 
 -- Distribution by park type
-SELECT 
-    park_type, 
+SELECT
+    park_type,
     COUNT(*) as count,
     ROUND(COUNT(*) * 100.0 / 138, 1) as percentage
-FROM poi_locations 
-GROUP BY park_type 
+FROM poi_locations
+GROUP BY park_type
 ORDER BY count DESC;
 
 -- Importance rank distribution
-SELECT 
+SELECT
     importance_rank,
     COUNT(*) as count
-FROM poi_locations 
-GROUP BY importance_rank 
+FROM poi_locations
+GROUP BY importance_rank
 ORDER BY importance_rank;
 
 -- Check for any duplicates (should return no rows)
-SELECT 
-    name, 
+SELECT
+    name,
     COUNT(*) as duplicate_count
-FROM poi_locations 
-GROUP BY name 
+FROM poi_locations
+GROUP BY name
 HAVING COUNT(*) > 1
 ORDER BY name;
 
 -- Sample of top importance locations
-SELECT 
-    name, 
-    park_type, 
+SELECT
+    name,
+    park_type,
     importance_rank,
     description
-FROM poi_locations 
+FROM poi_locations
 WHERE importance_rank <= 10
 ORDER BY importance_rank, name;
 
 -- Final status
-SELECT 
+SELECT
     'POI Migration Complete' as status,
     COUNT(*) as total_locations,
     COUNT(DISTINCT name) as unique_names,

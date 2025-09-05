@@ -47,7 +47,7 @@ module.exports = {
     max_restarts: 10,
     restart_delay: 4000
   }],
-  
+
   // PM2 deployment configuration for Claude AI context
   deploy: {
     development: {

@@ -8,7 +8,7 @@ test.describe('POI Navigation Investigation', () => {
     await page.waitForTimeout(3000);
 
     console.log('\n=== SEARCHING FOR UI ELEMENTS ===');
-    
+
     // Take screenshot to see current state
     await page.screenshot({ path: 'current-ui-state.png', fullPage: true });
 
@@ -40,8 +40,8 @@ test.describe('POI Navigation Investigation', () => {
     const poiText = await page.evaluate(() => {
       const elements = Array.from(document.querySelectorAll('*'));
       return elements
-        .filter(el => el.textContent?.includes('POI') || 
-                     el.textContent?.includes('Closer') || 
+        .filter(el => el.textContent?.includes('POI') ||
+                     el.textContent?.includes('Closer') ||
                      el.textContent?.includes('Farther') ||
                      el.textContent?.includes('mile') ||
                      el.textContent?.includes('distance'))
@@ -71,7 +71,7 @@ test.describe('POI Navigation Investigation', () => {
       console.log('\n=== FOUND FILTER FAB, CLICKING ===');
       await filterFab.click();
       await page.waitForTimeout(1000);
-      
+
       // Check what appeared after clicking
       const afterFilterClick = await page.evaluate(() => {
         const newElements = Array.from(document.querySelectorAll('button, [role="button"]'));
@@ -81,7 +81,7 @@ test.describe('POI Navigation Investigation', () => {
         })).filter(el => el.visible);
       });
       console.log('Elements after filter click:', JSON.stringify(afterFilterClick, null, 2));
-      
+
       await page.screenshot({ path: 'after-filter-click.png', fullPage: true });
     }
 
@@ -91,12 +91,12 @@ test.describe('POI Navigation Investigation', () => {
       if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
         return 'React DevTools detected';
       }
-      
+
       // Try to find POI state in the window
       if (window.poiState || window.appState) {
         return { poiState: window.poiState, appState: window.appState };
       }
-      
+
       return 'No global state found';
     });
     console.log('\nReact state:', reactState);
@@ -104,7 +104,7 @@ test.describe('POI Navigation Investigation', () => {
     // Final check - look for any distance-related controls
     const distanceControls = await page.locator('text=/\\d+\\s*mi/i').all();
     console.log(`\nFound ${distanceControls.length} elements with distance text`);
-    
+
     for (let i = 0; i < Math.min(distanceControls.length, 3); i++) {
       const text = await distanceControls[i].textContent();
       console.log(`Distance element ${i + 1}: "${text}"`);

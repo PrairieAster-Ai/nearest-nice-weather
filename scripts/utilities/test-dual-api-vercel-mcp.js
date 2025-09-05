@@ -4,17 +4,17 @@
  * ========================================================================
  * DUAL API SYSTEM VERCEL MCP COMPATIBILITY TEST
  * ========================================================================
- * 
+ *
  * @PURPOSE: Verify VercelMCP can handle our dual API architecture
  * @SCOPE: Test deployment and management of both Express.js and Vercel functions
- * 
+ *
  * Tests:
  * - Express.js localhost development server (dev-api-server.js)
- * - Vercel serverless functions (apps/web/api/*.js)  
+ * - Vercel serverless functions (apps/web/api/*.js)
  * - Deployment workflow compatibility
  * - Environment switching validation
  * - API parity verification
- * 
+ *
  * ========================================================================
  */
 
@@ -140,7 +140,7 @@ if (existsSync(mcpConfigPath)) {
       mcpConfig.mcpServers?.vercel !== undefined,
       '@mistertk/vercel-mcp integrated'
     );
-    
+
     const vercelMcp = mcpConfig.mcpServers?.vercel;
     if (vercelMcp) {
       testCheck(
@@ -148,7 +148,7 @@ if (existsSync(mcpConfigPath)) {
         vercelMcp.env?.VERCEL_PROJECT_NAME === 'nearest-nice-weather',
         'Project context configured for dual API system'
       );
-      
+
       testWarning(
         'VercelMCP access token',
         vercelMcp.env?.VERCEL_ACCESS_TOKEN !== 'VERCEL_TOKEN_PLACEHOLDER',

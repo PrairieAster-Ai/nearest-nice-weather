@@ -29,7 +29,7 @@ class WorkItemRelationshipSetter {
 
   async initialize() {
     console.log('🔧 Initializing project and field configuration...\n');
-    
+
     try {
       // Get project and field information
       const projectQuery = `
@@ -88,7 +88,7 @@ class WorkItemRelationshipSetter {
 
   async getAllIssues() {
     console.log('📋 Fetching all repository issues...');
-    
+
     try {
       const issues = await octokit.paginate(octokit.rest.issues.listForRepo, {
         owner: this.owner,
@@ -111,17 +111,17 @@ class WorkItemRelationshipSetter {
     if (issue.title.startsWith('Capability:')) return 'Capability';
     if (issue.title.startsWith('Epic:')) return 'Epic';
     if (issue.title.startsWith('Story:')) return 'Story';
-    
+
     // Fallback to labels
     const labels = issue.labels.map(label => label.name);
     if (labels.includes('type: capability')) return 'Capability';
     if (labels.includes('type: epic')) return 'Epic';
     if (labels.includes('type: story')) return 'Story';
     if (labels.includes('bug')) return 'Bug';
-    
+
     // Test issues or general issues default to Story
     if (issue.title.includes('TEST:') || issue.title.includes('Test')) return 'Story';
-    
+
     // Default fallback
     return 'Story';
   }
@@ -129,7 +129,7 @@ class WorkItemRelationshipSetter {
   isNearestNiceWeatherIssue(issue) {
     const title = issue.title.toLowerCase();
     const body = (issue.body || '').toLowerCase();
-    
+
     // MVP-related keywords
     const mvpKeywords = [
       'capability:', 'epic:', 'story:',
@@ -137,7 +137,7 @@ class WorkItemRelationshipSetter {
       'openweather', 'redis', 'adsense', 'analytics',
       'nearest nice weather', 'mvp', 'production database'
     ];
-    
+
     // Test issues that should be kept (for now)
     if (title.includes('test') && (
       title.includes('project integration') ||
@@ -146,16 +146,16 @@ class WorkItemRelationshipSetter {
     )) {
       return true;
     }
-    
+
     // Check if title or body contains MVP keywords
-    return mvpKeywords.some(keyword => 
+    return mvpKeywords.some(keyword =>
       title.includes(keyword) || body.includes(keyword)
     );
   }
 
   async getProjectItems() {
     console.log('🔍 Fetching project items...');
-    
+
     try {
       const projectItemsQuery = `
         query($projectId: ID!) {
@@ -184,7 +184,7 @@ class WorkItemRelationshipSetter {
 
       const items = projectData.node.items.nodes;
       console.log(`✅ Found ${items.length} items in project\n`);
-      
+
       return items;
 
     } catch (error) {
@@ -234,12 +234,12 @@ class WorkItemRelationshipSetter {
   async processAllIssues() {
     console.log('🚀 PROCESSING ALL ISSUES FOR WORK ITEM TYPE ASSIGNMENT');
     console.log('=====================================================\n');
-    
+
     await this.initialize();
-    
+
     const allIssues = await this.getAllIssues();
     const projectItems = await this.getProjectItems();
-    
+
     // Create a map of issue numbers to project item IDs
     const issueToProjectItemMap = new Map();
     projectItems.forEach(item => {
@@ -260,7 +260,7 @@ class WorkItemRelationshipSetter {
     for (const issue of allIssues) {
       const isProjectIssue = this.isNearestNiceWeatherIssue(issue);
       const projectItemId = issueToProjectItemMap.get(issue.number);
-      
+
       if (!isProjectIssue) {
         console.log(`⏭️  #${issue.number}: "${issue.title}" - Non-project issue`);
         nonProjectCount++;
@@ -318,7 +318,7 @@ class WorkItemRelationshipSetter {
     }
 
     console.log('\n✅ Work Item Type relationship setting complete!');
-    
+
     return {
       processed: processedCount,
       skipped: skippedCount,

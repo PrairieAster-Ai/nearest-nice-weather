@@ -13,14 +13,14 @@
 
 ### 1. Primary POI Discovery API
 
-**Endpoint**: `GET /api/poi-locations-with-weather`  
+**Endpoint**: `GET /api/poi-locations-with-weather`
 **Purpose**: Main frontend API - outdoor recreation discovery with weather integration
 
 #### Request Parameters
 ```javascript
 {
   lat?: number,      // User latitude (optional, enables distance sorting)
-  lng?: number,      // User longitude (optional, enables distance sorting) 
+  lng?: number,      // User longitude (optional, enables distance sorting)
   limit?: number,    // Max results (default: 200)
   filters?: {        // Weather-based filtering (optional)
     temperature: 'cold' | 'mild' | 'hot' | '',
@@ -44,7 +44,7 @@
       "description": "Spectacular waterfalls and Lake Superior hiking",
       "place_rank": 15,
       "distance_miles": 45.2,
-      
+
       // Weather Integration
       "temperature": 72,
       "condition": "sunny",
@@ -72,25 +72,25 @@
 ```javascript
 app.get('/api/poi-locations-with-weather', async (req, res) => {
   const { lat, lng, limit = 200 } = req.query;
-  
+
   // Distance-based query with Haversine formula
-  const distanceClause = lat && lng 
-    ? `(3959 * acos(cos(radians(${lat})) * cos(radians(lat)) * 
-       cos(radians(lng) - radians(${lng})) + sin(radians(${lat})) * 
+  const distanceClause = lat && lng
+    ? `(3959 * acos(cos(radians(${lat})) * cos(radians(lat)) *
+       cos(radians(lng) - radians(${lng})) + sin(radians(${lat})) *
        sin(radians(lat)))) as distance_miles`
     : 'NULL as distance_miles';
 
   const query = `
     SELECT id, name, lat, lng, park_type, description, place_rank,
            ${distanceClause}
-    FROM poi_locations 
+    FROM poi_locations
     WHERE park_type IS NOT NULL
     ${lat && lng ? 'ORDER BY distance_miles ASC' : 'ORDER BY place_rank ASC, name ASC'}
     LIMIT $1
   `;
-  
+
   const result = await pool.query(query, [parseInt(limit)]);
-  
+
   // Enhance with weather data
   const poisWithWeather = await Promise.all(
     result.rows.map(async (poi) => ({
@@ -98,7 +98,7 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       ...(await generateMockWeatherData(poi.lat, poi.lng))
     }))
   );
-  
+
   res.json({ success: true, data: poisWithWeather });
 });
 ```
@@ -107,34 +107,34 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
 ```javascript
 export default async function handler(req, res) {
   const { lat, lng, limit = 200 } = req.query;
-  
-  const distanceSelect = lat && lng 
-    ? sql`(3959 * acos(cos(radians(${parseFloat(lat)})) * cos(radians(lat)) * 
-           cos(radians(lng) - radians(${parseFloat(lng)})) + 
+
+  const distanceSelect = lat && lng
+    ? sql`(3959 * acos(cos(radians(${parseFloat(lat)})) * cos(radians(lat)) *
+           cos(radians(lng) - radians(${parseFloat(lng)})) +
            sin(radians(${parseFloat(lat)})) * sin(radians(lat)))) as distance_miles`
     : sql`NULL as distance_miles`;
 
   const locations = await sql`
     SELECT id, name, lat, lng, park_type, description, place_rank, ${distanceSelect}
-    FROM poi_locations 
+    FROM poi_locations
     WHERE park_type IS NOT NULL
     ORDER BY ${lat && lng ? sql`distance_miles ASC` : sql`place_rank ASC, name ASC`}
     LIMIT ${parseInt(limit)}
   `;
-  
+
   // Weather enhancement identical to dev server
   const poisWithWeather = locations.map(poi => ({
     ...poi,
     ...generateMockWeatherData(poi.lat, poi.lng)
   }));
-  
+
   return res.json({ success: true, data: poisWithWeather });
 }
 ```
 
 ### 2. Basic POI Data API
 
-**Endpoint**: `GET /api/poi-locations`  
+**Endpoint**: `GET /api/poi-locations`
 **Purpose**: POI data without weather enhancement (faster, used for map markers)
 
 #### Response Format
@@ -156,7 +156,7 @@ export default async function handler(req, res) {
 
 ### 3. User Feedback API
 
-**Endpoint**: `POST /api/feedback`  
+**Endpoint**: `POST /api/feedback`
 **Purpose**: Collect user feedback and ratings
 
 #### Request Body
@@ -180,7 +180,7 @@ export default async function handler(req, res) {
 
 ### 4. Health Check API
 
-**Endpoint**: `GET /api/health`  
+**Endpoint**: `GET /api/health`
 **Purpose**: System health monitoring and deployment verification
 
 #### Response Format
@@ -206,7 +206,7 @@ function generateMockWeatherData(lat, lng) {
   // Deterministic weather based on location
   const latSeed = Math.abs(lat * 1000) % 100;
   const lngSeed = Math.abs(lng * 1000) % 100;
-  
+
   return {
     temperature: Math.round(45 + (latSeed + lngSeed) / 2),
     condition: ['sunny', 'cloudy', 'partly-cloudy'][Math.floor(latSeed / 33)],
@@ -222,14 +222,14 @@ function generateMockWeatherData(lat, lng) {
 ```javascript
 function applyWeatherFilters(locations, filters) {
   if (!filters || Object.keys(filters).length === 0) return locations;
-  
+
   let filtered = [...locations];
-  
+
   // Percentile-based temperature filtering
   if (filters.temperature) {
     const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b);
     const tempCount = temps.length;
-    
+
     switch (filters.temperature) {
       case 'cold':
         const coldThreshold = temps[Math.floor(tempCount * 0.4)];
@@ -242,13 +242,13 @@ function applyWeatherFilters(locations, filters) {
       case 'mild':
         const minThreshold = temps[Math.floor(tempCount * 0.1)];
         const maxThreshold = temps[Math.floor(tempCount * 0.9)];
-        filtered = filtered.filter(loc => 
+        filtered = filtered.filter(loc =>
           loc.temperature >= minThreshold && loc.temperature <= maxThreshold
         );
         break;
     }
   }
-  
+
   return filtered;
 }
 ```
@@ -268,7 +268,7 @@ NODE_ENV=development
 # Start both frontend and API
 npm start
 
-# Or start API server only  
+# Or start API server only
 node dev-api-server.js
 
 # Health check
@@ -349,7 +349,7 @@ const limit = parseInt(req.query.limit) || 200;
 ## 🔄 Sync Requirements
 
 **Critical**: When modifying API logic, update BOTH implementations:
-1. Development: `dev-api-server.js` 
+1. Development: `dev-api-server.js`
 2. Production: `apps/web/api/*.js`
 
 Use environment validation script to verify parity:

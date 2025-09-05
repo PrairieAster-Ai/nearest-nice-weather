@@ -24,7 +24,7 @@
         "command": "mcp-github-project-manager",
         "args": [
           "--token", "${GITHUB_TOKEN}",
-          "--owner", "PrairieAster-Ai", 
+          "--owner", "PrairieAster-Ai",
           "--repo", "nearest-nice-weather"
         ],
         "description": "Advanced AI-powered GitHub project management server",
@@ -47,7 +47,7 @@
       "workflows": {
         "sprint_planning": "github-project-manager",
         "issue_management": "github-official",
-        "prd_generation": "github-project-manager", 
+        "prd_generation": "github-project-manager",
         "task_breakdown": "github-project-manager",
         "status_reporting": "github-official"
       }

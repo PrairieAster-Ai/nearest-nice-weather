@@ -60,7 +60,7 @@ gh auth login
 
 2. **Create Core Issues**:
    - Copy `.github/issues/sprint-3-feature.md` → Create GitHub issue
-   - Copy `.github/issues/database-schema-epic.md` → Create GitHub issue  
+   - Copy `.github/issues/database-schema-epic.md` → Create GitHub issue
    - Copy `.github/issues/weather-api-epic.md` → Create GitHub issue
 
 3. **Add to Project**:

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { 
-  Fab, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
+import {
+  Fab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   DialogActions,
   TextField,
   Button,
@@ -48,7 +48,7 @@ export function FeedbackFab() {
     try {
       // Use proxy in all environments
       const apiUrl = '/api/feedback'
-      
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {

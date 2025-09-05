@@ -2,25 +2,25 @@
  * ========================================================================
  * UNIFIED STICKY FOOTER COMPONENT TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Testing for UnifiedStickyFooter component functionality
  * 🔗 COMPONENT: UnifiedStickyFooter - App branding footer with responsive design
  * 📊 COVERAGE: Rendering, responsive styling, accessibility, branding elements
  * ⚙️ FUNCTIONALITY: Footer display, logo rendering, text scaling, positioning
  * 🎯 BUSINESS_IMPACT: Ensures consistent brand presentation across devices
- * 
+ *
  * BUSINESS CONTEXT: Brand identity and recognition
  * - Validates consistent brand presentation
  * - Ensures responsive design across devices
  * - Tests accessibility compliance
  * - Verifies logo and text rendering
- * 
+ *
  * TECHNICAL COVERAGE: Component rendering and styling
  * - Material-UI Box and Typography integration
  * - Responsive breakpoint handling
  * - Logo image loading and display
  * - CSS-in-JS styling verification
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -29,7 +29,7 @@ import { UnifiedStickyFooter } from '../UnifiedStickyFooter'
 
 // Simple logic-based tests for the footer component
 describe('UnifiedStickyFooter Component Logic', () => {
-  
+
   describe('✅ Component Structure', () => {
     it('should have proper component export', () => {
       expect(typeof UnifiedStickyFooter).toBe('function')
@@ -88,7 +88,7 @@ describe('UnifiedStickyFooter Component Logic', () => {
 
       const titleFonts = getResponsiveFontSizes('title')
       expect(titleFonts.xs).toBe('clamp(0.63rem, 2.1vw, 0.77rem)')
-      
+
       const subtitleFonts = getResponsiveFontSizes('subtitle')
       expect(subtitleFonts.xs).toBe('clamp(0.49rem, 1.4vw, 0.56rem)')
     })
@@ -99,7 +99,7 @@ describe('UnifiedStickyFooter Component Logic', () => {
       const FOOTER_Z_INDEX = 1004
       const EXPECTED_MAP_Z_INDEX = 1003
       const EXPECTED_FAB_Z_INDEX = 1000
-      
+
       expect(FOOTER_Z_INDEX).toBeGreaterThan(EXPECTED_MAP_Z_INDEX)
       expect(FOOTER_Z_INDEX).toBeGreaterThan(EXPECTED_FAB_Z_INDEX)
     })
@@ -115,7 +115,7 @@ describe('UnifiedStickyFooter Component Logic', () => {
       // Verify colors are defined and consistent
       expect(brandColors.background).toMatch(/^#[0-9a-f]{6}$/i)
       expect(brandColors.titleText).toMatch(/^#[0-9a-f]{6}$/i)
-      
+
       // Brand purple family consistency
       expect(brandColors.titleText).toBe('#7563A8')
       expect(brandColors.subtitleText).toBe('#7fa4cf')
@@ -129,7 +129,7 @@ describe('UnifiedStickyFooter Component Logic', () => {
 
     it('should configure box shadow with brand colors', () => {
       const boxShadow = '0 -4px 20px rgba(117, 99, 168, 0.15)'
-      
+
       // Should be upward shadow (negative y-offset)
       expect(boxShadow).toContain('0 -4px')
       // Should use brand purple with transparency
@@ -171,7 +171,7 @@ describe('UnifiedStickyFooter Component Logic', () => {
 
       expect(textContent.title).toBe('Nearest Nice Weather')
       expect(textContent.subtitle).toBe('by PrairieAster.Ai')
-      
+
       // Text should not be empty
       expect(textContent.title.length).toBeGreaterThan(0)
       expect(textContent.subtitle.length).toBeGreaterThan(0)
@@ -268,7 +268,7 @@ describe('UnifiedStickyFooter Component Logic', () => {
   describe('📐 Responsive Breakpoints', () => {
     it('should define breakpoints for different screen sizes', () => {
       const breakpoints = ['xs', 'sm', 'md']
-      
+
       breakpoints.forEach(breakpoint => {
         expect(['xs', 'sm', 'md']).toContain(breakpoint)
       })
@@ -278,7 +278,7 @@ describe('UnifiedStickyFooter Component Logic', () => {
       // Mobile (xs) should have smaller dimensions than desktop (md)
       const mobileMinHeight = 32 // px
       const desktopMinHeight = 45 // px
-      
+
       expect(mobileMinHeight).toBeLessThan(desktopMinHeight)
     })
   })
@@ -295,13 +295,13 @@ describe('UnifiedStickyFooter Component Logic', () => {
  * ✅ Accessibility compliance checks
  * ✅ Responsive breakpoint handling
  * ✅ CSS-in-JS styling verification
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Brand identity consistency
  * ✅ Responsive user experience
  * ✅ Visual design standards
  * ✅ Accessibility compliance
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ Component configuration logic
  * ✅ Responsive design patterns

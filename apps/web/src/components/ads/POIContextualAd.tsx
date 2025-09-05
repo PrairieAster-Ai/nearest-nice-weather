@@ -2,17 +2,17 @@
  * ========================================================================
  * POI CONTEXTUAL AD - Location & Weather Aware AdSense Integration
  * ========================================================================
- * 
+ *
  * @BUSINESS_PURPOSE: Contextual ads within POI map markers for maximum relevance
  * @TECHNICAL_APPROACH: Weather + location-aware ad content for outdoor recreation
  * @PRD_REF: PRD-GOOGLE-ADSENSE-181.md
- * 
+ *
  * CONTEXTUAL STRATEGY:
  * - Weather-aware ad content (sunny = outdoor gear, rainy = indoor alternatives)
  * - Location-aware targeting (park type specific ads)
  * - Compact format optimized for popup space constraints
  * - High-value placement in user engagement moment
- * 
+ *
  * ========================================================================
  */
 
@@ -38,7 +38,7 @@ interface POIContextualAdProps {
 
 /**
  * POIContextualAd - Weather and location contextual ad for map markers
- * 
+ *
  * Provides relevant outdoor recreation ads based on current weather
  * conditions and POI characteristics for maximum user value
  */
@@ -54,7 +54,7 @@ export const POIContextualAd: React.FC<POIContextualAdProps> = ({
     const isWindy = parseInt(location.windSpeed) > 15
     const isPark = location.park_type?.toLowerCase().includes('park')
     const isTrail = location.park_type?.toLowerCase().includes('trail')
-    
+
     // Contextual ad suggestions based on conditions
     if (isRainy) {
       return {

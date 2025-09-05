@@ -1,7 +1,7 @@
 /**
  * React Hooks Coverage Test using CommonJS approach
  * Comprehensive testing of custom React hooks with @testing-library/react
- * 
+ *
  * @COVERAGE_TARGET: React hooks functionality
  * @PHASE: Phase 2 - Hook integration with React Testing Library
  */
@@ -66,29 +66,29 @@ describe('React Hooks Coverage - CommonJS', () => {
 
       // Verify useState was called with initial value
       expect(mockUseState).toHaveBeenCalledWith(testValue);
-      
+
       // Verify useEffect was called
       expect(mockUseEffect).toHaveBeenCalled();
-      
+
       // Get the effect callback and deps
       const [effectCallback, effectDeps] = mockUseEffect.mock.calls[0];
       expect(effectDeps).toEqual([testValue, testDelay]);
-      
+
       // Test effect callback behavior
       const mockSetTimeout = jest.spyOn(global, 'setTimeout');
       const mockClearTimeout = jest.spyOn(global, 'clearTimeout');
-      
+
       const cleanup = effectCallback();
-      
+
       // Verify setTimeout was called with correct delay
       expect(mockSetTimeout).toHaveBeenCalledWith(expect.any(Function), testDelay);
-      
+
       // Test cleanup function
       if (typeof cleanup === 'function') {
         cleanup();
         expect(mockClearTimeout).toHaveBeenCalled();
       }
-      
+
       mockSetTimeout.mockRestore();
       mockClearTimeout.mockRestore();
     });
@@ -145,9 +145,9 @@ describe('React Hooks Coverage - CommonJS', () => {
       testCases.forEach(({ value, delay }) => {
         mockUseState.mockClear();
         mockUseEffect.mockClear();
-        
+
         useDebounce(value, delay);
-        
+
         expect(mockUseState).toHaveBeenCalledWith(value);
         expect(mockUseEffect).toHaveBeenCalledWith(
           expect.any(Function),
@@ -170,7 +170,7 @@ describe('React Hooks Coverage - CommonJS', () => {
           return stored ? JSON.parse(stored) : defaultValue;
         };
         const initialValue = initializer();
-        
+
         const [state, setState] = mockUseState(initialValue);
 
         const setValue = (value) => {
@@ -183,15 +183,15 @@ describe('React Hooks Coverage - CommonJS', () => {
 
       // Test the hook
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify('stored value'));
-      
+
       const [value, setValue] = useLocalStorageState('testKey', 'default');
-      
+
       // Verify localStorage.getItem was called
       expect(mockLocalStorage.getItem).toHaveBeenCalledWith('testKey');
-      
+
       // Verify useState was called with the initial value
       expect(mockUseState).toHaveBeenCalledWith('stored value');
-      
+
       // Test setValue function
       setValue('new value');
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith('testKey', '"new value"');
@@ -200,7 +200,7 @@ describe('React Hooks Coverage - CommonJS', () => {
     test('should test async data fetching hook pattern', () => {
       // Mock fetch API
       global.fetch = jest.fn();
-      
+
       const useFetchData = (url) => {
         const [data, setData] = mockUseState(null);
         const [loading, setLoading] = mockUseState(false);
@@ -211,7 +211,7 @@ describe('React Hooks Coverage - CommonJS', () => {
 
           setLoading(true);
           setError(null);
-          
+
           fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -256,11 +256,11 @@ describe('React Hooks Coverage - CommonJS', () => {
 
         const validate = (fieldValues = values) => {
           const tempErrors = {};
-          
+
           Object.keys(validationRules).forEach(field => {
             const rule = validationRules[field];
             const value = fieldValues[field];
-            
+
             if (rule.required && !value) {
               tempErrors[field] = `${field} is required`;
             } else if (rule.minLength && value && value.length < rule.minLength) {
@@ -312,7 +312,7 @@ describe('React Hooks Coverage - CommonJS', () => {
 
         mockUseEffect(() => {
           // Simple dependency comparison (in real useMemo this is optimized)
-          const depsChanged = !lastDeps || 
+          const depsChanged = !lastDeps ||
             dependencies.length !== lastDeps.length ||
             dependencies.some((dep, index) => dep !== lastDeps[index]);
 
@@ -350,7 +350,7 @@ describe('React Hooks Coverage - CommonJS', () => {
         const [lastDeps, setLastDeps] = mockUseState(null);
 
         mockUseEffect(() => {
-          const depsChanged = !lastDeps || 
+          const depsChanged = !lastDeps ||
             dependencies.length !== lastDeps.length ||
             dependencies.some((dep, index) => dep !== lastDeps[index]);
 
@@ -373,7 +373,7 @@ describe('React Hooks Coverage - CommonJS', () => {
         expect.any(Function),
         testDeps
       );
-      
+
       // Result should be the callback or cached version
       expect(typeof result).toBe('function');
     });
@@ -384,7 +384,7 @@ describe('React Hooks Coverage - CommonJS', () => {
       const useWindowEvent = (eventType, handler) => {
         mockUseEffect(() => {
           window.addEventListener(eventType, handler);
-          
+
           return () => {
             window.removeEventListener(eventType, handler);
           };
@@ -408,7 +408,7 @@ describe('React Hooks Coverage - CommonJS', () => {
       const cleanup = effectCallback();
 
       expect(mockAddEventListener).toHaveBeenCalledWith('resize', mockHandler);
-      
+
       if (typeof cleanup === 'function') {
         cleanup();
         expect(mockRemoveEventListener).toHaveBeenCalledWith('resize', mockHandler);
@@ -428,7 +428,7 @@ describe('React Hooks Coverage - CommonJS', () => {
           };
 
           document.addEventListener('keydown', handleKeyPress);
-          
+
           return () => {
             document.removeEventListener('keydown', handleKeyPress);
           };

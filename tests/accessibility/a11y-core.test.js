@@ -10,7 +10,7 @@ test.describe('Accessibility Core Compliance', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3001');
     await injectAxe(page);
-    
+
     // Configure axe for our testing needs
     await configureAxe(page, {
       rules: {
@@ -28,7 +28,7 @@ test.describe('Accessibility Core Compliance', () => {
 
   test('should pass basic WCAG 2.1 AA compliance', async ({ page }) => {
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     await checkA11y(page, null, {
       detailedReport: true,
       detailedReportOptions: { html: true }
@@ -37,11 +37,11 @@ test.describe('Accessibility Core Compliance', () => {
 
   test('should have proper heading hierarchy', async ({ page }) => {
     const headings = await page.locator('h1, h2, h3, h4, h5, h6').allTextContents();
-    
+
     // Should have at least one h1
     const h1Count = await page.locator('h1').count();
     expect(h1Count).toBeGreaterThanOrEqual(1);
-    
+
     // Verify logical heading order (basic check)
     if (headings.length > 0) {
       const firstHeading = await page.locator('h1, h2, h3, h4, h5, h6').first();
@@ -54,15 +54,15 @@ test.describe('Accessibility Core Compliance', () => {
     // Check filter controls
     const filterButtons = page.locator('[data-testid*="filter"]');
     const filterCount = await filterButtons.count();
-    
+
     for (let i = 0; i < filterCount; i++) {
       const button = filterButtons.nth(i);
-      
+
       // Should have accessible name
       const ariaLabel = await button.getAttribute('aria-label');
       const textContent = await button.textContent();
       expect(ariaLabel || textContent).toBeTruthy();
-      
+
       // Should be keyboard accessible
       await button.focus();
       const isFocused = await button.evaluate(el => document.activeElement === el);
@@ -72,7 +72,7 @@ test.describe('Accessibility Core Compliance', () => {
 
   test('should provide keyboard navigation', async ({ page }) => {
     await page.keyboard.press('Tab');
-    
+
     // First focusable element should receive focus
     const activeElement = await page.evaluate(() => {
       return {
@@ -81,17 +81,17 @@ test.describe('Accessibility Core Compliance', () => {
         ariaLabel: document.activeElement?.getAttribute('aria-label')
       };
     });
-    
+
     expect(activeElement.tagName).toBeTruthy();
-    
+
     // Should be able to navigate through focusable elements
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
-    
+
     const secondActiveElement = await page.evaluate(() => {
       return document.activeElement?.tagName;
     });
-    
+
     expect(secondActiveElement).toBeTruthy();
   });
 
@@ -102,11 +102,11 @@ test.describe('Accessibility Core Compliance', () => {
       'body',
       '.leaflet-control'
     ];
-    
+
     for (const selector of elementsToTest) {
       const element = page.locator(selector).first();
       const elementCount = await element.count();
-      
+
       if (elementCount > 0) {
         await checkA11y(page, selector, {
           rules: {
@@ -119,28 +119,28 @@ test.describe('Accessibility Core Compliance', () => {
 
   test('should have accessible map interface', async ({ page }) => {
     const mapContainer = page.locator('[data-testid="map-container"]');
-    
+
     // Map should have proper ARIA attributes
     const ariaLabel = await mapContainer.getAttribute('aria-label');
     const role = await mapContainer.getAttribute('role');
-    
+
     expect(ariaLabel || role).toBeTruthy();
-    
+
     // Map should be keyboard accessible
     await mapContainer.focus();
     const isFocusable = await mapContainer.evaluate(el => {
       return el.tabIndex >= 0 || el.getAttribute('tabindex') !== null;
     });
-    
+
     expect(isFocusable).toBe(true);
   });
 
   test('should support screen readers with ARIA landmarks', async ({ page }) => {
     const landmarks = await page.locator('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], main, nav, header, footer').count();
-    
+
     // Should have at least a main landmark
     expect(landmarks).toBeGreaterThan(0);
-    
+
     // Check for main content area
     const mainContent = await page.locator('[role="main"], main').count();
     expect(mainContent).toBeGreaterThanOrEqual(1);
@@ -150,17 +150,17 @@ test.describe('Accessibility Core Compliance', () => {
     // Click a filter to trigger dynamic content
     const filterButton = page.locator('[data-testid*="filter"]').first();
     const filterCount = await filterButton.count();
-    
+
     if (filterCount > 0) {
       await filterButton.click();
-      
+
       // Focus should be managed appropriately
       const activeElement = await page.evaluate(() => {
         return document.activeElement?.tagName;
       });
-      
+
       expect(activeElement).toBeTruthy();
-      
+
       // Should be able to close with keyboard
       await page.keyboard.press('Escape');
     }
@@ -169,13 +169,13 @@ test.describe('Accessibility Core Compliance', () => {
   test('should provide alternative text for images', async ({ page }) => {
     const images = page.locator('img');
     const imageCount = await images.count();
-    
+
     for (let i = 0; i < imageCount; i++) {
       const img = images.nth(i);
       const alt = await img.getAttribute('alt');
       const ariaLabel = await img.getAttribute('aria-label');
       const role = await img.getAttribute('role');
-      
+
       // Images should have alt text or be marked as decorative
       if (role !== 'presentation' && !alt?.includes('decorative')) {
         expect(alt || ariaLabel).toBeTruthy();
@@ -187,18 +187,18 @@ test.describe('Accessibility Core Compliance', () => {
     // Simulate reduced motion preference
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.reload();
-    
+
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     // Basic functionality should still work
     await expect(page.locator('[data-testid="map-container"]')).toBeVisible();
-    
+
     // Animations should be reduced or disabled
     const animationDuration = await page.evaluate(() => {
       const style = getComputedStyle(document.body);
       return style.getPropertyValue('animation-duration');
     });
-    
+
     // Many frameworks set animation-duration to 0.01ms when reduced motion is preferred
     expect(['0s', '0.01ms', '']).toContain(animationDuration);
   });

@@ -8,7 +8,7 @@ const path = require('path');
 function updateHealthCheck() {
   const healthData = {
     timestamp: new Date().toISOString(),
-    status: "healthy", 
+    status: "healthy",
     version: process.env.VERCEL_GIT_COMMIT_SHA || "local",
     buildInfo: {
       buildTarget: "es2020", // Updated to match vite.config.ts
@@ -22,7 +22,7 @@ function updateHealthCheck() {
         message: "Application running"
       },
       api: {
-        status: "ok", 
+        status: "ok",
         message: "Dev API server available"
       }
     }
@@ -31,7 +31,7 @@ function updateHealthCheck() {
   // Write to public directory for static serving
   const publicDir = path.join(__dirname, '..', 'public');
   const healthPath = path.join(publicDir, 'health.json');
-  
+
   fs.writeFileSync(healthPath, JSON.stringify(healthData, null, 2));
   console.log('Health check updated:', healthPath);
 }

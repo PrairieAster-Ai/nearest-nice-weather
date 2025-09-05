@@ -14,7 +14,7 @@ This runbook provides systematic procedures for diagnosing and fixing blank scre
 
 ### 1. Preview Domain Alias Mismatch (Most Common)
 **Problem**: Preview domain `p.nearestniceweather.com` points to wrong deployment
-**Symptoms**: 
+**Symptoms**:
 - Build timestamp shows `local-` prefix
 - Deployment ID doesn't match recent deployment
 - Direct deployment URL works but aliased domain doesn't

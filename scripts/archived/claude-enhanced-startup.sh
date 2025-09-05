@@ -17,7 +17,7 @@ log_claude_context() {
     local event="$1"
     local message="$2"
     local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    
+
     echo "[$timestamp] [$event] $message" | tee -a /tmp/claude-logs/startup.log
 }
 
@@ -85,7 +85,7 @@ cat > "$CONTEXT_FILE" << EOF
       "healthy": $([ "$API_STATUS" = "200" ] && echo "true" || echo "false")
     },
     "frontendServer": {
-      "status": "$FRONTEND_STATUS", 
+      "status": "$FRONTEND_STATUS",
       "url": "http://localhost:3001",
       "healthy": $([ "$FRONTEND_STATUS" = "200" ] && echo "true" || echo "false")
     },

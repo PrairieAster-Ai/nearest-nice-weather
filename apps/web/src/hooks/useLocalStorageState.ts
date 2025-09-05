@@ -1,18 +1,18 @@
 /**
  * PERSISTENT USER PREFERENCES HOOK - LOCAL STORAGE STATE MANAGEMENT
- * 
+ *
  * PURPOSE: Remember user's weather filter and location preferences across sessions
  * - Saves filter settings (temperature, precipitation, wind preferences)
  * - Preserves user location to avoid repeated location prompts
  * - Enhances UX by maintaining user's preferred settings
  * - Critical for outdoor recreation app where users have specific weather preferences
- * 
+ *
  * BUSINESS CONTEXT: Core to user retention and engagement
  * - Eliminates need to reconfigure filters on each visit
  * - Maintains location context for personalized recommendations
  * - Supports "instant gratification" by loading preferred state immediately
  * - Essential for repeat users who develop specific weather/location preferences
- * 
+ *
  * TECHNICAL IMPLEMENTATION:
  * - Syncs React state with localStorage automatically
  * - Handles JSON serialization/deserialization safely
@@ -23,12 +23,12 @@
 import { useState, useEffect, useCallback } from 'react';
 
 // 🔗 INTEGRATION: Used by LocationManager.tsx for user location persistence
-// 🔗 INTEGRATION: Used by FilterManager.tsx for weather preference persistence  
+// 🔗 INTEGRATION: Used by FilterManager.tsx for weather preference persistence
 // 🔗 INTEGRATION: Used by App.tsx for map view state persistence
 // 🔗 SEE ALSO: All components rely on this for cross-session state management
 
 export function useLocalStorageState<T>(
-  key: string, 
+  key: string,
   defaultValue: T
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
   // Initialize state with value from localStorage or default
@@ -82,15 +82,15 @@ export function useLocalStorageState<T>(
 export const STORAGE_KEYS = {
   // Weather filter preferences
   WEATHER_FILTERS: 'nearestNiceWeather_filters',
-  
+
   // User location data
   USER_LOCATION: 'nearestNiceWeather_userLocation',
   LOCATION_METHOD: 'nearestNiceWeather_locationMethod', // 'geolocation', 'ip', 'manual'
-  
+
   // UI preferences
   MAP_VIEW: 'nearestNiceWeather_mapView', // center and zoom
   LAST_VISIT: 'nearestNiceWeather_lastVisit',
-  
+
   // Feature preferences
   SHOW_LOCATION_PROMPT: 'nearestNiceWeather_showLocationPrompt',
 } as const;
@@ -118,7 +118,7 @@ export function useWeatherFiltersStorage() {
 // User location with null default (requires user input)
 export function useUserLocationStorage() {
   return useLocalStorageState<[number, number] | null>(
-    STORAGE_KEYS.USER_LOCATION, 
+    STORAGE_KEYS.USER_LOCATION,
     null // Start null to trigger location detection
   );
 }
@@ -141,7 +141,7 @@ export type LocationMethod = 'geolocation' | 'ip' | 'manual' | 'none';
 
 export function useLocationMethodStorage() {
   return useLocalStorageState<LocationMethod>(
-    STORAGE_KEYS.LOCATION_METHOD, 
+    STORAGE_KEYS.LOCATION_METHOD,
     'none'
   );
 }
@@ -149,7 +149,7 @@ export function useLocationMethodStorage() {
 // UI state preferences
 export function useShowLocationPromptStorage() {
   return useLocalStorageState<boolean>(
-    STORAGE_KEYS.SHOW_LOCATION_PROMPT, 
+    STORAGE_KEYS.SHOW_LOCATION_PROMPT,
     true // Show prompt by default for new users
   );
 }
@@ -157,7 +157,7 @@ export function useShowLocationPromptStorage() {
 // Last visit tracking for analytics and user experience
 export function useLastVisitStorage() {
   return useLocalStorageState<string | null>(
-    STORAGE_KEYS.LAST_VISIT, 
+    STORAGE_KEYS.LAST_VISIT,
     null
   );
 }

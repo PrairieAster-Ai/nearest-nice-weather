@@ -41,7 +41,7 @@ curl -s "https://p.nearestniceweather.com/api/poi-locations?limit=3" | jq '.'
 
 **Key Differences:**
 - **Query Parameters:** `$1, $2` vs template literals
-- **Type Coercion:** pg returns strings, neon may return numbers  
+- **Type Coercion:** pg returns strings, neon may return numbers
 - **Connection Handling:** Pooling vs serverless connections
 - **Error Messages:** Different stack traces and error objects
 
@@ -80,7 +80,7 @@ const standardResponse = {
 
 **Current Duplications:**
 1. `dev-api-server.js` weather-locations endpoint
-2. `dev-api-server.js` poi-locations endpoint  
+2. `dev-api-server.js` poi-locations endpoint
 3. `apps/web/api/weather-locations.js`
 4. `apps/web/api/poi-locations.js`
 
@@ -96,8 +96,8 @@ export class GeographyUtils {
   static getDistanceQuery(userLng: number, userLat: number): string {
     return `
       (3959 * acos(
-        cos(radians(${userLat})) * cos(radians(lat)) * 
-        cos(radians(lng) - radians(${userLng})) + 
+        cos(radians(${userLat})) * cos(radians(lat)) *
+        cos(radians(lng) - radians(${userLng})) +
         sin(radians(${userLat})) * sin(radians(lat))
       )) as distance_miles
     `
@@ -114,13 +114,13 @@ export class GeographyUtils {
 ```bash
 # Comprehensive multi-environment validation
 ./scripts/environment-validation.sh localhost
-./scripts/environment-validation.sh preview  
+./scripts/environment-validation.sh preview
 ./scripts/environment-validation.sh production
 
 # Exit codes:
 # 0 = success
 # 1 = API issues
-# 2 = frontend issues  
+# 2 = frontend issues
 # 3 = both
 ```
 
@@ -143,7 +143,7 @@ const locations = result.rows.map(row => ({
   id: row.id.toString(),              // Ensure string ID
   name: row.name,                     // String (consistent)
   lat: parseFloat(row.lat),           // Ensure number
-  lng: parseFloat(row.lng),           // Ensure number  
+  lng: parseFloat(row.lng),           // Ensure number
   temperature: parseInt(row.temperature || 70), // Ensure integer with fallback
   precipitation: parseInt(row.precipitation || 15), // Ensure integer with fallback
   windSpeed: parseInt(row.wind_speed || 8)     // Ensure integer with fallback
@@ -230,16 +230,16 @@ npm update
    ```bash
    # Update localhost implementation first
    # Edit dev-api-server.js
-   
+
    # Test localhost thoroughly
    curl -s "http://localhost:4000/api/[endpoint]" | jq '.'
-   
+
    # Update Vercel implementation with identical logic
    # Edit apps/web/api/[endpoint].js
-   
+
    # Deploy to preview
    npm run deploy:preview
-   
+
    # Test preview environment
    curl -s "https://p.nearestniceweather.com/api/[endpoint]" | jq '.'
    ```
@@ -249,7 +249,7 @@ npm update
    # Run comprehensive validation
    ./scripts/environment-validation.sh localhost
    ./scripts/environment-validation.sh preview
-   
+
    # Compare response formats
    diff <(curl -s "localhost:4000/api/endpoint" | jq 'del(.timestamp)') \
         <(curl -s "p.nearestniceweather.com/api/endpoint" | jq 'del(.timestamp)')
@@ -259,7 +259,7 @@ npm update
    ```bash
    # Only deploy to production after preview validation passes
    npm run deploy:production
-   
+
    # Validate production immediately
    ./scripts/environment-validation.sh production
    ```
@@ -317,7 +317,7 @@ fi
 
 **Factors Increasing Risk:**
 - 4+ endpoints with complete duplication
-- Complex mathematical formulas duplicated  
+- Complex mathematical formulas duplicated
 - Database driver differences requiring careful sync
 - Schema changes require coordinated deployment
 

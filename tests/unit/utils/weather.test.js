@@ -7,7 +7,7 @@
 function filterPOIsByWeather(pois, filters) {
   if (!pois || !Array.isArray(pois)) return [];
   if (!filters) return pois;
-  
+
   return pois.filter(poi => {
     if (filters && filters.temperature) {
       const temp = poi.temperature;
@@ -23,7 +23,7 @@ function filterPOIsByWeather(pois, filters) {
           break;
       }
     }
-    
+
     if (filters.precipitation) {
       const precip = poi.precipitation;
       switch (filters.precipitation) {
@@ -38,7 +38,7 @@ function filterPOIsByWeather(pois, filters) {
           break;
       }
     }
-    
+
     if (filters.wind) {
       const wind = poi.windSpeed;
       switch (filters.wind) {
@@ -53,7 +53,7 @@ function filterPOIsByWeather(pois, filters) {
           break;
       }
     }
-    
+
     return true;
   });
 }
@@ -61,13 +61,13 @@ function filterPOIsByWeather(pois, filters) {
 function getWeatherDescription(temperature, condition, precipitation) {
   const temp = temperature || 70;
   const precip = precipitation || 0;
-  
+
   let description = `${temp}°F, ${condition || 'Clear'}`;
-  
+
   if (precip > 0) {
     description += `, ${precip}% chance of precipitation`;
   }
-  
+
   return description;
 }
 
@@ -84,7 +84,7 @@ describe('Weather Utilities', () => {
       const coldFiltered = filterPOIsByWeather(mockPOIs, { temperature: 'cold' });
       expect(coldFiltered).toHaveLength(1);
       expect(coldFiltered[0].name).toBe('Cold Park');
-      
+
       const hotFiltered = filterPOIsByWeather(mockPOIs, { temperature: 'hot' });
       expect(hotFiltered).toHaveLength(1);
       expect(hotFiltered[0].name).toBe('Hot Park');
@@ -93,7 +93,7 @@ describe('Weather Utilities', () => {
     test('should filter POIs by precipitation preference', () => {
       const noneFiltered = filterPOIsByWeather(mockPOIs, { precipitation: 'none' });
       expect(noneFiltered).toHaveLength(3); // 3 POIs with <= 20% precipitation
-      
+
       const heavyFiltered = filterPOIsByWeather(mockPOIs, { precipitation: 'heavy' });
       expect(heavyFiltered).toHaveLength(1);
       expect(heavyFiltered[0].name).toBe('Rainy Park');
@@ -102,7 +102,7 @@ describe('Weather Utilities', () => {
     test('should filter POIs by wind preference', () => {
       const calmFiltered = filterPOIsByWeather(mockPOIs, { wind: 'calm' });
       expect(calmFiltered).toHaveLength(2); // 2 POIs with <= 10 mph wind
-      
+
       const windyFiltered = filterPOIsByWeather(mockPOIs, { wind: 'windy' });
       expect(windyFiltered).toHaveLength(1);
       expect(windyFiltered[0].name).toBe('Rainy Park');

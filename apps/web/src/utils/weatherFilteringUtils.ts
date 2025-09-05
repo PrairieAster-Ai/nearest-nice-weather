@@ -2,25 +2,25 @@
  * ========================================================================
  * WEATHER FILTERING UTILITIES - EXTRACTED PURE FUNCTIONS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Pure functions extracted from WeatherFilteringService for testability
  * 🔗 EXTRACTED_FROM: services/WeatherFilteringService.ts - Weather filtering service
  * 📊 COVERAGE: Weather filtering algorithms, distance calculations, percentile calculations
  * ⚙️ FUNCTIONALITY: Geographic and weather-based filtering for outdoor recreation
  * 🎯 BUSINESS_IMPACT: Ensures accurate weather filtering for optimal outdoor activity discovery
- * 
+ *
  * BUSINESS CONTEXT: Weather filtering for Minnesota outdoor enthusiasts
  * - Calculates percentile-based weather thresholds for relative filtering
  * - Provides distance-based filtering for geographic constraints
  * - Enables intelligent location sorting and filtering for outdoor activities
  * - Supports badge count calculations for UI feedback
- * 
+ *
  * TECHNICAL DETAILS: Pure functions for weather and geographic filtering
  * - Haversine formula for accurate distance calculations
  * - Percentile-based thresholds for relative weather classification
  * - Distance sorting and filtering algorithms
  * - Weather threshold calculations for cold/mild/hot classification
- * 
+ *
  * EXTRACTED FROM: WeatherFilteringService class to improve testability and maintainability
  * @CLAUDE_CONTEXT: Pure function extraction for comprehensive weather filtering testing
  */
@@ -34,13 +34,13 @@ export const WEATHER_PERCENTILES = {
   HOT_THRESHOLD: 0.6,      // Hottest 40% (starting from 60th percentile)
   MILD_MIN: 0.1,          // Exclude extreme 10% cold
   MILD_MAX: 0.9,          // Exclude extreme 10% hot
-  
+
   // Precipitation filtering percentiles
   DRY_THRESHOLD: 0.6,      // Driest 60%
   LIGHT_MIN: 0.2,         // Light rain range 20th-70th percentile
   LIGHT_MAX: 0.7,
   HEAVY_THRESHOLD: 0.7,    // Wettest 30%
-  
+
   // Wind filtering percentiles
   CALM_THRESHOLD: 0.5,     // Calmest 50%
   BREEZY_MIN: 0.3,        // Breezy range 30th-70th percentile
@@ -103,16 +103,16 @@ export interface WindThresholds {
 export function calculateDistance(point1: Coordinates, point2: Coordinates): number {
   const [lat1, lng1] = point1;
   const [lat2, lng2] = point2;
-  
+
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
-  
+
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
             Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  
+
   return EARTH_RADIUS_MILES * c;
 }
 
@@ -125,10 +125,10 @@ export function calculateTemperatureThresholds(locations: Location[]): WeatherTh
   if (locations.length === 0) {
     return { cold: 0, hot: 100, mildMin: 0, mildMax: 100 };
   }
-  
+
   const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b);
   const tempCount = temps.length;
-  
+
   return {
     cold: temps[Math.floor(tempCount * WEATHER_PERCENTILES.COLD_THRESHOLD)],
     hot: temps[Math.floor(tempCount * WEATHER_PERCENTILES.HOT_THRESHOLD)],
@@ -146,10 +146,10 @@ export function calculatePrecipitationThresholds(locations: Location[]): Precipi
   if (locations.length === 0) {
     return { dry: 0, lightMin: 0, lightMax: 0, heavy: 0 };
   }
-  
+
   const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b);
   const precipCount = precips.length;
-  
+
   return {
     dry: precips[Math.floor(precipCount * WEATHER_PERCENTILES.DRY_THRESHOLD)],
     lightMin: precips[Math.floor(precipCount * WEATHER_PERCENTILES.LIGHT_MIN)],
@@ -167,10 +167,10 @@ export function calculateWindThresholds(locations: Location[]): WindThresholds {
   if (locations.length === 0) {
     return { calm: 0, breezyMin: 0, breezyMax: 0, windy: 0 };
   }
-  
+
   const winds = locations.map(loc => loc.windSpeed).sort((a, b) => a - b);
   const windCount = winds.length;
-  
+
   return {
     calm: winds[Math.floor(windCount * WEATHER_PERCENTILES.CALM_THRESHOLD)],
     breezyMin: winds[Math.floor(windCount * WEATHER_PERCENTILES.BREEZY_MIN)],
@@ -194,14 +194,14 @@ export function applyTemperatureFilter(
   if (!temperatureFilter || temperatureFilter.length === 0) {
     return locations;
   }
-  
+
   switch (temperatureFilter) {
     case 'cold':
       return locations.filter(loc => loc.temperature <= thresholds.cold);
     case 'hot':
       return locations.filter(loc => loc.temperature >= thresholds.hot);
     case 'mild':
-      return locations.filter(loc => 
+      return locations.filter(loc =>
         loc.temperature >= thresholds.mildMin && loc.temperature <= thresholds.mildMax
       );
     default:
@@ -224,12 +224,12 @@ export function applyPrecipitationFilter(
   if (!precipitationFilter || precipitationFilter.length === 0) {
     return locations;
   }
-  
+
   switch (precipitationFilter) {
     case 'none':
       return locations.filter(loc => loc.precipitation <= thresholds.dry);
     case 'light':
-      return locations.filter(loc => 
+      return locations.filter(loc =>
         loc.precipitation >= thresholds.lightMin && loc.precipitation <= thresholds.lightMax
       );
     case 'heavy':
@@ -254,12 +254,12 @@ export function applyWindFilter(
   if (!windFilter || windFilter.length === 0) {
     return locations;
   }
-  
+
   switch (windFilter) {
     case 'calm':
       return locations.filter(loc => loc.windSpeed <= thresholds.calm);
     case 'breezy':
-      return locations.filter(loc => 
+      return locations.filter(loc =>
         loc.windSpeed >= thresholds.breezyMin && loc.windSpeed <= thresholds.breezyMax
       );
     case 'windy':
@@ -321,24 +321,24 @@ export function applyWeatherFilters(
   maxDistance?: number
 ): Location[] {
   if (locations.length === 0) return [];
-  
+
   let filtered = [...locations];
-  
+
   // Apply distance filtering if specified
   if (maxDistance && userLocation) {
     filtered = filterByDistance(filtered, userLocation, maxDistance);
   }
-  
+
   // Calculate thresholds from all locations for consistency
   const tempThresholds = calculateTemperatureThresholds(allLocations);
   const precipThresholds = calculatePrecipitationThresholds(allLocations);
   const windThresholds = calculateWindThresholds(allLocations);
-  
+
   // Apply weather filters
   filtered = applyTemperatureFilter(filtered, tempThresholds, filters.temperature);
   filtered = applyPrecipitationFilter(filtered, precipThresholds, filters.precipitation);
   filtered = applyWindFilter(filtered, windThresholds, filters.wind);
-  
+
   return filtered;
 }
 
@@ -349,19 +349,19 @@ export function applyWeatherFilters(
  */
 export function calculateFilterResultCounts(visiblePOIs: Location[]): FilterCounts {
   if (!visiblePOIs || visiblePOIs.length === 0) return {};
-  
+
   // Simplified approach: return current visible POI count for all options
   // This prevents expensive recalculations and potential infinite loops
   const count = visiblePOIs.length;
   const counts: FilterCounts = {};
-  
+
   const filterOptions = ['cold', 'mild', 'hot', 'none', 'light', 'heavy', 'calm', 'breezy', 'windy'];
   filterOptions.forEach(option => {
     counts[`temperature_${option}`] = count;
     counts[`precipitation_${option}`] = count;
     counts[`wind_${option}`] = count;
   });
-  
+
   return counts;
 }
 
@@ -374,24 +374,24 @@ export function isValidCoordinates(coordinates: Coordinates | null): boolean {
   if (!coordinates || coordinates.length !== 2) {
     return false;
   }
-  
+
   const [lat, lng] = coordinates;
-  
+
   // Check for NaN or Infinity
   if (!isFinite(lat) || !isFinite(lng)) {
     return false;
   }
-  
+
   // Valid latitude: -90 to 90
   if (lat < -90 || lat > 90) {
     return false;
   }
-  
+
   // Valid longitude: -180 to 180
   if (lng < -180 || lng > 180) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -404,9 +404,9 @@ export function isWithinMinnesotaBounds(coordinates: Coordinates): boolean {
   if (!isValidCoordinates(coordinates)) {
     return false;
   }
-  
+
   const [lat, lng] = coordinates;
-  
+
   // Minnesota bounds (with some buffer)
   const MINNESOTA_BOUNDS = {
     north: 49.5,   // Canadian border
@@ -414,10 +414,10 @@ export function isWithinMinnesotaBounds(coordinates: Coordinates): boolean {
     east: -89.0,   // Wisconsin border
     west: -97.5    // Dakotas border
   };
-  
-  return lat >= MINNESOTA_BOUNDS.south && 
-         lat <= MINNESOTA_BOUNDS.north && 
-         lng >= MINNESOTA_BOUNDS.west && 
+
+  return lat >= MINNESOTA_BOUNDS.south &&
+         lat <= MINNESOTA_BOUNDS.north &&
+         lng >= MINNESOTA_BOUNDS.west &&
          lng <= MINNESOTA_BOUNDS.east;
 }
 
@@ -432,11 +432,11 @@ export function getClosestLocation(
   userLocation: Coordinates
 ): Location | null {
   if (locations.length === 0) return null;
-  
+
   return locations.reduce((closest, current) => {
     const currentDistance = calculateDistance(userLocation, [current.lat, current.lng]);
     const closestDistance = calculateDistance(userLocation, [closest.lat, closest.lng]);
-    
+
     return currentDistance < closestDistance ? current : closest;
   });
 }
@@ -466,16 +466,16 @@ export function calculateLocationStats(
       farthestDistance: 0
     };
   }
-  
-  const distances = locations.map(loc => 
+
+  const distances = locations.map(loc =>
     calculateDistance(userLocation, [loc.lat, loc.lng])
   ).sort((a, b) => a - b);
-  
+
   const averageDistance = distances.reduce((sum, dist) => sum + dist, 0) / distances.length;
   const medianDistance = distances.length % 2 === 0
     ? (distances[distances.length / 2 - 1] + distances[distances.length / 2]) / 2
     : distances[Math.floor(distances.length / 2)];
-  
+
   return {
     count: locations.length,
     averageDistance,

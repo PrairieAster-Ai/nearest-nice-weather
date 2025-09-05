@@ -18,38 +18,38 @@ class IssueTemplateVerification {
   async verifyTemplates() {
     console.log('✅ GITHUB ISSUE TEMPLATES VERIFICATION');
     console.log('======================================\n');
-    
+
     console.log(`📁 Template Directory: ${this.templateDir}\n`);
-    
+
     try {
       // Check if template directory exists
       if (!fs.existsSync(this.templateDir)) {
         console.log('❌ Template directory not found!');
         return;
       }
-      
+
       // List all files in template directory
       const files = fs.readdirSync(this.templateDir);
       console.log(`📋 Files found: ${files.join(', ')}\n`);
-      
+
       // Verify each expected template
       let allTemplatesValid = true;
-      
+
       for (const templateFile of this.expectedTemplates) {
         const templatePath = path.join(this.templateDir, templateFile);
-        
+
         if (!fs.existsSync(templatePath)) {
           console.log(`❌ Missing template: ${templateFile}`);
           allTemplatesValid = false;
           continue;
         }
-        
+
         console.log(`✅ Found: ${templateFile}`);
-        
+
         // Parse and validate YAML structure
         try {
           const content = fs.readFileSync(templatePath, 'utf8');
-          
+
           if (templateFile === 'config.yml') {
             // Validate config file
             const config = yaml.load(content);
@@ -59,23 +59,23 @@ class IssueTemplateVerification {
             const template = yaml.load(content);
             this.validateIssueTemplate(template, templateFile);
           }
-          
+
         } catch (error) {
           console.log(`  ❌ YAML parsing error in ${templateFile}: ${error.message}`);
           allTemplatesValid = false;
         }
       }
-      
+
       // Check for old templates that should be removed
-      const oldTemplates = files.filter(file => 
+      const oldTemplates = files.filter(file =>
         file.endsWith('.md') && !['README.md'].includes(file)
       );
-      
+
       if (oldTemplates.length > 0) {
         console.log(`\n⚠️  Old templates still present: ${oldTemplates.join(', ')}`);
         console.log('   Consider removing these if they\'re no longer needed.');
       }
-      
+
       // Generate summary
       console.log('\n🎯 **VERIFICATION SUMMARY**:');
       if (allTemplatesValid) {
@@ -86,41 +86,41 @@ class IssueTemplateVerification {
       } else {
         console.log('❌ Some templates have issues - review the errors above');
       }
-      
+
       console.log('\n🔗 **Test the templates**: Create a new issue in the repository to see the updated selection dialog');
       console.log('📋 **Expected types**: Story, Epic, Capability (instead of Bug, Feature, Task)');
-      
+
     } catch (error) {
       console.error('❌ Error verifying templates:', error.message);
     }
   }
-  
+
   validateConfigFile(config, filename) {
     console.log(`  📋 Config structure:`);
     console.log(`    - blank_issues_enabled: ${config.blank_issues_enabled}`);
     console.log(`    - contact_links: ${config.contact_links?.length || 0} links`);
-    
+
     if (config.contact_links) {
       config.contact_links.forEach((link, index) => {
         console.log(`      ${index + 1}. ${link.name}`);
       });
     }
   }
-  
+
   validateIssueTemplate(template, filename) {
     const requiredFields = ['name', 'description', 'title', 'labels', 'body'];
     const missingFields = requiredFields.filter(field => !template[field]);
-    
+
     if (missingFields.length > 0) {
       console.log(`  ❌ Missing required fields: ${missingFields.join(', ')}`);
       return false;
     }
-    
+
     console.log(`  📋 Template: "${template.name}"`);
     console.log(`  📝 Description: "${template.description}"`);
     console.log(`  🏷️  Labels: ${template.labels.join(', ')}`);
     console.log(`  📄 Body sections: ${template.body?.length || 0}`);
-    
+
     // Check for type label
     const hasTypeLabel = template.labels.some(label => label.startsWith('type: '));
     if (hasTypeLabel) {
@@ -128,7 +128,7 @@ class IssueTemplateVerification {
     } else {
       console.log(`  ⚠️  Missing type label`);
     }
-    
+
     return true;
   }
 }

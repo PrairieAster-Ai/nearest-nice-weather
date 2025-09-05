@@ -35,9 +35,9 @@ is_service_running() {
 # Restart service
 restart_service() {
     local service=$1
-    
+
     monitor_log "Restarting $service..."
-    
+
     case $service in
         "api")
             cd "$PROJECT_ROOT"
@@ -50,9 +50,9 @@ restart_service() {
             echo $! > "$PID_DIR/frontend.pid"
             ;;
     esac
-    
+
     sleep 3
-    
+
     if is_service_running "$service"; then
         monitor_log "✅ $service restarted successfully"
     else
@@ -73,7 +73,7 @@ while true; do
             restart_service "api"
         fi
     fi
-    
+
     # Check Frontend service
     if ! is_service_running "frontend"; then
         if curl -s "http://localhost:3001" >/dev/null 2>&1; then
@@ -83,7 +83,7 @@ while true; do
             restart_service "frontend"
         fi
     fi
-    
+
     # Wait before next check
     sleep 30
 done

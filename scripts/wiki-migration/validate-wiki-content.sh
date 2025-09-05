@@ -31,12 +31,12 @@ FILES_WITH_ISSUES=0
 report_issue() {
     local file="$1"
     local issue="$2"
-    
+
     if [ $ISSUES_FOUND -eq 0 ]; then
         echo ""
         echo "⚠️  Issues Found:"
     fi
-    
+
     echo "   📄 $(basename "$file"): $issue"
     ISSUES_FOUND=$((ISSUES_FOUND + 1))
 }
@@ -48,47 +48,47 @@ for file in "$WIKI_PREP_DIR"/*.md; do
     if [ ! -f "$file" ]; then
         continue
     fi
-    
+
     FILE_BASENAME=$(basename "$file")
     FILE_HAS_ISSUES=false
-    
+
     # Check 1: File-based internal links (should be converted)
     if grep -q "](\./" "$file" || grep -q "](\.\." "$file"; then
         report_issue "$file" "Contains unconverted file-based links"
         FILE_HAS_ISSUES=true
     fi
-    
+
     # Check 2: Markdown extension in links (should be removed)
     if grep -q "\.md)" "$file"; then
         report_issue "$file" "Contains .md extensions in links"
         FILE_HAS_ISSUES=true
     fi
-    
+
     # Check 3: Outdated year references (likely need updating)
     if grep -q "2024" "$file"; then
         report_issue "$file" "Contains 2024 references (may need updating)"
         FILE_HAS_ISSUES=true
     fi
-    
+
     # Check 4: Missing title (first line should be # Title)
     if ! head -n 1 "$file" | grep -q "^# "; then
         report_issue "$file" "Missing H1 title on first line"
         FILE_HAS_ISSUES=true
     fi
-    
+
     # Check 5: Very short files (may be incomplete)
     LINE_COUNT=$(wc -l < "$file")
     if [ "$LINE_COUNT" -lt 5 ]; then
         report_issue "$file" "Very short file ($LINE_COUNT lines) - may be incomplete"
         FILE_HAS_ISSUES=true
     fi
-    
+
     # Check 6: Broken external links (basic check)
     if grep -o "https://[^)]*" "$file" | grep -q "localhost"; then
         report_issue "$file" "Contains localhost links (will be broken in wiki)"
         FILE_HAS_ISSUES=true
     fi
-    
+
     if [ "$FILE_HAS_ISSUES" = true ]; then
         FILES_WITH_ISSUES=$((FILES_WITH_ISSUES + 1))
     fi

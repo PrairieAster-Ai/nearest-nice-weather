@@ -4,7 +4,7 @@
 
 Your Anthropic API key is working! Available AI-powered tools:
 - 📋 `generate_prd` - Create Product Requirements Documents
-- ✨ `enhance_prd` - Improve existing PRDs with AI insights  
+- ✨ `enhance_prd` - Improve existing PRDs with AI insights
 - 🔍 `parse_prd` - Extract actionable tasks from PRDs
 - 🆕 `add_feature` - Add features with business context
 - 📈 `get_next_task` - AI-powered task prioritization
@@ -15,7 +15,7 @@ Your Anthropic API key is working! Available AI-powered tools:
 ## 🎯 **Ready for Claude Desktop Integration**
 
 ### **Setup Steps:**
-1. **Copy Configuration**: 
+1. **Copy Configuration**:
    ```bash
    cp .mcp/claude-desktop-ai-config.json ~/.config/claude-desktop/claude_desktop_config.json
    ```
@@ -59,7 +59,7 @@ Your Anthropic API key is working! Available AI-powered tools:
 # Start AI-enhanced server
 npm run mcp:ai
 
-# Test AI functionality  
+# Test AI functionality
 npm run mcp:test-ai
 ```
 
@@ -96,7 +96,7 @@ Your $5 API credit should last 3-6 months with typical usage. Monitor at:
 Your AI-enhanced GitHub project management is now fully operational! The MCP server combines:
 
 1. **Direct GitHub API** (Octokit) for fast operations
-2. **GitHub Official MCP** for standard GitHub features  
+2. **GitHub Official MCP** for standard GitHub features
 3. **AI-Enhanced Project Manager** for intelligent insights
 
 **Next**: Set up Claude Desktop integration and start using AI-powered sprint planning for your MVP development! 🚀

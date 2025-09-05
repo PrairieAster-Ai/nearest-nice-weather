@@ -71,7 +71,7 @@ Centralized business rule prioritization for automated testing, development deci
 
 ### Automated Test Prioritization
 - **P0 Rules**: Must be tested in CI/CD pipeline, block deployment if failing
-- **P1 Rules**: Should be tested regularly, alert on degradation  
+- **P1 Rules**: Should be tested regularly, alert on degradation
 - **P2 Rules**: Can be tested in nightly builds or weekly QA
 - **P3 Rules**: Manual testing or low-frequency automation
 

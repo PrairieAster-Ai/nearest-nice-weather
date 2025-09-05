@@ -30,7 +30,7 @@
 // Each POI includes real-time weather data: temperature, condition, precipitation, wind
 // Weather data fetched via src/services/weatherService.js with OpenWeather API
 //
-// 🔍 AUTO-EXPAND BEHAVIOR:  
+// 🔍 AUTO-EXPAND BEHAVIOR:
 // If user location has 0 POIs within 30 miles, automatically searches 60mi, then 90mi, etc.
 // Ensures users in remote areas (like northern Minnesota) always find outdoor destinations.
 //
@@ -66,7 +66,7 @@ import {
 
 /**
  * POI with Metadata - Complete outdoor recreation destination with weather
- * 
+ *
  * 📊 DATA SOURCES:
  * - POI data: poi_locations table (name, lat/lng, park_type, description)
  * - Weather data: OpenWeather API via weatherService.js (temperature, condition, etc.)
@@ -89,7 +89,7 @@ export interface POINavigationState {
 
 interface WeatherFilters {
   temperature: string;
-  precipitation: string; 
+  precipitation: string;
   wind: string;
 }
 
@@ -113,7 +113,7 @@ export const usePOINavigation = (
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Cache for preventing duplicate API calls
   const lastAPICallRef = useRef<{
     location: string;
@@ -142,7 +142,7 @@ export const usePOINavigation = (
     if (!force && lastAPICallRef.current) {
       const { location, filters: lastFilters, timestamp } = lastAPICallRef.current;
       const timeSinceLastCall = now - timestamp;
-      
+
       if (location === locationKey && lastFilters === filtersKey && timeSinceLastCall < 5000) {
         console.log('🚫 Skipping duplicate API call (made same call <5s ago)');
         return;
@@ -153,24 +153,24 @@ export const usePOINavigation = (
     setError(null);
 
     try {
-      // Single API call - this is the ONLY query for POI  
+      // Single API call - this is the ONLY query for POI
       const params = new URLSearchParams({
         lat: userLocation[0].toString(),
         lng: userLocation[1].toString(),
         limit: MAX_RESULTS.toString(),
         temperature: filters.temperature,
-        precipitation: filters.precipitation, 
+        precipitation: filters.precipitation,
         wind: filters.wind
       });
 
       const response = await fetch(`/api/poi-locations-with-weather?${params}`);
-      
+
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
-      
+
       if (!data.success || !data.data) {
         throw new Error('Invalid API response format');
       }
@@ -178,23 +178,23 @@ export const usePOINavigation = (
       // Process and cache the data
       const processedResult = processAPIData(data.data, userLocation);
       const processedPOIs = processedResult.processedPOIs;
-      
+
       // Auto-expand search radius if no results found
       let currentRadius = DISTANCE_SLICE_SIZE;
       let visiblePOIs = getVisiblePOIs(processedPOIs, currentRadius);
-      
+
       // Keep expanding by 30mi increments until we find results or reach all POIs
       while (visiblePOIs.length === 0 && currentRadius < 300) { // Max 300mi search
         currentRadius += DISTANCE_SLICE_SIZE;
         visiblePOIs = getVisiblePOIs(processedPOIs, currentRadius);
         console.log(`🔍 Auto-expanding search to ${currentRadius}mi...`);
       }
-      
+
       // If we auto-expanded, log it
       if (currentRadius > DISTANCE_SLICE_SIZE) {
         console.log(`✅ Auto-expanded search from ${DISTANCE_SLICE_SIZE}mi to ${currentRadius}mi to show ${visiblePOIs.length} results`);
       }
-      
+
       // Cache in localStorage
       const cacheData = {
         location: locationKey,
@@ -238,14 +238,14 @@ export const usePOINavigation = (
     }
 
     const { visiblePOIs, currentPOIIndex } = state;
-    
+
     if (currentPOIIndex === 0) {
       console.log('📍 Already at closest POI');
       return null; // Already at closest
     }
 
     const newIndex = currentPOIIndex - 1;
-    
+
     setState(prevState => ({
       ...prevState,
       currentPOIIndex: newIndex,
@@ -266,7 +266,7 @@ export const usePOINavigation = (
     }
 
     const { visiblePOIs, currentPOIIndex, allPOIs, currentSliceMax } = state;
-    
+
     // Check if we're at the last visible POI
     if (currentPOIIndex >= visiblePOIs.length - 1) {
       // At farthest visible POI - try to expand
@@ -281,7 +281,7 @@ export const usePOINavigation = (
 
     // Normal farther navigation
     const newIndex = currentPOIIndex + 1;
-    
+
     setState(prevState => ({
       ...prevState,
       currentPOIIndex: newIndex,
@@ -300,11 +300,11 @@ export const usePOINavigation = (
     const { allPOIs, currentSliceMax } = state;
     const newSliceMax = currentSliceMax + DISTANCE_SLICE_SIZE;
     const newVisiblePOIs = getVisiblePOIs(allPOIs, newSliceMax);
-    
+
     // Find the closest NEW POI (the first one in the new slice)
     const previousVisibleCount = state.visiblePOIs.length;
     const newPOIsStartIndex = previousVisibleCount;
-    
+
     setState(prevState => ({
       ...prevState,
       visiblePOIs: newVisiblePOIs,
@@ -334,14 +334,14 @@ export const usePOINavigation = (
     currentPOI: state.visiblePOIs[state.currentPOIIndex] || null,
     allPOICount: state.allPOIs.length,
     currentSliceMax: state.currentSliceMax,
-    
+
     // State flags
     loading,
     error,
     isAtClosest: state.isAtClosest,
     isAtFarthest: state.isAtFarthest,
     canExpand: state.canExpand,
-    
+
     // Actions
     navigateCloser,
     navigateFarther,

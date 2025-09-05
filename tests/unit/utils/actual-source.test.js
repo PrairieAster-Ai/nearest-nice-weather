@@ -1,7 +1,7 @@
 /**
  * Actual Source Code Tests
  * Direct imports and testing of real source files to increase coverage
- * 
+ *
  * @COVERAGE_TARGET: Import and test actual source files
  * @DUAL_API_CONTEXT: Tests utilities used by both Express and Vercel APIs
  */
@@ -24,13 +24,13 @@ describe('Actual Source Code Coverage', () => {
           return { isValid: true, errors: [] };
         };
       }
-      
+
       const validFeedback = { message: 'Test feedback' };
       const invalidFeedback = {};
-      
+
       const validResult = validateFunction(validFeedback);
       const invalidResult = validateFunction(invalidFeedback);
-      
+
       expect(typeof validResult).toBe('object');
       expect(typeof invalidResult).toBe('object');
       expect(validResult.isValid).toBeTruthy();
@@ -50,10 +50,10 @@ describe('Actual Source Code Coverage', () => {
           return input.replace(/<[^>]*>/g, '');
         };
       }
-      
+
       const maliciousInput = '<script>alert("test")</script>Hello';
       const cleanInput = sanitizeFunction(maliciousInput);
-      
+
       expect(typeof cleanInput).toBe('string');
       expect(cleanInput).not.toContain('<script>');
     });
@@ -64,7 +64,7 @@ describe('Actual Source Code Coverage', () => {
       // This tests the logic that both Express and Vercel APIs use
       const transformPOIData = (rawData) => {
         if (!rawData || !Array.isArray(rawData)) return [];
-        
+
         return rawData.map(poi => ({
           id: String(poi.id || ''),
           name: poi.name || 'Unknown Location',
@@ -110,13 +110,13 @@ describe('Actual Source Code Coverage', () => {
       // Both should produce the same normalized output
       expect(transformedPg).toHaveLength(1);
       expect(transformedNeon).toHaveLength(1);
-      
+
       expect(transformedPg[0].id).toBe('1');
       expect(transformedNeon[0].id).toBe('1');
-      
+
       expect(transformedPg[0].lat).toBe(44.9778);
       expect(transformedNeon[0].lat).toBe(44.9778);
-      
+
       expect(typeof transformedPg[0].temperature).toBe('number');
       expect(typeof transformedNeon[0].temperature).toBe('number');
     });
@@ -149,13 +149,13 @@ describe('Actual Source Code Coverage', () => {
       // Test API query parameter handling used by frontend components
       const buildApiQuery = (params) => {
         const query = new URLSearchParams();
-        
+
         Object.entries(params).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== '') {
             query.append(key, String(value));
           }
         });
-        
+
         return query.toString();
       };
 

@@ -19,7 +19,7 @@ const octokit = new Octokit({
 async function checkTemplates() {
   console.log('🔍 CHECKING GITHUB ISSUE TEMPLATES STATUS');
   console.log('=========================================\n');
-  
+
   try {
     // Check if .github/ISSUE_TEMPLATE directory exists on GitHub
     const templateDir = await octokit.rest.repos.getContent({
@@ -27,23 +27,23 @@ async function checkTemplates() {
       repo: REPO_NAME,
       path: '.github/ISSUE_TEMPLATE'
     });
-    
+
     console.log('📁 Template directory found on GitHub!\n');
     console.log('📋 Templates available:');
-    
+
     if (Array.isArray(templateDir.data)) {
       templateDir.data.forEach(file => {
         console.log(`  ✅ ${file.name}`);
       });
     }
-    
+
     console.log('\n🎯 **NEXT STEPS TO TEST:**');
     console.log('1. Visit: https://github.com/PrairieAster-Ai/nearest-nice-weather/issues/new/choose');
     console.log('2. You should see "Story", "Epic", "Capability" options');
     console.log('3. Instead of "Bug", "Feature", "Task"');
-    
+
     console.log('\n✅ Issue templates are now live on GitHub!');
-    
+
   } catch (error) {
     if (error.status === 404) {
       console.log('❌ Template directory not found on GitHub');

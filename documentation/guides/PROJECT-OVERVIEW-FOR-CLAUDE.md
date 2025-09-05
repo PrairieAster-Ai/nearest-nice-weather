@@ -10,7 +10,7 @@
 - **User Journey**: User opens app → sees nearby outdoor destinations → picks one with nice weather → goes hiking/biking/etc
 - **Revenue**: Ad-supported free platform (no premium features)
 
-### **Data Model**: POI-Centric Architecture  
+### **Data Model**: POI-Centric Architecture
 - **Primary Data**: 138 Minnesota outdoor recreation POIs in `poi_locations` table
 - **POI Types**: State Parks, Trail Systems, State Forests, Nature Centers, Wildlife Refuges
 - **Examples**: "Gooseberry Falls State Park", "Paul Bunyan State Trail", "Deep Portage Conservation Reserve"
@@ -18,7 +18,7 @@
 
 ### **Current Technical Stack**
 - **Frontend**: React + Vite + Material-UI (Progressive Web App)
-- **Backend**: Vercel Edge Functions (serverless Node.js) 
+- **Backend**: Vercel Edge Functions (serverless Node.js)
 - **Database**: Neon PostgreSQL (cloud-hosted, no local PostgreSQL)
 - **Primary API**: `/api/poi-locations-with-weather` (returns parks + weather)
 - **Deployment**: Vercel platform (preview + production environments)
@@ -45,19 +45,19 @@
 ## 📋 Common Claude Tasks & Correct Approaches
 
 ### **Adding New Features**
-✅ **RIGHT**: "Add filtering by trail difficulty for hikers"  
+✅ **RIGHT**: "Add filtering by trail difficulty for hikers"
 ❌ **WRONG**: "Add weather station data visualization"
 
 ### **Database Queries**
-✅ **RIGHT**: `SELECT * FROM poi_locations WHERE park_type = 'State Park'`  
+✅ **RIGHT**: `SELECT * FROM poi_locations WHERE park_type = 'State Park'`
 ❌ **WRONG**: `SELECT * FROM locations` (legacy table with cities)
 
 ### **API Development**
-✅ **RIGHT**: Enhance `/api/poi-locations-with-weather` for outdoor recreation  
+✅ **RIGHT**: Enhance `/api/poi-locations-with-weather` for outdoor recreation
 ❌ **WRONG**: Create weather station APIs or B2B operator endpoints
 
 ### **Frontend Components**
-✅ **RIGHT**: POI cards showing "Itasca State Park - 72°F, Sunny, Perfect for hiking"  
+✅ **RIGHT**: POI cards showing "Itasca State Park - 72°F, Sunny, Perfect for hiking"
 ❌ **WRONG**: Weather charts, meteorological data, city weather displays
 
 ## 🗂️ Key Files for Understanding

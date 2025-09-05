@@ -1,7 +1,7 @@
 /**
  * UserLocationEstimator Service Coverage Test using CommonJS approach
  * Comprehensive testing of location estimation service
- * 
+ *
  * @COVERAGE_TARGET: services/UserLocationEstimator.ts
  * @PHASE: Phase 3 - Complete service layer coverage
  */
@@ -46,15 +46,15 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Reset global mocks 
+
+    // Reset global mocks
     global.fetch.mockClear();
-    
+
     // Reset localStorage mock return values
     mockLocalStorage.getItem.mockReturnValue(null);
     mockLocalStorage.setItem.mockImplementation(() => {});
     mockLocalStorage.removeItem.mockImplementation(() => {});
-    
+
     // Reset navigator mocks
     global.navigator.geolocation.getCurrentPosition.mockClear();
     mockNavigatorPermissions.query.mockClear();
@@ -298,9 +298,9 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
         });
 
         const results = await Promise.allSettled(providerPromises);
-        
+
         const successfulEstimates = results
-          .filter((result) => 
+          .filter((result) =>
             result.status === 'fulfilled' && result.value.estimate !== null
           )
           .map(result => result.value.estimate);
@@ -366,9 +366,9 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
         });
 
         const results = await Promise.allSettled(providerPromises);
-        
+
         const successfulEstimates = results
-          .filter((result) => 
+          .filter((result) =>
             result.status === 'fulfilled' && result.value.estimate !== null
           )
           .map(result => result.value.estimate);
@@ -392,7 +392,7 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
           if (cached) {
             const parsedCache = JSON.parse(cached);
             const cacheAge = Date.now() - parsedCache.timestamp;
-            
+
             if (cacheAge < 1800000) { // 30 minutes
               return {
                 coordinates: parsedCache.coordinates,
@@ -441,7 +441,7 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
           if (cached) {
             const parsedCache = JSON.parse(cached);
             const cacheAge = Date.now() - parsedCache.timestamp;
-            
+
             if (cacheAge < 1800000) {
               return parsedCache;
             } else {
@@ -503,7 +503,7 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
     test('should calculate confidence based on accuracy and timestamp', () => {
       const calculateConfidence = (accuracy, timestamp) => {
         const age = Date.now() - timestamp;
-        
+
         if (accuracy < 50 && age < 300000) return 'high';      // <50m, <5min
         if (accuracy < 1000 && age < 1800000) return 'medium'; // <1km, <30min
         if (accuracy < 10000) return 'low';                    // <10km
@@ -530,14 +530,14 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
         const urbanCities = ['minneapolis', 'saint paul', 'duluth', 'rochester', 'bloomington', 'st. paul'];
         const cityName = city?.toLowerCase() || '';
         const regionName = region?.toLowerCase() || '';
-        
+
         if (regionName.includes('minnesota') || regionName.includes('mn')) {
           if (urbanCities.some(city => cityName.includes(city))) {
             return 3000; // ~3km for Minnesota urban areas
           }
           return 15000; // ~15km for rural Minnesota
         }
-        
+
         if (urbanCities.includes(cityName) || cityName.includes('minneapolis') || cityName.includes('paul')) {
           return 5000; // ~5km for urban areas
         }
@@ -564,7 +564,7 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
         const hasRegion = region && region.toLowerCase() !== 'unknown';
         const isMinnesota = region?.toLowerCase().includes('minnesota') || region?.toLowerCase().includes('mn');
         const isUS = country?.toLowerCase().includes('us') || country?.toLowerCase().includes('united states');
-        
+
         if (isMinnesota && hasCity) {
           return 'medium';
         } else if (isUS && hasCity && hasRegion) {
@@ -764,12 +764,12 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
           if (cached) {
             const parsedCache = JSON.parse(cached);
             const age = Date.now() - parsedCache.timestamp;
-            const ageStr = age < 60000 
+            const ageStr = age < 60000
               ? 'just now'
-              : age < 3600000 
+              : age < 3600000
                 ? `${Math.round(age / 60000)}min ago`
                 : `${Math.round(age / 3600000)}hr ago`;
-            
+
             return {
               hasStoredData: true,
               lastUpdate: parsedCache.timestamp,
@@ -813,14 +813,14 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
   describe('Utility Functions', () => {
     test('should generate location summary string', () => {
       const getLocationSummary = (estimate) => {
-        const accuracy = estimate.accuracy < 1000 
+        const accuracy = estimate.accuracy < 1000
           ? `±${Math.round(estimate.accuracy)}m`
           : `±${Math.round(estimate.accuracy / 1000)}km`;
-        
+
         const age = Date.now() - estimate.timestamp;
-        const ageStr = age < 60000 
+        const ageStr = age < 60000
           ? 'just now'
-          : age < 3600000 
+          : age < 3600000
             ? `${Math.round(age / 60000)}min ago`
             : `${Math.round(age / 3600000)}hr ago`;
 
@@ -881,16 +881,16 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
   describe('Integration and Error Handling', () => {
     test('should handle progressive enhancement strategy', async () => {
       const estimateLocation = async (options = {}) => {
-        const opts = { 
+        const opts = {
           enableHighAccuracy: false,
           timeout: 8000,
           cacheMaxAge: 1800000,
-          ...options 
+          ...options
         };
-        
+
         // Phase 1: Fast methods
         const fastMethods = [];
-        
+
         // Try cached location
         try {
           const cached = await getCachedLocation();
@@ -898,7 +898,7 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
         } catch (error) {
           // Cache failed, continue
         }
-        
+
         // Phase 2: If no fast estimate, try slower methods
         if (fastMethods.length === 0 && opts.enableHighAccuracy) {
           try {
@@ -908,11 +908,11 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
             // GPS failed, continue
           }
         }
-        
+
         if (fastMethods.length > 0) {
           return fastMethods[0];
         }
-        
+
         // Fallback
         return {
           coordinates: [44.9537, -93.0900],
@@ -931,7 +931,7 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
 
       // Test fallback scenario
       const result = await estimateLocation({ enableHighAccuracy: true });
-      
+
       expect(result.method).toBe('fallback');
       expect(result.coordinates).toEqual([44.9537, -93.0900]);
       expect(result.confidence).toBe('unknown');
@@ -959,11 +959,11 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
 
         try {
           global.fetch.mockRejectedValue(new Error('Network timeout'));
-          
+
           const response = await fetch(provider.endpoint);
           const data = await response.json();
           const estimate = provider.parser(data);
-          
+
           return { estimate, error: null };
         } catch (error) {
           return { estimate: null, error: error.message };
@@ -971,7 +971,7 @@ describe('UserLocationEstimator Service Coverage - CommonJS', () => {
       };
 
       const result = await testNetworkProvider();
-      
+
       expect(result.estimate).toBeNull();
       expect(result.error).toBe('Network timeout');
     });

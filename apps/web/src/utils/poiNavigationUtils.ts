@@ -2,25 +2,25 @@
  * ========================================================================
  * POI NAVIGATION UTILITIES - EXTRACTED TESTABLE LOGIC
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Pure functions extracted from usePOINavigation hook for testability
  * 🔗 EXTRACTED_FROM: hooks/usePOINavigation.ts - outdoor recreation discovery algorithm
  * 📊 COVERAGE: Distance calculations, data processing, filtering, expansion logic
  * ⚙️ FUNCTIONALITY: Geographic algorithms, POI organization, intelligent navigation
  * 🎯 BUSINESS_IMPACT: Core outdoor recreation discovery algorithm with distance-based navigation
- * 
+ *
  * BUSINESS CONTEXT: Outdoor recreation discovery for Minnesota outdoor enthusiasts
  * - Calculates distances to outdoor recreation destinations (parks, trails, forests)
  * - Organizes POIs into 30-mile distance slices for intelligent navigation
  * - Enables auto-expanding search for users in remote areas
  * - Provides sorting and filtering logic for optimal user experience
- * 
+ *
  * TECHNICAL DETAILS: Pure functions for geographic calculations
  * - Haversine formula for accurate distance calculations
  * - Distance-based POI organization and filtering
  * - Auto-expand logic for rural area coverage
  * - Data transformation with weather integration
- * 
+ *
  * EXTRACTED FROM: usePOINavigation hook to improve testability and maintainability
  * @CLAUDE_CONTEXT: Pure function extraction for comprehensive unit testing
  */
@@ -70,16 +70,16 @@ export interface WeatherFilters {
 export function calculateDistance(point1: [number, number], point2: [number, number]): number {
   const [lat1, lng1] = point1;
   const [lat2, lng2] = point2;
-  
+
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
-  
+
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
             Math.sin(dLng / 2) * Math.sin(dLng / 2);
-            
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  
+
   return EARTH_RADIUS_MILES * c;
 }
 
@@ -111,7 +111,7 @@ export function processAPIData(apiData: any[], userLocation: [number, number]): 
   const processed = apiData.map((location) => {
     const distance = calculateDistance(userLocation, [location.lat, location.lng]);
     const sliceIndex = calculateSliceIndex(distance);
-    
+
     return {
       id: location.id,
       name: location.name,
@@ -181,7 +181,7 @@ export function calculateNextExpansionDistance(currentMaxDistance: number): numb
  * @returns Optimal maximum distance to start with
  */
 export function findOptimalStartingSlice(
-  allPOIs: POIWithMetadata[], 
+  allPOIs: POIWithMetadata[],
   minPOIsDesired: number = 1
 ): number {
   if (allPOIs.length === 0) {
@@ -190,24 +190,24 @@ export function findOptimalStartingSlice(
 
   // Start with first slice
   let currentMaxDistance = DISTANCE_SLICE_SIZE;
-  
+
   // Keep expanding until we have enough POIs or run out of data
   while (true) {
     const visiblePOIs = getVisiblePOIs(allPOIs, currentMaxDistance);
-    
+
     // If we have enough POIs, use this slice
     if (visiblePOIs.length >= minPOIsDesired) {
       return currentMaxDistance;
     }
-    
+
     // If we can't expand further, return current distance
     if (!checkCanExpand(allPOIs, currentMaxDistance)) {
       return currentMaxDistance;
     }
-    
+
     // Expand to next slice
     currentMaxDistance = calculateNextExpansionDistance(currentMaxDistance);
-    
+
     // Safety valve: don't expand beyond reasonable limits
     if (currentMaxDistance > 300) { // 300 miles should cover any reasonable use case
       return 300; // Cap at 300 miles
@@ -247,7 +247,7 @@ export function calculatePOIDistributionStats(allPOIs: POIWithMetadata[]): {
   // Calculate statistics
   const totalSlices = Math.max(...Object.keys(sliceDistribution).map(Number)) + 1;
   const averageDistance = totalDistance / allPOIs.length;
-  
+
   // Calculate median distance
   const sortedDistances = allPOIs.map(poi => poi.distance).sort((a, b) => a - b);
   const medianDistance = sortedDistances.length % 2 === 0
@@ -274,14 +274,14 @@ export function applyWeatherFilters(pois: POIWithMetadata[], filters: WeatherFil
     if (poi.temperature < filters.temp_min || poi.temperature > filters.temp_max) {
       return false;
     }
-    
+
     // Condition filter (if specified)
     if (filters.conditions.length > 0) {
       if (!filters.conditions.includes(poi.condition)) {
         return false;
       }
     }
-    
+
     return true;
   });
 }
@@ -295,24 +295,24 @@ export function isValidCoordinates(coordinates: [number, number] | null): boolea
   if (!coordinates || coordinates.length !== 2) {
     return false;
   }
-  
+
   const [lat, lng] = coordinates;
-  
+
   // Check for NaN or Infinity
   if (!isFinite(lat) || !isFinite(lng)) {
     return false;
   }
-  
+
   // Valid latitude: -90 to 90
   if (lat < -90 || lat > 90) {
     return false;
   }
-  
+
   // Valid longitude: -180 to 180
   if (lng < -180 || lng > 180) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -326,9 +326,9 @@ export function isWithinMinnesotaBounds(coordinates: [number, number]): boolean 
   if (!isValidCoordinates(coordinates)) {
     return false;
   }
-  
+
   const [lat, lng] = coordinates;
-  
+
   // Minnesota approximate bounds
   const MN_BOUNDS = {
     north: 49.5, // Canadian border
@@ -336,9 +336,9 @@ export function isWithinMinnesotaBounds(coordinates: [number, number]): boolean 
     east: -89.5, // Wisconsin border
     west: -97.5  // North Dakota border
   };
-  
-  return lat >= MN_BOUNDS.south && 
-         lat <= MN_BOUNDS.north && 
-         lng >= MN_BOUNDS.west && 
+
+  return lat >= MN_BOUNDS.south &&
+         lat <= MN_BOUNDS.north &&
+         lng >= MN_BOUNDS.west &&
          lng <= MN_BOUNDS.east;
 }

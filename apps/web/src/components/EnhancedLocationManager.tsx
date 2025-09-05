@@ -2,12 +2,12 @@
  * ========================================================================
  * ENHANCED LOCATION MANAGER - IMPROVED USER POSITIONING SYSTEM
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Advanced location management with accuracy improvements
  * 🎯 ACCURACY FOCUS: Multiple fallback strategies for maximum precision
  * 🔒 PRIVACY-AWARE: Transparent permission handling and user control
  * ⚡ PERFORMANCE: Optimized for fast initial load with progressive enhancement
- * 
+ *
  * IMPROVEMENTS OVER ORIGINAL:
  * ✅ Multiple location providers with automatic fallback
  * ✅ Accuracy scoring and best estimate selection
@@ -16,21 +16,21 @@
  * ✅ Location confidence indicators for UI
  * ✅ Manual location override capabilities
  * ✅ Comprehensive error handling and recovery
- * 
+ *
  * @CLAUDE_CONTEXT: Enhanced location intelligence for personalized outdoor discovery
  * @BUSINESS_RULE: P0 MUST provide location within 10 seconds with accuracy indicators
  * @INTEGRATION_POINT: Uses UserLocationEstimator service for location intelligence
  * @PERFORMANCE_CRITICAL: See /src/config/PERFORMANCE-REQUIREMENTS.json
- * 
+ *
  * LAST UPDATED: 2025-08-08
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { 
-  useUserLocationStorage, 
-  useLocationMethodStorage, 
+import {
+  useUserLocationStorage,
+  useLocationMethodStorage,
   useShowLocationPromptStorage,
-  LocationMethod 
+  LocationMethod
 } from '../hooks/useLocalStorageState';
 import { locationEstimator, LocationEstimate, LocationConfidence } from '../services/UserLocationEstimator';
 
@@ -59,13 +59,13 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
   const [userLocation, setUserLocation] = useUserLocationStorage();
   const [locationMethod, setLocationMethod] = useLocationMethodStorage();
   const [showLocationPrompt, setShowLocationPrompt] = useShowLocationPromptStorage();
-  
+
   // Enhanced state for accuracy tracking
   const [locationAccuracy, setLocationAccuracy] = useState<number>(50000); // Default 50km uncertainty
   const [locationConfidence, setLocationConfidence] = useState<LocationConfidence>('unknown');
   const [locationError, setLocationError] = useState<string | null>(null);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
-  
+
   // Track initialization and enhancement state
   const locationInitialized = useRef(false);
   const enhancementInProgress = useRef(false);
@@ -76,9 +76,9 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
   const performLocationEstimation = useCallback(async (requestPrecise: boolean = false) => {
     try {
       setLocationError(null);
-      
+
       let estimate: LocationEstimate;
-      
+
       if (requestPrecise) {
         // Request high accuracy location (requires user permission)
         estimate = await locationEstimator.requestPreciseLocation({
@@ -108,17 +108,17 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
       }
 
       console.log(`📍 Location estimated: ${locationEstimator.getLocationSummary(estimate)}`);
-      
+
       return estimate;
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Location estimation failed';
       setLocationError(errorMessage);
       console.warn('Location estimation failed:', errorMessage);
-      
+
       // Show prompt for manual location setting
       setShowLocationPrompt(true);
-      
+
       // Use fallback if no location exists
       if (!userLocation) {
         const fallbackLocation: [number, number] = [44.9537, -93.0900]; // Minneapolis
@@ -128,7 +128,7 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
         setLocationConfidence('unknown');
         onMapCenterChange(fallbackLocation);
       }
-      
+
       return null;
     }
   }, [userLocation, setUserLocation, setLocationMethod, onMapCenterChange, setShowLocationPrompt]);
@@ -139,22 +139,22 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
    */
   const enhanceLocationAccuracy = useCallback(async () => {
     if (enhancementInProgress.current) return;
-    
+
     enhancementInProgress.current = true;
-    
+
     try {
       // Check if current location is already high accuracy
       if (locationConfidence === 'high') {
         console.log('📍 Location already high accuracy, skipping enhancement');
         return;
       }
-      
+
       // Request precise location
       const preciseEstimate = await locationEstimator.requestPreciseLocation({
         enableHighAccuracy: true,
         timeout: 15000
       });
-      
+
       // Update to more accurate location if significantly better
       if (preciseEstimate.accuracy < locationAccuracy * 0.5) { // At least 50% more accurate
         setUserLocation(preciseEstimate.coordinates);
@@ -162,10 +162,10 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
         setLocationAccuracy(preciseEstimate.accuracy);
         setLocationConfidence(preciseEstimate.confidence);
         onMapCenterChange(preciseEstimate.coordinates);
-        
+
         console.log(`📍 Location enhanced: ${locationEstimator.getLocationSummary(preciseEstimate)}`);
       }
-      
+
     } catch (error) {
       console.log('📍 Location enhancement failed (this is normal if permissions denied):', error);
     } finally {
@@ -181,7 +181,7 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
       try {
         const permission = await navigator.permissions.query({ name: 'geolocation' });
         setPermissionState(permission.state);
-        
+
         permission.addEventListener('change', () => {
           setPermissionState(permission.state);
         });
@@ -196,34 +196,34 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
    */
   useEffect(() => {
     if (locationInitialized.current) return;
-    
+
     locationInitialized.current = true;
-    
+
     const initializeLocation = async () => {
       // Check permission status
       await checkPermissionStatus();
-      
+
       // If we have a saved location, use it immediately
       if (userLocation && locationMethod !== 'none') {
         console.log(`📍 Using saved location (${locationMethod}):`, userLocation);
         onMapCenterChange(userLocation);
-        
+
         // Still try to enhance accuracy in background if enabled
         if (enableProgressiveAccuracy && locationMethod !== 'gps') {
           setTimeout(() => enhanceLocationAccuracy(), 2000);
         }
         return;
       }
-      
+
       // Perform initial location estimation
       const estimate = await performLocationEstimation(requestPreciseLocationOnStart);
-      
+
       // If successful and progressive enhancement enabled, enhance accuracy after initial load
       if (estimate && enableProgressiveAccuracy && estimate.confidence !== 'high') {
         setTimeout(() => enhanceLocationAccuracy(), 3000);
       }
     };
-    
+
     initializeLocation();
   }, [
     userLocation,
@@ -329,8 +329,8 @@ export const LocationAccuracyIndicator: React.FC<{
   };
 
   return (
-    <span 
-      style={{ 
+    <span
+      style={{
         color: getConfidenceColor(),
         fontSize: '0.75em',
         fontWeight: 500

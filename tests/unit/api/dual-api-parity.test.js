@@ -1,7 +1,7 @@
 /**
  * Dual API Architecture Parity Tests
  * Critical sync points between localhost Express.js and Vercel serverless functions
- * 
+ *
  * @SYNC_CONTEXT: DUAL-API-MITIGATION-STRATEGIES.md
  * @HIGH_RISK: Schema mismatches, Haversine formula consistency, data type differences
  */
@@ -64,9 +64,9 @@ describe('Dual API Architecture Parity', () => {
     test('should have consistent field names between environments', () => {
       const expressFields = Object.keys(mockExpressResponse.weatherLocations[0]);
       const vercelFields = Object.keys(mockVercelResponse.weatherLocations[0]);
-      
+
       expect(expressFields.sort()).toEqual(vercelFields.sort());
-      
+
       // Specific field checks based on historical issues
       expect(expressFields).toContain('windSpeed');  // NOT wind_speed vs windSpeed mismatch
       expect(expressFields).toContain('distance_miles'); // Consistent distance field
@@ -77,21 +77,21 @@ describe('Dual API Architecture Parity', () => {
     test('should have consistent data types between environments', () => {
       const expressLocation = mockExpressResponse.weatherLocations[0];
       const vercelLocation = mockVercelResponse.weatherLocations[0];
-      
+
       // Critical: pg returns strings, neon returns numbers
       // Both should be converted to consistent types
       expect(typeof expressLocation.id).toBe('string');
       expect(typeof vercelLocation.id).toBe('string');
-      
+
       expect(typeof expressLocation.lat).toBe('number');
       expect(typeof vercelLocation.lat).toBe('number');
-      
-      expect(typeof expressLocation.lng).toBe('number');  
+
+      expect(typeof expressLocation.lng).toBe('number');
       expect(typeof vercelLocation.lng).toBe('number');
-      
+
       expect(typeof expressLocation.temperature).toBe('number');
       expect(typeof vercelLocation.temperature).toBe('number');
-      
+
       expect(typeof expressLocation.windSpeed).toBe('number');
       expect(typeof vercelLocation.windSpeed).toBe('number');
     });
@@ -104,7 +104,7 @@ describe('Dual API Architecture Parity', () => {
         if (normalized.health) delete normalized.health.timestamp;
         return normalized;
       };
-      
+
       expect(normalizeResponse(mockExpressResponse)).toEqual(normalizeResponse(mockVercelResponse));
     });
   });
@@ -114,7 +114,7 @@ describe('Dual API Architecture Parity', () => {
       // Both implementations must use 3959 miles, NOT 6371 kilometers
       const earthRadiusMiles = 3959;
       const earthRadiusKm = 6371;
-      
+
       // Mock Haversine formula validation
       const calculateDistance = (lat1, lng1, lat2, lng2) => {
         const R = 3959; // Earth radius in miles (MUST match both implementations)
@@ -126,7 +126,7 @@ describe('Dual API Architecture Parity', () => {
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return R * c;
       };
-      
+
       // Test distance calculation consistency
       const distance = calculateDistance(44.9778, -93.2650, 44.9800, -93.2600);
       expect(distance).toBeCloseTo(0.29, 1); // Should be ~0.29 miles (corrected)
@@ -136,7 +136,7 @@ describe('Dual API Architecture Parity', () => {
     test('should use consistent parameter order (lng, lat)', () => {
       // Both implementations must use lng=$1, lat=$2 in SQL queries
       const mockSqlQuery = 'SELECT *, (3959 * acos(cos(radians($2)) * cos(radians(lat)) * cos(radians(lng) - radians($1)) + sin(radians($2)) * sin(radians(lat)))) as distance_miles';
-      
+
       // Verify parameter usage: $1 with lng, $2 with lat
       expect(mockSqlQuery).toContain('radians($1)');
       expect(mockSqlQuery).toContain('radians($2)');
@@ -155,7 +155,7 @@ describe('Dual API Architecture Parity', () => {
         temperature: '72',
         wind_speed: '8'
       };
-      
+
       // Mock neon serverless response (may return numbers)
       const neonResult = {
         id: '1',
@@ -164,7 +164,7 @@ describe('Dual API Architecture Parity', () => {
         temperature: 72,
         wind_speed: 8
       };
-      
+
       // Transformation function (should be identical in both implementations)
       const transformLocation = (row) => ({
         id: row.id.toString(),
@@ -173,10 +173,10 @@ describe('Dual API Architecture Parity', () => {
         temperature: parseInt(row.temperature || 70),
         windSpeed: parseInt(row.wind_speed || 8)
       });
-      
+
       const transformedPg = transformLocation(pgResult);
       const transformedNeon = transformLocation(neonResult);
-      
+
       expect(transformedPg).toEqual(transformedNeon);
       expect(typeof transformedPg.lat).toBe('number');
       expect(typeof transformedNeon.lat).toBe('number');
@@ -189,11 +189,11 @@ describe('Dual API Architecture Parity', () => {
         debug: isDevelopment ? error.message : undefined,
         timestamp: new Date().toISOString()
       });
-      
+
       const mockError = new Error('Connection failed');
       const prodError = createStandardError(mockError, false);
       const devError = createStandardError(mockError, true);
-      
+
       expect(prodError.debug).toBeUndefined();
       expect(devError.debug).toBe('Connection failed');
       expect(prodError.success).toBe(false);
@@ -204,14 +204,14 @@ describe('Dual API Architecture Parity', () => {
   describe('API Endpoint Parity Tests', () => {
     test('health endpoint should return consistent structure', () => {
       const expectedHealthFields = ['status', 'timestamp', 'database'];
-      
+
       expect(Object.keys(mockExpressResponse.health)).toEqual(
         expect.arrayContaining(expectedHealthFields)
       );
       expect(Object.keys(mockVercelResponse.health)).toEqual(
         expect.arrayContaining(expectedHealthFields)
       );
-      
+
       expect(mockExpressResponse.health.status).toBe('healthy');
       expect(mockVercelResponse.health.status).toBe('healthy');
     });
@@ -219,16 +219,16 @@ describe('Dual API Architecture Parity', () => {
     test('weather-locations endpoint should return POI array', () => {
       expect(Array.isArray(mockExpressResponse.weatherLocations)).toBe(true);
       expect(Array.isArray(mockVercelResponse.weatherLocations)).toBe(true);
-      
+
       const expressLocation = mockExpressResponse.weatherLocations[0];
       const vercelLocation = mockVercelResponse.weatherLocations[0];
-      
+
       expect(expressLocation).toHaveProperty('id');
       expect(expressLocation).toHaveProperty('name');
       expect(expressLocation).toHaveProperty('lat');
       expect(expressLocation).toHaveProperty('lng');
       expect(expressLocation).toHaveProperty('distance_miles');
-      
+
       expect(vercelLocation).toHaveProperty('id');
       expect(vercelLocation).toHaveProperty('name');
       expect(vercelLocation).toHaveProperty('lat');
@@ -239,10 +239,10 @@ describe('Dual API Architecture Parity', () => {
     test('feedback endpoint should return consistent success format', () => {
       expect(mockExpressResponse.feedback.success).toBe(true);
       expect(mockVercelResponse.feedback.success).toBe(true);
-      
+
       expect(typeof mockExpressResponse.feedback.message).toBe('string');
       expect(typeof mockVercelResponse.feedback.message).toBe('string');
-      
+
       expect(typeof mockExpressResponse.feedback.id).toBe('string');
       expect(typeof mockVercelResponse.feedback.id).toBe('string');
     });
@@ -273,14 +273,14 @@ describe('Dual API Architecture Parity', () => {
             break;
         }
       };
-      
+
       // Test each endpoint format
       validateApiResponse(mockExpressResponse.health, 'health');
       validateApiResponse(mockVercelResponse.health, 'health');
-      
+
       validateApiResponse(mockExpressResponse.weatherLocations, 'weather-locations');
       validateApiResponse(mockVercelResponse.weatherLocations, 'weather-locations');
-      
+
       validateApiResponse(mockExpressResponse.feedback, 'feedback');
       validateApiResponse(mockVercelResponse.feedback, 'feedback');
     });
@@ -289,18 +289,18 @@ describe('Dual API Architecture Parity', () => {
       // This is the type of issue that breaks API parity
       const inconsistentResponse = {
         id: 1, // number instead of string
-        lat: '44.9778', // string instead of number  
+        lat: '44.9778', // string instead of number
         temperature: '72', // string instead of number
       };
-      
+
       const transformToConsistent = (data) => ({
         id: data.id.toString(),
         lat: parseFloat(data.lat),
         temperature: parseInt(data.temperature)
       });
-      
+
       const transformed = transformToConsistent(inconsistentResponse);
-      
+
       expect(typeof transformed.id).toBe('string');
       expect(typeof transformed.lat).toBe('number');
       expect(typeof transformed.temperature).toBe('number');
@@ -310,15 +310,15 @@ describe('Dual API Architecture Parity', () => {
   describe('Performance Characteristics', () => {
     test('should handle localhost vs Vercel response time expectations', () => {
       // Localhost Express: ~100ms target
-      // Vercel Preview: 200-500ms expected  
+      // Vercel Preview: 200-500ms expected
       // Vercel Production: 100-300ms expected
-      
+
       const performanceExpectations = {
         localhost: { min: 10, max: 200 },
         preview: { min: 200, max: 1000 },
         production: { min: 100, max: 500 }
       };
-      
+
       Object.keys(performanceExpectations).forEach(env => {
         const { min, max } = performanceExpectations[env];
         expect(min).toBeLessThan(max);
@@ -334,7 +334,7 @@ describe('Schema Change Protocol Validation', () => {
       'Design Phase: Document column names and types',
       'Implementation Phase: Update localhost first',
       'Implementation Phase: Test localhost thoroughly',
-      'Implementation Phase: Update Vercel with identical logic', 
+      'Implementation Phase: Update Vercel with identical logic',
       'Implementation Phase: Deploy to preview',
       'Implementation Phase: Test preview environment',
       'Validation Phase: Run comprehensive validation',
@@ -342,12 +342,12 @@ describe('Schema Change Protocol Validation', () => {
       'Deployment Phase: Deploy to production only after preview validation',
       'Deployment Phase: Validate production immediately'
     ];
-    
+
     expect(schemaChangeProtocol).toHaveLength(10);
     expect(schemaChangeProtocol[0]).toMatch(/Design Phase/);
     expect(schemaChangeProtocol[9]).toMatch(/Validate production/);
   });
-  
+
   test('should enforce type conversion patterns', () => {
     // Mock database row that could come from either pg or neon
     const mockRow = {
@@ -358,7 +358,7 @@ describe('Schema Change Protocol Validation', () => {
       precipitation: null,
       wind_speed: '8'
     };
-    
+
     // Standard transformation (must be identical in both implementations)
     const standardTransform = (row) => ({
       id: row.id.toString(),
@@ -368,9 +368,9 @@ describe('Schema Change Protocol Validation', () => {
       precipitation: parseInt(row.precipitation || 15),
       windSpeed: parseInt(row.wind_speed || 8)
     });
-    
+
     const result = standardTransform(mockRow);
-    
+
     expect(result.id).toBe('1');
     expect(result.lat).toBe(44.9778);
     expect(result.lng).toBe(-93.2650);

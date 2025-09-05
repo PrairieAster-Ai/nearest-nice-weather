@@ -2,52 +2,52 @@
  * ========================================================================
  * FAB FILTER SYSTEM - WEATHER PREFERENCE INTERFACE
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Floating action button interface showing SELECTED weather preferences
  * 🔗 CONNECTS TO: App.tsx (main container), FilterManager hook (state logic)
  * 📊 DATA FLOW: User clicks FAB → slide-out options → selection → instant UI update → debounced filter → POI refresh
  * ⚙️ STATE: filters (current selections), isLoading (feedback)
  * 🎯 USER IMPACT: Immediate visual feedback for weather preference changes
- * 
+ *
  * DISPLAY PATTERN: FABs show CURRENT SELECTIONS, not category icons
- * - Temperature FAB shows: 😊 (mild), 🥶 (cold), or 🥵 (hot) 
+ * - Temperature FAB shows: 😊 (mild), 🥶 (cold), or 🥵 (hot)
  * - Precipitation FAB shows: ☀️ (none), 🌦️ (light), or 🌧️ (heavy)
  * - Wind FAB shows: 🌱 (calm), 🍃 (breezy), or 💨 (windy)
  * - Clicking opens slide-out with all 3 options for that category
- * 
+ *
  * BUSINESS CONTEXT: Core UX for Minnesota outdoor recreation weather optimization
- * - Enables users to find POIs matching their weather comfort preferences  
+ * - Enables users to find POIs matching their weather comfort preferences
  * - Instant gratification UI with <100ms feedback for biological UX optimization
  * - Clean interface focused on preference selection
- * 
+ *
  * TECHNICAL IMPLEMENTATION: Material-UI FAB with animated slide-out options
  * - Debounced filtering prevents API thrashing during rapid user interactions
  * - Optimistic UI updates provide instant feedback before API completion
  * - Streamlined UI focused on preference selection
- * 
+ *
  * 🏗️ ARCHITECTURAL DECISIONS:
  * - FAB pattern chosen for mobile-first outdoor use case (thumb-friendly)
  * - Selected preference display eliminates cognitive load (user sees current state)
  * - Slide-out animation for premium app feel without complexity
  * - Clean aesthetic for focused user experience
- * 
+ *
  * @CLAUDE_CONTEXT: Primary filter interface for weather-based POI discovery
  * @BUSINESS_RULE: P0 MUST provide instant visual feedback for user engagement
  * @INTEGRATION_POINT: FilterManager hook for debounced state management
  * @PERFORMANCE_CRITICAL: See /src/config/PERFORMANCE-REQUIREMENTS.json for testable thresholds
- * 
+ *
  * 📚 BUSINESS CONTEXT BREADCRUMBS:
  * Minnesota outdoor recreation → weather optimization → filter preferences → POI discovery
  * USER JOURNEY: Location detection → weather preferences → filtered results → POI selection
  * VALUE CHAIN: User comfort preferences → weather matching → outdoor activity recommendations
- * 
+ *
  * LAST UPDATED: 2025-08-08
  */
 
 import React, { useState, useMemo, useCallback } from 'react'
-import { 
-  Fab, 
-  Box, 
+import {
+  Fab,
+  Box,
   Tooltip,
   Slide,
   Fade,
@@ -88,7 +88,7 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: 
       ]
     },
     precipitation: {
-      icon: '🌧️', 
+      icon: '🌧️',
       label: 'Precipitation',
       testId: 'filter-precipitation',
       options: [
@@ -117,7 +117,7 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: 
   const handleOptionSelect = useCallback((category: keyof WeatherFilters, value: string) => {
     // Instant UI feedback - close flyout immediately
     setOpenCategory(null)
-    
+
     // Trigger filter change (this may be debounced in parent)
     onFilterChange(category, value)
   }, [onFilterChange])
@@ -163,12 +163,12 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: 
                 }}
               >
                 {isLoading ? (
-                  <CircularProgress 
-                    size={24} 
-                    sx={{ 
+                  <CircularProgress
+                    size={24}
+                    sx={{
                       color: isSelected ? 'white' : '#7563A8',
                       position: 'absolute'
-                    }} 
+                    }}
                   />
                 ) : (
                   <span className="text-2xl">
@@ -179,19 +179,19 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: 
             </Tooltip>
 
             {/* Option Selection Menu */}
-            <Slide 
-              direction="left" 
-              in={isOpen} 
-              mountOnEnter 
+            <Slide
+              direction="left"
+              in={isOpen}
+              mountOnEnter
               unmountOnExit
               timeout={100} // Ultra-fast animation for instant gratification
             >
-              <Box 
+              <Box
                 className="absolute right-full top-0 mr-4 flex space-x-2"
                 sx={{ zIndex: 1001 }}
               >
                 {config.options.map((option, index) => (
-                  <Fade 
+                  <Fade
                     key={option.value}
                     in={isOpen}
                     timeout={100 + (index * 15)} // Ultra-fast staggered animation
@@ -218,7 +218,7 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: 
                           }}
                         >
                           <span className="text-lg">{option.icon}</span>
-                          
+
                           {/* Active option indicator with result count */}
                           {filters[category] === option.value && (
                             <Box
@@ -246,7 +246,7 @@ export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: 
         )
       })}
 
-      
+
     </Box>
   )
 }

@@ -89,7 +89,7 @@ All requested optimizations have been successfully implemented to support the bu
 **Storage Keys:**
 ```typescript
 WEATHER_FILTERS: 'nearestNiceWeather_filters'
-USER_LOCATION: 'nearestNiceWeather_userLocation'  
+USER_LOCATION: 'nearestNiceWeather_userLocation'
 LOCATION_METHOD: 'nearestNiceWeather_locationMethod'
 MAP_VIEW: 'nearestNiceWeather_mapView'
 SHOW_LOCATION_PROMPT: 'nearestNiceWeather_showLocationPrompt'

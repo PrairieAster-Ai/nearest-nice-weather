@@ -50,7 +50,7 @@ CHILD_PIDS=()
 # Enhanced cleanup function for graceful exit with proper signal propagation
 cleanup() {
     log "🛑 Shutting down development environment..."
-    
+
     # Send SIGTERM to all tracked child processes first
     for pid in "${CHILD_PIDS[@]}"; do
         if kill -0 "$pid" 2>/dev/null; then
@@ -58,10 +58,10 @@ cleanup() {
             kill -TERM "$pid" 2>/dev/null || true
         fi
     done
-    
+
     # Wait a moment for graceful shutdown
     sleep 2
-    
+
     # Send SIGKILL to any remaining processes
     for pid in "${CHILD_PIDS[@]}"; do
         if kill -0 "$pid" 2>/dev/null; then
@@ -69,7 +69,7 @@ cleanup() {
             kill -KILL "$pid" 2>/dev/null || true
         fi
     done
-    
+
     # Kill tracked background processes by PID variables
     if [[ -n $API_PID ]]; then
         if kill -0 "$API_PID" 2>/dev/null; then
@@ -79,7 +79,7 @@ cleanup() {
         fi
         success "API server stopped"
     fi
-    
+
     if [[ -n $FRONTEND_PID ]]; then
         if kill -0 "$FRONTEND_PID" 2>/dev/null; then
             kill -TERM "$FRONTEND_PID" 2>/dev/null || true
@@ -88,7 +88,7 @@ cleanup() {
         fi
         success "Frontend server stopped"
     fi
-    
+
     if [[ -n $BROWSERTOOLS_PID ]]; then
         if kill -0 "$BROWSERTOOLS_PID" 2>/dev/null; then
             kill -TERM "$BROWSERTOOLS_PID" 2>/dev/null || true
@@ -97,20 +97,20 @@ cleanup() {
         fi
         success "BrowserToolsMCP server stopped"
     fi
-    
+
     # Comprehensive cleanup by process pattern (fallback)
     pkill -TERM -f "dev-api-server.js" 2>/dev/null || true
     pkill -TERM -f "vite.*3001" 2>/dev/null || true
     pkill -TERM -f "browsertools-mcp-server" 2>/dev/null || true
     pkill -TERM -f "browsertools-monitor" 2>/dev/null || true
-    
+
     # Final cleanup after grace period
     sleep 2
     pkill -KILL -f "dev-api-server.js" 2>/dev/null || true
     pkill -KILL -f "vite.*3001" 2>/dev/null || true
     pkill -KILL -f "browsertools-mcp-server" 2>/dev/null || true
     pkill -KILL -f "browsertools-monitor" 2>/dev/null || true
-    
+
     log "Development environment stopped"
     exit 0
 }
@@ -135,17 +135,17 @@ log "Node.js version: $NODE_VERSION"
 check_port() {
     local port=$1
     local service=$2
-    
+
     if lsof -i :$port >/dev/null 2>&1; then
         warning "Port $port already in use (for $service)"
         log "Attempting to free port $port..."
-        
+
         # Try to kill existing processes on port
         PID=$(lsof -ti :$port)
         if [[ -n $PID ]]; then
             kill $PID 2>/dev/null || true
             sleep 2
-            
+
             # Check if port is now free
             if lsof -i :$port >/dev/null 2>&1; then
                 error "Could not free port $port for $service"
@@ -183,22 +183,22 @@ start_service_with_retry() {
     local test_url=$3
     local max_retries=3
     local pid_var=$4
-    
+
     for attempt in $(seq 1 $max_retries); do
         log "Starting $service_name (attempt $attempt/$max_retries)..."
-        
+
         # Start the service
         eval "$start_command" &
         local pid=$!
         eval "$pid_var=$pid"
-        
+
         # Track PID for cleanup
         CHILD_PIDS+=("$pid")
-        
+
         # Wait with exponential backoff
         local wait_time=$((attempt * 2))
         sleep $wait_time
-        
+
         # Test if service is responding
         for i in {1..10}; do
             if curl -s "$test_url" >/dev/null 2>&1; then
@@ -207,17 +207,17 @@ start_service_with_retry() {
             fi
             sleep 1
         done
-        
+
         # Service failed, kill and retry
         warning "$service_name failed to start, killing PID $pid"
         kill $pid 2>/dev/null || true
-        
+
         if [[ $attempt -eq $max_retries ]]; then
             error "$service_name failed after $max_retries attempts"
             cleanup
             exit 1
         fi
-        
+
         warning "Retrying $service_name in 3 seconds..."
         sleep 3
     done
@@ -230,7 +230,7 @@ if [[ -f "$PROJECT_ROOT/browsertools-mcp-server.js" ]]; then
         "cd '$PROJECT_ROOT' && node browsertools-mcp-server.js" \
         "http://localhost:3025/identity" \
         "BROWSERTOOLS_PID"
-        
+
     # Start BrowserToolsMCP monitor
     if [[ -f "$PROJECT_ROOT/scripts/browsertools-monitor.sh" ]]; then
         log "Starting BrowserToolsMCP monitor..."
@@ -338,12 +338,12 @@ fi
 if [[ -n $BROWSERTOOLS_PID && "$FRONTEND_CHECK_RESULT" == "PASSED" ]]; then
     log "🌐 Performing browser validation..."
     sleep 2  # Give browser time to load
-    
+
     # Take screenshot for visual validation
     SCREENSHOT_RESULT=$(curl -s --max-time 10 "http://localhost:3025/mcp/screenshot" \
         -H "Content-Type: application/json" \
         -d '{"url": "http://localhost:'$FRONTEND_PORT'", "filename": "startup-validation.png"}' 2>/dev/null || echo "")
-    
+
     if echo "$SCREENSHOT_RESULT" | grep -q "success"; then
         success "Browser Visual Validation: PASSED"
         info "Screenshot saved: startup-validation.png"
@@ -380,18 +380,18 @@ echo
 if [[ "$1" == "--no-monitor" ]]; then
     log "🎯 Services started successfully! Use Ctrl+C to stop monitoring mode."
     log "🔄 To monitor services, run: npm start (without --no-monitor)"
-    
+
     # Just wait for interrupt signal
     while true; do
         sleep 30
     done
 else
     log "🔄 Monitoring services (Ctrl+C to stop)..."
-    
+
     # Service monitoring loop with comprehensive health checking
     while true; do
         sleep 30
-    
+
     # Check if services are still running and restart if needed
     if ! kill -0 $API_PID 2>/dev/null; then
         warning "API server stopped unexpectedly, restarting..."
@@ -399,7 +399,7 @@ else
         node dev-api-server.js &
         API_PID=$!
         sleep 3
-        
+
         # Validate restart worked
         if curl -s "http://localhost:$API_PORT/api/health" >/dev/null 2>&1; then
             success "API server restarted successfully"
@@ -407,14 +407,14 @@ else
             error "API server restart failed"
         fi
     fi
-    
+
     if ! kill -0 $FRONTEND_PID 2>/dev/null; then
         warning "Frontend stopped unexpectedly, restarting..."
         cd "$PROJECT_ROOT/apps/web"
         npm run dev &
         FRONTEND_PID=$!
         sleep 5
-        
+
         # Validate restart worked
         if curl -s "http://localhost:$FRONTEND_PORT" >/dev/null 2>&1; then
             success "Frontend restarted successfully"
@@ -422,7 +422,7 @@ else
             error "Frontend restart failed"
         fi
     fi
-    
+
     # Check BrowserToolsMCP if it was started
     if [[ -n $BROWSERTOOLS_PID ]] && ! kill -0 $BROWSERTOOLS_PID 2>/dev/null; then
         warning "BrowserToolsMCP stopped unexpectedly, restarting..."
@@ -430,7 +430,7 @@ else
         node browsertools-mcp-server.js &
         BROWSERTOOLS_PID=$!
         sleep 2
-        
+
         # Validate restart worked
         if curl -s "http://localhost:3025/identity" >/dev/null 2>&1; then
             success "BrowserToolsMCP restarted successfully"

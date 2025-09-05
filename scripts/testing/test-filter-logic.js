@@ -52,7 +52,7 @@ console.log('\n❄️ Testing COLD filter:')
 const coldResult = applyWeatherFilters(testData, { temperature: 'cold' })
 console.log(`Cold results: ${coldResult.map(p => `${p.name} (${p.temperature}°F)`).join(', ')}`)
 
-// Test hot filter  
+// Test hot filter
 console.log('\n🔥 Testing HOT filter:')
 const hotResult = applyWeatherFilters(testData, { temperature: 'hot' })
 console.log(`Hot results: ${hotResult.map(p => `${p.name} (${p.temperature}°F)`).join(', ')}`)

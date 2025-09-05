@@ -38,15 +38,15 @@ export const weatherApi = {
       return data.data || []
     } catch (error) {
       clearTimeout(timeoutId)
-      
+
       if (error instanceof WeatherApiError) {
         throw error
       }
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         throw new WeatherApiError('Request timed out. Please try again.')
       }
-      
+
       throw new WeatherApiError('An unexpected error occurred while fetching locations')
     }
   },
@@ -86,7 +86,7 @@ export const weatherApi = {
       }
 
       const data = await response.json()
-      
+
       if (!data.success) {
         throw new WeatherApiError(data.error || 'Failed to submit feedback')
       }
@@ -98,15 +98,15 @@ export const weatherApi = {
       }
     } catch (error) {
       clearTimeout(timeoutId)
-      
+
       if (error instanceof WeatherApiError) {
         throw error
       }
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         throw new WeatherApiError('Request timed out. Please try again.')
       }
-      
+
       throw new WeatherApiError('An unexpected error occurred while submitting feedback')
     }
   }

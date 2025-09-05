@@ -83,7 +83,7 @@ echo "⏱️ Setup Time: NPM install + env config (1-2 minutes)"
 echo "📦 Testing Kunwar Project Manager MCP..."
 # Set environment and test
 export GITHUB_TOKEN="$GITHUB_TOKEN"
-export GITHUB_OWNER="$REPO_OWNER" 
+export GITHUB_OWNER="$REPO_OWNER"
 export GITHUB_REPO="$REPO_NAME"
 
 # Test if the MCP server can start (timeout after 5 seconds)
@@ -94,7 +94,7 @@ if [[ $KUNWAR_MCP_TEST == *"error"* ]] || [[ $KUNWAR_MCP_TEST == *"failed"* ]]; 
     echo "  Status: ❌ Startup issues detected"
     echo "  Issue: May require additional configuration"
 else
-    echo "  Status: ✅ MCP Server available" 
+    echo "  Status: ✅ MCP Server available"
     echo "  Capabilities: 40+ project management tools"
     echo "  Features: AI-powered PRD generation, task breakdown"
 fi

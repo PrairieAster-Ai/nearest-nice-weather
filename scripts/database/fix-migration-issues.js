@@ -42,10 +42,10 @@ class MigrationFixer {
 
   async fixDirectory(dir = '.', extensions = ['.js', '.ts', '.jsx', '.tsx']) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
-      
+
       if (entry.isDirectory() && !this.skipPatterns.includes(entry.name)) {
         try {
           await this.fixDirectory(fullPath, extensions);
@@ -85,7 +85,7 @@ class MigrationFixer {
 
       const assignmentPart = assignment || '';
       const declarationPart = declaration ? `${declaration} ` : '';
-      
+
       return `${indent}try {
 ${indent}  ${declarationPart}${assignmentPart}await ${awaitExpr};
 ${indent}} catch (error) {
@@ -200,7 +200,7 @@ if (typeof WebSocket === 'undefined') {
       console.log(`   📁 Files modified: ${this.fileCount}`);
       console.log(`   🔧 Total fixes: ${this.fixCount}`);
       console.log();
-      
+
       console.log('📋 Next Steps:');
       console.log('   1. Review the changes in each file');
       console.log('   2. Update TODO comments with proper error handling');
@@ -208,7 +208,7 @@ if (typeof WebSocket === 'undefined') {
       console.log('   4. Remove .backup files when satisfied');
       console.log('   5. Update package.json engines field');
       console.log();
-      
+
       console.log('💾 Backup files created (*.backup) - remove when satisfied');
     }
 
@@ -220,7 +220,7 @@ if (typeof WebSocket === 'undefined') {
 
 ## Automated Fixes Applied
 - Added try-catch wrappers for unhandled promises
-- Added .catch() handlers to Promise chains  
+- Added .catch() handlers to Promise chains
 - Clarified negative array slice operations
 - Added Node.js version checks for V8 features
 - Added WebSocket availability checks

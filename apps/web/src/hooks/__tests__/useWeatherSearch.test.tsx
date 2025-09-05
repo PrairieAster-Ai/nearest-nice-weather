@@ -2,13 +2,13 @@
  * ========================================================================
  * USE WEATHER SEARCH HOOK TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for useWeatherSearch hook functionality
  * 🔗 HOOK: useWeatherSearch - Weather search API integration with filtering
  * 📊 COVERAGE: State management, API calls, error handling, data transformation
  * ⚙️ FUNCTIONALITY: Weather location search, filtering, loading states
  * 🎯 BUSINESS_IMPACT: Ensures reliable weather location search functionality
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -44,7 +44,7 @@ describe('useWeatherSearch Hook', () => {
   describe('✅ Initial State', () => {
     it('should initialize with default state', () => {
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       expect(result.current.loading).toBe(false)
       expect(result.current.error).toBe(null)
       expect(result.current.results).toEqual([])
@@ -56,7 +56,7 @@ describe('useWeatherSearch Hook', () => {
   describe('📝 Filter Validation', () => {
     it('should validate required filter fields before searching', async () => {
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       // Missing temperature
       await act(async () => {
         await result.current.searchWeather({
@@ -64,14 +64,14 @@ describe('useWeatherSearch Hook', () => {
           wind: 'calm'
         } as any)
       })
-      
+
       expect(result.current.error).toBe('Please select all weather preferences')
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
     it('should validate all required fields are present', async () => {
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       // Missing precipitation
       await act(async () => {
         await result.current.searchWeather({
@@ -79,9 +79,9 @@ describe('useWeatherSearch Hook', () => {
           wind: 'calm'
         } as any)
       })
-      
+
       expect(result.current.error).toBe('Please select all weather preferences')
-      
+
       // Missing wind
       await act(async () => {
         await result.current.searchWeather({
@@ -89,7 +89,7 @@ describe('useWeatherSearch Hook', () => {
           precipitation: 'none'
         } as any)
       })
-      
+
       expect(result.current.error).toBe('Please select all weather preferences')
       expect(mockFetch).not.toHaveBeenCalled()
     })
@@ -108,7 +108,7 @@ describe('useWeatherSearch Hook', () => {
       })
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'warm',
@@ -142,7 +142,7 @@ describe('useWeatherSearch Hook', () => {
       })
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'mild',
@@ -163,7 +163,7 @@ describe('useWeatherSearch Hook', () => {
       })
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'cool',
@@ -184,7 +184,7 @@ describe('useWeatherSearch Hook', () => {
       })
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'warm',
@@ -204,11 +204,11 @@ describe('useWeatherSearch Hook', () => {
       const pendingPromise = new Promise(resolve => {
         resolvePromise = resolve
       })
-      
+
       mockFetch.mockReturnValueOnce(pendingPromise)
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       const searchPromise = act(async () => {
         await result.current.searchWeather({
           temperature: 'warm',
@@ -219,7 +219,7 @@ describe('useWeatherSearch Hook', () => {
 
       // Check loading state immediately
       expect(result.current.loading).toBe(true)
-      
+
       // Resolve the promise
       resolvePromise!({
         ok: true,
@@ -241,7 +241,7 @@ describe('useWeatherSearch Hook', () => {
       })
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'warm',
@@ -259,7 +259,7 @@ describe('useWeatherSearch Hook', () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'warm',
@@ -279,7 +279,7 @@ describe('useWeatherSearch Hook', () => {
       mockFetch.mockRejectedValueOnce(abortError)
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'warm',
@@ -297,7 +297,7 @@ describe('useWeatherSearch Hook', () => {
       mockFetch.mockRejectedValueOnce('Unexpected error type')
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       await act(async () => {
         await result.current.searchWeather({
           temperature: 'warm',
@@ -321,7 +321,7 @@ describe('useWeatherSearch Hook', () => {
       })
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       // First perform a search
       await act(async () => {
         await result.current.searchWeather({
@@ -346,7 +346,7 @@ describe('useWeatherSearch Hook', () => {
       mockFetch.mockRejectedValueOnce(new Error('Test error'))
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       // First cause an error
       await act(async () => {
         await result.current.searchWeather({
@@ -372,15 +372,15 @@ describe('useWeatherSearch Hook', () => {
     it('should abort request on timeout', async () => {
       const controller = new AbortController()
       const abortSpy = vi.spyOn(controller, 'abort')
-      
+
       // Mock AbortController
       global.AbortController = vi.fn(() => controller) as any
-      
+
       // Create a promise that doesn't resolve immediately
       mockFetch.mockImplementationOnce(() => new Promise(() => {}))
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       const searchPromise = result.current.searchWeather({
         temperature: 'warm',
         precipitation: 'none',
@@ -405,12 +405,12 @@ describe('useWeatherSearch Hook', () => {
   describe('🔄 Hook Stability', () => {
     it('should maintain stable function references', () => {
       const { result, rerender } = renderHook(() => useWeatherSearch())
-      
+
       const firstSearchWeather = result.current.searchWeather
       const firstClearResults = result.current.clearResults
-      
+
       rerender()
-      
+
       expect(result.current.searchWeather).toBe(firstSearchWeather)
       expect(result.current.clearResults).toBe(firstClearResults)
     })
@@ -427,7 +427,7 @@ describe('useWeatherSearch Hook', () => {
         })
 
       const { result } = renderHook(() => useWeatherSearch())
-      
+
       // Fire two searches rapidly
       await act(async () => {
         const search1 = result.current.searchWeather({
@@ -435,13 +435,13 @@ describe('useWeatherSearch Hook', () => {
           precipitation: 'none',
           wind: 'calm'
         })
-        
+
         const search2 = result.current.searchWeather({
           temperature: 'cool',
           precipitation: 'light',
           wind: 'light'
         })
-        
+
         await Promise.all([search1, search2])
       })
 
@@ -465,7 +465,7 @@ describe('useWeatherSearch Hook', () => {
  * ✅ Request cancellation on timeout
  * ✅ Hook stability and memoization
  * ✅ Rapid successive searches
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Weather preference filtering
  * ✅ Location search functionality

@@ -35,7 +35,7 @@ export const MOCK_MINNEAPOLIS_POIS = [
     park_type: 'State Park'
   },
   {
-    id: '2', 
+    id: '2',
     name: 'Lake Harriet',
     latitude: 44.9219,
     longitude: -93.3056,

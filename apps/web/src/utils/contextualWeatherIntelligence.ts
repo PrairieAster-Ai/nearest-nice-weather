@@ -48,27 +48,27 @@ export class ContextualWeatherIntelligence {
   }
 
   private activityOptimalConditions = {
-    hiking: { 
+    hiking: {
       tempRange: [55, 75], maxPrecip: 25, maxWind: 20,
       preferredConditions: ['Clear', 'Partly Cloudy']
     },
-    fishing: { 
+    fishing: {
       tempRange: [60, 80], maxPrecip: 40, maxWind: 15,
       preferredConditions: ['Overcast', 'Partly Cloudy']
     },
-    photography: { 
+    photography: {
       tempRange: [40, 85], maxPrecip: 20, maxWind: 25,
       preferredConditions: ['Partly Cloudy', 'Overcast', 'Clear']
     },
-    camping: { 
+    camping: {
       tempRange: [50, 80], maxPrecip: 15, maxWind: 18,
       preferredConditions: ['Clear', 'Partly Cloudy']
     },
-    sightseeing: { 
+    sightseeing: {
       tempRange: [55, 85], maxPrecip: 30, maxWind: 20,
       preferredConditions: ['Clear', 'Sunny']
     },
-    general: { 
+    general: {
       tempRange: [60, 80], maxPrecip: 25, maxWind: 15,
       preferredConditions: ['Clear', 'Sunny', 'Partly Cloudy']
     }
@@ -123,7 +123,7 @@ export class ContextualWeatherIntelligence {
     // Activity-specific assessment
     const activity = context.intendedActivity || 'general'
     const optimal = this.activityOptimalConditions[activity]
-    
+
     // Temperature suitability
     if (weather.temperature >= optimal.tempRange[0] && weather.temperature <= optimal.tempRange[1]) {
       score += 0.3
@@ -168,7 +168,7 @@ export class ContextualWeatherIntelligence {
     // Seasonal context
     const season = context.season || this.getCurrentSeason()
     const norms = this.seasonalNorms[season]
-    
+
     if (weather.temperature > norms.temp[1]) {
       reasoning.push(`Warmer than typical for ${season}`)
     } else if (weather.temperature < norms.temp[0]) {
@@ -195,7 +195,7 @@ export class ContextualWeatherIntelligence {
         location,
         userContext
       )
-      
+
       const niceness = this.calculateWeatherNiceness(
         location,
         userContext,
@@ -203,7 +203,7 @@ export class ContextualWeatherIntelligence {
       )
 
       const overallScore = (nearness.score * 0.4) + (niceness.score * 0.6)
-      
+
       const comparison = this.compareToAlternatives(location, locations)
 
       return {
@@ -279,11 +279,11 @@ export class ContextualWeatherIntelligence {
 
   private identifyPotentialConcerns(location: WeatherLocation, context: UserContext): string[] {
     const concerns: string[] = []
-    
+
     if (location.precipitation > 50) {
       concerns.push('High chance of precipitation')
     }
-    
+
     if (location.windSpeed > 20) {
       concerns.push('Strong winds expected')
     }

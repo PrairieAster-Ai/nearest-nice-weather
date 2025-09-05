@@ -1,7 +1,7 @@
 /**
  * Direct Source Code Coverage Tests
  * Imports and executes actual source code to achieve meaningful coverage
- * 
+ *
  * @COVERAGE_TARGET: Direct imports of utils/validation.ts, utils/sanitize.ts
  * @DUAL_API_CONTEXT: Tests utilities used by both Express and Vercel APIs
  */
@@ -42,53 +42,53 @@ describe('Direct Source Code Coverage Tests', () => {
     test('should import and test escapeHtml function', async () => {
       // Import the actual sanitize module
       const { escapeHtml } = await import('../../../apps/web/src/utils/sanitize.ts');
-      
+
       // Mock document.createElement to simulate DOM behavior
       const mockDiv = {
         textContent: '',
         innerHTML: ''
       };
-      
+
       document.createElement = jest.fn(() => mockDiv);
-      
+
       // Test the actual function
       const testInput = '<script>alert("test")</script>';
       mockDiv.textContent = testInput;
       mockDiv.innerHTML = '&lt;script&gt;alert("test")&lt;/script&gt;';
-      
+
       const result = escapeHtml(testInput);
-      
+
       expect(document.createElement).toHaveBeenCalledWith('div');
       expect(typeof result).toBe('string');
     });
 
     test('should import and test sanitizeUrl function', async () => {
       const { sanitizeUrl } = await import('../../../apps/web/src/utils/sanitize.ts');
-      
+
       // Test safe URLs
       const httpUrl = 'http://example.com';
       const httpsUrl = 'https://example.com';
       const mailtoUrl = 'mailto:test@example.com';
-      
+
       // These should pass through (or be transformed consistently)
       const httpResult = sanitizeUrl(httpUrl);
       const httpsResult = sanitizeUrl(httpsUrl);
       const mailtoResult = sanitizeUrl(mailtoUrl);
-      
+
       expect(typeof httpResult).toBe('string');
       expect(typeof httpsResult).toBe('string');
       expect(typeof mailtoResult).toBe('string');
-      
+
       // Test dangerous URLs - these should be blocked
       const jsUrl = 'javascript:alert("xss")';
       const dataUrl = 'data:text/html,<script>alert("xss")</script>';
-      
+
       const jsResult = sanitizeUrl(jsUrl);
       const dataResult = sanitizeUrl(dataUrl);
-      
+
       expect(jsResult).toBe('');
       expect(dataResult).toBe('');
-      
+
       // Test edge cases
       expect(sanitizeUrl('')).toBe('');
       expect(sanitizeUrl(null as any)).toBe('');
@@ -96,21 +96,21 @@ describe('Direct Source Code Coverage Tests', () => {
 
     test('should import and test sanitizeObject function', async () => {
       const { sanitizeObject } = await import('../../../apps/web/src/utils/sanitize.ts');
-      
+
       // Mock escapeHtml for this test
       const mockEscapeHtml = jest.fn((str) => `escaped_${str}`);
       const sanitizeModule = await import('../../../apps/web/src/utils/sanitize.ts');
       sanitizeModule.escapeHtml = mockEscapeHtml;
-      
+
       const testObj = {
         name: 'Test Location',
         description: '<script>alert("test")</script>',
         number: 42,
         boolean: true
       };
-      
+
       const result = sanitizeObject(testObj);
-      
+
       expect(result).not.toBe(testObj); // Should be a new object
       expect(result.number).toBe(42); // Numbers should be unchanged
       expect(result.boolean).toBe(true); // Booleans should be unchanged
@@ -120,10 +120,10 @@ describe('Direct Source Code Coverage Tests', () => {
   describe('Validation Utilities', () => {
     test('should import and test sanitizeString function', async () => {
       const { sanitizeString } = await import('../../../apps/web/src/utils/validation.ts');
-      
+
       const maliciousInput = '  <script>alert("test")</script>Hello World  ';
       const result = sanitizeString(maliciousInput);
-      
+
       expect(typeof result).toBe('string');
       expect(result).not.toContain('<script>');
       expect(result.trim()).toBe(result); // Should be trimmed
@@ -131,24 +131,24 @@ describe('Direct Source Code Coverage Tests', () => {
 
     test('should import and test UserInputSchemas', async () => {
       const { UserInputSchemas } = await import('../../../apps/web/src/utils/validation.ts');
-      
+
       // Test valid weather filter
       const validFilter = {
         temperature: 'mild',
         precipitation: 'none',
         wind: 'calm'
       };
-      
+
       const parseResult = UserInputSchemas.weatherFilter.safeParse(validFilter);
       expect(parseResult.success).toBe(true);
-      
+
       // Test invalid weather filter
       const invalidFilter = {
         temperature: 'invalid',
         precipitation: 'none',
         wind: 'calm'
       };
-      
+
       const invalidResult = UserInputSchemas.weatherFilter.safeParse(invalidFilter);
       expect(invalidResult.success).toBe(false);
     });
@@ -157,14 +157,14 @@ describe('Direct Source Code Coverage Tests', () => {
   describe('Weather API Service', () => {
     test('should import and test WeatherApiError class', async () => {
       const { WeatherApiError } = await import('../../../apps/web/src/services/weatherApi.ts');
-      
+
       const error = new WeatherApiError('Test error', 404);
-      
+
       expect(error).toBeInstanceOf(Error);
       expect(error.name).toBe('WeatherApiError');
       expect(error.message).toBe('Test error');
       expect(error.status).toBe(404);
-      
+
       // Test without status
       const errorNoStatus = new WeatherApiError('Test error 2');
       expect(errorNoStatus.status).toBeUndefined();
@@ -181,13 +181,13 @@ describe('Direct Source Code Coverage Tests', () => {
 
       // Clear module cache to reload with new env
       jest.resetModules();
-      
+
       const apiModule = await import('../../../apps/web/src/services/weatherApi.ts');
-      
+
       // Test that configuration uses environment variables
       // Note: We can't directly access API_CONFIG, but we can test the behavior
       expect(apiModule.WeatherApiError).toBeDefined();
-      
+
       process.env = originalEnv;
     });
   });
@@ -199,7 +199,7 @@ describe('Direct Source Code Coverage Tests', () => {
         if (!apiResponse || !Array.isArray(apiResponse)) {
           return [];
         }
-        
+
         return apiResponse.map(poi => ({
           id: String(poi.id || ''),
           name: poi.name || 'Unknown Location',
@@ -238,13 +238,13 @@ describe('Direct Source Code Coverage Tests', () => {
       ];
 
       const result = transformPOIResponse(mockApiResponse);
-      
+
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('1');
       expect(result[0].lat).toBe(44.9778);
       expect(result[0].temperature).toBe(72);
       expect(typeof result[0].windSpeed).toBe('number');
-      
+
       // Test edge cases
       expect(transformPOIResponse(null)).toEqual([]);
       expect(transformPOIResponse([])).toEqual([]);
@@ -294,10 +294,10 @@ describe('Direct Source Code Coverage Tests', () => {
       // Both should have consistent structure and data types
       expect(standardizedLocalhost.data[0].id).toBe('1');
       expect(standardizedVercel.data[0].id).toBe('1');
-      
+
       expect(typeof standardizedLocalhost.data[0].lat).toBe('number');
       expect(typeof standardizedVercel.data[0].lat).toBe('number');
-      
+
       expect(standardizedLocalhost.data[0].lat).toBe(standardizedVercel.data[0].lat);
       expect(standardizedLocalhost.data[0].temperature).toBe(standardizedVercel.data[0].temperature);
     });
@@ -306,10 +306,10 @@ describe('Direct Source Code Coverage Tests', () => {
   describe('Dual API Error Handling', () => {
     test('should test consistent error formatting between environments', async () => {
       const { WeatherApiError } = await import('../../../apps/web/src/services/weatherApi.ts');
-      
+
       const formatApiError = (error: Error, environment: string) => {
         const isProduction = environment === 'production';
-        
+
         return {
           success: false,
           error: error.message || 'Unknown error occurred',
@@ -326,7 +326,7 @@ describe('Direct Source Code Coverage Tests', () => {
       };
 
       const testError = new WeatherApiError('Database connection failed', 500);
-      
+
       const prodError = formatApiError(testError, 'production');
       const devError = formatApiError(testError, 'localhost');
 
@@ -347,47 +347,47 @@ describe('Direct Source Code Coverage Tests', () => {
     test('should test caching strategies for dual API responses', async () => {
       const createApiCache = (ttlMs: number = 300000) => { // 5 minute default
         const cache = new Map();
-        
+
         const getCacheKey = (url: string, params: any) => {
           const paramStr = JSON.stringify(params, Object.keys(params).sort());
           return `${url}_${paramStr}`;
         };
-        
+
         const get = (key: string) => {
           const entry = cache.get(key);
           if (!entry) return null;
-          
+
           if (Date.now() > entry.expires) {
             cache.delete(key);
             return null;
           }
-          
+
           return entry.data;
         };
-        
+
         const set = (key: string, data: any) => {
           cache.set(key, {
             data,
             expires: Date.now() + ttlMs
           });
         };
-        
+
         return { get, set, getCacheKey, clear: () => cache.clear(), size: () => cache.size };
       };
 
       const apiCache = createApiCache(5000); // 5 second TTL for testing
-      
+
       const testData = { locations: ['Minneapolis', 'St. Paul'] };
       const cacheKey = apiCache.getCacheKey('/api/weather-locations', { lat: 44.9778, lng: -93.2650 });
-      
+
       // Test cache miss
       expect(apiCache.get(cacheKey)).toBeNull();
-      
+
       // Test cache set and hit
       apiCache.set(cacheKey, testData);
       expect(apiCache.get(cacheKey)).toEqual(testData);
       expect(apiCache.size()).toBe(1);
-      
+
       // Test cache expiration
       await new Promise(resolve => setTimeout(resolve, 6000));
       expect(apiCache.get(cacheKey)).toBeNull();

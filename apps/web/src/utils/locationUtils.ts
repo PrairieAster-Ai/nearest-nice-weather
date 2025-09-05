@@ -2,27 +2,27 @@
  * ========================================================================
  * LOCATION UTILITIES
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Extracted testable location management logic from App.tsx
  * 🔗 DEPENDENCIES: None - pure utilities for location handling
  * 📊 COVERAGE: Location state management, localStorage persistence, validation
  * ⚙️ FUNCTIONALITY: User location handling and storage
  * 🎯 BUSINESS_IMPACT: Reliable location tracking for personalized POI recommendations
- * 
+ *
  * BUSINESS CONTEXT: User location management
  * - Handles user location state changes and persistence
  * - Manages location method tracking (GPS, manual, IP, etc.)
  * - Provides localStorage integration for location preferences
  * - Validates location coordinates and formats
- * 
+ *
  * TECHNICAL CONTEXT: Pure utility functions
  * - No React dependencies or side effects
  * - Easy to test mathematical and validation logic
  * - Handles localStorage errors gracefully
  * - Type-safe location coordinate handling
- * 
+ *
  * EXTRACTED FROM: App.tsx lines 332-365 (location change handling)
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -51,7 +51,7 @@ export function isValidCoordinates(coordinates: [number, number] | null): boolea
   }
 
   const [lat, lng] = coordinates
-  
+
   // Check if values are numbers
   if (typeof lat !== 'number' || typeof lng !== 'number') {
     return false
@@ -191,7 +191,7 @@ export function hasLocationChangedSignificantly(
 
   // Calculate distance between locations
   const distance = calculateLocationDistance(oldLocation, newLocation)
-  
+
   return distance >= thresholdMiles
 }
 
@@ -207,18 +207,18 @@ function calculateLocationDistance(
 ): number {
   const [lat1, lng1] = point1
   const [lat2, lng2] = point2
-  
+
   const R = 3959 // Earth's radius in miles
   const dLat = toRadians(lat2 - lat1)
   const dLng = toRadians(lng2 - lng1)
-  
-  const a = 
+
+  const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * 
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
     Math.sin(dLng / 2) * Math.sin(dLng / 2)
-  
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  
+
   return R * c
 }
 

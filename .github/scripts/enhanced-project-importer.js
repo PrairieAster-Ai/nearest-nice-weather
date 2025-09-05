@@ -22,7 +22,7 @@ const PROJECT_CONFIG = {
       fieldId: 'PVTSSF_lADODOEVVc4A-5-CzgyRLcU',
       options: {
         'User Story': 'd50374fe',
-        'Epic': '1b56d361', 
+        'Epic': '1b56d361',
         'Capability': '7cbc29c7'
       }
     },
@@ -71,7 +71,7 @@ class EnhancedProjectImporter {
   async createIssueWithProjectFields(issueData) {
     try {
       console.log(`📝 Creating issue: ${issueData.title}`);
-      
+
       // Step 1: Create the issue using REST API
       const issue = await octokit.rest.issues.create({
         owner: this.owner,
@@ -87,7 +87,7 @@ class EnhancedProjectImporter {
 
       // Step 2: Add issue to project using GraphQL
       const addToProjectResult = await this.addIssueToProject(issue.data.node_id);
-      
+
       if (!addToProjectResult) {
         console.warn(`⚠️ Failed to add issue #${issue.data.number} to project`);
         return issue.data;
@@ -95,9 +95,9 @@ class EnhancedProjectImporter {
 
       // Step 3: Set project fields using GraphQL
       const projectItemId = addToProjectResult.addProjectV2ItemById.item.id;
-      
+
       await this.setProjectFields(projectItemId, issueData.projectFields || {});
-      
+
       console.log(`🎯 Issue #${issue.data.number} configured with project fields`);
       return issue.data;
 
@@ -261,7 +261,7 @@ class EnhancedProjectImporter {
     // Complete work items based on MVP-WBS-STRUCTURED.md
     const workItems = [
       // Sprint 3: Database + Weather API (Current Sprint)
-      
+
       // Capability 1: Real-Time Weather Intelligence
       {
         title: 'Capability: Real-Time Weather Intelligence',
@@ -273,7 +273,7 @@ class EnhancedProjectImporter {
           size: 'XL'
         }
       },
-      
+
       // Epic 1.1: Production Database & POI Infrastructure
       {
         title: 'Epic: Production Database & POI Infrastructure',
@@ -285,7 +285,7 @@ class EnhancedProjectImporter {
           size: 'XL'
         }
       },
-      
+
       // Story 1.1.1: Minnesota POI Database Deployment
       {
         title: 'Story: Minnesota POI Database Deployment',
@@ -335,7 +335,7 @@ class EnhancedProjectImporter {
       },
 
       // Sprint 4: Revenue + Launch (Next Sprint)
-      
+
       // Capability 2: Revenue Generation
       {
         title: 'Capability: Revenue Generation',
@@ -428,16 +428,16 @@ class EnhancedProjectImporter {
       if (created) {
         createdItems.push(created);
       }
-      
+
       // Wait between requests to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     console.log(`\n✅ Import complete: ${createdItems.length} work items created`);
-    
+
     // Display summary
     this.displayImportSummary(createdItems);
-    
+
     return createdItems;
   }
 
@@ -570,7 +570,7 @@ ${description || 'User-focused work item that delivers specific business value.'
   displayImportSummary(createdItems) {
     console.log('\n📊 **IMPORT SUMMARY**');
     console.log('='.repeat(50));
-    
+
     const typeCount = {
       capabilities: 0,
       epics: 0,
@@ -580,7 +580,7 @@ ${description || 'User-focused work item that delivers specific business value.'
     createdItems.forEach(item => {
       console.log(`  #${item.number}: ${item.title}`);
       console.log(`    🔗 ${item.html_url}`);
-      
+
       if (item.title.includes('Capability:')) typeCount.capabilities++;
       else if (item.title.includes('Epic:')) typeCount.epics++;
       else if (item.title.includes('Story:')) typeCount.stories++;
@@ -591,7 +591,7 @@ ${description || 'User-focused work item that delivers specific business value.'
     console.log(`  📚 Epics: ${typeCount.epics}`);
     console.log(`  📖 Stories: ${typeCount.stories}`);
     console.log(`  📄 Total: ${createdItems.length}`);
-    
+
     console.log('\n✅ All items configured with Work Item Type field!');
   }
 
@@ -600,7 +600,7 @@ ${description || 'User-focused work item that delivers specific business value.'
    */
   async testProjectFieldConfiguration() {
     console.log('🧪 Testing project field configuration...\n');
-    
+
     try {
       // Query project fields to verify configuration
       const query = `
@@ -637,7 +637,7 @@ ${description || 'User-focused work item that delivers specific business value.'
 
       console.log('📊 Project Fields Configuration:');
       console.log(JSON.stringify(result.node, null, 2));
-      
+
       return result;
     } catch (error) {
       console.error(`❌ Error testing project configuration: ${error.message}`);
@@ -655,11 +655,11 @@ async function main() {
     case 'import':
       await importer.importMVPWorkItems();
       break;
-      
+
     case 'test-config':
       await importer.testProjectFieldConfiguration();
       break;
-      
+
     case 'create-sample':
       const sampleIssue = {
         title: 'Sample: Test Work Item Type Assignment',
@@ -673,7 +673,7 @@ async function main() {
       };
       await importer.createIssueWithProjectFields(sampleIssue);
       break;
-      
+
     default:
       console.log(`
 🚀 Enhanced GitHub Project Importer

@@ -65,26 +65,26 @@ apply_migration() {
     local direction=$1
     local migration_name=$2
     local environment=$3
-    
+
     local sql_file="${MIGRATIONS_DIR}/${migration_name}-${direction}.sql"
     local api_url=$(get_api_url "$environment")
-    
+
     # Check if SQL file exists
     if [[ ! -f "$sql_file" ]]; then
         echo -e "${RED}Error: Migration file not found: $sql_file${NC}"
         exit 1
     fi
-    
+
     echo -e "${BLUE}📊 Applying Migration${NC}"
     echo -e "  Direction: ${YELLOW}$direction${NC}"
     echo -e "  Migration: ${YELLOW}$migration_name${NC}"
     echo -e "  Environment: ${YELLOW}$environment${NC}"
     echo -e "  File: ${YELLOW}$sql_file${NC}"
     echo ""
-    
+
     # Read SQL file
     local migration_sql=$(cat "$sql_file")
-    
+
     # Confirmation for production
     if [[ "$environment" == "production" ]]; then
         echo -e "${RED}⚠️  WARNING: This will modify the PRODUCTION database!${NC}"
@@ -96,24 +96,24 @@ apply_migration() {
             exit 1
         fi
     fi
-    
+
     # Apply migration
     echo -e "${BLUE}🚀 Executing migration...${NC}"
-    
+
     # Create JSON payload properly
     local json_payload=$(jq -n \
         --arg sql "$migration_sql" \
         --arg name "$migration_name" \
         --arg dir "$direction" \
         '{migration_sql: $sql, migration_name: $name, direction: $dir}')
-    
+
     local response=$(curl -s -X POST "$api_url" \
         -H "Content-Type: application/json" \
         -d "$json_payload")
-    
+
     # Parse response
     local success=$(echo "$response" | jq -r '.success // false')
-    
+
     if [[ "$success" == "true" ]]; then
         echo -e "${GREEN}✅ Migration applied successfully!${NC}"
         echo "$response" | jq .

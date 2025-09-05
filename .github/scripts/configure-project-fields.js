@@ -32,26 +32,26 @@ class ProjectConfigurator {
 
   async configureProject() {
     console.log('⚙️  Configuring NearestNiceWeather.com App Development Project...\n');
-    
+
     try {
       // Step 1: Get project ID and current structure
       await this.getProjectStructure();
-      
+
       // Step 2: Configure iteration fields
       await this.configureIterations();
-      
+
       // Step 3: Set all items to "Ready" status
       await this.setItemsToReady();
-      
+
       // Step 4: Assign items to correct iterations
       await this.assignIterations();
-      
+
       // Step 5: Configure parent-child relationships
       await this.configureRelationships();
-      
+
       console.log('\n✅ Project configuration complete!');
       console.log('🎯 Ready for sprint-based workflow with proper relationships');
-      
+
     } catch (error) {
       console.error('❌ Error configuring project:', error.message);
     }
@@ -59,7 +59,7 @@ class ProjectConfigurator {
 
   async getProjectStructure() {
     console.log('📊 Getting project structure...');
-    
+
     // Get project details including fields and items
     const query = `
       query($owner: String!, $number: Int!) {
@@ -113,14 +113,14 @@ class ProjectConfigurator {
         }
       }
     `;
-    
+
     const response = await octokit.graphql(query, {
       owner: this.owner,
       number: this.projectNumber,
     });
-    
+
     this.projectId = response.organization.projectV2.id;
-    
+
     // Store field information
     response.organization.projectV2.fields.nodes.forEach(field => {
       this.fields[field.name] = field;
@@ -130,7 +130,7 @@ class ProjectConfigurator {
         });
       }
     });
-    
+
     // Store project items
     response.organization.projectV2.items.nodes.forEach(item => {
       if (item.content?.number) {
@@ -141,7 +141,7 @@ class ProjectConfigurator {
         };
       }
     });
-    
+
     console.log(`✅ Found project with ${Object.keys(this.projectItems).length} items`);
     console.log(`📋 Available fields: ${Object.keys(this.fields).join(', ')}`);
     console.log(`📅 Available iterations: ${Object.keys(this.iterations).join(', ')}`);
@@ -149,13 +149,13 @@ class ProjectConfigurator {
 
   async configureIterations() {
     console.log('\n📅 Configuring sprint iterations...');
-    
+
     // Check if we need to create sprint iterations
     const requiredIterations = [
       'Sprint 3: Database + Weather API',
       'Sprint 4: Revenue + Launch'
     ];
-    
+
     // Note: Creating iterations requires different GraphQL mutations
     // For now, we'll document what needs to be set up manually
     console.log('📝 Sprint iterations needed:');
@@ -170,21 +170,21 @@ class ProjectConfigurator {
 
   async setItemsToReady() {
     console.log('\n🎯 Setting all items to "Ready" status...');
-    
+
     // Find the Status field
     const statusField = this.fields['Status'];
     if (!statusField) {
       console.log('⚠️  No Status field found - create one in project settings');
       return;
     }
-    
+
     // Find "Ready" option
     const readyOption = statusField.options?.find(opt => opt.name === 'Ready');
     if (!readyOption) {
       console.log('⚠️  No "Ready" status option found - add it in project settings');
       return;
     }
-    
+
     // Update all items to Ready status
     for (const [issueNumber, item] of Object.entries(this.projectItems)) {
       await this.updateProjectItemField(
@@ -194,28 +194,28 @@ class ProjectConfigurator {
         `Setting issue #${issueNumber} to Ready`
       );
     }
-    
+
     console.log(`✅ Set ${Object.keys(this.projectItems).length} items to Ready status`);
   }
 
   async assignIterations() {
     console.log('\n📅 Assigning items to correct sprint iterations...');
-    
+
     // Find the Iteration field
     const iterationField = this.fields['Iteration'];
     if (!iterationField) {
       console.log('⚠️  No Iteration field found - create one in project settings');
       return;
     }
-    
+
     // Sprint 3 assignments
     const sprint3Issues = [21, 28, 29, 30, 31, 32];
     const sprint3IterationId = this.iterations['Sprint 3: Database + Weather API'];
-    
-    // Sprint 4 assignments  
+
+    // Sprint 4 assignments
     const sprint4Issues = [22];
     const sprint4IterationId = this.iterations['Sprint 4: Revenue + Launch'];
-    
+
     // Assign Sprint 3 items
     if (sprint3IterationId) {
       for (const issueNumber of sprint3Issues) {
@@ -233,7 +233,7 @@ class ProjectConfigurator {
     } else {
       console.log('⚠️  Sprint 3 iteration not found - create manually in project');
     }
-    
+
     // Assign Sprint 4 items
     if (sprint4IterationId) {
       for (const issueNumber of sprint4Issues) {
@@ -255,7 +255,7 @@ class ProjectConfigurator {
 
   async configureRelationships() {
     console.log('\n🔗 Configuring parent-child relationships...');
-    
+
     // Define parent-child relationships based on our hierarchy
     const relationships = [
       // Sprint 3 parent-child relationships
@@ -264,13 +264,13 @@ class ProjectConfigurator {
       { parent: 29, children: [31, 32] }, // Weather API Epic -> API Story & Caching Task
       { parent: 31, children: [32] },     // API Story -> Caching Task
     ];
-    
+
     // Note: GitHub Projects v2 relationships are set through issue references
     // We'll update issue descriptions to include parent references
     for (const relationship of relationships) {
       await this.updateIssueRelationships(relationship.parent, relationship.children);
     }
-    
+
     console.log('✅ Updated issue relationships with parent references');
   }
 
@@ -290,9 +290,9 @@ class ProjectConfigurator {
           }
         }
       `;
-      
+
       console.log(`  🔄 ${description}...`);
-      
+
       await octokit.graphql(mutation, {
         projectId: this.projectId,
         itemId: itemId,
@@ -301,9 +301,9 @@ class ProjectConfigurator {
           singleSelectOptionId: value
         }
       });
-      
+
       console.log(`  ✅ ${description} - Complete`);
-      
+
     } catch (error) {
       console.error(`  ❌ Failed: ${description}:`, error.message);
     }
@@ -314,34 +314,34 @@ class ProjectConfigurator {
       // Add parent reference to child issues
       for (const childIssue of childIssues) {
         console.log(`  🔗 Setting #${parentIssue} as parent of #${childIssue}`);
-        
+
         // Get current issue body
         const issueResponse = await octokit.rest.issues.get({
           owner: this.owner,
           repo: this.repo,
           issue_number: childIssue,
         });
-        
+
         let currentBody = issueResponse.data.body || '';
-        
+
         // Add parent reference if not already present
         const parentRef = `**Parent Issue**: #${parentIssue}`;
         if (!currentBody.includes(parentRef)) {
           currentBody += `\n\n---\n${parentRef}`;
-          
+
           await octokit.rest.issues.update({
             owner: this.owner,
             repo: this.repo,
             issue_number: childIssue,
             body: currentBody,
           });
-          
+
           console.log(`  ✅ Added parent reference #${parentIssue} to issue #${childIssue}`);
         } else {
           console.log(`  ⚠️  Parent reference already exists for issue #${childIssue}`);
         }
       }
-      
+
     } catch (error) {
       console.error(`  ❌ Failed to update relationships:`, error.message);
     }
@@ -350,22 +350,22 @@ class ProjectConfigurator {
   async generateConfigSummary() {
     console.log('\n📊 Project Configuration Summary');
     console.log('=================================\n');
-    
+
     console.log('🎯 **PROJECT STRUCTURE CONFIGURED**');
     console.log('Project: NearestNiceWeather.com App Development');
     console.log('URL: https://github.com/orgs/PrairieAster-Ai/projects/2/views/1\n');
-    
+
     console.log('📅 **SPRINT ITERATIONS**');
     console.log('Sprint 3: Database + Weather API (Current)');
     console.log('  - Issues: #21, #28, #29, #30, #31, #32');
     console.log('  - Status: All set to "Ready"');
     console.log('  - Goal: 50% → 75% MVP completion\n');
-    
+
     console.log('Sprint 4: Revenue + Launch (Next)');
     console.log('  - Issues: #22');
     console.log('  - Status: Set to "Ready"');
     console.log('  - Goal: 75% → 100% MVP completion\n');
-    
+
     console.log('🔗 **PARENT-CHILD RELATIONSHIPS**');
     console.log('Sprint 3 (#21)');
     console.log('  ├── Epic: Database Infrastructure (#28)');
@@ -373,19 +373,19 @@ class ProjectConfigurator {
     console.log('  └── Epic: Weather API Integration (#29)');
     console.log('      ├── Story: OpenWeather Connection (#31)');
     console.log('      └── Task: Redis Caching (#32)\n');
-    
+
     console.log('🎯 **WORKFLOW READY**');
     console.log('- All items assigned to correct sprint iterations');
     console.log('- All items set to "Ready" status for development');
     console.log('- Parent-child relationships established');
     console.log('- Project board ready for sprint execution\n');
-    
+
     console.log('⚠️  **MANUAL STEPS NEEDED**');
     console.log('1. Create sprint iterations in project settings if not present');
     console.log('2. Add "Ready" status option if not present');
     console.log('3. Configure project board columns: Backlog, Ready, In Progress, Done');
     console.log('4. Set current iteration to Sprint 3 in project settings\n');
-    
+
     console.log('✅ Project ready for sprint-based development workflow!');
   }
 }
@@ -393,7 +393,7 @@ class ProjectConfigurator {
 // CLI Interface
 async function main() {
   const configurator = new ProjectConfigurator();
-  
+
   await configurator.configureProject();
   await configurator.generateConfigSummary();
 }

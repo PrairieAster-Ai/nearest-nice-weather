@@ -27,7 +27,7 @@ class ProjectConfigurator {
 
   async configureAllIssues() {
     console.log('🔧 Configuring all issues for GitHub Project optimization...\n');
-    
+
     try {
       // Get all issues
       const issues = await this.getAllIssues();
@@ -42,7 +42,7 @@ class ProjectConfigurator {
       await this.configurePostMVP(issues);
 
       console.log('\n✅ All issues configured for GitHub Project workflow!');
-      
+
     } catch (error) {
       console.error('❌ Error configuring issues:', error.message);
     }
@@ -75,8 +75,8 @@ class ProjectConfigurator {
 
   async configureSprints(issues) {
     console.log('🏃 Configuring Sprint issues...');
-    
-    const sprints = issues.filter(issue => 
+
+    const sprints = issues.filter(issue =>
       issue.labels.some(label => label.name === 'sprint')
     );
 
@@ -90,15 +90,15 @@ class ProjectConfigurator {
           'epic-parent'
         ])]
       };
-      
+
       await this.updateIssue(sprint.number, updates);
     }
   }
 
   async configureCapabilities(issues) {
     console.log('🎯 Configuring Capability issues...');
-    
-    const capabilities = issues.filter(issue => 
+
+    const capabilities = issues.filter(issue =>
       issue.labels.some(label => label.name === 'capability')
     );
 
@@ -112,15 +112,15 @@ class ProjectConfigurator {
           'has-children'
         ])]
       };
-      
+
       await this.updateIssue(capability.number, updates);
     }
   }
 
   async configureEpics(issues) {
     console.log('📚 Configuring Epic issues...');
-    
-    const epics = issues.filter(issue => 
+
+    const epics = issues.filter(issue =>
       issue.labels.some(label => label.name === 'epic')
     );
 
@@ -134,15 +134,15 @@ class ProjectConfigurator {
           'has-children'
         ])]
       };
-      
+
       await this.updateIssue(epic.number, updates);
     }
   }
 
   async configureStories(issues) {
     console.log('📖 Configuring Story issues...');
-    
-    const stories = issues.filter(issue => 
+
+    const stories = issues.filter(issue =>
       issue.labels.some(label => label.name === 'story')
     );
 
@@ -156,15 +156,15 @@ class ProjectConfigurator {
           'has-children'
         ])]
       };
-      
+
       await this.updateIssue(story.number, updates);
     }
   }
 
   async configureTasks(issues) {
     console.log('✅ Configuring Task issues...');
-    
-    const tasks = issues.filter(issue => 
+
+    const tasks = issues.filter(issue =>
       issue.labels.some(label => label.name === 'task')
     );
 
@@ -178,15 +178,15 @@ class ProjectConfigurator {
           'implementation'
         ])]
       };
-      
+
       await this.updateIssue(task.number, updates);
     }
   }
 
   async configurePostMVP(issues) {
     console.log('🚫 Configuring Post-MVP issues...');
-    
-    const postMvp = issues.filter(issue => 
+
+    const postMvp = issues.filter(issue =>
       issue.labels.some(label => label.name === 'post-mvp')
     );
 
@@ -201,14 +201,14 @@ class ProjectConfigurator {
           'phase:post-mvp'
         ])]
       };
-      
+
       await this.updateIssue(issue.number, updates);
     }
   }
 
   enhanceSprintBody(sprint) {
     const originalBody = sprint.body || '';
-    
+
     return `${originalBody}
 
 ## 📊 **GitHub Project Fields**
@@ -240,7 +240,7 @@ class ProjectConfigurator {
 
   enhanceCapabilityBody(capability) {
     const originalBody = capability.body || '';
-    
+
     return `${originalBody}
 
 ## 📊 **GitHub Project Fields**
@@ -272,7 +272,7 @@ class ProjectConfigurator {
 
   enhanceEpicBody(epic) {
     const originalBody = epic.body || '';
-    
+
     return `${originalBody}
 
 ## 📊 **GitHub Project Fields**
@@ -304,7 +304,7 @@ class ProjectConfigurator {
 
   enhanceStoryBody(story) {
     const originalBody = story.body || '';
-    
+
     return `${originalBody}
 
 ## 📊 **GitHub Project Fields**
@@ -336,7 +336,7 @@ class ProjectConfigurator {
 
   enhanceTaskBody(task) {
     const originalBody = task.body || '';
-    
+
     return `${originalBody}
 
 ## 📊 **GitHub Project Fields**
@@ -377,7 +377,7 @@ class ProjectConfigurator {
 
   enhancePostMVPBody(issue) {
     const originalBody = issue.body || '';
-    
+
     return `${originalBody}
 
 ## 📊 **GitHub Project Fields**
@@ -416,16 +416,16 @@ class ProjectConfigurator {
 
   async generateProjectReport() {
     console.log('\n📊 Generating GitHub Project Configuration Report...\n');
-    
+
     const issues = await this.getAllIssues();
     const milestones = await this.getMilestones();
-    
+
     console.log('🎯 **PROJECT CONFIGURATION SUMMARY**');
     console.log('=====================================\n');
-    
+
     // Group by type
     const byType = this.groupIssuesByType(issues);
-    
+
     Object.entries(byType).forEach(([type, typeIssues]) => {
       console.log(`${this.getTypeEmoji(type)} **${type.toUpperCase()}** (${typeIssues.length} issues):`);
       typeIssues.forEach(issue => {
@@ -434,12 +434,12 @@ class ProjectConfigurator {
       });
       console.log('');
     });
-    
+
     console.log('📈 **MILESTONES:**');
     milestones.forEach(milestone => {
       console.log(`  ${milestone.number}: ${milestone.title} (${milestone.open_issues}/${milestone.open_issues + milestone.closed_issues} open)`);
     });
-    
+
     console.log('\n✅ Project configured for optimal GitHub Projects v2 workflow!');
   }
 
@@ -454,28 +454,28 @@ class ProjectConfigurator {
 
   groupIssuesByType(issues) {
     const groups = {};
-    
+
     issues.forEach(issue => {
       let type = 'other';
-      
+
       if (issue.labels.some(l => l.name === 'sprint')) type = 'sprints';
       else if (issue.labels.some(l => l.name === 'capability')) type = 'capabilities';
       else if (issue.labels.some(l => l.name === 'epic')) type = 'epics';
       else if (issue.labels.some(l => l.name === 'story')) type = 'stories';
       else if (issue.labels.some(l => l.name === 'task')) type = 'tasks';
       else if (issue.labels.some(l => l.name === 'post-mvp')) type = 'post-mvp';
-      
+
       if (!groups[type]) groups[type] = [];
       groups[type].push(issue);
     });
-    
+
     return groups;
   }
 
   getTypeEmoji(type) {
     const emojis = {
       sprints: '🏃',
-      capabilities: '🎯', 
+      capabilities: '🎯',
       epics: '📚',
       stories: '📖',
       tasks: '✅',
@@ -495,11 +495,11 @@ async function main() {
     case 'configure':
       await configurator.configureAllIssues();
       break;
-      
+
     case 'report':
       await configurator.generateProjectReport();
       break;
-      
+
     default:
       console.log(`
 🔧 GitHub Project Configurator

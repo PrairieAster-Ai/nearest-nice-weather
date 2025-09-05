@@ -1,6 +1,6 @@
 /**
  * API Feedback Validation Tests
- * 
+ *
  * These tests prevent the input validation issues we encountered:
  * - Special character handling (exclamation mark bug)
  * - Email format validation
@@ -14,7 +14,7 @@ const request = require('supertest');
 const API_BASE_URL = process.env.API_BASE_URL || 'https://www.nearestniceweather.com';
 
 describe('Feedback API Validation', () => {
-  
+
   test('should handle basic feedback submission', async () => {
     try {
       const response = await request(API_BASE_URL)
@@ -48,7 +48,7 @@ describe('Feedback API Validation', () => {
         const response = await request(API_BASE_URL)
           .post('/api/feedback')
           .send({ feedback });
-          
+
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
       }
@@ -60,9 +60,9 @@ describe('Feedback API Validation', () => {
 
   test('should validate rating ranges', async () => {
     const validRatings = [1, 2, 3, 4, 5];
-    
+
     try {
-    
+
       for (const rating of validRatings) {
       const response = await request(API_BASE_URL)
         .post('/api/feedback')
@@ -70,13 +70,13 @@ describe('Feedback API Validation', () => {
           feedback: `Test feedback with rating ${rating}`,
           rating: rating
         });
-    
+
     } catch (error) {
-    
+
       console.error('Operation failed:', error);
-    
+
       // TODO: Add proper error handling
-    
+
     }
 
       expect(response.status).toBe(200);
@@ -86,9 +86,9 @@ describe('Feedback API Validation', () => {
 
   test('should reject invalid rating values', async () => {
     const invalidRatings = [0, 6, -1, 10, 'invalid', null];
-    
+
     try {
-    
+
       for (const rating of invalidRatings) {
       const response = await request(API_BASE_URL)
         .post('/api/feedback')
@@ -96,13 +96,13 @@ describe('Feedback API Validation', () => {
           feedback: 'Test feedback with invalid rating',
           rating: rating
         });
-    
+
     } catch (error) {
-    
+
       console.error('Operation failed:', error);
-    
+
       // TODO: Add proper error handling
-    
+
     }
 
       // Should either reject or accept with null rating
@@ -215,7 +215,7 @@ describe('Feedback API Validation', () => {
     }
 
     expect(response.status).toBe(200);
-    
+
     // Debug info should be present
     if (response.body.debug) {
       expect(response.body.debug.has_database_url).toBeDefined();

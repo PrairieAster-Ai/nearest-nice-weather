@@ -29,7 +29,7 @@ Automated tools for migrating documentation from file-based system to GitHub Wik
 ./content-preparation.sh
 ```
 
-**Output**: 
+**Output**:
 - `wiki-content-prepared/` directory with converted files
 - `_Content-Index.md` with complete file listing
 
@@ -150,12 +150,12 @@ git config --global user.email "your.email@example.com"
 
 ### Manual Fixes
 
-**Unconverted Links**: 
+**Unconverted Links**:
 ```markdown
 # Before
 [Page](./dir/file.md)
 
-# After  
+# After
 [Page](Page-Title)
 ```
 
@@ -187,7 +187,7 @@ git config --global user.email "your.email@example.com"
 
 ### Team Benefits
 - **Collaborative Editing**: All team members can edit directly
-- **Improved Discovery**: Unified search across all documentation  
+- **Improved Discovery**: Unified search across all documentation
 - **Reduced Friction**: No git workflow required for doc updates
 - **Better Organization**: Category-based structure with clear navigation
 

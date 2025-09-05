@@ -2,7 +2,7 @@
 
 ## ✅ COMPLETED STEPS
 1. ✅ **Database Reset**: All production tables erased
-2. ✅ **Schema Recreation**: New schema with `importance_rank` column created  
+2. ✅ **Schema Recreation**: New schema with `importance_rank` column created
 3. ✅ **Migration Files**: All 5 corrected migration files prepared
 
 ## 🚀 NEXT: EXECUTE MIGRATION
@@ -15,12 +15,12 @@ Run these files **in order** in Neon Console for Production database:
 **File**: `corrected-migration-part-1.sql`
 **Expected Result**: 30 POI locations inserted
 
-#### Part 2: Import POI 31-60  
+#### Part 2: Import POI 31-60
 **File**: `corrected-migration-part-2.sql`
 **Expected Result**: 60 total POI locations
 
 #### Part 3: Import POI 61-90
-**File**: `corrected-migration-part-3.sql` 
+**File**: `corrected-migration-part-3.sql`
 **Expected Result**: 90 total POI locations
 
 #### Part 4: Import POI 91-120
@@ -44,16 +44,16 @@ Final verification after all 5 parts:
 SELECT COUNT(*) as final_total FROM poi_locations;
 
 -- Sample data structure check
-SELECT name, park_type, importance_rank, data_source 
-FROM poi_locations 
-ORDER BY importance_rank, name 
+SELECT name, park_type, importance_rank, data_source
+FROM poi_locations
+ORDER BY importance_rank, name
 LIMIT 5;
 ```
 
 ## ✅ SUCCESS CRITERIA
 
 - **Total POI Count**: 138 locations
-- **Schema Structure**: All columns including `importance_rank` 
+- **Schema Structure**: All columns including `importance_rank`
 - **Data Quality**: Mix of State Parks, National Parks, Trails, Nature Centers
 - **API Compatibility**: Production matches Preview environment
 

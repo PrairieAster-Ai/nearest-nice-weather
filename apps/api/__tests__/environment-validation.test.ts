@@ -27,10 +27,10 @@ describe('Environment Variable Validation Tests', () => {
 
       validUrls.forEach(url => {
         process.env.DATABASE_URL = url
-        
+
         // Should not throw when parsing
         expect(() => new URL(url)).not.toThrow()
-        
+
         // Should contain required components
         const parsed = new URL(url)
         expect(parsed.protocol).toMatch(/^(postgresql|postgres):$/)
@@ -62,7 +62,7 @@ describe('Environment Variable Validation Tests', () => {
 
       invalidUrls.forEach(url => {
         process.env.DATABASE_URL = url
-        
+
         // Should throw when parsing invalid URLs
         expect(() => new URL(url)).toThrow()
       })
@@ -80,7 +80,7 @@ describe('Environment Variable Validation Tests', () => {
 
       specialCharPasswords.forEach(url => {
         process.env.DATABASE_URL = url
-        
+
         // Should parse successfully
         const parsed = new URL(url)
         expect(parsed.password).toBeTruthy()
@@ -96,7 +96,7 @@ describe('Environment Variable Validation Tests', () => {
 
       neonUrls.forEach(url => {
         process.env.DATABASE_URL = url
-        
+
         expect(url).toContain('neon.tech')
         const parsed = new URL(url)
         expect(parsed.hostname).toContain('neon.tech')
@@ -108,7 +108,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should prioritize DATABASE_URL over POSTGRES_URL', () => {
       process.env.DATABASE_URL = 'postgresql://user:pass@host1:5432/db1'
       process.env.POSTGRES_URL = 'postgresql://user:pass@host2:5432/db2'
-      
+
       const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL
       expect(connectionString).toBe('postgresql://user:pass@host1:5432/db1')
     })
@@ -116,7 +116,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should fallback to POSTGRES_URL when DATABASE_URL is not set', () => {
       delete process.env.DATABASE_URL
       process.env.POSTGRES_URL = 'postgresql://user:pass@host2:5432/db2'
-      
+
       const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL
       expect(connectionString).toBe('postgresql://user:pass@host2:5432/db2')
     })
@@ -124,7 +124,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should handle both variables being undefined', () => {
       delete process.env.DATABASE_URL
       delete process.env.POSTGRES_URL
-      
+
       const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL
       expect(connectionString).toBeUndefined()
     })
@@ -134,10 +134,10 @@ describe('Environment Variable Validation Tests', () => {
     it('should detect when SSL is required for Neon connections', () => {
       const neonUrl = 'postgresql://user:pass@ep-123.neon.tech/db'
       process.env.DATABASE_URL = neonUrl
-      
+
       const isNeonConnection = neonUrl.includes('neon.tech')
       expect(isNeonConnection).toBe(true)
-      
+
       const sslConfig = isNeonConnection ? { rejectUnauthorized: false } : false
       expect(sslConfig).toEqual({ rejectUnauthorized: false })
     })
@@ -145,10 +145,10 @@ describe('Environment Variable Validation Tests', () => {
     it('should detect when SSL is not required for local connections', () => {
       const localUrl = 'postgresql://user:pass@localhost:5432/db'
       process.env.DATABASE_URL = localUrl
-      
+
       const isNeonConnection = localUrl.includes('neon.tech')
       expect(isNeonConnection).toBe(false)
-      
+
       const sslConfig = isNeonConnection ? { rejectUnauthorized: false } : false
       expect(sslConfig).toBe(false)
     })
@@ -158,7 +158,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should extract connection components correctly', () => {
       const url = 'postgresql://testuser:testpass@testhost:5432/testdb'
       process.env.DATABASE_URL = url
-      
+
       const parsed = new URL(url)
       expect(parsed.protocol).toBe('postgresql:')
       expect(parsed.username).toBe('testuser')
@@ -171,7 +171,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should handle URL with query parameters', () => {
       const url = 'postgresql://user:pass@host:5432/db?sslmode=require&connect_timeout=10'
       process.env.DATABASE_URL = url
-      
+
       const parsed = new URL(url)
       expect(parsed.searchParams.get('sslmode')).toBe('require')
       expect(parsed.searchParams.get('connect_timeout')).toBe('10')
@@ -182,7 +182,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should correctly detect existing environment variables', () => {
       process.env.DATABASE_URL = 'postgresql://user:pass@host:5432/db'
       process.env.POSTGRES_URL = 'postgresql://user:pass@host:5432/db'
-      
+
       expect(!!process.env.DATABASE_URL).toBe(true)
       expect(!!process.env.POSTGRES_URL).toBe(true)
       expect(process.env.DATABASE_URL?.length).toBeGreaterThan(0)
@@ -192,7 +192,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should correctly detect missing environment variables', () => {
       delete process.env.DATABASE_URL
       delete process.env.POSTGRES_URL
-      
+
       expect(!!process.env.DATABASE_URL).toBe(false)
       expect(!!process.env.POSTGRES_URL).toBe(false)
       expect(process.env.DATABASE_URL?.length || 0).toBe(0)
@@ -204,7 +204,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should redact passwords in connection strings for logging', () => {
       const url = 'postgresql://user:secretpass@host:5432/db'
       process.env.DATABASE_URL = url
-      
+
       const redacted = url.replace(/:[^:@]*@/, ':***@')
       expect(redacted).toBe('postgresql://user:***@host:5432/db')
       expect(redacted).not.toContain('secretpass')
@@ -213,7 +213,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should handle connection strings without passwords', () => {
       const url = 'postgresql://user@host:5432/db'
       process.env.DATABASE_URL = url
-      
+
       const redacted = url.replace(/:[^:@]*@/, ':***@')
       expect(redacted).toBe('postgresql://user@host:5432/db')
     })
@@ -229,11 +229,11 @@ describe('Environment Variable Validation Tests', () => {
       process.env.POSTGRES_PASSWORD = 'pass'
       process.env.POSTGRES_DB = 'db'
       process.env.UNRELATED_VAR = 'value'
-      
-      const databaseVars = Object.keys(process.env).filter(key => 
+
+      const databaseVars = Object.keys(process.env).filter(key =>
         key.includes('DATABASE') || key.includes('POSTGRES')
       )
-      
+
       expect(databaseVars).toContain('DATABASE_URL')
       expect(databaseVars).toContain('POSTGRES_URL')
       expect(databaseVars).toContain('POSTGRES_HOST')
@@ -249,7 +249,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should detect Vercel deployment environment', () => {
       process.env.VERCEL = '1'
       process.env.VERCEL_ENV = 'production'
-      
+
       expect(process.env.VERCEL).toBe('1')
       expect(process.env.VERCEL_ENV).toBe('production')
     })
@@ -257,7 +257,7 @@ describe('Environment Variable Validation Tests', () => {
     it('should detect local development environment', () => {
       delete process.env.VERCEL
       process.env.NODE_ENV = 'development'
-      
+
       expect(process.env.VERCEL).toBeUndefined()
       expect(process.env.NODE_ENV).toBe('development')
     })

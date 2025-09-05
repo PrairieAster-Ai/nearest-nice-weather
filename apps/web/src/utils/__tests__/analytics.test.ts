@@ -2,25 +2,25 @@
  * ========================================================================
  * ANALYTICS UTILITIES TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for privacy-focused Umami analytics
  * 🔗 UTILITIES: analytics.ts - Privacy-first tracking utilities
  * 📊 COVERAGE: Event tracking, privacy protection, development mode
  * ⚙️ FUNCTIONALITY: User interaction tracking without personal data
  * 🎯 BUSINESS_IMPACT: Ensures accurate product analytics while respecting privacy
- * 
+ *
  * BUSINESS CONTEXT: Privacy-first analytics for product optimization
- * - Validates POI interaction tracking for feature prioritization  
+ * - Validates POI interaction tracking for feature prioritization
  * - Tests weather filter analytics for algorithm improvements
  * - Ensures location privacy with zone-based tracking
  * - Verifies development mode logging functionality
- * 
+ *
  * TECHNICAL COVERAGE: Analytics utility testing
  * - Umami integration and fallback behavior
  * - Privacy protection validation
  * - Development vs production mode handling
  * - Error tracking without sensitive data
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -46,11 +46,11 @@ describe('Analytics Utilities', () => {
   beforeEach(() => {
     // Clear all mocks
     vi.clearAllMocks()
-    
+
     // Mock console methods
     vi.spyOn(console, 'log').mockImplementation(mockConsoleLog)
     vi.spyOn(console, 'warn').mockImplementation(mockConsoleWarn)
-    
+
     // Reset window mock
     Object.defineProperty(global, 'window', {
       value: {
@@ -63,7 +63,7 @@ describe('Analytics Utilities', () => {
       },
       writable: true
     })
-    
+
     // Mock import.meta.env
     vi.stubGlobal('import.meta', {
       env: {
@@ -80,7 +80,7 @@ describe('Analytics Utilities', () => {
   describe('✅ Analytics Initialization', () => {
     it('should initialize successfully when Umami is loaded', () => {
       const result = initializeAnalytics()
-      
+
       expect(result).toBe(true)
       expect(mockConsoleLog).toHaveBeenCalledWith('📊 Umami Analytics initialized')
     })
@@ -93,7 +93,7 @@ describe('Analytics Utilities', () => {
       })
 
       const result = initializeAnalytics()
-      
+
       // In dev mode, if Umami is still available, it returns true
       expect(result).toBe(true)
       expect(mockConsoleLog).toHaveBeenCalledWith('📊 Umami Analytics initialized')
@@ -108,7 +108,7 @@ describe('Analytics Utilities', () => {
       })
 
       const result = initializeAnalytics()
-      
+
       expect(result).toBe(false)
       expect(mockConsoleLog).toHaveBeenCalledWith('📊 Analytics in development mode - events will be logged only')
     })
@@ -123,7 +123,7 @@ describe('Analytics Utilities', () => {
       })
 
       const result = initializeAnalytics()
-      
+
       expect(result).toBe(false)
       // Note: console.warn may be called but testing framework might not capture it
     })
@@ -133,7 +133,7 @@ describe('Analytics Utilities', () => {
       global.window = undefined
 
       const result = initializeAnalytics()
-      
+
       expect(result).toBe(false)
     })
   })
@@ -424,9 +424,9 @@ describe('Analytics Utilities', () => {
 
   describe('✅ Error Tracking', () => {
     it('should track errors with context', () => {
-      trackError('api_timeout', { 
+      trackError('api_timeout', {
         endpoint: '/api/weather-locations',
-        duration: 5000 
+        duration: 5000
       })
 
       expect(mockUmamiTrack).toHaveBeenCalledWith('error', {
@@ -478,7 +478,7 @@ describe('Analytics Utilities', () => {
           DEV: true
         }
       })
-      
+
       // Remove Umami to simulate development mode
       global.window.umami = undefined
     })
@@ -533,7 +533,7 @@ describe('Analytics Utilities', () => {
 
     it('should return false when Umami is not available', () => {
       global.window.umami = undefined
-      
+
       const result = isAnalyticsEnabled()
       expect(result).toBe(false)
     })
@@ -541,14 +541,14 @@ describe('Analytics Utilities', () => {
     it('should return false when window is not available', () => {
       // @ts-ignore
       global.window = undefined
-      
+
       const result = isAnalyticsEnabled()
       expect(result).toBe(false)
     })
 
     it('should return false when track function is not available', () => {
       global.window.umami = {} as any
-      
+
       const result = isAnalyticsEnabled()
       expect(result).toBe(false)
     })
@@ -615,13 +615,13 @@ describe('Analytics Utilities', () => {
  * ✅ Analytics status verification
  * ✅ Server-side rendering compatibility
  * ✅ Edge cases and malformed data handling
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Privacy-first analytics implementation
  * ✅ Product optimization data collection
  * ✅ User interaction pattern tracking
  * ✅ Error monitoring for debugging
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ Umami integration and fallback mechanisms
  * ✅ Development vs production mode handling

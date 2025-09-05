@@ -3,11 +3,11 @@
 # ========================================================================
 # ENHANCED TESTING INFRASTRUCTURE SETUP SCRIPT
 # ========================================================================
-# 
+#
 # PURPOSE: Implements Phase 1 recommendations from testing infrastructure review
 # SCOPE: Unit testing, API testing, test data management, accessibility testing
 # TIMELINE: 1-2 weeks implementation
-# 
+#
 # ========================================================================
 
 set -e
@@ -20,7 +20,7 @@ echo ""
 echo "📁 Creating enhanced test directory structure..."
 
 mkdir -p tests/unit/components
-mkdir -p tests/unit/hooks  
+mkdir -p tests/unit/hooks
 mkdir -p tests/unit/utils
 mkdir -p tests/unit/services
 mkdir -p tests/integration/api
@@ -41,19 +41,19 @@ if [ ! -d "tests/e2e" ]; then
     mkdir -p tests/e2e
     mkdir -p tests/e2e/pages
     mkdir -p tests/e2e/utilities
-    
+
     # Move Page Objects
     if [ -d "tests/pages" ]; then
         mv tests/pages/* tests/e2e/pages/ 2>/dev/null || true
         rmdir tests/pages 2>/dev/null || true
     fi
-    
+
     # Move utilities
     if [ -d "tests/utilities" ]; then
         mv tests/utilities/* tests/e2e/utilities/ 2>/dev/null || true
-        rmdir tests/utilities 2>/dev/null || true  
+        rmdir tests/utilities 2>/dev/null || true
     fi
-    
+
     # Move Playwright spec files
     mv tests/*.spec.js tests/e2e/ 2>/dev/null || true
 fi
@@ -73,7 +73,7 @@ npm install --save-dev \
   jest-environment-jsdom \
   @jest/globals
 
-# API testing dependencies  
+# API testing dependencies
 npm install --save-dev \
   supertest \
   @pact-foundation/pact \
@@ -211,15 +211,15 @@ export const handlers = [
 
   // Mock feedback API
   http.post('/api/feedback', () => {
-    return HttpResponse.json({ 
-      success: true, 
-      message: 'Feedback submitted successfully' 
+    return HttpResponse.json({
+      success: true,
+      message: 'Feedback submitted successfully'
     });
   }),
 
   // Mock health check API
   http.get('/api/health', () => {
-    return HttpResponse.json({ 
+    return HttpResponse.json({
       status: 'healthy',
       timestamp: new Date().toISOString()
     });
@@ -272,7 +272,7 @@ export const MOCK_MINNEAPOLIS_POIS = [
     park_type: 'State Park'
   },
   {
-    id: '2', 
+    id: '2',
     name: 'Lake Harriet',
     latitude: 44.9219,
     longitude: -93.3056,
@@ -303,12 +303,12 @@ describe('Distance Utilities', () => {
       // Minneapolis to St. Paul (approximately 10 miles)
       const minneapolis = { lat: 44.9537, lng: -93.0900 };
       const stpaul = { lat: 44.9537, lng: -93.0900 };
-      
+
       const distance = calculateDistance(
         minneapolis.lat, minneapolis.lng,
         stpaul.lat, stpaul.lng
       );
-      
+
       expect(distance).toBeCloseTo(0, 1); // Same location = 0 miles
     });
 
@@ -347,7 +347,7 @@ describe('Health Check API', () => {
     const response = await request(BASE_URL)
       .get('/api/health')
       .expect(200);
-    
+
     expect(response.body).toHaveProperty('status', 'healthy');
     expect(response.body).toHaveProperty('timestamp');
     expect(new Date(response.body.timestamp)).toBeInstanceOf(Date);
@@ -355,11 +355,11 @@ describe('Health Check API', () => {
 
   it('should respond within acceptable time', async () => {
     const startTime = Date.now();
-    
+
     await request(BASE_URL)
       .get('/api/health')
       .expect(200);
-    
+
     const responseTime = Date.now() - startTime;
     expect(responseTime).toBeLessThan(1000); // Less than 1 second
   });
@@ -378,23 +378,23 @@ import AxeBuilder from '@axe-core/playwright';
 test.describe('Accessibility Tests', () => {
   test('should not have any automatically detectable accessibility issues', async ({ page }) => {
     await page.goto('/');
-    
+
     // Wait for page to load
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
-    
+
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
   test('should support keyboard navigation', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     // Test tab navigation
     await page.keyboard.press('Tab');
     const focusedElement = page.locator(':focus');
-    
+
     await expect(focusedElement).toBeVisible();
   });
 });
@@ -406,7 +406,7 @@ echo "📝 Updating npm scripts..."
 
 # Add new test scripts to package.json
 npm pkg set scripts.test:unit="jest"
-npm pkg set scripts.test:unit:watch="jest --watch"  
+npm pkg set scripts.test:unit:watch="jest --watch"
 npm pkg set scripts.test:unit:coverage="jest --coverage"
 npm pkg set scripts.test:api="jest tests/integration/api"
 npm pkg set scripts.test:accessibility="playwright test tests/accessibility"
@@ -462,17 +462,17 @@ class TestAnalytics {
 
   async generateReport() {
     console.log('📊 Generating comprehensive test analytics...');
-    
+
     // Collect metrics from test results
     await this.collectJestMetrics();
     await this.collectPlaywrightMetrics();
-    
+
     // Generate report
     const report = this.createReport();
-    
+
     // Save report
     fs.writeFileSync('test-analytics-report.json', JSON.stringify(report, null, 2));
-    
+
     console.log('✅ Test analytics report generated');
     return report;
   }
@@ -518,16 +518,16 @@ class TestAnalytics {
 
   generateRecommendations() {
     const recommendations = [];
-    
+
     // Add specific recommendations based on metrics
     if (this.metrics.unit.total === 0) {
       recommendations.push('Add unit tests to improve feedback speed');
     }
-    
+
     if (this.calculatePassRate() < 95) {
       recommendations.push('Investigate failing tests to improve reliability');
     }
-    
+
     return recommendations;
   }
 }

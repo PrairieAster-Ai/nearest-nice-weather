@@ -30,23 +30,23 @@ class ProjectRefactor {
     console.log('🎯 Target: NearestNiceWeather.com App Development Project');
     console.log('📅 Current Iteration: Sprint 3');
     console.log('📅 Next Iteration: Sprint 4\n');
-    
+
     try {
       // Step 1: Update all issues with project-specific fields
       await this.updateIssuesForProject();
-      
+
       // Step 2: Configure iteration structure
       await this.configureIterations();
-      
+
       // Step 3: Set up project board columns
       await this.configureProjectColumns();
-      
+
       // Step 4: Update milestones for project integration
       await this.updateMilestonesForProject();
-      
+
       console.log('\n✅ Issues refactored for GitHub Project integration!');
       console.log('📊 Ready for NearestNiceWeather.com App Development project workflow');
-      
+
     } catch (error) {
       console.error('❌ Error during refactoring:', error.message);
     }
@@ -54,10 +54,10 @@ class ProjectRefactor {
 
   async updateIssuesForProject() {
     console.log('🔧 Updating issues with project-specific metadata...');
-    
+
     // Get all current issues
     const issues = await this.getAllIssues();
-    
+
     const projectUpdates = [
       // Sprint 3 - Current Iteration Issues
       {
@@ -138,7 +138,7 @@ class ProjectRefactor {
           })
         }
       },
-      
+
       // Sprint 4 - Next Iteration Issues
       {
         number: 22,
@@ -153,7 +153,7 @@ class ProjectRefactor {
           })
         }
       },
-      
+
       // Completed Sprints - Archive Status
       {
         number: 19,
@@ -181,7 +181,7 @@ class ProjectRefactor {
           })
         }
       },
-      
+
       // Capabilities - Ongoing across iterations
       {
         number: 23,
@@ -231,7 +231,7 @@ class ProjectRefactor {
 
   async configureIterations() {
     console.log('\n📅 Configuring iteration structure...');
-    
+
     // Update milestone descriptions to include iteration info
     const milestoneUpdates = [
       {
@@ -241,7 +241,7 @@ class ProjectRefactor {
         }
       },
       {
-        number: 6, // Sprint 2  
+        number: 6, // Sprint 2
         updates: {
           description: 'COMPLETED ✅ - Sprint 2 delivered interactive map interface with Leaflet.js and mobile optimization. Status: DONE'
         }
@@ -269,7 +269,7 @@ class ProjectRefactor {
 
   async configureProjectColumns() {
     console.log('\n📋 Configuring project board structure...');
-    
+
     // Note: This would typically require GraphQL API for Projects v2
     // For now, we'll document the recommended structure
     console.log('📊 Recommended GitHub Project columns:');
@@ -278,23 +278,23 @@ class ProjectRefactor {
     console.log('  3. 🔄 In Progress (Current Iteration, active work)');
     console.log('  4. 👀 Review (Current Iteration, in review)');
     console.log('  5. ✅ Done (Completed items, any iteration)');
-    
+
     console.log('\n🎯 Current Iteration (Sprint 3) Issues:');
     console.log('  - #21: Sprint 3 (In Progress)');
     console.log('  - #28, #29: Epics (In Progress)');
     console.log('  - #30, #31, #32: Stories/Tasks (Ready)');
-    
+
     console.log('\n📅 Next Iteration (Sprint 4) Issues:');
     console.log('  - #22: Sprint 4 (Backlog)');
   }
 
   async updateMilestonesForProject() {
     console.log('\n🎯 Updating milestones for project integration...');
-    
+
     // Close completed milestones
     await this.updateMilestone(5, { state: 'closed' }); // Sprint 1
     await this.updateMilestone(6, { state: 'closed' }); // Sprint 2
-    
+
     // Keep current and next open
     console.log('  ✅ Sprint 1 & 2 milestones set to closed (completed)');
     console.log('  🔄 Sprint 3 milestone remains open (current iteration)');
@@ -416,29 +416,29 @@ class ProjectRefactor {
   async generateProjectSummary() {
     console.log('\n📊 GitHub Project Integration Summary');
     console.log('====================================\n');
-    
+
     console.log('🎯 **PROJECT SETUP**');
     console.log('Project: NearestNiceWeather.com App Development');
     console.log('Structure: Iteration-based workflow with sprint milestones\n');
-    
+
     console.log('📅 **ITERATION STRUCTURE**');
     console.log('Current Iteration: Sprint 3 (Database + Weather API)');
     console.log('  - Issues: #21, #28, #29, #30, #31, #32');
     console.log('  - Status: In Progress (50% MVP → 75% MVP)');
     console.log('  - Focus: Database deployment + OpenWeather integration\n');
-    
+
     console.log('Next Iteration: Sprint 4 (Revenue + Launch)');
     console.log('  - Issues: #22');
     console.log('  - Status: Planned (75% MVP → 100% MVP)');
     console.log('  - Focus: Google AdSense + user testing + launch\n');
-    
+
     console.log('📋 **PROJECT BOARD COLUMNS**');
     console.log('1. Backlog: Sprint 4 items waiting for current sprint completion');
     console.log('2. Ready: Sprint 3 items ready to start development');
     console.log('3. In Progress: Sprint 3 items currently being worked on');
     console.log('4. Review: Items completed and in review/testing');
     console.log('5. Done: Completed items from any iteration\n');
-    
+
     console.log('🎯 **CURRENT FOCUS**');
     console.log('Priority: Complete Sprint 3 (Current Iteration)');
     console.log('Key Deliverables:');
@@ -446,7 +446,7 @@ class ProjectRefactor {
     console.log('  - OpenWeather API integration with caching');
     console.log('  - Performance optimization');
     console.log('Target: 75% MVP completion for Sprint 4 readiness\n');
-    
+
     console.log('✅ Ready for GitHub Project workflow management!');
   }
 }
@@ -454,7 +454,7 @@ class ProjectRefactor {
 // CLI Interface
 async function main() {
   const refactor = new ProjectRefactor();
-  
+
   await refactor.refactorForProject();
   await refactor.generateProjectSummary();
 }

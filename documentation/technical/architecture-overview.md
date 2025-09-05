@@ -1,6 +1,6 @@
 # ⚠️ DEPRECATED - Legacy Architecture Documentation
 
-**❌ WARNING: This document describes a FastAPI/PostGIS architecture that was NEVER IMPLEMENTED.**  
+**❌ WARNING: This document describes a FastAPI/PostGIS architecture that was NEVER IMPLEMENTED.**
 **✅ For ACTUAL architecture, see: [ACTUAL-ARCHITECTURE-2025.md](./ACTUAL-ARCHITECTURE-2025.md)**
 
 ---
@@ -39,7 +39,7 @@ app = FastAPI(
 
 class WeatherFilters(BaseModel):
     temperature: str  # "coldest", "comfortable", "hottest"
-    precipitation: str  # "likely", "sporadic", "unlikely"  
+    precipitation: str  # "likely", "sporadic", "unlikely"
     wind: str  # "high", "medium", "low"
 
 # Simple weather filter search endpoint
@@ -54,7 +54,7 @@ async def find_weather_by_filters(
     nearby_locations = get_locations_within_radius(latitude, longitude, radius_miles)
     weather_data = await fetch_weather_for_locations(nearby_locations)
     matching_locations = filter_by_preferences(weather_data, filters)
-    
+
     return {
         "filters_used": filters,
         "matching_locations": matching_locations[:5],  # Top 5 results
@@ -118,7 +118,7 @@ async def subscribe_to_newsletter(
     weather_data = await fetch_weather_data(query.location)
     activities = analyze_activity_suitability(weather_data, query.activities)
     alternatives = find_alternative_locations(query)
-    
+
     return {
         "location": query.location,
         "weather_forecast": weather_data,
@@ -248,7 +248,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
-  # Redis for caching and sessions  
+  # Redis for caching and sessions
   redis:
     image: redis:7-alpine
     ports:
@@ -461,7 +461,7 @@ export function WeatherDashboard() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Weather Intelligence</h1>
-      
+
       {/* Search interface */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <input
@@ -563,7 +563,7 @@ class HealthChecker:
             return {"status": "healthy", "response_time": 0.05}
         except Exception as e:
             return {"status": "unhealthy", "error": str(e)}
-    
+
     async def check_weather_api(self):
         try:
             # Weather API availability check
@@ -619,7 +619,7 @@ def process_weather_data_batch():
 - ✅ **Backend API Development**: FastAPI application with infrastructure validation endpoints
 - ✅ **Database Design & Implementation**: PostgreSQL + PostGIS with sample Minnesota data
 - ✅ **Core Infrastructure**: Redis caching, health checks, geographic calculations
-- ✅ **Frontend Foundation**: Next.js PWA with infrastructure status dashboard  
+- ✅ **Frontend Foundation**: Next.js PWA with infrastructure status dashboard
 - ✅ **DevOps & Deployment**: Docker Compose development environment
 - ✅ **API Documentation**: Auto-generated Swagger documentation
 - ✅ **Real-time Validation**: Live infrastructure monitoring dashboard
@@ -637,7 +637,7 @@ def process_weather_data_batch():
 
 **Traditional Development Costs** (Market Rates):
 - **Backend API Development**: $45,000 (3 months) ✅ **COMPLETED**
-- **Database Design & Implementation**: $15,000 (1 month) ✅ **COMPLETED** 
+- **Database Design & Implementation**: $15,000 (1 month) ✅ **COMPLETED**
 - **Infrastructure Setup**: $12,000 (2 weeks) ✅ **COMPLETED**
 - **Frontend Foundation**: $18,000 (1 month) ✅ **COMPLETED**
 - **DevOps & Deployment**: $15,000 (2 weeks) ✅ **COMPLETED**

@@ -6,15 +6,15 @@
 // Simple distance calculation utilities for testing
 export function calculateDistance(lat1, lng1, lat2, lng2) {
   if (!lat1 || !lng1 || !lat2 || !lng2) return 0;
-  
+
   const R = 3959; // Earth's radius in miles
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
-  
+
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
     Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -30,12 +30,12 @@ describe('Distance Utilities', () => {
       // Minneapolis to St. Paul (approximately 10 miles)
       const minneapolis = { lat: 44.9537, lng: -93.0900 };
       const stpaul = { lat: 44.9537, lng: -93.0900 };
-      
+
       const distance = calculateDistance(
         minneapolis.lat, minneapolis.lng,
         stpaul.lat, stpaul.lng
       );
-      
+
       expect(distance).toBeCloseTo(0, 1); // Same location = 0 miles
     });
 

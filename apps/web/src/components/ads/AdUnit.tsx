@@ -2,17 +2,17 @@
  * ========================================================================
  * ADUNIT COMPONENT - Google AdSense Integration
  * ========================================================================
- * 
+ *
  * @BUSINESS_PURPOSE: Revenue generation through strategic ad placement
  * @TECHNICAL_APPROACH: React AdSense with responsive, performance-optimized integration
  * @PRD_REF: PRD-GOOGLE-ADSENSE-181.md
- * 
+ *
  * REVENUE OPTIMIZATION:
  * - Responsive ad units for mobile-first experience
  * - Lazy loading for performance optimization
  * - Material-UI design system integration
  * - Context-aware ad placement
- * 
+ *
  * ========================================================================
  */
 
@@ -71,7 +71,7 @@ interface AdUnitProps {
 
 /**
  * AdUnit - Responsive Google AdSense component
- * 
+ *
  * Optimized for outdoor recreation weather app with strategic placement
  * for maximum revenue while maintaining excellent user experience
  */
@@ -86,7 +86,7 @@ export const AdUnit: React.FC<AdUnitProps> = ({
 }) => {
   // AdSense client ID - will be configured via environment variables
   const clientId = process.env.REACT_APP_ADSENSE_CLIENT_ID || 'ca-pub-test'
-  
+
   // Responsive ad dimensions based on placement
   const getAdDimensions = () => {
     switch (placement) {
@@ -117,33 +117,35 @@ export const AdUnit: React.FC<AdUnitProps> = ({
     />
   )
 
-  // Don't render ads if AdSense not configured
-  if (!clientId || clientId === 'ca-pub-test') {
-    if (testMode) {
-      return (
-        <AdContainer className={className}>
-          {showLabel && <AdLabel>Advertisement (Test Mode)</AdLabel>}
-          <Box
-            sx={{
-              width: '100%',
-              height: dimensions.height,
-              bgcolor: 'grey.100',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px dashed #ccc',
-              borderRadius: 1
-            }}
-          >
-            <Box sx={{ textAlign: 'center', color: 'text.secondary' }}>
-              Test Ad Unit
-              <br />
-              {placement}
-            </Box>
+  // Show test placeholder in development only
+  if (testMode && (!clientId || clientId === 'ca-pub-test')) {
+    return (
+      <AdContainer className={className}>
+        {showLabel && <AdLabel>Advertisement (Test Mode)</AdLabel>}
+        <Box
+          sx={{
+            width: '100%',
+            height: dimensions.height,
+            bgcolor: 'grey.100',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px dashed #ccc',
+            borderRadius: 1
+          }}
+        >
+          <Box sx={{ textAlign: 'center', color: 'text.secondary' }}>
+            Test Ad Unit - {placement}
+            <br />
+            <small>Production: {clientId}</small>
           </Box>
-        </AdContainer>
-      )
-    }
+        </Box>
+      </AdContainer>
+    )
+  }
+
+  // Don't render ads if no client ID configured
+  if (!clientId || clientId === 'ca-pub-test') {
     return null
   }
 

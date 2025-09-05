@@ -1,7 +1,7 @@
 # Three-Database Architecture Implementation Plan
-**Created**: 2025-07-30  
-**Status**: Ready for Implementation  
-**Estimated Time**: 25 minutes total  
+**Created**: 2025-07-30
+**Status**: Ready for Implementation
+**Estimated Time**: 25 minutes total
 
 ---
 
@@ -28,7 +28,7 @@
 ### **Phase 1: Create Preview Database** (5 minutes)
 
 **Step 1A: Neon Console**
-1. Open [Neon Console](https://console.neon.tech/) 
+1. Open [Neon Console](https://console.neon.tech/)
 2. Navigate to your project → **Branches**
 3. Click **"Create Branch"**
    - **Branch Name**: `preview`
@@ -110,12 +110,12 @@ curl -s "https://p.nearestniceweather.com/api/poi-locations" | jq '.count'
 // scripts/etl-framework.js enhancement
 const getTargetDatabase = () => {
   const env = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development'
-  
+
   switch(env) {
     case 'development':
       return process.env.DATABASE_URL // Development branch
     case 'preview':
-      return process.env.DATABASE_URL // Preview branch  
+      return process.env.DATABASE_URL // Preview branch
     case 'production':
       return process.env.DATABASE_URL // Production branch
     default:
@@ -154,7 +154,7 @@ echo "✅ Preview database updated with latest production data"
 
 ### **Pre-Implementation** ✅
 - [x] Localhost using DATABASE_URL only
-- [x] All API functions using DATABASE_URL only  
+- [x] All API functions using DATABASE_URL only
 - [x] Environment files cleaned of POSTGRES_URL
 - [x] Current localhost tests passing
 
@@ -228,7 +228,7 @@ npm run deploy:preview
 # Quick Implementation (25 minutes):
 
 # 1. Create Preview Branch (Neon Console - 5 minutes)
-# - Branch name: "preview"  
+# - Branch name: "preview"
 # - Source: production branch
 # - Copy connection string
 

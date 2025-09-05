@@ -48,7 +48,7 @@ This appendix contains detailed analysis of the medical tourism market segment, 
 
 **Conservative Estimates**:
 - Year 1: 500 medical tourism families
-- Year 2: 2,000 medical tourism families  
+- Year 2: 2,000 medical tourism families
 - Year 3: 5,000 medical tourism families
 - Average subscription: $22/month for 6-week periods
 - Estimated annual revenue by Year 3: $1.65M

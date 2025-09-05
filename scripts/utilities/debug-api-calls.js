@@ -2,9 +2,9 @@
 
 /**
  * DEBUG API CALLS - Monitor frontend API requests
- * 
+ *
  * PURPOSE: Monitor what API calls the frontend is actually making
- * - Intercept network requests 
+ * - Intercept network requests
  * - Check if POI endpoints are being called
  * - Verify response data is being received
  * - Correlate with infinite loop timing
@@ -18,16 +18,16 @@ async function debugApiCalls() {
   console.log('🔍 DEBUGGING FRONTEND API CALLS');
   console.log('=' + '='.repeat(40));
 
-  const browser = await chromium.launch({ 
+  const browser = await chromium.launch({
     headless: false,
-    slowMo: 100 
+    slowMo: 100
   });
-  
+
   const page = await browser.newPage();
-  
+
   const apiCalls = [];
   const consoleErrors = [];
-  
+
   // Monitor all network requests
   page.on('request', (request) => {
     const url = request.url();
@@ -41,24 +41,24 @@ async function debugApiCalls() {
       });
     }
   });
-  
-  // Monitor all network responses  
+
+  // Monitor all network responses
   page.on('response', async (response) => {
     const url = response.url();
     if (url.includes('/api/')) {
       const status = response.status();
       console.log(`📥 API RESPONSE: ${status} ${url}`);
-      
+
       try {
         const contentType = response.headers()['content-type'] || '';
         if (contentType.includes('application/json')) {
           const responseText = await response.text();
-          const responseData = responseText.length > 200 ? 
-            responseText.substring(0, 200) + '...' : 
+          const responseData = responseText.length > 200 ?
+            responseText.substring(0, 200) + '...' :
             responseText;
-          
+
           console.log(`   Response: ${responseData}`);
-          
+
           apiCalls.push({
             timestamp: new Date().toISOString(),
             method: response.request().method(),
@@ -73,7 +73,7 @@ async function debugApiCalls() {
       }
     }
   });
-  
+
   // Monitor console errors
   page.on('console', (msg) => {
     if (msg.type() === 'error') {
@@ -90,34 +90,34 @@ async function debugApiCalls() {
 
   try {
     console.log('🌐 Loading localhost frontend...');
-    await page.goto(BASE_URL, { 
+    await page.goto(BASE_URL, {
       waitUntil: 'domcontentloaded',
-      timeout: 15000 
+      timeout: 15000
     });
 
     // Wait for initial load and API calls
     console.log('⏱️ Monitoring API calls for 10 seconds...');
     await page.waitForTimeout(10000);
-    
+
     // Check if any markers appeared
     const markerCount = await page.locator('.leaflet-marker-icon').count();
     console.log(`\n📍 MARKER CHECK: ${markerCount} markers found on map`);
-    
+
     // Summary
     console.log('\n📊 API CALL SUMMARY:');
     console.log('=' + '='.repeat(30));
-    
+
     const requests = apiCalls.filter(call => call.type === 'request');
     const responses = apiCalls.filter(call => call.type === 'response');
     const successfulResponses = responses.filter(resp => resp.status >= 200 && resp.status < 300);
     const failedResponses = responses.filter(resp => resp.status >= 400);
-    
+
     console.log(`Total API requests: ${requests.length}`);
     console.log(`Total API responses: ${responses.length}`);
     console.log(`Successful responses: ${successfulResponses.length}`);
     console.log(`Failed responses: ${failedResponses.length}`);
     console.log(`Console errors: ${consoleErrors.length}`);
-    
+
     if (requests.length === 0) {
       console.log('\n🚨 NO API CALLS DETECTED!');
       console.log('   This suggests the POI hook is not running or being blocked');
@@ -126,14 +126,14 @@ async function debugApiCalls() {
       console.log('   - Component not mounting properly');
       console.log('   - useEffect dependencies preventing API calls');
     }
-    
+
     if (failedResponses.length > 0) {
       console.log('\n❌ FAILED API CALLS:');
       failedResponses.forEach((resp, index) => {
         console.log(`${index + 1}. ${resp.method} ${resp.url} (${resp.status})`);
       });
     }
-    
+
     if (successfulResponses.length > 0 && markerCount === 0) {
       console.log('\n⚠️  API CALLS SUCCESSFUL BUT NO MARKERS RENDERED!');
       console.log('   This suggests a rendering issue, not an API issue');
@@ -142,7 +142,7 @@ async function debugApiCalls() {
       console.log('   - Map marker creation failing');
       console.log('   - Infinite loops interfering with rendering');
     }
-    
+
     return {
       apiCalls,
       consoleErrors,
@@ -168,7 +168,7 @@ debugApiCalls()
   .then((results) => {
     console.log('\n🎯 DEBUGGING COMPLETE');
     console.log('=' + '='.repeat(40));
-    
+
     if (results.summary.totalRequests > 0 && results.markerCount === 0) {
       console.log('🔧 NEXT STEPS: Check marker rendering logic');
     } else if (results.summary.totalRequests === 0) {

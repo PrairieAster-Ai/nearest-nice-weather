@@ -12,7 +12,7 @@ Critical procedures for emergency deployments, rollbacks, and incident response 
 
 ## Emergency Response Team
 **Primary**: Development Lead
-**Secondary**: DevOps Engineer  
+**Secondary**: DevOps Engineer
 **Escalation**: CTO/Technical Director
 
 ## Incident Classification
@@ -42,7 +42,7 @@ Incident Detected
         ↓
 Is Production Down? → YES → P0 Response
         ↓ NO
-Are Core Features Broken? → YES → P1 Response  
+Are Core Features Broken? → YES → P1 Response
         ↓ NO
 Is It User-Facing? → YES → P2 Response
         ↓ NO
@@ -79,7 +79,7 @@ curl -f https://www.nearestniceweather.com/ && echo "✅ ROLLBACK SUCCESS"
 ### Step 3: Communication (1 minute)
 ```bash
 # Immediate status update
-echo "🚨 P0 INCIDENT: Production rollback completed. Site restored. Investigating root cause." 
+echo "🚨 P0 INCIDENT: Production rollback completed. Site restored. Investigating root cause."
 
 # Log incident
 echo "$(date): P0 Incident - Emergency rollback to $LAST_GOOD" >> incident-log.txt
@@ -141,7 +141,7 @@ vercel alias $LAST_GOOD_DEPLOYMENT www.nearestniceweather.com
 # Verify fix is minimal and safe
 - [ ] Single file or function change
 - [ ] No dependency updates
-- [ ] No database schema changes  
+- [ ] No database schema changes
 - [ ] No breaking API changes
 ```
 
@@ -152,7 +152,7 @@ git checkout -b hotfix/emergency-$(date +%s)
 
 # 2. Minimal testing (local only)
 npm run lint
-npm run type-check  
+npm run type-check
 npm run build
 
 # 3. Preview deployment first
@@ -307,7 +307,7 @@ done
 
 ### Alert Thresholds
 - **Response time > 5 seconds**: Warning
-- **Error rate > 1%**: Warning  
+- **Error rate > 1%**: Warning
 - **Response time > 10 seconds**: Critical
 - **Site unreachable**: Critical
 
@@ -326,7 +326,7 @@ Updates: Every 5 minutes
 ```
 ✅ INCIDENT RESOLVED
 Action: Emergency rollback completed
-Duration: X minutes downtime  
+Duration: X minutes downtime
 Root Cause: Under investigation
 Next Steps: Post-mortem scheduled
 ```
@@ -365,7 +365,7 @@ Status: Starting now
 
 ## Timeline
 - T+0: Incident detected
-- T+2: Response initiated  
+- T+2: Response initiated
 - T+5: Resolution deployed
 - T+X: Service fully restored
 
@@ -374,7 +374,7 @@ Status: Starting now
 
 ## Action Items
 - [ ] Immediate fix: [Description]
-- [ ] Process improvement: [Description]  
+- [ ] Process improvement: [Description]
 - [ ] Monitoring enhancement: [Description]
 
 ## Lessons Learned
@@ -423,7 +423,7 @@ chmod +x *.sh
 
 # Available tools:
 ./emergency-rollback.sh
-./health-check.sh  
+./health-check.sh
 ./deployment-status.sh
 ./logs-collector.sh
 ```
@@ -462,7 +462,7 @@ echo "✅ Deployment validation passed"
 
 **Incident Response Time SLA**:
 - P0: 5 minutes
-- P1: 15 minutes  
+- P1: 15 minutes
 - P2: 2 hours
 
 Remember: **Speed over perfection in emergencies**. Restore service first, investigate root cause second.

@@ -23,13 +23,13 @@ prompt_for_api_key() {
     echo "⚠️  Your API key will be stored locally in $AI_ENV_FILE"
     echo "⚠️  This file is excluded from git by .gitignore"
     echo ""
-    
+
     read -p "Do you have an Anthropic API key? (y/n): " has_key
-    
+
     if [[ $has_key =~ ^[Yy]$ ]]; then
         read -sp "Enter your Anthropic API key: " api_key
         echo ""
-        
+
         if [[ $api_key =~ ^sk-ant- ]]; then
             echo "✅ Valid Anthropic API key format detected"
             return 0
@@ -53,7 +53,7 @@ mkdir -p "$MCP_DIR"
 if [[ -f "$AI_ENV_FILE" ]]; then
     echo "⚠️  AI environment file already exists: $AI_ENV_FILE"
     read -p "Do you want to recreate it? (y/n): " recreate
-    
+
     if [[ ! $recreate =~ ^[Yy]$ ]]; then
         echo "✅ Keeping existing configuration"
         exit 0
@@ -79,7 +79,7 @@ AI_MODEL_NAME=claude-3-sonnet
 AI_MAX_TOKENS=4000
 AI_TEMPERATURE=0.7
 
-# MCP Server Configuration  
+# MCP Server Configuration
 MCP_PORT=3002
 MCP_LOG_LEVEL=info
 MCP_ENABLE_WEBHOOK=true
@@ -92,11 +92,11 @@ EOF
 
     # Set secure permissions
     chmod 600 "$AI_ENV_FILE"
-    
+
     echo ""
     echo "✅ AI environment configuration created: $AI_ENV_FILE"
     echo "🔒 File permissions set to 600 (owner read/write only)"
-    
+
 else
     echo "❌ AI setup cancelled"
     exit 1
@@ -120,12 +120,12 @@ if [[ -n "$api_key" ]]; then
     set -a
     source "$AI_ENV_FILE"
     set +a
-    
+
     # Test MCP server with AI enabled (timeout after 10 seconds)
     timeout 10s mcp-github-project-manager \
         --env-file "$AI_ENV_FILE" \
         --verbose 2>&1 | head -10 || true
-    
+
     echo ""
     echo "✅ AI-enhanced Project Manager MCP is ready!"
     echo ""
@@ -138,7 +138,7 @@ if [[ -n "$api_key" ]]; then
     echo ""
     echo "📝 VS Code configuration:"
     echo "  Use .vscode/mcp-ai-settings.json for VS Code MCP extension"
-    
+
 else
     echo "✅ Basic Project Manager MCP is ready (no AI features)"
     echo "   Run this script again to add AI capabilities"

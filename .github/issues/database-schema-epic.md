@@ -2,11 +2,11 @@
 
 ## Epic Information
 **Parent Feature**: #TBD (Live Weather Data Integration)
-**Epic Owner**: Claude & Bob  
-**Story Points**: 8  
-**Sprint**: Sprint 3  
-**Status**: 🔄 IN PROGRESS  
-**Priority**: HIGH - Critical path for MVP completion  
+**Epic Owner**: Claude & Bob
+**Story Points**: 8
+**Sprint**: Sprint 3
+**Status**: 🔄 IN PROGRESS
+**Priority**: HIGH - Critical path for MVP completion
 
 ## Epic Scope
 Deploy production-ready database schema supporting live weather data storage and retrieval for 100+ Minnesota outdoor recreation locations.
@@ -16,12 +16,12 @@ Deploy production-ready database schema supporting live weather data storage and
   - Deploy Neon PostgreSQL production branch
   - Configure connection pooling for Vercel serverless
   - Validate environment variable configuration
-  
-- [ ] **Story: Weather Location Storage Tables** (3 points)  
+
+- [ ] **Story: Weather Location Storage Tables** (3 points)
   - Implement locations table with geographic indexing
   - Create weather_conditions table with temporal data
   - Set up tourism_operators table for business integration
-  
+
 - [ ] **Story: Performance Indexing Optimization** (2 points)
   - Add geographic proximity indexes for distance queries
   - Optimize weather data retrieval performance
@@ -57,7 +57,7 @@ Deploy production-ready database schema supporting live weather data storage and
 
 ## Validation Steps
 - [ ] Test weather-locations API endpoint with production database
-- [ ] Verify geographic distance calculations work correctly  
+- [ ] Verify geographic distance calculations work correctly
 - [ ] Confirm all 34 Minnesota locations load properly
 - [ ] Performance test with simulated user load
 

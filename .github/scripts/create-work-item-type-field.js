@@ -18,7 +18,7 @@ const octokit = new Octokit({
 
 async function createWorkItemTypeField() {
   console.log('🔧 Creating "Work Item Type" Field in GitHub Project...\n');
-  
+
   try {
     // First, get the project ID
     const projectQuery = `
@@ -43,14 +43,14 @@ async function createWorkItemTypeField() {
 
     // Create the "Work Item Type" field with options
     console.log('🎯 Creating "Work Item Type" field with options...');
-    
+
     const optionData = [
       { name: 'Story', description: 'User-focused work item (3-13 story points)', color: 'BLUE' },
       { name: 'Bug', description: 'Defects and issues to fix', color: 'RED' },
       { name: 'Epic', description: 'Major work container (20+ story points)', color: 'PURPLE' },
       { name: 'Capability', description: 'Cross-sprint platform capability', color: 'GREEN' }
     ];
-    
+
     const createFieldMutation = `
       mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) {
         createProjectV2Field(input: {
@@ -88,7 +88,7 @@ async function createWorkItemTypeField() {
     const field = fieldResult.createProjectV2Field.projectV2Field;
     const fieldId = field.id;
     const createdOptions = field.options;
-    
+
     console.log(`✅ Created field: Work Item Type (${fieldId})`);
     createdOptions.forEach(option => {
       console.log(`  ✅ Added option: ${option.name} (${option.id})`);
@@ -99,7 +99,7 @@ async function createWorkItemTypeField() {
     console.log(`  📝 Field Name: Work Item Type`);
     console.log(`  🆔 Field ID: ${fieldId}`);
     console.log(`  🎯 Options Created: ${createdOptions.length}`);
-    
+
     createdOptions.forEach(option => {
       console.log(`    - ${option.name} (${option.id})`);
     });

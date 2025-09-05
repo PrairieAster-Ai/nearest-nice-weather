@@ -2,17 +2,17 @@
  * ========================================================================
  * UMAMI ANALYTICS INTEGRATION - PRIVACY-FOCUSED TRACKING
  * ========================================================================
- * 
+ *
  * 📊 PURPOSE: Privacy-first analytics using Umami (GDPR compliant, no cookies)
  * 🔒 PRIVACY: No personal data collection, IP anonymization, no third-party sharing
  * ⚡ PERFORMANCE: <2KB tracking script, minimal impact on page load
- * 
+ *
  * BUSINESS CONTEXT: Track user interactions for product optimization while respecting privacy
  * - POI discovery patterns for feature prioritization
  * - Weather filter usage for algorithm improvements
  * - Geographic distribution for market expansion planning
  * - Performance metrics for technical optimization
- * 
+ *
  * INTEGRATION: Works with React + Vite, environment variable configuration
  * @CLAUDE_CONTEXT: Privacy-focused analytics implementation for outdoor recreation platform
  */
@@ -59,13 +59,13 @@ export const initializeAnalytics = (): boolean => {
     console.log('📊 Umami Analytics initialized');
     return true;
   }
-  
+
   // In development, log events instead of tracking
   if (import.meta.env.DEV) {
     console.log('📊 Analytics in development mode - events will be logged only');
     return false;
   }
-  
+
   console.warn('📊 Umami Analytics not loaded - check environment variables');
   return false;
 };
@@ -75,7 +75,7 @@ export const initializeAnalytics = (): boolean => {
  */
 const trackEvent = (eventName: string, eventData?: Record<string, any>): void => {
   if (typeof window === 'undefined') return;
-  
+
   if (window.umami && typeof window.umami.track === 'function') {
     window.umami.track(eventName, eventData);
   } else if (import.meta.env.DEV) {
@@ -104,7 +104,7 @@ export const trackPOIInteraction = (action: string, poi: POIAnalytics): void => 
 export const trackWeatherFilter = (filterType: string, filterData: WeatherFilterAnalytics): void => {
   trackEvent('weather-filter', {
     filter_type: filterType,
-    temp_range: filterData.temp_min && filterData.temp_max ? 
+    temp_range: filterData.temp_min && filterData.temp_max ?
       `${filterData.temp_min}-${filterData.temp_max}` : undefined,
     conditions: filterData.conditions?.join(','),
     wind_max: filterData.wind_max,
@@ -171,8 +171,8 @@ export const trackPageView = (path?: string): void => {
  * Utility to check if analytics is enabled and working
  */
 export const isAnalyticsEnabled = (): boolean => {
-  return typeof window !== 'undefined' && 
-         window.umami !== undefined && 
+  return typeof window !== 'undefined' &&
+         window.umami !== undefined &&
          typeof window.umami.track === 'function';
 };
 

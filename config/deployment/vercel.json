@@ -38,7 +38,7 @@
           "value": "strict-origin-when-cross-origin"
         },
         {
-          "key": "Content-Security-Policy", 
+          "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' https://vercel.live https://pagead2.googlesyndication.com https://googletagservices.com https://cloud.umami.is; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https: https://pagead2.googlesyndication.com; connect-src 'self' https://api.openweathermap.org https://tile.openstreetmap.org https://*.openstreetmap.org https://vercel.live https://pagead2.googlesyndication.com https://googletagservices.com https://cloud.umami.is https://api-gateway.umami.dev https://ipapi.co; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'; frame-src 'self' https://vercel.live https://googleads.g.doubleclick.net https://tpc.googlesyndication.com;"
         }
       ]

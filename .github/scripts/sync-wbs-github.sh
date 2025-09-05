@@ -29,11 +29,11 @@ echo ""
 get_sprint_issues() {
     local sprint_number="$1"
     echo "📊 Fetching Sprint $sprint_number issues..."
-    
+
     local issues=$(curl -s \
         -H "Authorization: token $GITHUB_TOKEN" \
         "$API_BASE/repos/$REPO_OWNER/$REPO_NAME/issues?labels=sprint-$sprint_number&state=all&per_page=100")
-    
+
     echo "$issues"
 }
 
@@ -41,50 +41,50 @@ get_sprint_issues() {
 calculate_sprint_progress() {
     local sprint_number="$1"
     local issues=$(get_sprint_issues "$sprint_number")
-    
+
     local total_points=0
     local completed_points=0
     local total_issues=0
     local completed_issues=0
-    
+
     echo "🔢 Calculating Sprint $sprint_number progress..."
-    
+
     # Parse issues and extract story points
     while IFS= read -r issue; do
         if [ "$issue" != "null" ] && [ -n "$issue" ]; then
             local state=$(echo "$issue" | jq -r '.state')
             local title=$(echo "$issue" | jq -r '.title')
             local body=$(echo "$issue" | jq -r '.body // ""')
-            
+
             # Extract story points from issue body
             local points=$(echo "$body" | grep -i "story points" | grep -o '[0-9]\+' | head -n1)
             if [ -z "$points" ]; then
                 points=0
             fi
-            
+
             total_points=$((total_points + points))
             total_issues=$((total_issues + 1))
-            
+
             if [ "$state" = "closed" ]; then
                 completed_points=$((completed_points + points))
                 completed_issues=$((completed_issues + 1))
             fi
-            
+
             echo "  📝 $title: $points points ($state)"
         fi
     done < <(echo "$issues" | jq -c '.[]')
-    
+
     local completion_percentage=0
     if [ $total_points -gt 0 ]; then
         completion_percentage=$(( (completed_points * 100) / total_points ))
     fi
-    
+
     echo ""
     echo "📊 Sprint $sprint_number Summary:"
     echo "  Story Points: $completed_points/$total_points ($completion_percentage%)"
     echo "  Issues: $completed_issues/$total_issues"
     echo ""
-    
+
     # Return values via global variables
     SPRINT_TOTAL_POINTS=$total_points
     SPRINT_COMPLETED_POINTS=$completed_points
@@ -97,13 +97,13 @@ calculate_sprint_progress() {
 update_wbs_status() {
     local sprint_number="$1"
     local completion_percentage="$2"
-    
+
     echo "📝 Updating WBS presentation for Sprint $sprint_number..."
-    
+
     # Determine status emoji based on completion
     local status_emoji="📅"
     local status_text="PLANNED"
-    
+
     if [ $completion_percentage -gt 0 ] && [ $completion_percentage -lt 100 ]; then
         status_emoji="🔄"
         status_text="IN PROGRESS"
@@ -111,9 +111,9 @@ update_wbs_status() {
         status_emoji="✅"
         status_text="COMPLETED"
     fi
-    
+
     echo "  Status: $status_emoji $status_text ($completion_percentage%)"
-    
+
     # Note: Actual WBS file updates would require HTML parsing and modification
     # For now, we'll generate a report that can be manually applied
     echo "⚠️  WBS file update requires manual application (HTML modification)"
@@ -122,7 +122,7 @@ update_wbs_status() {
 # Function to generate sync report
 generate_sync_report() {
     echo "📋 Generating synchronization report..."
-    
+
     cat > "$SYNC_REPORT" << EOF
 # WBS-GitHub Synchronization Report
 
@@ -137,7 +137,7 @@ EOF
     # Process each sprint
     for sprint in {1..4}; do
         calculate_sprint_progress "$sprint"
-        
+
         cat >> "$SYNC_REPORT" << EOF
 ### Sprint $sprint Status
 
@@ -147,7 +147,7 @@ EOF
 
 EOF
     done
-    
+
     cat >> "$SYNC_REPORT" << EOF
 
 ## Recommended WBS Updates
@@ -165,7 +165,7 @@ EOF
 EOF
         fi
     done
-    
+
     cat >> "$SYNC_REPORT" << EOF
 
 ## File References Validation
@@ -178,9 +178,9 @@ EOF
     local all_issues=$(curl -s \
         -H "Authorization: token $GITHUB_TOKEN" \
         "$API_BASE/repos/$REPO_OWNER/$REPO_NAME/issues?state=all&per_page=100")
-    
+
     echo "$all_issues" | jq -r '.[] | select(.body | contains("apps/web/")) | "- Issue #\(.number): \(.title)"' >> "$SYNC_REPORT"
-    
+
     cat >> "$SYNC_REPORT" << EOF
 
 ## Next Steps
@@ -201,22 +201,22 @@ EOF
 # Function to validate file references
 validate_file_references() {
     echo "🔍 Validating file references in issues..."
-    
+
     local all_issues=$(curl -s \
         -H "Authorization: token $GITHUB_TOKEN" \
         "$API_BASE/repos/$REPO_OWNER/$REPO_NAME/issues?state=all&per_page=100")
-    
+
     local validation_errors=0
-    
+
     while IFS= read -r issue; do
         if [ "$issue" != "null" ] && [ -n "$issue" ]; then
             local issue_number=$(echo "$issue" | jq -r '.number')
             local title=$(echo "$issue" | jq -r '.title')
             local body=$(echo "$issue" | jq -r '.body // ""')
-            
+
             # Extract file paths from issue body
             local file_refs=$(echo "$body" | grep -o '`[^`]*\.\(js\|ts\|tsx\|jsx\|md\|sql\)`' | sed 's/`//g')
-            
+
             if [ -n "$file_refs" ]; then
                 echo "  📝 Issue #$issue_number: $title"
                 while IFS= read -r file_path; do
@@ -230,7 +230,7 @@ validate_file_references() {
             fi
         fi
     done < <(echo "$all_issues" | jq -c '.[]')
-    
+
     echo ""
     if [ $validation_errors -eq 0 ]; then
         echo "✅ All file references validated successfully"

@@ -7,7 +7,7 @@ Enable users to discover outdoor recreation locations (parks, trails, nature are
 
 ### **1. Initial Discovery**
 - **User Action**: Opens app, allows location access
-- **System Response**: 
+- **System Response**:
   - Detect user location (GPS → IP → fallback)
   - Fetch POI locations within 50-mile radius
   - Apply weather filters (temperature, precipitation, wind preferences)
@@ -37,7 +37,7 @@ Enable users to discover outdoor recreation locations (parks, trails, nature are
 ### **Data Management**
 ```
 Base Search: 50 miles → ~20-50 POI locations
-+30m Expansion 1: 80 miles → ~60-80 total POI locations  
++30m Expansion 1: 80 miles → ~60-80 total POI locations
 +30m Expansion 2: 110 miles → ~90-120 total POI locations
 +30m Expansion 3: 140 miles → ~120-150 total POI locations
 ```
@@ -71,7 +71,7 @@ Base Search: 50 miles → ~20-50 POI locations
 ### **Expansion Strategy**
 ```
 Base: 50 miles (≈45-60 minutes drive)
-+30m: 80 miles (≈70-90 minutes drive)  
++30m: 80 miles (≈70-90 minutes drive)
 +30m: 110 miles (≈100-120 minutes drive)
 +30m: 140 miles (≈130-150 minutes drive)
 ```
@@ -84,7 +84,7 @@ Base: 50 miles (≈45-60 minutes drive)
 - **Precipitation**: Lowest 30% (driest conditions)
 - **Wind**: Lowest 30% (calmest conditions)
 
-### **Expanded Search (+30m)**  
+### **Expanded Search (+30m)**
 - **Inclusive filtering**: Show more variety as radius grows
 - **Temperature**: Middle 80% of available range
 - **Precipitation**: Lowest 50% (moderate conditions)

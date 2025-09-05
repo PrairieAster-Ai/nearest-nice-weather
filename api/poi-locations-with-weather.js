@@ -2,11 +2,11 @@
  * ========================================================================
  * POI LOCATIONS WITH REAL WEATHER API - Production Compatible
  * ========================================================================
- * 
+ *
  * @BUSINESS_PURPOSE: POI discovery with real-time weather integration
  * @TECHNICAL_APPROACH: Use working POI API + OpenWeather API service
  * @SYNC_TARGET: dev-api-server.js poi-locations-with-weather endpoint
- * 
+ *
  * Provides Minnesota outdoor recreation POIs with real weather data
  * matching localhost API functionality for deployment parity.
  * ========================================================================
@@ -115,8 +115,8 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'GET') {
-    return res.status(405).json({ 
-      success: false, 
+    return res.status(405).json({
+      success: false,
       error: 'Method not allowed'
     })
   }
@@ -129,8 +129,8 @@ export default async function handler(req, res) {
     let result
     try {
       result = await sql`
-        SELECT 
-          id, name, lat, lng, park_type, data_source, description, 
+        SELECT
+          id, name, lat, lng, park_type, data_source, description,
           place_rank as importance_rank,
           NULL as distance_miles
         FROM poi_locations
@@ -141,8 +141,8 @@ export default async function handler(req, res) {
     } catch (error) {
       try {
         result = await sql`
-          SELECT 
-            id, name, lat, lng, data_source, description, 
+          SELECT
+            id, name, lat, lng, data_source, description,
             place_rank as importance_rank,
             NULL as distance_miles,
             NULL as park_type
@@ -153,7 +153,7 @@ export default async function handler(req, res) {
         `
       } catch (error2) {
         result = await sql`
-          SELECT 
+          SELECT
             id, name, lat, lng,
             NULL as description,
             1 as importance_rank,
@@ -216,7 +216,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('POI-Weather API error:', error)
-    
+
     res.status(500).json({
       success: false,
       error: 'Database query failed',

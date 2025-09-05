@@ -10,9 +10,9 @@ test.describe('Map Markers Investigation', () => {
     });
 
     // Navigate to the correct port
-    await page.goto('http://localhost:3002/', { 
+    await page.goto('http://localhost:3002/', {
       waitUntil: 'networkidle',
-      timeout: 30000 
+      timeout: 30000
     });
 
     // Wait for the app to fully load
@@ -34,8 +34,8 @@ test.describe('Map Markers Investigation', () => {
 
     // Check for Leaflet map instance
     const hasLeafletMap = await page.evaluate(() => {
-      return typeof window !== 'undefined' && 
-             typeof window.L !== 'undefined' && 
+      return typeof window !== 'undefined' &&
+             typeof window.L !== 'undefined' &&
              document.querySelector('.leaflet-container') !== null;
     });
     console.log('Leaflet map loaded:', hasLeafletMap);
@@ -55,23 +55,23 @@ test.describe('Map Markers Investigation', () => {
     // Click "Farther" button to expand distance if no markers are visible
     if (markerCount === 0) {
       console.log('No markers visible, trying to expand distance...');
-      
+
       // Look for the Farther button
       const fartherButton = await page.locator('button:has-text("Farther"), button:has-text("→")').first();
       const buttonExists = await fartherButton.isVisible();
-      
+
       if (buttonExists) {
         console.log('Found Farther button, clicking to expand distance...');
         await fartherButton.click();
         await page.waitForTimeout(2000);
-        
+
         // Take screenshot after expanding
         await page.screenshot({ path: 'map-after-farther-click.png', fullPage: true });
-        
+
         // Recount markers
         const newMarkerCount = await page.locator('.leaflet-marker-icon').count();
         console.log('Marker count after expanding distance:', newMarkerCount);
-        
+
         // Get marker details
         if (newMarkerCount > 0) {
           const markerDetails = await page.evaluate(() => {
@@ -110,7 +110,7 @@ test.describe('Map Markers Investigation', () => {
           }
           return response;
         };
-        
+
         // Trigger a refresh if needed
         setTimeout(() => {
           resolve({ error: 'No API calls intercepted' });
@@ -123,18 +123,18 @@ test.describe('Map Markers Investigation', () => {
     // Get current location from the app
     const locationInfo = await page.evaluate(() => {
       // Try to find location info in the DOM
-      const locationElements = Array.from(document.querySelectorAll('*')).filter(el => 
-        el.textContent?.includes('46.7296') || 
+      const locationElements = Array.from(document.querySelectorAll('*')).filter(el =>
+        el.textContent?.includes('46.7296') ||
         el.textContent?.includes('User location') ||
         el.textContent?.includes('within 30mi')
       );
-      
+
       return locationElements.map(el => ({
         tag: el.tagName,
         text: el.textContent?.substring(0, 100)
       }));
     });
-    
+
     console.log('Location info from DOM:', JSON.stringify(locationInfo, null, 2));
 
     // Final marker inspection
@@ -151,16 +151,16 @@ test.describe('Map Markers Investigation', () => {
         },
         parent: marker.parentElement?.className
       }));
-      
+
       // Also check for any POI data in window
       const windowData = {
         hasLeaflet: typeof L !== 'undefined',
         mapLayers: typeof L !== 'undefined' && L.layers ? Object.keys(L.layers).length : 0
       };
-      
+
       return { markers: markerInfo, windowData };
     });
-    
+
     console.log('Final marker data:', JSON.stringify(finalMarkerData, null, 2));
 
     // Take final screenshot

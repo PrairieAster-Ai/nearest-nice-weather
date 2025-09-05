@@ -44,7 +44,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
       description: 'Beautiful waterfall in Minneapolis'
     },
     {
-      id: '2', 
+      id: '2',
       name: 'Lake Harriet',
       lat: 44.9217,
       lng: -93.3072,
@@ -72,13 +72,13 @@ describe('usePOINavigation - Business Logic Testing', () => {
     mockConsoleLog.mockClear();
     mockConsoleError.mockClear();
     mockLocalStorage.getItem.mockReturnValue(null);
-    
+
     // Setup successful fetch mock
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ 
+      json: () => Promise.resolve({
         success: true,
-        data: mockPOIData 
+        data: mockPOIData
       })
     });
   });
@@ -96,10 +96,10 @@ describe('usePOINavigation - Business Logic Testing', () => {
 
       const point1: [number, number] = [44.9778, -93.2650]; // Minneapolis
       const point2: [number, number] = [44.9153, -93.2111]; // Minnehaha Falls
-      
+
       // Expected distance is approximately 4.5 miles
       // We'll verify this through the POI processing logic
-      
+
       // Create a simple distance calculator for testing
       const calculateDistance = (p1: [number, number], p2: [number, number]) => {
         const [lat1, lng1] = p1;
@@ -164,7 +164,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
       // Test the data processing logic that would be used in the hook
       const processAPIData = (apiData: any[], userLoc: [number, number]) => {
         const DISTANCE_SLICE_SIZE = 30;
-        
+
         const calculateDistance = (p1: [number, number], p2: [number, number]) => {
           const [lat1, lng1] = p1;
           const [lat2, lng2] = p2;
@@ -181,7 +181,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
         const processed = apiData.map((location, _index) => {
           const distance = calculateDistance(userLoc, [location.lat, location.lng]);
           const sliceIndex = Math.floor(distance / DISTANCE_SLICE_SIZE);
-          
+
           return {
             id: location.id,
             name: location.name,
@@ -207,12 +207,12 @@ describe('usePOINavigation - Business Logic Testing', () => {
       };
 
       const processed = processAPIData(mockPOIData, mockUserLocation);
-      
+
       expect(processed).toHaveLength(mockPOIData.length);
       expect(processed[0]).toHaveProperty('distance');
       expect(processed[0]).toHaveProperty('sliceIndex');
       expect(processed[0]).toHaveProperty('displayed');
-      
+
       // Should be sorted by distance
       for (let i = 0; i < processed.length - 1; i++) {
         expect(processed[i].distance).toBeLessThanOrEqual(processed[i + 1].distance);
@@ -221,7 +221,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
 
     test('should calculate slice indices correctly', () => {
       const DISTANCE_SLICE_SIZE = 30;
-      
+
       const testCases = [
         { distance: 5, expectedSlice: 0 },   // 0-30 mile slice
         { distance: 25, expectedSlice: 0 },  // 0-30 mile slice
@@ -285,12 +285,12 @@ describe('usePOINavigation - Business Logic Testing', () => {
       const autoExpandSearch = (processedPOIs: any[]) => {
         let currentRadius = DISTANCE_SLICE_SIZE;
         let visiblePOIs = processedPOIs.filter(poi => poi.distance <= currentRadius);
-        
+
         while (visiblePOIs.length === 0 && currentRadius < MAX_SEARCH_DISTANCE) {
           currentRadius += DISTANCE_SLICE_SIZE;
           visiblePOIs = processedPOIs.filter(poi => poi.distance <= currentRadius);
         }
-        
+
         return { visiblePOIs, finalRadius: currentRadius };
       };
 
@@ -370,22 +370,22 @@ describe('usePOINavigation - Business Logic Testing', () => {
   describe('Click Throttling Logic', () => {
     test('should implement click throttling correctly', () => {
       const CLICK_THROTTLE_MS = 500;
-      
+
       const isClickAllowed = (lastClickTime: number, now: number) => {
         return (now - lastClickTime) >= CLICK_THROTTLE_MS;
       };
 
       const now = Date.now();
-      
+
       // Fresh state - should allow click
       expect(isClickAllowed(0, now)).toBe(true);
-      
+
       // Recent click - should throttle
       expect(isClickAllowed(now - 100, now)).toBe(false);
-      
+
       // Old click - should allow
       expect(isClickAllowed(now - 600, now)).toBe(true);
-      
+
       // Exactly at threshold
       expect(isClickAllowed(now - 500, now)).toBe(true);
     });
@@ -402,7 +402,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
       const key1 = generateCacheKey([44.9778, -93.2650], { temp: 'mild' });
       const key2 = generateCacheKey([44.9778, -93.2650], { temp: 'mild' });
       const key3 = generateCacheKey([44.9779, -93.2650], { temp: 'mild' });
-      
+
       expect(key1.locationKey).toBe(key2.locationKey);
       expect(key1.filtersKey).toBe(key2.filtersKey);
       expect(key1.locationKey).not.toBe(key3.locationKey);
@@ -410,13 +410,13 @@ describe('usePOINavigation - Business Logic Testing', () => {
 
     test('should handle cache expiration logic', () => {
       const CACHE_DURATION_MS = 5000;
-      
+
       const isCacheValid = (timestamp: number, now: number) => {
         return (now - timestamp) < CACHE_DURATION_MS;
       };
 
       const now = Date.now();
-      
+
       expect(isCacheValid(now - 1000, now)).toBe(true);  // 1 second old
       expect(isCacheValid(now - 6000, now)).toBe(false); // 6 seconds old
       expect(isCacheValid(now, now)).toBe(true);         // Fresh
@@ -429,13 +429,13 @@ describe('usePOINavigation - Business Logic Testing', () => {
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (!data.success || !data.data) {
           throw new Error('Invalid API response format');
         }
-        
+
         return data.data;
       };
 
@@ -445,9 +445,9 @@ describe('usePOINavigation - Business Logic Testing', () => {
       }).rejects.toThrow('API error: 404');
 
       expect(async () => {
-        await handleAPIResponse({ 
-          ok: true, 
-          json: () => Promise.resolve({ success: false }) 
+        await handleAPIResponse({
+          ok: true,
+          json: () => Promise.resolve({ success: false })
         });
       }).rejects.toThrow('Invalid API response format');
     });
@@ -487,7 +487,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
       // Simulate the complete workflow logic
       const DISTANCE_SLICE_SIZE = 30;
       const userLocation: [number, number] = [44.9778, -93.2650];
-      
+
       // Step 1: Process API data
       const rawPOIs = mockPOIData;
       const calculateDistance = (p1: [number, number], p2: [number, number]) => {
@@ -513,7 +513,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
       // Step 2: Apply auto-expand logic
       let currentRadius = DISTANCE_SLICE_SIZE;
       let visiblePOIs = processedPOIs.filter(poi => poi.distance <= currentRadius);
-      
+
       while (visiblePOIs.length === 0 && currentRadius < 300) {
         currentRadius += DISTANCE_SLICE_SIZE;
         visiblePOIs = processedPOIs.filter(poi => poi.distance <= currentRadius);
@@ -523,13 +523,13 @@ describe('usePOINavigation - Business Logic Testing', () => {
       expect(processedPOIs.length).toBe(rawPOIs.length);
       expect(visiblePOIs.length).toBeGreaterThan(0);
       expect(processedPOIs[0].distance).toBeLessThanOrEqual(processedPOIs[1].distance);
-      
+
       // Step 4: Test navigation state
       const currentIndex = 0;
       const canExpand = processedPOIs.some(poi => poi.distance > currentRadius);
       const isAtClosest = currentIndex === 0;
       const isAtFarthest = currentIndex >= visiblePOIs.length - 1 && !canExpand;
-      
+
       expect(isAtClosest).toBe(true);
       expect(typeof isAtFarthest).toBe('boolean');
     });
@@ -537,7 +537,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
     test('should handle edge case with no POIs in range', () => {
       const DISTANCE_SLICE_SIZE = 30;
       const userLocation: [number, number] = [60.0, -100.0]; // Remote location
-      
+
       // POIs that are all very far away
       const distantPOIs = [
         { id: '1', name: 'Distant POI 1', lat: 30, lng: -80, distance: 2000 },
@@ -546,7 +546,7 @@ describe('usePOINavigation - Business Logic Testing', () => {
 
       let currentRadius = DISTANCE_SLICE_SIZE;
       let visiblePOIs = distantPOIs.filter(poi => poi.distance <= currentRadius);
-      
+
       while (visiblePOIs.length === 0 && currentRadius < 300) {
         currentRadius += DISTANCE_SLICE_SIZE;
         visiblePOIs = distantPOIs.filter(poi => poi.distance <= currentRadius);

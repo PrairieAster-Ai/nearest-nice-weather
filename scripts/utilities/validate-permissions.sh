@@ -91,19 +91,19 @@ fi
 print_header "Step 4: node_modules Validation"
 if [[ -d "node_modules" ]]; then
     print_info "node_modules directory exists"
-    
+
     # Check node_modules/.bin permissions
     if [[ -d "node_modules/.bin" ]]; then
         BIN_PERMS=$(ls -ld node_modules/.bin | cut -d' ' -f1)
         print_info "node_modules/.bin permissions: $BIN_PERMS"
-        
+
         # Check if .bin directory is executable
         if [[ -x "node_modules/.bin" ]]; then
             print_success "node_modules/.bin is executable"
         else
             print_warning "node_modules/.bin is not executable"
         fi
-        
+
         # Check key executable files
         EXECUTABLES=("vite" "npm" "npx" "node")
         for exe in "${EXECUTABLES[@]}"; do
@@ -127,7 +127,7 @@ print_header "Step 5: Build Output Validation"
 if [[ -d "dist" ]]; then
     DIST_PERMS=$(ls -ld dist | cut -d' ' -f1)
     print_info "dist directory permissions: $DIST_PERMS"
-    
+
     if [[ -r "dist" && -w "dist" ]]; then
         print_success "dist directory is readable and writable"
     else
@@ -190,14 +190,14 @@ if $FIX_NEEDED; then
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_info "Applying permission fixes..."
-        
+
         # Fix node_modules permissions
         if [[ -d "node_modules" ]]; then
             print_info "Fixing node_modules permissions..."
             chmod -R u+rwX,g+rX,o+rX node_modules/ 2>/dev/null || {
                 print_warning "Some node_modules permission fixes failed (non-critical)"
             }
-            
+
             # Ensure .bin executables are executable
             if [[ -d "node_modules/.bin" ]]; then
                 chmod +x node_modules/.bin/* 2>/dev/null || {
@@ -205,7 +205,7 @@ if $FIX_NEEDED; then
                 }
             fi
         fi
-        
+
         # Fix npm cache permissions
         NPM_CACHE_DIR=$(npm config get cache)
         if [[ -d "$NPM_CACHE_DIR" ]]; then
@@ -214,7 +214,7 @@ if $FIX_NEEDED; then
                 print_warning "npm cache permission fix failed (may need sudo)"
             }
         fi
-        
+
         # Create/fix npm global directory
         NPM_PREFIX=$(npm config get prefix)
         if [[ ! -d "$NPM_PREFIX/lib/node_modules" ]]; then
@@ -223,7 +223,7 @@ if $FIX_NEEDED; then
                 print_warning "Could not create npm global directory"
             }
         fi
-        
+
         print_success "Permission fixes applied"
     else
         print_info "Permission fixes skipped"

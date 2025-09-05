@@ -2,22 +2,22 @@
  * ========================================================================
  * MAP CALCULATION SERVICE - GEOGRAPHIC BOUNDS AND ZOOM OPTIMIZATION
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Centralized geographic calculations for optimal map view positioning
  * 🎯 BUSINESS LOGIC: Intelligent map centering and zoom for outdoor recreation discovery
  * 🔒 ALGORITHM STABILITY: Consistent zoom levels and center calculations
  * ⚡ PERFORMANCE: Optimized geographic bounds calculations for real-time UI
- * 
+ *
  * CALCULATION STRATEGIES:
  * 1. 📍 Geographic Bounds: Min/max latitude/longitude calculation
  * 2. 🎯 Center Point: Geometric center of POI clusters
  * 3. 🔍 Zoom Optimization: Minnesota-specific zoom levels for regional context
  * 4. 📏 Distance-based: User location prioritization in view calculations
- * 
+ *
  * @BUSINESS_RULE: Must show user location and POIs in single viewport
  * @PERFORMANCE_CRITICAL: Efficient bounds calculation for real-time UI updates
  * @CLAUDE_CONTEXT: Extracted from App.tsx for testability and maintainability
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -121,7 +121,7 @@ export class MapCalculationService {
     let zoom = opts.defaultZoom; // Start with regional view for statewide weather
 
     if (paddedRange < 4.0) zoom = 8;   // Statewide view
-    if (paddedRange < 3.0) zoom = 8.5; // Large regional view  
+    if (paddedRange < 3.0) zoom = 8.5; // Large regional view
     if (paddedRange < 2.0) zoom = 9;   // Regional view
     if (paddedRange < 1.5) zoom = 9.5; // Sub-regional view
     if (paddedRange < 1.0) zoom = 10;  // Multi-city view
@@ -178,8 +178,8 @@ export class MapCalculationService {
    * @returns Optimal map view including user location
    */
   calculateViewWithUserLocation(
-    locations: LocationPoint[], 
-    userLocation: Coordinates, 
+    locations: LocationPoint[],
+    userLocation: Coordinates,
     options: Partial<MapCalculationOptions> = {}
   ): MapView {
     // Add user location as a point to consider in bounds calculation
@@ -214,8 +214,8 @@ export class MapCalculationService {
    * @returns Locations sorted by distance (closest first)
    */
   findClosestLocations(
-    locations: LocationPoint[], 
-    referencePoint: Coordinates, 
+    locations: LocationPoint[],
+    referencePoint: Coordinates,
     maxCount: number = 10
   ): LocationPoint[] {
     const locationsWithDistance = locations.map(location => ({
@@ -237,9 +237,9 @@ export class MapCalculationService {
    */
   isWithinBounds(coordinate: Coordinates, bounds: GeographicBounds): boolean {
     const [lat, lng] = coordinate;
-    return lat >= bounds.minLat && 
-           lat <= bounds.maxLat && 
-           lng >= bounds.minLng && 
+    return lat >= bounds.minLat &&
+           lat <= bounds.maxLat &&
+           lng >= bounds.minLng &&
            lng <= bounds.maxLng;
   }
 
@@ -252,7 +252,7 @@ export class MapCalculationService {
   expandBounds(bounds: GeographicBounds, factor: number = 1.2): GeographicBounds {
     const latRange = bounds.maxLat - bounds.minLat;
     const lngRange = bounds.maxLng - bounds.minLng;
-    
+
     const latExpansion = (latRange * factor - latRange) / 2;
     const lngExpansion = (lngRange * factor - lngRange) / 2;
 

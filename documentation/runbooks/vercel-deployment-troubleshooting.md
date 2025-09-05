@@ -1,7 +1,7 @@
 # Vercel Deployment Troubleshooting Guide
 
-**Created**: July 13, 2025  
-**Last Updated**: July 13, 2025  
+**Created**: July 13, 2025
+**Last Updated**: July 13, 2025
 **Purpose**: Prevent API deployment issues that caused 4+ hour debugging session
 
 ## 🚨 Common Issues & Solutions
@@ -18,7 +18,7 @@
    ```bash
    # ❌ WRONG - APIs not discovered
    /api/health.js (project root)
-   
+
    # ✅ CORRECT - APIs discovered by Vercel
    /apps/web/api/health.js
    ```
@@ -27,7 +27,7 @@
    ```javascript
    // ❌ WRONG - CommonJS not compatible
    module.exports = async function handler(req, res) {}
-   
+
    // ✅ CORRECT - ES6 exports for Vercel
    export default async function handler(req, res) {}
    ```
@@ -38,7 +38,7 @@
    "rewrites": [
      {"source": "/api/(.*)", "destination": "/api/$1"}
    ]
-   
+
    // ✅ CORRECT - Let Vercel auto-discover
    "rewrites": [
      {"source": "/(.*)", "destination": "/index.html"}
@@ -58,7 +58,7 @@
    // ❌ WRONG - pg driver incompatible with serverless
    import { Pool } from 'pg'
    const pool = new Pool({connectionString: process.env.DATABASE_URL})
-   
+
    // ✅ CORRECT - Neon serverless driver
    import { neon } from '@neondatabase/serverless'
    const sql = neon(process.env.WEATHERDB_URL)
@@ -69,7 +69,7 @@
    # ❌ WRONG - Multiple conflicting variables
    DATABASE_URL=postgresql://localhost:5432/local_db
    POSTGRES_URL=postgresql://neon_host/cloud_db
-   
+
    # ✅ CORRECT - Single consistent variable
    WEATHERDB_URL=postgresql://neon_host/weather_db
    ```
@@ -88,7 +88,7 @@
 **Root Cause & Solution**:
 ```
 Vercel Project Settings → Deployment Protection → Authentication
-❌ WRONG: "All Deployments" 
+❌ WRONG: "All Deployments"
 ✅ CORRECT: "Only Preview Deployments"
 ```
 
@@ -150,7 +150,7 @@ curl https://deployment-url/api/health
 
 ### **If database queries fail**:
 1. **Verify database exists**: Connect via Neon console
-2. **Check table schema**: Ensure `locations`, `weather_conditions` tables exist  
+2. **Check table schema**: Ensure `locations`, `weather_conditions` tables exist
 3. **Test connection**: Use `/api/test-db` endpoint first
 4. **Rebuild if necessary**: Use provided SQL rebuild script
 
@@ -158,7 +158,7 @@ curl https://deployment-url/api/health
 
 **APIs are working correctly when**:
 - ✅ `GET /api/health` returns 200 with JSON
-- ✅ `GET /api/test-db` connects to database successfully  
+- ✅ `GET /api/test-db` connects to database successfully
 - ✅ `GET /api/weather-locations?limit=3` returns Minnesota location data
 - ✅ All 4 persona workflows can access their required weather data
 - ✅ Response times under 3 seconds for rural network compatibility

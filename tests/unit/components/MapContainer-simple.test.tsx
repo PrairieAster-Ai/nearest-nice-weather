@@ -103,17 +103,17 @@ describe('MapContainer - Simple Tests', () => {
 
   test('should initialize Leaflet map', () => {
     const L = require('leaflet');
-    
+
     render(<MapContainer {...defaultProps} />);
-    
+
     expect(L.map).toHaveBeenCalled();
   });
 
   test('should create tile layer', () => {
     const L = require('leaflet');
-    
+
     render(<MapContainer {...defaultProps} />);
-    
+
     expect(L.tileLayer).toHaveBeenCalledWith(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       expect.any(Object)
@@ -122,29 +122,29 @@ describe('MapContainer - Simple Tests', () => {
 
   test('should create markers for locations', () => {
     const L = require('leaflet');
-    
+
     render(<MapContainer {...defaultProps} />);
-    
+
     expect(L.marker).toHaveBeenCalled();
   });
 
   test('should handle empty locations', () => {
     const props = { ...defaultProps, locations: [] };
-    
+
     expect(() => render(<MapContainer {...props} />)).not.toThrow();
   });
 
   test('should handle null user location', () => {
     const props = { ...defaultProps, userLocation: null };
-    
+
     expect(() => render(<MapContainer {...props} />)).not.toThrow();
   });
 
   test('should handle invalid center coordinates', () => {
     const props = { ...defaultProps, center: [NaN, NaN] as [number, number] };
-    
+
     render(<MapContainer {...props} />);
-    
+
     expect(mockConsoleWarn).toHaveBeenCalledWith(
       'Invalid center or zoom provided to MapContainer:',
       expect.any(Object)
@@ -153,20 +153,20 @@ describe('MapContainer - Simple Tests', () => {
 
   test('should update map view when center changes', () => {
     const { rerender } = render(<MapContainer {...defaultProps} />);
-    
+
     const newProps = {
       ...defaultProps,
       center: [45.0, -94.0] as [number, number]
     };
-    
+
     rerender(<MapContainer {...newProps} />);
-    
+
     expect(mockMap.setView).toHaveBeenCalledWith([45.0, -94.0], 12);
   });
 
   test('should log marker creation', () => {
     render(<MapContainer {...defaultProps} />);
-    
+
     expect(mockConsoleLog).toHaveBeenCalledWith(
       expect.stringContaining('MapContainer received')
     );
@@ -174,9 +174,9 @@ describe('MapContainer - Simple Tests', () => {
 
   test('should handle component cleanup', () => {
     const { unmount } = render(<MapContainer {...defaultProps} />);
-    
+
     unmount();
-    
+
     expect(mockMap.remove).toHaveBeenCalled();
   });
 

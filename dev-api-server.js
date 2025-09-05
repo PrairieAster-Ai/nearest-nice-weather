@@ -4,7 +4,7 @@
 //
 // ⚠️  ARCHITECTURAL DECISION: DUAL API ARCHITECTURE
 // This localhost Express server duplicates functionality found in apps/web/api/*.js
-// 
+//
 // WHY DUAL ARCHITECTURE EXISTS:
 // ✅ DEVELOPMENT VELOCITY: ~100ms API responses vs 1-3s Vercel dev cold starts
 // ✅ DEBUGGING SUPERIORITY: Full Node.js debugging, console logs, breakpoints
@@ -18,7 +18,7 @@
 // ❌ ENVIRONMENT-SPECIFIC BUGS: Data type mismatches, connection handling differences
 //
 // DECISION RATIONALE (2025-07-31):
-// For single developer MVP development, localhost velocity benefits outweigh 
+// For single developer MVP development, localhost velocity benefits outweigh
 // architectural purity concerns. Post-MVP migration to Vercel-only is planned.
 //
 // MITIGATION STRATEGIES IN PLACE:
@@ -150,7 +150,7 @@ const port = 4000
 // DATABASE CONNECTION - LOCALHOST DEVELOPMENT PATTERN
 // ====================================================================
 // ⚠️  DUAL DATABASE DRIVER ARCHITECTURE WARNING
-// 
+//
 // LOCALHOST USES: node-postgres ('pg') with connection pooling
 // PRODUCTION USES: @neondatabase/serverless driver in apps/web/api/*.js
 //
@@ -222,9 +222,9 @@ app.post('/api/feedback', async (req, res) => {
     const { email, feedback, rating, category, categories, session_id, page_url } = req.body
 
     if (!feedback || feedback.trim().length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Feedback text is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Feedback text is required'
       })
     }
 
@@ -235,7 +235,7 @@ app.post('/api/feedback', async (req, res) => {
 
     // Create table if it doesn't exist
     const client = await pool.connect()
-    
+
     try {
       // Create table
       await client.query(`
@@ -260,12 +260,12 @@ app.post('/api/feedback', async (req, res) => {
 
       // Insert feedback
       const query = `
-        INSERT INTO user_feedback 
+        INSERT INTO user_feedback
         (email, feedback_text, rating, category, categories, user_agent, ip_address, session_id, page_url, created_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
         RETURNING id, created_at
       `
-      
+
       const result = await client.query(query, [
         email || null,
         feedback.trim(),
@@ -293,7 +293,7 @@ app.post('/api/feedback', async (req, res) => {
 
   } catch (error) {
     console.log('Feedback submission error:', error)
-    
+
     res.status(500).json({
       success: false,
       error: 'Failed to submit feedback. Please try again.',
@@ -306,13 +306,13 @@ app.post('/api/feedback', async (req, res) => {
 // ====================================================================
 // 🗑️ LEGACY WEATHER-LOCATIONS API REMOVED (2025-08-05)
 // ====================================================================
-// 
+//
 // ❌ REMOVED: /api/weather-locations endpoint that queried cities from 'locations' table
 // ✅ REPLACED BY: /api/poi-locations-with-weather (outdoor recreation POIs)
 //
-// 🎯 BUSINESS RATIONALE: 
+// 🎯 BUSINESS RATIONALE:
 // - Cities (Minneapolis, Brainerd, etc.) don't align with outdoor recreation focus
-// - POI-centric architecture provides better user experience  
+// - POI-centric architecture provides better user experience
 // - Eliminates code duplication and maintenance overhead
 //
 // 🔄 MIGRATION IMPACT:
@@ -326,7 +326,7 @@ app.post('/api/feedback', async (req, res) => {
 // as primary discovery mechanism, making weather stations obsolete.
 //
 // @REMOVED_DATE: 2025-08-05
-// @REPLACED_BY: /api/poi-locations-with-weather  
+// @REPLACED_BY: /api/poi-locations-with-weather
 // @BUSINESS_IMPACT: None (unused by frontend)
 // ====================================================================
 
@@ -334,11 +334,11 @@ app.post('/api/feedback', async (req, res) => {
 app.post('/api/create-poi-schema', async (req, res) => {
   try {
     const client = await pool.connect()
-    
+
     try {
       // Execute schema creation commands one by one
       await client.query('CREATE EXTENSION IF NOT EXISTS postgis')
-      
+
       // Create POI locations table
       await client.query(`
         CREATE TABLE IF NOT EXISTS poi_locations (
@@ -363,13 +363,13 @@ app.post('/api/create-poi-schema', async (req, res) => {
           )
         )
       `)
-      
+
       // Create indexes
       await client.query('CREATE INDEX IF NOT EXISTS idx_poi_geography ON poi_locations USING GIST(ST_Point(lng, lat))')
       await client.query('CREATE INDEX IF NOT EXISTS idx_poi_search ON poi_locations USING GIN(search_name)')
       await client.query('CREATE INDEX IF NOT EXISTS idx_poi_osm_tracking ON poi_locations (osm_id, osm_type, last_modified)')
       await client.query('CREATE INDEX IF NOT EXISTS idx_poi_classification ON poi_locations (park_type, difficulty)')
-      
+
       // Create feature flags table
       await client.query(`
         CREATE TABLE IF NOT EXISTS feature_flags (
@@ -380,14 +380,14 @@ app.post('/api/create-poi-schema', async (req, res) => {
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `)
-      
+
       // Insert POI feature flag
       await client.query(`
-        INSERT INTO feature_flags (flag_name, enabled, description) 
+        INSERT INTO feature_flags (flag_name, enabled, description)
         VALUES ('use_poi_locations', FALSE, 'Use poi_locations table instead of legacy locations table')
         ON CONFLICT (flag_name) DO NOTHING
       `)
-      
+
       res.json({
         success: true,
         message: 'POI database schema created successfully',
@@ -395,11 +395,11 @@ app.post('/api/create-poi-schema', async (req, res) => {
         tables_created: ['poi_locations', 'feature_flags'],
         indexes_created: ['idx_poi_geography', 'idx_poi_search', 'idx_poi_osm_tracking', 'idx_poi_classification']
       })
-      
+
     } finally {
       client.release()
     }
-    
+
   } catch (error) {
     console.error('Schema creation error:', error)
     res.status(500).json({
@@ -414,7 +414,7 @@ app.post('/api/create-poi-schema', async (req, res) => {
 app.post('/api/insert-sample-pois', async (req, res) => {
   try {
     const client = await pool.connect()
-    
+
     try {
       // Sample Minnesota POI data for testing
       const samplePOIs = [
@@ -428,7 +428,7 @@ app.post('/api/insert-sample-pois', async (req, res) => {
         {
           name: 'Gooseberry Falls State Park',
           lat: 47.1397, lng: -91.4690,
-          park_type: 'State Park', 
+          park_type: 'State Park',
           data_source: 'manual',
           description: 'Spectacular waterfalls along Lake Superior with hiking trails'
         },
@@ -436,7 +436,7 @@ app.post('/api/insert-sample-pois', async (req, res) => {
           name: 'Itasca State Park',
           lat: 47.2181, lng: -95.2058,
           park_type: 'State Park',
-          data_source: 'manual', 
+          data_source: 'manual',
           description: 'Headwaters of the Mississippi River with old-growth pines'
         },
         {
@@ -470,22 +470,22 @@ app.post('/api/insert-sample-pois', async (req, res) => {
         {
           name: 'Rum River Central Regional Park',
           lat: 45.3600, lng: -93.2000,
-          park_type: 'County Park', 
+          park_type: 'County Park',
           data_source: 'manual',
           description: 'River park with canoe access and hiking trails'
         }
       ]
-      
+
       let insertedCount = 0
       let skippedCount = 0
-      
+
       for (const poi of samplePOIs) {
         // Simple duplicate check using lat/lng proximity (1km = ~0.009 degrees)
         const existingCheck = await client.query(`
-          SELECT COUNT(*) as count FROM poi_locations 
+          SELECT COUNT(*) as count FROM poi_locations
           WHERE ABS(lat - $1) < 0.009 AND ABS(lng - $2) < 0.009
         `, [poi.lat, poi.lng])
-        
+
         if (existingCheck.rows[0].count === '0') {
           await client.query(`
             INSERT INTO poi_locations (
@@ -502,7 +502,7 @@ app.post('/api/insert-sample-pois', async (req, res) => {
           skippedCount++
         }
       }
-      
+
       res.json({
         success: true,
         message: 'Sample POI data processing complete',
@@ -511,11 +511,11 @@ app.post('/api/insert-sample-pois', async (req, res) => {
         skipped: skippedCount,
         total_attempted: samplePOIs.length
       })
-      
+
     } finally {
       client.release()
     }
-    
+
   } catch (error) {
     console.error('Sample POI insertion error:', error)
     res.status(500).json({
@@ -529,17 +529,17 @@ app.post('/api/insert-sample-pois', async (req, res) => {
 // ====================================================================
 // 🏞️ POINTS OF INTEREST (POI) API - CORE OUTDOOR RECREATION SYSTEM
 // ====================================================================
-// 
-// 🎯 BUSINESS PURPOSE: 
+//
+// 🎯 BUSINESS PURPOSE:
 // Primary API for outdoor recreation discovery in Minnesota. Returns parks, trails,
 // forests, nature centers, and other outdoor destinations with proximity-based ranking.
 //
 // 📊 POI_LOCATIONS TABLE SCHEMA (Single Source of Truth):
-// - id: SERIAL PRIMARY KEY 
+// - id: SERIAL PRIMARY KEY
 // - name: VARCHAR(255) - "Gooseberry Falls State Park", "Paul Bunyan Trail", etc.
 // - lat/lng: DECIMAL(10,8)/DECIMAL(11,8) - Geographic coordinates
 // - park_type: VARCHAR(100) - "State Park", "Trail System", "Nature Center", etc.
-// - data_source: VARCHAR(50) - "seed_script", "manual", "osm_import" 
+// - data_source: VARCHAR(50) - "seed_script", "manual", "osm_import"
 // - description: TEXT - User-friendly description of the location
 // - place_rank: INTEGER - Importance ranking (10=National Park, 15=State Park, 20=Regional)
 // - osm_id/osm_type: External OpenStreetMap references (optional)
@@ -564,10 +564,10 @@ app.post('/api/insert-sample-pois', async (req, res) => {
 //   "data": [
 //     {
 //       "id": "123",
-//       "name": "Gooseberry Falls State Park", 
+//       "name": "Gooseberry Falls State Park",
 //       "lat": 47.1389, "lng": -91.4706,
 //       "park_type": "State Park",
-//       "data_source": "seed_script", 
+//       "data_source": "seed_script",
 //       "description": "Famous waterfalls...",
 //       "importance_rank": 15,  // ← Alias for place_rank in response
 //       "distance_miles": "23.45" // Only present for proximity queries
@@ -595,12 +595,12 @@ app.post('/api/insert-sample-pois', async (req, res) => {
 app.get('/api/poi-locations', async (req, res) => {
   try {
     const client = await pool.connect()
-    
+
     try {
       const { lat, lng, radius = '50', limit = '20' } = req.query
-      
+
       let query, queryParams
-      
+
       if (lat && lng) {
         // ⚠️  DUPLICATED HAVERSINE FORMULA - Appears in 3+ locations
         // DUPLICATE LOCATIONS:
@@ -618,7 +618,7 @@ app.get('/api/poi-locations', async (req, res) => {
         // MITIGATION: Extract to shared GeographyUtils class (post-MVP)
         // Try expanded table first for 1000+ POI dataset
         query = `
-          SELECT 
+          SELECT
             id, name, lat, lng, park_type, park_level, ownership, operator,
             data_source, description, place_rank, phone, website, amenities, activities,
             (
@@ -628,8 +628,8 @@ app.get('/api/poi-locations', async (req, res) => {
               -- 📍 Parameters: $1=lng (user), $2=lat (user), lat/lng are POI coordinates
               -- ⚠️  SYNC CRITICAL: This exact formula used in 3+ locations, must stay identical
               3959 * acos(
-                cos(radians($2)) * cos(radians(lat)) * 
-                cos(radians(lng) - radians($1)) + 
+                cos(radians($2)) * cos(radians(lat)) *
+                cos(radians(lng) - radians($1)) +
                 sin(radians($2)) * sin(radians(lat))
               )
             ) as distance_miles
@@ -641,7 +641,7 @@ app.get('/api/poi-locations', async (req, res) => {
       } else {
         // All POIs ordered by importance (expanded table)
         query = `
-          SELECT 
+          SELECT
             id, name, lat, lng, park_type, park_level, ownership, operator,
             data_source, description, place_rank, phone, website, amenities, activities
           FROM poi_locations_expanded
@@ -650,27 +650,27 @@ app.get('/api/poi-locations', async (req, res) => {
         `
         queryParams = [parseInt(limit)]
       }
-      
+
       // Try query with schema fallbacks like production
       let result
       try {
         result = await client.query(query, queryParams)
       } catch (error) {
         console.log('POI query failed, trying fallback:', error.message)
-        
+
         // Fallback to original table for schema compatibility
         if (error.message.includes('poi_locations_expanded')) {
           console.log('Expanded table not found, falling back to original poi_locations table')
           // Fallback to original table structure
           if (lat && lng) {
             query = `
-              SELECT id, name, lat, lng, park_type, data_source, 
+              SELECT id, name, lat, lng, park_type, data_source,
                      description, place_rank,
                      NULL as park_level, NULL as ownership, NULL as operator,
                      NULL as phone, NULL as website, NULL as amenities, NULL as activities,
                 (3959 * acos(
-                  cos(radians($2)) * cos(radians(lat)) * 
-                  cos(radians(lng) - radians($1)) + 
+                  cos(radians($2)) * cos(radians(lat)) *
+                  cos(radians(lng) - radians($1)) +
                   sin(radians($2)) * sin(radians(lat))
                 )) as distance_miles
               FROM poi_locations
@@ -680,7 +680,7 @@ app.get('/api/poi-locations', async (req, res) => {
             `
           } else {
             query = `
-              SELECT id, name, lat, lng, park_type, data_source, 
+              SELECT id, name, lat, lng, park_type, data_source,
                      description, place_rank,
                      NULL as park_level, NULL as ownership, NULL as operator,
                      NULL as phone, NULL as website, NULL as amenities, NULL as activities
@@ -690,9 +690,9 @@ app.get('/api/poi-locations', async (req, res) => {
               LIMIT $1
             `
           }
-          
+
           result = await client.query(query, queryParams)
-          
+
           // Add default values for all missing columns
           result.rows = result.rows.map(row => ({
             ...row,
@@ -705,7 +705,7 @@ app.get('/api/poi-locations', async (req, res) => {
           throw error
         }
       }
-      
+
       const pois = result.rows.map(row => ({
         id: row.id.toString(),
         name: row.name,
@@ -725,7 +725,7 @@ app.get('/api/poi-locations', async (req, res) => {
         place_rank: row.place_rank || row.importance_rank,
         distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
       }))
-      
+
       res.json({
         success: true,
         data: pois,
@@ -739,11 +739,11 @@ app.get('/api/poi-locations', async (req, res) => {
           data_source: 'poi_locations_table'
         }
       })
-      
+
     } finally {
       client.release()
     }
-    
+
   } catch (error) {
     console.error('POI locations API error:', error)
     res.status(500).json({
@@ -796,7 +796,7 @@ app.get('/api/poi-locations', async (req, res) => {
 //       "park_type": "State Park", "data_source": "seed_script",
 //       "description": "Famous waterfalls on Lake Superior shore",
 //       "importance_rank": 15, "distance_miles": "23.45",
-//       
+//
 //       // Weather Data (from weatherService.js)
 //       "temperature": 72, "condition": "Partly Cloudy",
 //       "weather_description": "Perfect weather for outdoor activities",
@@ -805,9 +805,9 @@ app.get('/api/poi-locations', async (req, res) => {
 //       "weather_distance_miles": 5
 //     }
 //   ],
-//   "debug": { 
+//   "debug": {
 //     "query_type": "proximity_with_weather",
-//     "data_source": "poi_with_mock_weather" 
+//     "data_source": "poi_with_mock_weather"
 //   }
 // }
 //
@@ -820,7 +820,7 @@ app.get('/api/poi-locations', async (req, res) => {
 // @BUSINESS_CRITICAL: Core feature - outdoor recreation discovery with weather context
 // @LAST_UPDATED: 2025-08-05 (POI-only architecture, weather service integration)
 //
-// 📋 ENDPOINT: GET /api/poi-locations-with-weather  
+// 📋 ENDPOINT: GET /api/poi-locations-with-weather
 // Query Parameters:
 // - lat, lng: User coordinates for proximity-based ranking
 // - radius: Reference only (not enforced, distance-based ordering used)
@@ -830,24 +830,24 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
   // SIMPLIFIED VERSION - Matching production with mock weather data
   // @SYNC_NOTE: Using same simplified approach as production until schema unified
   const client = await pool.connect()
-  
+
   try {
     const { lat, lng, radius = '50', limit = '200', temperature, precipitation, wind } = req.query
     const limitNum = Math.min(parseInt(limit) || 200, 500)
-    
+
     console.log('🔍 Query parameters:', { lat, lng, radius, limit, temperature, precipitation, wind })
 
     // Reuse the same query logic from POI endpoint
     let query, queryParams
-    
+
     if (lat && lng) {
       query = `
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities,
           (3959 * acos(
-            cos(radians($2)) * cos(radians(lat)) * 
-            cos(radians(lng) - radians($1)) + 
+            cos(radians($2)) * cos(radians(lat)) *
+            cos(radians(lng) - radians($1)) +
             sin(radians($2)) * sin(radians(lat))
           )) as distance_miles
         FROM poi_locations_expanded
@@ -857,7 +857,7 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       queryParams = [parseFloat(lng), parseFloat(lat), parseInt(limit)]
     } else {
       query = `
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities
         FROM poi_locations_expanded
@@ -866,24 +866,24 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
       `
       queryParams = [parseInt(limit)]
     }
-    
+
     // Execute with fallback handling
     let result
     try {
       result = await client.query(query, queryParams)
     } catch (error) {
       console.log('POI-weather query failed, trying fallback:', error.message)
-      
+
       // Fallback to original table for schema compatibility
       if (lat && lng) {
         query = `
-          SELECT id, name, lat, lng, park_type, data_source, 
+          SELECT id, name, lat, lng, park_type, data_source,
                  description, place_rank,
                  NULL as park_level, NULL as ownership, NULL as operator,
                  NULL as phone, NULL as website, NULL as amenities, NULL as activities,
             (3959 * acos(
-              cos(radians($2)) * cos(radians(lat)) * 
-              cos(radians(lng) - radians($1)) + 
+              cos(radians($2)) * cos(radians(lat)) *
+              cos(radians(lng) - radians($1)) +
               sin(radians($2)) * sin(radians(lat))
             )) as distance_miles
           FROM poi_locations
@@ -893,7 +893,7 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
         `
       } else {
         query = `
-          SELECT id, name, lat, lng, park_type, data_source, 
+          SELECT id, name, lat, lng, park_type, data_source,
                  description, place_rank,
                  NULL as park_level, NULL as ownership, NULL as operator,
                  NULL as phone, NULL as website, NULL as amenities, NULL as activities
@@ -903,15 +903,15 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
           LIMIT $1
         `
       }
-      
+
       result = await client.query(query, queryParams)
     }
-    
+
     // Transform results with REAL weather data from OpenWeather API
     const poiLocations = await Promise.all(result.rows.map(async (row) => {
       // Fetch real weather for each POI location
       const weatherData = await fetchWeatherData(parseFloat(row.lat), parseFloat(row.lng))
-      
+
       return {
         id: row.id.toString(),
         name: row.name,
@@ -930,7 +930,7 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
         activities: row.activities || [],
         place_rank: row.place_rank || row.importance_rank,
         distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
-        
+
         // REAL weather data from OpenWeather API
         temperature: weatherData.temperature,
         condition: weatherData.condition,

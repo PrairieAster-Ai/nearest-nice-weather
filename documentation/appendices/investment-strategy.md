@@ -23,8 +23,8 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 ## Funding Strategy
 
 ### **Phase 1: MVP & Market Validation**
-**Timeline**: Months 1-6  
-**Funding Need**: $25,000  
+**Timeline**: Months 1-6
+**Funding Need**: $25,000
 **Funding Sources**: Founder investment, friends & family, pre-revenue grants
 
 **Use of Funds**:
@@ -41,8 +41,8 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 **Investor Profile**: Angel investors, tourism industry veterans, Minnesota business networks
 
 ### **Phase 2: Regional Expansion**
-**Timeline**: Months 7-18  
-**Funding Need**: $100,000  
+**Timeline**: Months 7-18
+**Funding Need**: $100,000
 **Funding Sources**: Seed round, strategic investors, revenue-based financing
 
 **Use of Funds**:
@@ -59,8 +59,8 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 **Investor Profile**: Seed funds, tourism industry strategics, outdoor recreation VCs
 
 ### **Phase 3: National Scaling**
-**Timeline**: Months 19-36  
-**Funding Need**: $400,000  
+**Timeline**: Months 19-36
+**Funding Need**: $400,000
 **Funding Sources**: Series A, strategic partnerships, debt financing
 
 **Use of Funds**:

@@ -33,10 +33,10 @@ export const weatherHandlers = [
   // Weather search endpoint
   http.post('http://localhost:8000/api/weather/search', async ({ request }) => {
     await (request as RequestWithJson).json() // Parse body but don't use it
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     return HttpResponse.json({
       success: true,
       data: mockLocations,
@@ -52,14 +52,14 @@ export const weatherHandlers = [
   http.get('http://localhost:8000/api/locations/:id', ({ params }) => {
     const locationId = params.id as string
     const location = mockLocations.find(l => l.id === Number(locationId))
-    
+
     if (!location) {
       return HttpResponse.json(
         { error: 'Location not found' },
         { status: 404 }
       )
     }
-    
+
     return HttpResponse.json({
       success: true,
       data: location
@@ -69,7 +69,7 @@ export const weatherHandlers = [
   // Feedback submission endpoint
   http.post('http://localhost:8000/api/feedback', async ({ request }) => {
     await (request as RequestWithJson).json() // Parse body but don't use it
-    
+
     return HttpResponse.json({
       success: true,
       message: 'Feedback submitted successfully',

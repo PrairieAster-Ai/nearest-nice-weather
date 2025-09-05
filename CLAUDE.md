@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the "Nearest Nice Weather" project - a weather intelligence platform connecting outdoor enthusiasts with optimal weather conditions. 
+This is the "Nearest Nice Weather" project - a weather intelligence platform connecting outdoor enthusiasts with optimal weather conditions.
 
 **Core Business Philosophy**: [The Innovation Infrastructure Advantage](documentation/business-plan/innovation-velocity-principles.md) - we optimize technical architecture for rapid experimentation and learning speed, creating competitive advantage through faster market discovery.
 
@@ -79,7 +79,7 @@ This is the "Nearest Nice Weather" project - a weather intelligence platform con
 curl -s "https://[environment-url]/api/poi-locations-with-weather?limit=1" | jq '.count'
 ```
 
-**📋 POI TABLE SCHEMA**: 
+**📋 POI TABLE SCHEMA**:
 - Primary table: `poi_locations` (refactored from `poi_locations_expanded`)
 - Contains all POI metadata: name, coordinates, park_type, amenities, activities, etc.
 - Run `node scripts/refactor-poi-tables.js [environment]` to consolidate tables
@@ -119,7 +119,7 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 # Test localhost with latest code
 ./scripts/environment-validation.sh localhost
 
-# Test preview environment  
+# Test preview environment
 ./scripts/environment-validation.sh preview
 
 # Update SESSION-HANDOFF.md matrix with results
@@ -159,7 +159,7 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 **🌤️ WEATHER DATA INTEGRATION:**
 - **Weather Source**: Real-time weather data from OpenWeather API (NOT mock data)
 - **API Integration**: `apps/web/utils/weatherService.js` provides OpenWeather API integration with 5-minute caching
-- **Localhost**: Uses real weather API with API key from `.env` file  
+- **Localhost**: Uses real weather API with API key from `.env` file
 - **Preview/Production**: Uses real weather API with API key from Vercel environment variables
 - **Fallback**: If weather API fails, no fallback to mock data - investigate API key or rate limits
 
@@ -172,7 +172,7 @@ npm start
 
 # This automatically:
 # - Validates environment and frees conflicting ports
-# - Starts API server (port 4000) 
+# - Starts API server (port 4000)
 # - Starts frontend server (port 3001)
 # - Runs health checks for both services
 # - Provides monitoring and auto-restart capabilities
@@ -180,7 +180,7 @@ npm start
 
 # STARTUP OPTIONS:
 npm start                  # Standard startup with monitoring
-npm run start:quick        # Fast startup, skip optional features  
+npm run start:quick        # Fast startup, skip optional features
 npm run start:clean        # Clean restart (clear caches)
 npm run start:verbose      # Detailed output for debugging
 npm run start:no-monitor   # Start without continuous monitoring
@@ -230,7 +230,7 @@ npm run start:clean         # Clean restart
 # The development server will proxy API calls to localhost:4000 automatically
 # Each environment uses its own database branch:
 # - localhost: development branch (source of truth - 138 POI records)
-# - preview: preview branch (staging validation - requires POI migration)  
+# - preview: preview branch (staging validation - requires POI migration)
 # - production: production branch (live data - requires POI migration)
 
 # Optional: Set custom development port
@@ -250,7 +250,7 @@ Preview Deployment:
 "Deploy current code to preview environment"
 → Result: Deployment + automatic p.nearestniceweather.com alias + validation
 
-Production Deployment:  
+Production Deployment:
 "Deploy current code to production with safety validation"
 → Result: Safety checks + deployment + endpoint validation + monitoring
 
@@ -273,7 +273,7 @@ Alias Management:
 ```bash
 # Fixed deployment commands (CI/CD compatible - no migration)
 npm run deploy:preview              # Direct Vercel preview deployment
-npm run deploy:production           # Direct Vercel production deployment  
+npm run deploy:production           # Direct Vercel production deployment
 npm run deploy:prod                 # Direct Vercel production deployment (alias)
 
 # Enhanced deployment commands (includes POI data migration)
@@ -412,7 +412,7 @@ npm run deploy                      # Returns error message with correct command
 ### Before Making Any Build/Deployment Changes:
 1. **Always start from known working baseline**: `git checkout ui-working-baseline`
 2. **Make ONE minimal change at a time** - never bundle multiple fixes
-3. **Test locally first**: `npm run build && npm run preview` 
+3. **Test locally first**: `npm run build && npm run preview`
 4. **Verify the specific fix works** before deploying
 5. **Deploy incrementally**: One change → test → verify → proceed
 
@@ -533,7 +533,7 @@ npm run test:mobile           # Mobile responsive testing
 
 ### **🎯 Core Philosophy: Deploy from Conversations**
 - **No Context Switching**: Deploy, monitor, and manage from Claude chat
-- **Innovation Infrastructure Advantage**: 2-5 minute idea-to-production cycles  
+- **Innovation Infrastructure Advantage**: 2-5 minute idea-to-production cycles
 - **Real-time Feedback**: Instant deployment status and URL generation
 - **Comprehensive Control**: 114+ tools covering all Vercel operations
 
@@ -547,7 +547,7 @@ npm run test:mobile           # Mobile responsive testing
 ```bash
 # All operations performed directly in Claude conversations:
 # 1. "Deploy current code to preview environment"
-# 2. "Update p.nearestniceweather.com alias to latest preview"  
+# 2. "Update p.nearestniceweather.com alias to latest preview"
 # 3. "Check deployment logs for any issues"
 # 4. "Deploy to production with safety validation"
 # 5. "Show deployment status and logs"
@@ -555,7 +555,7 @@ npm run test:mobile           # Mobile responsive testing
 
 # Enhanced conversation examples:
 npm run mcp:vercel:deploy           # Shows production deployment conversation
-npm run mcp:vercel:preview          # Shows preview deployment conversation  
+npm run mcp:vercel:preview          # Shows preview deployment conversation
 npm run mcp:vercel:status           # Shows status monitoring conversation
 npm run mcp:vercel:alias            # Shows alias management conversation
 npm run mcp:vercel:logs             # Shows log access conversation
@@ -568,7 +568,7 @@ node scripts/utilities/validate-vercel-mcp.js  # 88% integration score - ready f
 ### **🛠️ Traditional Commands (CI/CD Compatible)**:
 ```bash
 # Direct deployment commands (CI/CD workflows)
-npm run deploy:preview         # Fixed: Direct Vercel preview deployment  
+npm run deploy:preview         # Fixed: Direct Vercel preview deployment
 npm run deploy:production      # Fixed: Direct Vercel production deployment
 npm run deploy:prod            # Fixed: Direct Vercel production deployment (alias)
 
@@ -603,7 +603,7 @@ curl -s http://localhost:3050/health | jq '.'
 
 **Development Environment KPIs** (see [CLAUDE-PRODUCTIVITY-KPIs.md](CLAUDE-PRODUCTIVITY-KPIs.md)):
 - **Health Score >90%**: Full development capability - proceed with complex tasks
-- **Health Score 70-89%**: Reduced capability - focus on incremental changes  
+- **Health Score 70-89%**: Reduced capability - focus on incremental changes
 - **Health Score <70%**: CRITICAL - prioritize environment fixes over features
 
 **Known Productivity Degradation Patterns**:
@@ -613,7 +613,7 @@ curl -s http://localhost:3050/health | jq '.'
 - **Configuration drift**: 2-3 hours/week - validate environment variables
 
 **Intelligence Monitoring**: Claude Intelligence Suite provides real-time context
-- System Monitor: http://localhost:3052/system-resources  
+- System Monitor: http://localhost:3052/system-resources
 - Service Health: http://localhost:3050/status
 - Business Context: http://localhost:3058/business-context
 
@@ -646,7 +646,7 @@ curl -s http://localhost:3050/health | jq '.'
 
 ## Software Version Memories
 
-- Software versions on localhost MUST match production, and prod can be upgraded if necessary. 
+- Software versions on localhost MUST match production, and prod can be upgraded if necessary.
 
 ## Deployment Workflow
 
@@ -661,7 +661,7 @@ curl -s http://localhost:3050/health | jq '.'
 - **Environment Validation**: Use `./scripts/development-dashboard.sh` for real-time status
 - **Blank Screen Check**: If preview shows blank screen, run `./scripts/blank-screen-diagnostic.sh preview`
 
-### Weekly Maintenance  
+### Weekly Maintenance
 - **Documentation Review**: Check `documentation/runbooks/` for process updates
 - **Dependency Updates**: Review and update project dependencies (`npm audit`)
 - **Docker Cleanup**: Run `docker system prune -f` to clean unused resources
@@ -708,7 +708,7 @@ curl -s http://localhost:3050/health | jq '.'
 - Each attempt to "fix" filters creates new edge cases and unexpected behaviors
 - Multiple sessions have been consumed debugging filter percentiles instead of building features
 
-**Root Cause**: 
+**Root Cause**:
 - Percentile-based filtering on dynamic datasets creates unpredictable user experiences
 - "Quality over quantity" philosophy conflicts with practical usability needs
 - Complex threshold preservation logic during radius expansion adds unnecessary complexity
@@ -719,7 +719,7 @@ curl -s http://localhost:3050/health | jq '.'
 - Filter logic consumes more development time than feature development
 - Each "improvement" introduces new failure modes
 
-**STOP RULE**: 
+**STOP RULE**:
 - **DO NOT** adjust filter percentiles without explicit user request
 - **DO NOT** implement complex threshold preservation systems
 - **DO NOT** spend time debugging why filtering is "too restrictive" - this is expected behavior for niche weather preferences
@@ -727,7 +727,7 @@ curl -s http://localhost:3050/health | jq '.'
 
 **Alternative Approaches for Future Consideration**:
 - Simple absolute thresholds instead of percentile-based
-- User-configurable filter ranges 
+- User-configurable filter ranges
 - Visual feedback showing "X locations match your weather preferences"
 - Default to showing all locations with weather overlay, filters as optional refinement
 

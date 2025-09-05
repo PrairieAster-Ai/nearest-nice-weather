@@ -2,10 +2,10 @@
  * ========================================================================
  * FEEDBACK PAGE OBJECT MODEL
  * ========================================================================
- * 
+ *
  * @PURPOSE: Encapsulates feedback form interactions using semantic locators
  * @FOLLOWS: Playwright best practices for user-facing interactions
- * 
+ *
  * ========================================================================
  */
 
@@ -14,38 +14,38 @@ import { expect } from '@playwright/test'
 export class FeedbackPage {
   constructor(page) {
     this.page = page
-    
+
     // FEEDBACK FAB AND DIALOG
     this.feedbackButton = page.getByRole('button', { name: /feedback/i })
     this.feedbackDialog = page.getByRole('dialog', { name: /feedback|share your feedback/i })
-    
+
     // FORM ELEMENTS using semantic locators
     this.ratingStars = page.getByRole('radiogroup', { name: /rate|rating/i })
     this.star1 = page.getByRole('radio', { name: /1 star/i })
-    this.star2 = page.getByRole('radio', { name: /2 star/i }) 
+    this.star2 = page.getByRole('radio', { name: /2 star/i })
     this.star3 = page.getByRole('radio', { name: /3 star/i })
     this.star4 = page.getByRole('radio', { name: /4 star/i })
     this.star5 = page.getByRole('radio', { name: /5 star/i })
-    
+
     // CATEGORY BUTTONS
     this.generalCategory = page.getByRole('button', { name: /general/i })
     this.bugCategory = page.getByRole('button', { name: /bug/i })
     this.featureCategory = page.getByRole('button', { name: /feature/i })
     this.performanceCategory = page.getByRole('button', { name: /speed|performance/i })
-    
+
     // TEXT INPUTS
     this.commentField = page.getByRole('textbox', { name: /feedback|comment/i })
     this.emailField = page.getByRole('textbox', { name: /email/i })
-    
+
     // FORM ACTIONS
     this.submitButton = page.getByRole('button', { name: /submit/i })
     this.cancelButton = page.getByRole('button', { name: /cancel/i })
     this.closeButton = page.getByRole('button', { name: /close/i })
-    
+
     // FEEDBACK MESSAGES
     this.successMessage = page.getByRole('alert').filter({ hasText: /thank you|success/i })
     this.errorMessage = page.getByRole('alert').filter({ hasText: /error|failed/i })
-    
+
     // CHARACTER COUNTER
     this.characterCounter = page.getByText(/\d+\/1000/)
   }
@@ -74,18 +74,18 @@ export class FeedbackPage {
     if (stars < 1 || stars > 5) {
       throw new Error('Rating must be between 1 and 5 stars')
     }
-    
+
     const starMap = {
       1: this.star1,
       2: this.star2,
       3: this.star3,
-      4: this.star4, 
+      4: this.star4,
       5: this.star5
     }
-    
+
     await starMap[stars].click()
     await expect(starMap[stars]).toBeChecked()
-    
+
     return this
   }
 
@@ -97,15 +97,15 @@ export class FeedbackPage {
       'feature': this.featureCategory,
       'performance': this.performanceCategory
     }
-    
+
     const categoryButton = categoryMap[category]
     if (!categoryButton) {
       throw new Error(`Invalid category: ${category}`)
     }
-    
+
     await categoryButton.click()
     await expect(categoryButton).toHaveAttribute('aria-pressed', 'true')
-    
+
     return this
   }
 
@@ -120,12 +120,12 @@ export class FeedbackPage {
   async enterComment(text) {
     await this.commentField.clear()
     await this.commentField.fill(text)
-    
+
     // Verify character counter updates
     if (text.length > 0) {
       await expect(this.characterCounter).toContainText(text.length.toString())
     }
-    
+
     return this
   }
 
@@ -151,20 +151,20 @@ export class FeedbackPage {
 
     // Fill out form
     await this.selectRating(rating)
-    
+
     for (const category of categories) {
       await this.selectCategory(category)
     }
-    
+
     await this.enterComment(comment)
-    
+
     if (email) {
       await this.enterEmail(email)
     }
-    
+
     // Submit
     await this.submitFeedback()
-    
+
     return this
   }
 
@@ -207,7 +207,7 @@ export class FeedbackPage {
       4: this.star4,
       5: this.star5
     }
-    
+
     await expect(starMap[stars]).toBeChecked()
     return this
   }
@@ -283,23 +283,23 @@ export class FeedbackPage {
     const startTime = Date.now()
     await this.openFeedback()
     const endTime = Date.now()
-    
+
     return endTime - startTime
   }
 
   async measureSubmissionTime(feedbackData) {
     await this.openFeedback()
-    
+
     const startTime = Date.now()
     await this.submitCompleteFeedback(feedbackData)
-    
+
     // Wait for success or error message
     try {
       await expect(this.successMessage).toBeVisible({ timeout: 10000 })
     } catch {
       await expect(this.errorMessage).toBeVisible({ timeout: 10000 })
     }
-    
+
     const endTime = Date.now()
     return endTime - startTime
   }
@@ -307,10 +307,10 @@ export class FeedbackPage {
   // CHARACTER LIMIT TESTING
   async testCharacterLimit() {
     await this.openFeedback()
-    
+
     const longText = 'x'.repeat(1100) // Exceeds 1000 character limit
     await this.enterComment(longText)
-    
+
     const actualText = await this.commentField.inputValue()
     return {
       inputLength: longText.length,
@@ -322,15 +322,15 @@ export class FeedbackPage {
   // ACCESSIBILITY METHODS
   async testKeyboardNavigation() {
     await this.openFeedback()
-    
+
     // Tab through form elements
     const tabOrder = []
-    
+
     // Start with rating
     await this.page.keyboard.press('Tab')
     let focused = await this.page.locator(':focus').getAttribute('aria-label')
     if (focused) tabOrder.push('rating')
-    
+
     // Continue tabbing through form
     for (let i = 0; i < 10; i++) {
       await this.page.keyboard.press('Tab')
@@ -338,7 +338,7 @@ export class FeedbackPage {
                 await this.page.locator(':focus').getAttribute('name')
       if (focused) tabOrder.push(focused)
     }
-    
+
     return tabOrder
   }
 
@@ -346,7 +346,7 @@ export class FeedbackPage {
   async testEmptySubmission() {
     await this.openFeedback()
     await this.submitFeedback()
-    
+
     // Should show validation errors or disabled submit
     return {
       submitEnabled: await this.submitButton.isEnabled(),
@@ -359,10 +359,10 @@ export class FeedbackPage {
     await this.selectRating(5)
     await this.enterComment('Test feedback')
     await this.enterEmail(invalidEmail)
-    
+
     // Check if HTML5 validation kicks in
     const emailValidity = await this.emailField.evaluate(el => el.validity.valid)
-    
+
     return {
       emailValid: emailValidity,
       submitEnabled: await this.submitButton.isEnabled()

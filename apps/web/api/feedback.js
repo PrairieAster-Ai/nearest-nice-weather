@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  
+
   if (req.method === 'OPTIONS') {
     res.status(200).end()
     return
@@ -28,9 +28,9 @@ export default async function handler(req, res) {
     const { email, feedback, rating, category, categories, session_id, page_url } = req.body
 
     if (!feedback || feedback.trim().length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Feedback text is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Feedback text is required'
       })
     }
 
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
 
     // Insert feedback
     const result = await sql`
-      INSERT INTO user_feedback 
+      INSERT INTO user_feedback
       (email, feedback_text, rating, category, categories, user_agent, ip_address, session_id, page_url, created_at)
       VALUES (
         ${email || null},
@@ -90,8 +90,8 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Feedback submission error:', error)
-    
-    const errorMessage = process.env.NODE_ENV === 'production' 
+
+    const errorMessage = process.env.NODE_ENV === 'production'
       ? 'Failed to submit feedback. Please try again.'
       : error.message
 

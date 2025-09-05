@@ -2,25 +2,25 @@
  * ========================================================================
  * SANITIZATION UTILITIES TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for HTML sanitization and XSS prevention
  * 🔗 UTILITIES: sanitize.ts - Security utilities for safe HTML handling
  * 📊 COVERAGE: XSS prevention, URL sanitization, object sanitization
  * ⚙️ FUNCTIONALITY: Prevents malicious content injection and script execution
  * 🎯 BUSINESS_IMPACT: Ensures user security and platform integrity
- * 
+ *
  * BUSINESS CONTEXT: Security-first platform protection
  * - Validates XSS prevention for user-generated content
  * - Ensures URL safety for external links
  * - Tests object sanitization for form data
  * - Protects against malicious script injection
- * 
+ *
  * TECHNICAL COVERAGE: Security utility testing
  * - HTML character escaping validation
  * - URL protocol filtering and validation
  * - Object property sanitization
  * - Edge cases and malicious input handling
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -63,9 +63,9 @@ describe('Sanitization Utilities', () => {
   describe('✅ escapeHtml', () => {
     it('should escape basic HTML characters', () => {
       mockElement.innerHTML = '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
-      
+
       const result = escapeHtml('<script>alert("xss")</script>')
-      
+
       expect(mockCreateElement).toHaveBeenCalledWith('div')
       expect(result).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;')
     })
@@ -97,34 +97,34 @@ describe('Sanitization Utilities', () => {
 
     it('should escape special characters', () => {
       mockElement.innerHTML = '&amp;&lt;&gt;&quot;&#x27;'
-      
+
       const result = escapeHtml('&<>"\'')
-      
+
       expect(result).toBe('&amp;&lt;&gt;&quot;&#x27;')
     })
 
     it('should handle complex HTML structures', () => {
       mockElement.innerHTML = '&lt;div class=&quot;malicious&quot;&gt;&lt;img src=x onerror=alert(1)&gt;&lt;/div&gt;'
-      
+
       const result = escapeHtml('<div class="malicious"><img src=x onerror=alert(1)></div>')
-      
+
       expect(result).toBe('&lt;div class=&quot;malicious&quot;&gt;&lt;img src=x onerror=alert(1)&gt;&lt;/div&gt;')
     })
 
     it('should handle Unicode characters', () => {
       mockElement.innerHTML = '🚀 Hello 世界'
-      
+
       const result = escapeHtml('🚀 Hello 世界')
-      
+
       expect(result).toBe('🚀 Hello 世界')
     })
 
     it('should handle very long strings', () => {
       const longString = 'a'.repeat(10000) + '<script>alert("xss")</script>'
       mockElement.innerHTML = 'a'.repeat(10000) + '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
-      
+
       const result = escapeHtml(longString)
-      
+
       expect(result).toBe('a'.repeat(10000) + '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;')
     })
   })
@@ -239,7 +239,7 @@ describe('Sanitization Utilities', () => {
         })
         return elem
       })
-      
+
       const input = {
         name: 'Safe',
         description: '<script>alert("xss")</script>',
@@ -442,13 +442,13 @@ describe('Sanitization Utilities', () => {
  * ✅ Performance with large inputs
  * ✅ Type safety verification
  * ✅ Browser environment compatibility
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Platform security and user protection
  * ✅ Malicious content prevention
  * ✅ Safe user-generated content handling
  * ✅ External link security validation
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ Browser DOM API integration
  * ✅ URL constructor usage and fallbacks

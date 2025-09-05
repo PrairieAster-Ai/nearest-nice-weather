@@ -56,7 +56,7 @@ services:
       # Security Keys (CHANGE IN PRODUCTION!)
       KEY: "replace-with-random-32-char-string"
       SECRET: "replace-with-random-32-char-string"
-      
+
       # Database Configuration
       DB_CLIENT: "pg"
       DB_HOST: "postgres"
@@ -64,16 +64,16 @@ services:
       DB_DATABASE: "weather_intelligence"
       DB_USER: "postgres"
       DB_PASSWORD: "postgres"
-      
+
       # Admin User (First Time Setup)
       ADMIN_EMAIL: "admin@nearestnice.weather"
       ADMIN_PASSWORD: "change-this-password"
-      
+
       # Cache & Session Configuration
       CACHE_ENABLED: "true"
       CACHE_STORE: "redis"
       CACHE_REDIS: "redis://redis:6379"
-      
+
       # Email Configuration (Configure with your SMTP)
       EMAIL_FROM: "noreply@nearestnice.weather"
       EMAIL_TRANSPORT: "smtp"
@@ -81,19 +81,19 @@ services:
       EMAIL_SMTP_PORT: "587"
       EMAIL_SMTP_USER: "your-email@gmail.com"
       EMAIL_SMTP_PASSWORD: "your-app-password"
-      
+
       # Security & CORS
       CORS_ENABLED: "true"
       CORS_ORIGIN: "http://localhost:3000,http://localhost:8000"
-      
+
       # File Storage
       STORAGE_LOCATIONS: "local"
       STORAGE_LOCAL_DRIVER: "local"
       STORAGE_LOCAL_ROOT: "./uploads"
-      
+
       # Public URL
       PUBLIC_URL: "http://localhost:8055"
-      
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -118,38 +118,38 @@ services:
     environment:
       # Database Connection
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/weather_intelligence"
-      
+
       # Directus Integration
       DIRECTUS_URL: "http://directus:8055"
       DIRECTUS_ADMIN_TOKEN: "your-directus-admin-token"
-      
+
       # Authentication
       JWT_SECRET: "your-jwt-secret-here"
-      
+
       # Redis Cache
       REDIS_URL: "redis://redis:6379"
-      
+
       # Weather API Keys (Get from providers)
       OPENWEATHER_API_KEY: "your-openweather-api-key"
       WEATHER_API_KEY: "your-weather-api-key"
       VISUAL_CROSSING_API_KEY: "your-visual-crossing-api-key"
-      
+
       # Geographic Services
       GOOGLE_MAPS_API_KEY: "your-google-maps-api-key"
       MAPBOX_ACCESS_TOKEN: "your-mapbox-token"
-      
+
       # Email Configuration
       SMTP_HOST: "smtp.gmail.com"
       SMTP_PORT: "587"
       SMTP_USER: "your-email@gmail.com"
       SMTP_PASSWORD: "your-app-password"
       EMAIL_FROM: "noreply@nearestnice.weather"
-      
+
       # Development Settings
       ENVIRONMENT: "development"
       DEBUG: "true"
       LOG_LEVEL: "info"
-      
+
     volumes:
       - ./app:/app
       - ./logs:/app/logs
@@ -181,17 +181,17 @@ services:
       # API Configuration
       NEXT_PUBLIC_API_URL: "http://localhost:8000"
       NEXT_PUBLIC_DIRECTUS_URL: "http://localhost:8055"
-      
+
       # Map Services
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "your-google-maps-api-key"
       NEXT_PUBLIC_MAPBOX_TOKEN: "your-mapbox-token"
-      
+
       # Analytics (Optional)
       NEXT_PUBLIC_GA_MEASUREMENT_ID: "your-google-analytics-id"
-      
+
       # Development Settings
       NODE_ENV: "development"
-      
+
     volumes:
       - ./frontend:/app
       - /app/node_modules

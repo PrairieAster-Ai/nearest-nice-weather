@@ -12,7 +12,7 @@ With VercelMCP integrated, you can now deploy directly through Claude conversati
 ```
 **What happens**: Creates preview deployment and optionally updates p.nearestniceweather.com alias
 
-#### **Deploy to Production**  
+#### **Deploy to Production**
 ```
 "Deploy current code to production with safety validation"
 ```
@@ -69,7 +69,7 @@ With VercelMCP integrated, you can now deploy directly through Claude conversati
 
 **Traditional Manual Process**: 5-7 minutes
 1. Switch to terminal
-2. Run vercel commands  
+2. Run vercel commands
 3. Wait for deployment
 4. Manual validation
 5. Update aliases
@@ -77,7 +77,7 @@ With VercelMCP integrated, you can now deploy directly through Claude conversati
 
 **VercelMCP Conversation Process**: 30 seconds
 1. Ask Claude to deploy
-2. Deployment happens automatically  
+2. Deployment happens automatically
 3. Real-time status updates
 4. Automatic validation and aliasing
 5. Continue development immediately

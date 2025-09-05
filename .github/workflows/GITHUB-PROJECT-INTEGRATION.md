@@ -9,14 +9,14 @@
 ### Step 2: Create Capability Item
 **Title**: `Team Scaling Infrastructure (10-15 Technical Professionals)`
 
-**Description**: 
+**Description**:
 ```
-Enable rapid onboarding and productivity for 10-15 technical professionals 
+Enable rapid onboarding and productivity for 10-15 technical professionals
 with automated systems providing easy access to all project information.
 
 Key Outcomes:
 - Onboarding time: 2-4 hours (vs 2-3 days)
-- Zero production breaks from new team members  
+- Zero production breaks from new team members
 - Automated quality gates and documentation
 - Self-service development environment
 
@@ -27,7 +27,7 @@ Priority: High (Critical for team growth)
 
 ### Step 3: Set Project Fields
 - **Status**: 📋 Backlog
-- **Priority**: 🔴 High  
+- **Priority**: 🔴 High
 - **Type**: Capability
 - **Sprint**: Sprint 4 (or next available)
 - **Epic**: Team Infrastructure

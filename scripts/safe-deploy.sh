@@ -40,7 +40,7 @@ error() {
 # Safety check function
 safety_check() {
     log "🔍 Running pre-deployment safety checks..."
-    
+
     # Check for uncommitted changes
     if ! git diff --quiet; then
         error "Uncommitted changes detected"
@@ -49,7 +49,7 @@ safety_check() {
         warning "Commit or stash changes before deployment"
         return 1
     fi
-    
+
     # Check if on experimental branch (only for production)
     local current_branch=$(git branch --show-current)
     if [[ "$DEPLOYMENT_TYPE" == "production" || "$DEPLOYMENT_TYPE" == "prod" ]]; then
@@ -59,7 +59,7 @@ safety_check() {
             return 1
         fi
     fi
-    
+
     # Check if tests pass (if test command exists)
     if npm run --silent test:quick &> /dev/null; then
         log "Running quick tests..."
@@ -70,7 +70,7 @@ safety_check() {
     else
         log "No test:quick script found - skipping tests"
     fi
-    
+
     success "Safety checks passed"
     return 0
 }
@@ -84,18 +84,18 @@ production_confirmation() {
     log "Current branch: $(git branch --show-current)"
     log "Last commit: $(git log --oneline -1)"
     echo
-    
+
     if [[ "$FORCE_FLAG" == "--force" ]]; then
         warning "Force flag detected - skipping confirmation"
         return 0
     fi
-    
+
     echo -e "${YELLOW}To proceed, type exactly: ${NC}${RED}$REQUIRED_CONFIRMATION${NC}"
     echo -e "${YELLOW}Or press Ctrl+C to cancel${NC}"
     echo
-    
+
     read -p "Confirmation: " user_input
-    
+
     if [[ "$user_input" == "$REQUIRED_CONFIRMATION" ]]; then
         success "Production deployment confirmed"
         return 0
@@ -110,33 +110,33 @@ production_confirmation() {
 # Preview deployment (safe)
 deploy_preview() {
     log "🚀 Deploying to preview environment..."
-    
+
     # Run safety checks
     if ! safety_check; then
         error "Safety checks failed - deployment cancelled"
         exit 1
     fi
-    
+
     # Deploy to preview
     log "Running: vercel"
     vercel
-    
+
     # Get the deployment URL
     local deployment_url=$(vercel ls | head -1)
-    
+
     success "Preview deployment successful!"
     log "Deployment URL: $deployment_url"
-    
+
     # Offer to update alias
     echo
     log "Update preview alias? (y/n)"
     read -p "Update p.nearestniceweather.com: " update_alias
-    
+
     if [[ "$update_alias" == "y" || "$update_alias" == "Y" ]]; then
         log "Updating preview alias..."
         vercel alias set "$deployment_url" p.nearestniceweather.com
         success "Preview alias updated: https://p.nearestniceweather.com"
-        
+
         # Run validation
         log "Running environment validation..."
         if ./scripts/environment-validation.sh preview; then
@@ -150,27 +150,27 @@ deploy_preview() {
 # Production deployment (requires confirmation)
 deploy_production() {
     log "🔥 Production deployment requested..."
-    
+
     # Production confirmation
     if ! production_confirmation; then
         error "Production deployment cancelled"
         exit 2
     fi
-    
+
     # Run safety checks
     if ! safety_check; then
         error "Safety checks failed - deployment cancelled"
         exit 1
     fi
-    
+
     # Deploy to production
     log "🚀 Deploying to production..."
     log "Running: vercel --prod"
     vercel --prod
-    
+
     success "Production deployment successful!"
     success "Live at: https://nearestniceweather.com"
-    
+
     # Run validation
     log "Running production validation..."
     if ./scripts/environment-validation.sh production; then
@@ -188,11 +188,11 @@ main() {
     warning "🚀 RECOMMENDED: Use VercelMCP for faster deployments"
     log "Deploy directly from Claude conversations with VercelMCP tools"
     log "• Instant deployment commands via Claude"
-    log "• Real-time status monitoring"  
+    log "• Real-time status monitoring"
     log "• Automated preview aliasing"
     log "• No context switching required"
     echo
-    
+
     case "$DEPLOYMENT_TYPE" in
         "preview"|"p")
             deploy_preview
@@ -206,7 +206,7 @@ main() {
             exit 1
             ;;
     esac
-    
+
     success "Deployment completed successfully!"
 }
 
@@ -218,7 +218,7 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "🚀 RECOMMENDED: Use VercelMCP for optimal deployment experience"
     echo "Deploy directly from Claude conversations with VercelMCP tools"
     echo "• No command-line switching required"
-    echo "• Real-time deployment monitoring"  
+    echo "• Real-time deployment monitoring"
     echo "• Instant preview URL management"
     echo
     echo "Deployment Types:"

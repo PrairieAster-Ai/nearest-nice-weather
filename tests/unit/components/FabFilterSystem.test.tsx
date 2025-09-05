@@ -84,7 +84,7 @@ describe('FabFilterSystem', () => {
   describe('Component Rendering', () => {
     test('should render all three filter category buttons', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
       expect(screen.getByTestId('filter-precipitation')).toBeInTheDocument();
       expect(screen.getByTestId('filter-wind')).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe('FabFilterSystem', () => {
     test('should render with empty filters', () => {
       const emptyFilters = { temperature: '', precipitation: '', wind: '' };
       const props = { ...defaultProps, filters: emptyFilters };
-      
+
       expect(() => render(<FabFilterSystem {...props} />)).not.toThrow();
     });
 
@@ -102,7 +102,7 @@ describe('FabFilterSystem', () => {
         filters: mockFilters,
         onFilterChange: mockOnFilterChange
       };
-      
+
       expect(() => render(<FabFilterSystem {...minimalProps} />)).not.toThrow();
     });
   });
@@ -110,10 +110,10 @@ describe('FabFilterSystem', () => {
   describe('Filter Category Interactions', () => {
     test('should call handleCategoryClick when temperature button is clicked', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const temperatureButton = screen.getByTestId('filter-temperature');
       fireEvent.click(temperatureButton);
-      
+
       // After clicking, the component should show expanded state
       // This is tested by checking if the button behavior responds
       expect(temperatureButton).toBeInTheDocument();
@@ -121,33 +121,33 @@ describe('FabFilterSystem', () => {
 
     test('should call handleCategoryClick when precipitation button is clicked', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const precipitationButton = screen.getByTestId('filter-precipitation');
       fireEvent.click(precipitationButton);
-      
+
       expect(precipitationButton).toBeInTheDocument();
     });
 
     test('should call handleCategoryClick when wind button is clicked', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const windButton = screen.getByTestId('filter-wind');
       fireEvent.click(windButton);
-      
+
       expect(windButton).toBeInTheDocument();
     });
 
     test('should toggle category open/close state', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const temperatureButton = screen.getByTestId('filter-temperature');
-      
+
       // Click to open
       fireEvent.click(temperatureButton);
-      
+
       // Click again to close
       fireEvent.click(temperatureButton);
-      
+
       // Button should still be present
       expect(temperatureButton).toBeInTheDocument();
     });
@@ -156,7 +156,7 @@ describe('FabFilterSystem', () => {
   describe('Filter Selection Behavior', () => {
     test('should display current filter selections correctly', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       // Component should reflect current filter state
       // This is implicit in the component's aria-label and display logic
       const temperatureButton = screen.getByTestId('filter-temperature');
@@ -165,7 +165,7 @@ describe('FabFilterSystem', () => {
 
     test('should handle filter change calls', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       // The actual option selection testing is complex due to the slide-out interface
       // But we can test that the component renders and accepts the filter props
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
@@ -178,10 +178,10 @@ describe('FabFilterSystem', () => {
         precipitation: 'heavy',
         wind: 'windy'
       };
-      
+
       const props = { ...defaultProps, filters: differentFilters };
       render(<FabFilterSystem {...props} />);
-      
+
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
       expect(screen.getByTestId('filter-precipitation')).toBeInTheDocument();
       expect(screen.getByTestId('filter-wind')).toBeInTheDocument();
@@ -192,7 +192,7 @@ describe('FabFilterSystem', () => {
     test('should handle loading state', () => {
       const props = { ...defaultProps, isLoading: true };
       render(<FabFilterSystem {...props} />);
-      
+
       // Component should render normally even in loading state
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
     });
@@ -200,7 +200,7 @@ describe('FabFilterSystem', () => {
     test('should handle non-loading state', () => {
       const props = { ...defaultProps, isLoading: false };
       render(<FabFilterSystem {...props} />);
-      
+
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
     });
   });
@@ -208,7 +208,7 @@ describe('FabFilterSystem', () => {
   describe('Result Counts Integration', () => {
     test('should handle result counts prop', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       // Result counts are used for badges/chips in the actual UI
       // Component should render without errors when counts are provided
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
@@ -217,14 +217,14 @@ describe('FabFilterSystem', () => {
     test('should handle empty result counts', () => {
       const props = { ...defaultProps, resultCounts: {} };
       render(<FabFilterSystem {...props} />);
-      
+
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
     });
 
     test('should handle total POI count', () => {
       const props = { ...defaultProps, totalPOIs: 50 };
       render(<FabFilterSystem {...props} />);
-      
+
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
     });
   });
@@ -232,7 +232,7 @@ describe('FabFilterSystem', () => {
   describe('Accessibility Features', () => {
     test('should have proper ARIA labels for buttons', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const temperatureButton = screen.getByTestId('filter-temperature');
       expect(temperatureButton).toHaveAttribute('aria-label');
       expect(temperatureButton).toHaveAttribute('role', 'button');
@@ -240,16 +240,16 @@ describe('FabFilterSystem', () => {
 
     test('should have aria-expanded attributes', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const temperatureButton = screen.getByTestId('filter-temperature');
       expect(temperatureButton).toHaveAttribute('aria-expanded');
     });
 
     test('should support keyboard navigation', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const temperatureButton = screen.getByTestId('filter-temperature');
-      
+
       // Test that the button can receive focus and be activated
       temperatureButton.focus();
       expect(document.activeElement).toBe(temperatureButton);
@@ -259,27 +259,27 @@ describe('FabFilterSystem', () => {
   describe('Component State Management', () => {
     test('should maintain internal state for open categories', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const temperatureButton = screen.getByTestId('filter-temperature');
-      
+
       // Click to change internal state
       fireEvent.click(temperatureButton);
-      
+
       // Component should continue to function
       expect(temperatureButton).toBeInTheDocument();
     });
 
     test('should handle rapid category switching', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       const temperatureButton = screen.getByTestId('filter-temperature');
       const precipitationButton = screen.getByTestId('filter-precipitation');
-      
+
       // Rapidly switch between categories
       fireEvent.click(temperatureButton);
       fireEvent.click(precipitationButton);
       fireEvent.click(temperatureButton);
-      
+
       // Component should remain stable
       expect(temperatureButton).toBeInTheDocument();
       expect(precipitationButton).toBeInTheDocument();
@@ -289,17 +289,17 @@ describe('FabFilterSystem', () => {
   describe('Performance Optimization', () => {
     test('should use memoized filter configurations', () => {
       const { rerender } = render(<FabFilterSystem {...defaultProps} />);
-      
+
       // Re-render with same props
       rerender(<FabFilterSystem {...defaultProps} />);
-      
+
       // Component should render consistently
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
     });
 
     test('should handle callback optimization', () => {
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       // The component uses useCallback for optimization
       // This is tested indirectly by ensuring the component renders
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
@@ -312,7 +312,7 @@ describe('FabFilterSystem', () => {
         ...defaultProps,
         filters: undefined as any
       };
-      
+
       // Component should handle gracefully or throw predictably
       expect(() => render(<FabFilterSystem {...props} />)).toThrow();
     });
@@ -322,7 +322,7 @@ describe('FabFilterSystem', () => {
         ...defaultProps,
         onFilterChange: null as any
       };
-      
+
       expect(() => render(<FabFilterSystem {...props} />)).toThrow();
     });
 
@@ -334,7 +334,7 @@ describe('FabFilterSystem', () => {
           'temperature-mild': 99999
         }
       };
-      
+
       expect(() => render(<FabFilterSystem {...props} />)).not.toThrow();
     });
   });
@@ -347,22 +347,22 @@ describe('FabFilterSystem', () => {
         updateFilter: mockOnFilterChange,
         isLoading: false
       };
-      
+
       render(
-        <FabFilterSystem 
+        <FabFilterSystem
           filters={mockFilterManager.filters}
           onFilterChange={mockFilterManager.updateFilter}
           isLoading={mockFilterManager.isLoading}
         />
       );
-      
+
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
     });
 
     test('should support App.tsx consumption pattern', () => {
       // Test the expected App.tsx usage pattern
       render(<FabFilterSystem {...defaultProps} />);
-      
+
       // Should render all three main filter categories as expected by App.tsx
       expect(screen.getByTestId('filter-temperature')).toBeInTheDocument();
       expect(screen.getByTestId('filter-precipitation')).toBeInTheDocument();

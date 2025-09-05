@@ -32,7 +32,7 @@ Copy `.env.example` to `.env.local` and configure:
 # Database - Use your production PostgreSQL URL
 DATABASE_URL="postgresql://user:pass@host:5432/db"
 
-# Redis - Use your production Redis URL  
+# Redis - Use your production Redis URL
 REDIS_URL="redis://user:pass@host:6379"
 
 # Security - Generate secure random strings
@@ -140,7 +140,7 @@ curl https://your-api-domain.vercel.app/api/analytics
 1. **Database Backups**
    - Daily automated backups
    - Point-in-time recovery
-   
+
 2. **Environment Variables**
    - Securely store in password manager
    - Document all required variables

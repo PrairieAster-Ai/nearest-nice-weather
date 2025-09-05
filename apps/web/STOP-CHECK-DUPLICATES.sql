@@ -6,11 +6,11 @@
 -- ========================================================================
 
 -- Check for duplicate POI names
-SELECT 
-    name, 
+SELECT
+    name,
     COUNT(*) as duplicate_count
-FROM poi_locations 
-GROUP BY name 
+FROM poi_locations
+GROUP BY name
 HAVING COUNT(*) > 1
 ORDER BY duplicate_count DESC, name;
 

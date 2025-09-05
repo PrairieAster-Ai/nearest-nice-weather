@@ -18,7 +18,7 @@ const octokit = new Octokit({
 
 async function testSingleIssueAddition() {
   console.log('🧪 Testing Single Issue Addition to Project...\n');
-  
+
   try {
     // Create a test issue first
     const testIssue = await octokit.rest.issues.create({
@@ -28,9 +28,9 @@ async function testSingleIssueAddition() {
       body: 'This is a test issue to verify project integration works properly.',
       labels: ['type: story', 'testing']
     });
-    
+
     console.log(`✅ Created test issue: #${testIssue.data.number}`);
-    
+
     // Get project data
     const projectQuery = `
       query($owner: String!, $number: Int!) {
@@ -65,7 +65,7 @@ async function testSingleIssueAddition() {
 
     const project = projectData.organization.projectV2;
     const projectId = project.id;
-    
+
     // Map field IDs
     const fieldIds = {};
     for (const field of project.fields.nodes) {
@@ -74,9 +74,9 @@ async function testSingleIssueAddition() {
         options: field.options || []
       };
     }
-    
+
     console.log(`✅ Project ID: ${projectId}`);
-    
+
     // Add issue to project
     const addMutation = `
       mutation($projectId: ID!, $contentId: ID!) {
@@ -98,11 +98,11 @@ async function testSingleIssueAddition() {
 
     const itemId = addResult.addProjectV2ItemById.item.id;
     console.log(`✅ Added to project with item ID: ${itemId}`);
-    
+
     // Set Status to "Ready"
     const statusField = fieldIds['Status'];
     const readyOption = statusField.options.find(opt => opt.name === 'Ready');
-    
+
     if (readyOption) {
       const statusMutation = `
         mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String) {
@@ -118,20 +118,20 @@ async function testSingleIssueAddition() {
           }
         }
       `;
-      
+
       await octokit.graphql(statusMutation, {
         projectId: projectId,
         itemId: itemId,
         fieldId: statusField.id,
         optionId: readyOption.id
       });
-      
+
       console.log(`✅ Set status to: Ready`);
     }
-    
+
     console.log('\n🎉 Test successful! Issue added to project with status set.');
     console.log(`🔗 View in project: https://github.com/orgs/${REPO_OWNER}/projects/${PROJECT_NUMBER}`);
-    
+
   } catch (error) {
     console.error('❌ Test failed:', error.message);
     if (error.errors) {

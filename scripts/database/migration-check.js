@@ -43,10 +43,10 @@ class MigrationChecker {
 
   async scanDirectory(dir = '.', extensions = ['.js', '.ts', '.jsx', '.tsx']) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
-      
+
       if (entry.isDirectory() && !['node_modules', '.git', 'dist', '.next'].includes(entry.name)) {
         try {
           await this.scanDirectory(fullPath, extensions);
@@ -63,7 +63,7 @@ class MigrationChecker {
   async checkFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
     const lines = content.split('\n');
-    
+
     for (const check of this.checks) {
       check(filePath, content, lines);
     }
@@ -80,7 +80,7 @@ class MigrationChecker {
     lines.forEach((line, index) => {
       promisePatterns.forEach(pattern => {
         if (pattern.test(line) && !line.includes('.catch') && !line.includes('try')) {
-          this.addIssue('HIGH', 'PROMISE_REJECTION', filePath, index + 1, 
+          this.addIssue('HIGH', 'PROMISE_REJECTION', filePath, index + 1,
             'Unhandled promise - Node.js 20 is more forgiving, but add .catch() for safety',
             line.trim()
           );
@@ -113,7 +113,7 @@ class MigrationChecker {
     // Check for mixed module systems
     const hasRequire = /require\s*\(/g.test(content);
     const hasImport = /import\s+.*from|import\s*\(/g.test(content);
-    
+
     if (hasRequire && hasImport) {
       this.addIssue('MEDIUM', 'MIXED_MODULES', filePath, 1,
         'Mixed require/import - Node.js 20 is more permissive',

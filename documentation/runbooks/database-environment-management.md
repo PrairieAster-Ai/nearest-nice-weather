@@ -1,6 +1,6 @@
 # Database Environment Management Guide
 
-**Created**: July 13, 2025  
+**Created**: July 13, 2025
 **Purpose**: Prevent environment variable chaos that caused 2+ hour debugging session
 
 ## 🎯 Core Principle
@@ -41,7 +41,7 @@ const result = await sql`SELECT * FROM locations LIMIT ${limit}`
 ```bash
 # ❌ WRONG - Creates confusion about which database to use
 DATABASE_URL="postgresql://localhost:5432/weather_intelligence"
-POSTGRES_URL="postgresql://neon_host/nearestniceweather" 
+POSTGRES_URL="postgresql://neon_host/nearestniceweather"
 WEATHERDB_URL="postgresql://neon_host/weather"
 DATABASE_URL_ALT="postgresql://neon_host/feedback-db"
 ```
@@ -52,7 +52,7 @@ DATABASE_URL_ALT="postgresql://neon_host/feedback-db"
 # .env (local)
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/weather_intelligence"
 
-# Vercel (production) 
+# Vercel (production)
 POSTGRES_URL="postgresql://neon_host/cloud_db"
 ```
 
@@ -99,7 +99,7 @@ const sql = neon(process.env.WEATHERDB_URL)
 
 // Template literal syntax with automatic SQL injection protection
 const locations = await sql`
-  SELECT name, lat, lng, temperature 
+  SELECT name, lat, lng, temperature
   FROM locations l
   LEFT JOIN weather_conditions w ON l.id = w.location_id
   WHERE l.lat BETWEEN ${lat - 0.5} AND ${lat + 0.5}
@@ -164,7 +164,7 @@ const locations = await sql`
 
 **Stop and fix immediately if you see**:
 - Multiple database URLs pointing to different databases
-- Mix of local and cloud connections in same environment  
+- Mix of local and cloud connections in same environment
 - `pg` driver used in Vercel functions
 - Environment variables not showing up in health debug
 - APIs working locally but failing in production

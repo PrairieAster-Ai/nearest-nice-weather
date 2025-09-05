@@ -17,12 +17,12 @@
 
 ### Step 2: Execute clean migration (in order)
 
-#### Part 1: 
+#### Part 1:
 **File**: `clean-migration-part-1.sql`
 **Expected Result**: 28 POI locations
 
 #### Part 2:
-**File**: `clean-migration-part-2.sql` 
+**File**: `clean-migration-part-2.sql`
 **Expected Result**: 56 total POI locations
 
 #### Part 3:
@@ -47,7 +47,7 @@
 ## 🎯 EXPECTED DISTRIBUTION
 
 - **State Parks**: ~67 locations (importance_rank 10-15)
-- **Regional Parks**: ~30 locations (importance_rank 18)  
+- **Regional Parks**: ~30 locations (importance_rank 18)
 - **State Trails**: ~18 locations (importance_rank 18)
 - **Nature Centers**: ~6 locations (importance_rank 20)
 - **National Parks/Monuments**: ~5 locations (importance_rank 8-12)
@@ -57,7 +57,7 @@
 
 Final verification queries included in part 5:
 - Total count check (should be 138)
-- Park type distribution 
+- Park type distribution
 - Duplicate detection (should find none)
 
 This migration will give you **exactly 138 unique, high-quality Minnesota outdoor recreation destinations** ready for production use.

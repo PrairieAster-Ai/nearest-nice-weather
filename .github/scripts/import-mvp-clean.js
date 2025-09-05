@@ -30,7 +30,7 @@ class MVPWorkItemImporter {
 
   async initializeProject() {
     console.log('🔧 Initializing GitHub Project connection...\n');
-    
+
     try {
       const projectQuery = `
         query($owner: String!, $number: Int!) {
@@ -74,7 +74,7 @@ class MVPWorkItemImporter {
       });
 
       this.projectId = projectData.organization.projectV2.id;
-      
+
       // Map field names to IDs and options
       const fields = projectData.organization.projectV2.fields.nodes;
       for (const field of fields) {
@@ -86,7 +86,7 @@ class MVPWorkItemImporter {
 
       console.log(`  ✅ Project ID: ${this.projectId}`);
       console.log(`  ✅ Found ${fields.length} project fields\n`);
-      
+
     } catch (error) {
       console.error('❌ Failed to initialize project:', error.message);
       throw error;
@@ -126,7 +126,7 @@ class MVPWorkItemImporter {
         }
       }
 
-      // Set Size field  
+      // Set Size field
       if (this.projectFieldIds['Size'] && workItem.size) {
         const sizeOption = this.projectFieldIds['Size'].options.find(
           opt => opt.name === workItem.size
@@ -157,10 +157,10 @@ class MVPWorkItemImporter {
   async setProjectField(itemId, fieldName, optionId) {
     try {
       const fieldId = this.projectFieldIds[fieldName].id;
-      
+
       let updateMutation;
       let variables;
-      
+
       if (fieldName === 'Sprint') {
         // Iteration field
         updateMutation = `
@@ -177,7 +177,7 @@ class MVPWorkItemImporter {
             }
           }
         `;
-        
+
         variables = {
           projectId: this.projectId,
           itemId: itemId,
@@ -200,7 +200,7 @@ class MVPWorkItemImporter {
             }
           }
         `;
-        
+
         variables = {
           projectId: this.projectId,
           itemId: itemId,
@@ -220,9 +220,9 @@ class MVPWorkItemImporter {
   // Test with just one capability first
   async testSingleCapability() {
     console.log('🧪 TESTING SINGLE CAPABILITY IMPORT\n');
-    
+
     await this.initializeProject();
-    
+
     const testCapability = {
       name: 'Real-Time Weather Intelligence',
       status: 'Ready',
@@ -241,7 +241,7 @@ class MVPWorkItemImporter {
 ### Business Value
 ${testCapability.businessValue}
 
-### Description  
+### Description
 ${testCapability.description}
 
 ### Configuration
@@ -259,15 +259,15 @@ ${testCapability.description}
         body: body,
         labels: testCapability.labels
       });
-      
+
       console.log(`✅ Created: ${title} (#${issue.data.number})`);
-      
+
       // Add to project with field values
       await this.addIssueToProject(issue.data, testCapability);
-      
+
       console.log('\n🎉 Test successful!');
       console.log(`🔗 View in project: https://github.com/orgs/${this.owner}/projects/${this.projectNumber}`);
-      
+
     } catch (error) {
       console.error('❌ Test failed:', error.message);
     }

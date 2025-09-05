@@ -33,7 +33,7 @@ class UnassignedIssueReviewer {
 
   async initialize() {
     console.log('🔧 Initializing project analysis...\n');
-    
+
     try {
       // Get project ID and current issues
       const projectQuery = `
@@ -63,7 +63,7 @@ class UnassignedIssueReviewer {
       });
 
       this.projectId = projectData.organization.projectV2.id;
-      
+
       // Track which issues are already in the project
       projectData.organization.projectV2.items.nodes.forEach(item => {
         if (item.content && item.content.number) {
@@ -82,7 +82,7 @@ class UnassignedIssueReviewer {
 
   async getAllIssues() {
     console.log('📋 Fetching all repository issues...');
-    
+
     try {
       const issues = await octokit.paginate(octokit.rest.issues.listForRepo, {
         owner: this.owner,
@@ -104,7 +104,7 @@ class UnassignedIssueReviewer {
     const title = issue.title.toLowerCase();
     const body = (issue.body || '').toLowerCase();
     const labels = issue.labels.map(label => label.name.toLowerCase());
-    
+
     // Check if already in project
     if (this.projectIssues.has(issue.number)) {
       return {
@@ -131,15 +131,15 @@ class UnassignedIssueReviewer {
       'nearest nice weather', 'mvp'
     ];
 
-    const hasMvpContent = mvpPatterns.some(pattern => 
+    const hasMvpContent = mvpPatterns.some(pattern =>
       title.includes(pattern) || body.includes(pattern)
     );
 
     // Test/demo issues that might be useful
     const isTestIssue = title.includes('test') || title.includes('integration');
-    
+
     // Deleted/placeholder issues
-    const isDeleted = title.includes('[permanently deleted]') || 
+    const isDeleted = title.includes('[permanently deleted]') ||
                      title.includes('deleted') ||
                      issue.title === '' ||
                      body.includes('permanently deleted');
@@ -188,12 +188,12 @@ class UnassignedIssueReviewer {
   async reviewAllUnassignedIssues() {
     console.log('🔍 REVIEWING UNASSIGNED ISSUES');
     console.log('===============================\n');
-    
+
     await this.initialize();
     const allIssues = await this.getAllIssues();
-    
+
     const unassignedIssues = allIssues.filter(issue => !this.projectIssues.has(issue.number));
-    
+
     console.log(`📊 **ANALYSIS SCOPE**:`);
     console.log(`  📋 Total Issues: ${allIssues.length}`);
     console.log(`  🎯 Already in Project: ${this.projectIssues.size}`);
@@ -209,7 +209,7 @@ class UnassignedIssueReviewer {
     for (const issue of unassignedIssues) {
       const analysis = this.analyzeIssue(issue);
       const statusIcon = issue.state === 'closed' ? '🔒' : '🔓';
-      const confidenceIcon = analysis.confidence === 'high' ? '🎯' : 
+      const confidenceIcon = analysis.confidence === 'high' ? '🎯' :
                            analysis.confidence === 'medium' ? '⚠️' : '❓';
 
       console.log(`${statusIcon} #${issue.number}: "${issue.title}"`);

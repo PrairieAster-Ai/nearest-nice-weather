@@ -18,7 +18,7 @@ module.exports = {
   process(sourceText, sourcePath, options) {
     // Step 1: Handle import.meta transformations
     let transformedCode = sourceText;
-    
+
     if (sourcePath.match(/\.(ts|tsx|js|jsx)$/)) {
       transformedCode = sourceText
         .replace(/import\.meta\.env\.VITE_/g, 'process.env.VITE_')
@@ -29,11 +29,11 @@ module.exports = {
         .replace(/import\.meta\.env\.SSR/g, 'false')
         .replace(/import\.meta\.env/g, 'process.env');
     }
-    
+
     // Step 2: Apply babel transformation
     return babelTransformer.process(transformedCode, sourcePath, options);
   },
-  
+
   getCacheKey(...args) {
     return babelTransformer.getCacheKey(...args);
   },

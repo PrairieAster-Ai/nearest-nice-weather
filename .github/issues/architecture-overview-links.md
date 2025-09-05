@@ -28,7 +28,7 @@
 Add these architecture links to relevant GitHub issues:
 
 **Database Issues**: Link to database architecture and Redis sections
-**Weather API Issues**: Link to Weather Intelligence Engine section  
+**Weather API Issues**: Link to Weather Intelligence Engine section
 **Analytics Issues**: Link to analytics and monitoring section
 **Revenue Issues**: Link to revenue integration architecture section
 

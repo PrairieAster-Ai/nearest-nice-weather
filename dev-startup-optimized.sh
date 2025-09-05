@@ -3,11 +3,11 @@
 # ========================================================================
 # NEAREST NICE WEATHER - OPTIMIZED UNIFIED DEVELOPMENT STARTUP
 # ========================================================================
-# 
+#
 # 📋 PURPOSE: Single source of truth for development environment startup
 # 🎯 GOALS: Reliability, visibility, maintainability, speed
 # 🔧 FEATURES: Auto-recovery, visual feedback, flexible options, monitoring
-# 
+#
 # USAGE: ./dev-startup-optimized.sh [options]
 # OPTIONS:
 #   --quick         Fast startup, skip all optional features
@@ -17,7 +17,7 @@
 #   --skip-tests    Skip smoke tests and validation
 #   --pm2           Use PM2 for process management (requires global PM2)
 #   --help          Show this help message
-# 
+#
 # ========================================================================
 
 set -e  # Exit on error
@@ -38,7 +38,7 @@ TEMP_DIR="$PROJECT_ROOT/.tmp"
 # ========================================================================
 #
 # 🚨 ZOMBIE PROCESS WARNING:
-# If you see the frontend running on ports 3002, 3003, 3004, etc., this is a 
+# If you see the frontend running on ports 3002, 3003, 3004, etc., this is a
 # KEY INDICATOR that zombie Vite processes are blocking port 3001.
 #
 # SOLUTION: Kill zombie processes and restart clean
@@ -187,7 +187,7 @@ debug() {
 # Check for zombie processes blocking standard ports
 detect_zombie_processes() {
     local zombies_found=false
-    
+
     # Check if anything is running on port 3001 (standard Vite port)
     if lsof -ti:3001 >/dev/null 2>&1; then
         warning "🧟‍♂️ ZOMBIE PROCESS DETECTED: Something is blocking port 3001"
@@ -195,7 +195,7 @@ detect_zombie_processes() {
         warning "   Run: ./kill-zombies-and-restart.sh to fix this issue"
         zombies_found=true
     fi
-    
+
     # Check for multiple Vite processes (another zombie indicator)
     local vite_count=$(ps aux | grep -c "[n]ode.*vite" || echo "0")
     if [ "$vite_count" -gt 1 ]; then
@@ -204,7 +204,7 @@ detect_zombie_processes() {
         warning "   Run: pkill -f 'node.*vite' to clean up"
         zombies_found=true
     fi
-    
+
     if [ "$zombies_found" = true ]; then
         warning ""
         warning "⚡ RECOMMENDED ACTION: Run './kill-zombies-and-restart.sh' for clean startup"
@@ -233,16 +233,16 @@ get_port_pid() {
 free_port() {
     local port=$1
     local service=$2
-    
+
     if port_in_use $port; then
         local pid=$(get_port_pid $port)
         if [ -n "$pid" ]; then
             # Get process info for contextual debugging
             local process_info=$(ps -p $pid -o pid,ppid,etime,cpu,command --no-headers 2>/dev/null || echo "Process info unavailable")
             local process_name=$(ps -p $pid -o comm --no-headers 2>/dev/null || echo "unknown")
-            
+
             warning "Port $port in use by PID $pid, freeing for $service..."
-            
+
             # Check for common zombie process patterns
             if [[ "$process_info" == *"chrome"* ]] || [[ "$process_info" == *"chromium"* ]]; then
                 warning "🧟 ZOMBIE CHROME DETECTED: $process_name (PID: $pid)"
@@ -250,7 +250,7 @@ free_port() {
                 if [[ "$process_info" == *"presentation"* ]] || [[ "$process_info" == *"screenshot"* ]]; then
                     warning "🖼️  Likely stale screenshot/presentation process from previous session"
                 fi
-                
+
                 # Kill all related Chrome processes for this session
                 local chrome_pids=$(pgrep -f "chrome.*$port" 2>/dev/null || true)
                 if [ -n "$chrome_pids" ]; then
@@ -267,18 +267,18 @@ free_port() {
                 warning "❓ UNKNOWN PROCESS: $process_name (PID: $pid)"
                 warning "📊 Process details: $process_info"
             fi
-            
+
             # Attempt graceful termination first
             kill -TERM $pid 2>/dev/null || true
             sleep 2
-            
+
             # Force kill if still running
             if kill -0 $pid 2>/dev/null; then
                 warning "🔨 Process $pid didn't respond to TERM, using KILL signal"
                 kill -KILL $pid 2>/dev/null || true
                 sleep 1
             fi
-            
+
             # Verify port is free
             if port_in_use $port; then
                 error "❌ Failed to free port $port - may require manual intervention"
@@ -329,13 +329,13 @@ declare -a CHILD_PIDS=()
 # Cleanup function
 cleanup() {
     log "${FIRE} Shutting down development environment..."
-    
+
     # Stop monitoring
     if [ -f "$PID_DIR/monitor.pid" ]; then
         local monitor_pid=$(cat "$PID_DIR/monitor.pid")
         kill -TERM $monitor_pid 2>/dev/null || true
     fi
-    
+
     # Stop services gracefully
     local services=("frontend" "api" "playwright" "dashboard")
     for service in "${services[@]}"; do
@@ -345,22 +345,22 @@ cleanup() {
             kill -TERM $pid 2>/dev/null || true
         fi
     done
-    
+
     # Wait for graceful shutdown
     sleep 2
-    
+
     # Force kill remaining processes
     for pid in "${CHILD_PIDS[@]}"; do
         if kill -0 $pid 2>/dev/null; then
             kill -KILL $pid 2>/dev/null || true
         fi
     done
-    
+
     # Clean pattern-based processes
     pkill -f "node.*vite.*$FRONTEND_PORT" 2>/dev/null || true
     pkill -f "dev-api-server.js" 2>/dev/null || true
     pkill -f "playwright" 2>/dev/null || true
-    
+
     success "Development environment stopped"
     exit 0
 }
@@ -374,28 +374,28 @@ trap cleanup SIGINT SIGTERM EXIT
 
 validate_environment() {
     log "${WRENCH} Validating development environment..."
-    
+
     # Check Node.js
     if ! command_exists node; then
         error "Node.js is not installed"
         exit 1
     fi
-    
+
     local node_version=$(node -v)
     success "Node.js version: $node_version"
-    
+
     # Check npm
     if ! command_exists npm; then
         error "npm is not installed"
         exit 1
     fi
-    
+
     # Check project structure
     if [ ! -f "$PROJECT_ROOT/package.json" ]; then
         error "Not in project root directory"
         exit 1
     fi
-    
+
     # Check .env file
     if [ ! -f "$PROJECT_ROOT/.env" ]; then
         if [ -f "$PROJECT_ROOT/.env.example" ]; then
@@ -405,7 +405,7 @@ validate_environment() {
             warning ".env file missing - some features may not work"
         fi
     fi
-    
+
     # Check PM2 if requested
     if [ "$USE_PM2" = true ]; then
         if ! command_exists pm2; then
@@ -413,13 +413,13 @@ validate_environment() {
             exit 1
         fi
     fi
-    
+
     # Validate node_modules
     if [ ! -d "$PROJECT_ROOT/node_modules" ]; then
         warning "node_modules missing, running npm install..."
         npm install
     fi
-    
+
     success "Environment validation complete"
 }
 
@@ -429,28 +429,28 @@ validate_environment() {
 
 perform_clean_start() {
     log "${SPARKLES} Performing clean start..."
-    
+
     # Stop any running services
     cleanup 2>/dev/null || true
-    
+
     # Clear logs
     rm -rf "$LOG_DIR"/*
     success "Logs cleared"
-    
+
     # Clear PIDs
     rm -rf "$PID_DIR"/*
     success "PID files cleared"
-    
+
     # Clear temp files
     rm -rf "$TEMP_DIR"/*
     success "Temp files cleared"
-    
+
     # Clear node cache
     rm -rf "$PROJECT_ROOT/node_modules/.cache"
     rm -rf "$PROJECT_ROOT/apps/web/.parcel-cache"
     rm -rf "$PROJECT_ROOT/apps/web/dist"
     success "Build caches cleared"
-    
+
     # Recreate directories
     mkdir -p "$LOG_DIR" "$PID_DIR" "$TEMP_DIR"
 }
@@ -465,32 +465,32 @@ start_service() {
     local port=$3
     local health_url=$4
     local log_file="$LOG_DIR/${name}.log"
-    
+
     log "Starting $name..."
-    
+
     # Check if already running
     if is_service_running "$name"; then
         local pid=$(get_saved_pid "$name")
         success "$name already running (PID: $pid)"
         return 0
     fi
-    
+
     # Free port if needed
     if [ -n "$port" ]; then
         free_port $port "$name" || return 1
     fi
-    
+
     # Start service
     if [ "$VERBOSE" = true ]; then
         eval "$command" 2>&1 | tee "$log_file" &
     else
         eval "$command" > "$log_file" 2>&1 &
     fi
-    
+
     local pid=$!
     CHILD_PIDS+=($pid)
     save_pid "$name" $pid
-    
+
     # Wait for service to be ready
     if [ -n "$health_url" ] && [ "$QUICK_MODE" = false ]; then
         local attempts=0
@@ -527,10 +527,10 @@ main() {
     echo -e "${PURPLE}${ROCKET} NEAREST NICE WEATHER - OPTIMIZED DEVELOPMENT STARTUP${NC}"
     echo -e "${BLUE}========================================================${NC}"
     echo
-    
+
     # 🧟‍♂️ Check for zombie processes early (prevents port conflicts)
     detect_zombie_processes
-    
+
     # Show configuration
     if [ "$VERBOSE" = true ]; then
         echo -e "${BOLD}Configuration:${NC}"
@@ -541,19 +541,19 @@ main() {
         echo "  Process Manager: $([ "$USE_PM2" = true ] && echo "PM2" || echo "Native")"
         echo
     fi
-    
+
     # Clean start if requested
     if [ "$CLEAN_START" = true ]; then
         perform_clean_start
     fi
-    
+
     # Validate environment
     validate_environment
-    
+
     # Start core services
     echo
     log "${ROCKET} Starting core services..."
-    
+
     # API Server
     if ! start_service "api" \
         "cd '$PROJECT_ROOT' && node dev-api-server.js" \
@@ -562,7 +562,7 @@ main() {
         error "Failed to start API server"
         exit 1
     fi
-    
+
     # Frontend Server
     if ! start_service "frontend" \
         "cd '$PROJECT_ROOT/apps/web' && npm run dev" \
@@ -571,7 +571,7 @@ main() {
         error "Failed to start frontend server"
         exit 1
     fi
-    
+
     # Optional services (unless quick mode)
     if [ "$QUICK_MODE" = false ]; then
         # PlaywrightMCP (optional)
@@ -582,26 +582,26 @@ main() {
                 "" || warning "PlaywrightMCP not available"
         fi
     fi
-    
+
     # Health checks
     if [ "$QUICK_MODE" = false ] && [ "$SKIP_TESTS" = false ]; then
         echo
         log "${PACKAGE} Running health checks..."
-        
+
         # API Health
         if curl -s "http://localhost:$API_PORT/api/health" | grep -q "success"; then
             success "API health check passed"
         else
             warning "API health check failed"
         fi
-        
+
         # Frontend Health
         if curl -s "http://localhost:$FRONTEND_PORT" | grep -q "html"; then
             success "Frontend health check passed"
         else
             warning "Frontend health check failed"
         fi
-        
+
         # API Proxy
         if curl -s "http://localhost:$FRONTEND_PORT/api/health" >/dev/null 2>&1; then
             success "API proxy working"
@@ -609,7 +609,7 @@ main() {
             warning "API proxy not working"
         fi
     fi
-    
+
     # Start monitoring (unless disabled)
     if [ "$NO_MONITOR" = false ]; then
         log "${CLOCK} Starting service monitor..."
@@ -617,7 +617,7 @@ main() {
         save_pid "monitor" $!
         success "Service monitoring enabled"
     fi
-    
+
     # Final summary
     echo
     echo -e "${GREEN}${CHECK_MARK} DEVELOPMENT ENVIRONMENT READY!${NC}"
@@ -635,7 +635,7 @@ main() {
     echo -e "  ${YELLOW}npm start --clean${NC}   Clean restart"
     echo -e "  ${YELLOW}tail -f logs/*.log${NC}  View logs"
     echo
-    
+
     # Keep running unless no-monitor
     if [ "$NO_MONITOR" = false ]; then
         log "Monitoring services... Press Ctrl+C to stop"

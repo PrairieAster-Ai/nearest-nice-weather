@@ -1,7 +1,7 @@
 /**
  * Complete Weather API Service Coverage Test
  * Comprehensive testing of weatherApi.ts service integration
- * 
+ *
  * @COVERAGE_TARGET: services/weatherApi.ts (0% → 80%+)
  * @DUAL_API_CONTEXT: Tests service used by both React components for Express/Vercel APIs
  */
@@ -324,7 +324,7 @@ describe('Complete Weather API Service Coverage', () => {
       // Normalize function that components should use
       const normalizeApiResponse = (data) => {
         if (!Array.isArray(data)) return [];
-        
+
         return data.map(item => ({
           id: String(item.id),
           name: item.name || '',
@@ -354,29 +354,29 @@ describe('Complete Weather API Service Coverage', () => {
       const createRetryLogic = (apiCall, maxRetries = 3, baseDelay = 1000) => {
         return async (...args) => {
           let lastError;
-          
+
           for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
               return await apiCall(...args);
             } catch (error) {
               lastError = error;
-              
+
               // Don't retry client errors (4xx)
               if (error.status >= 400 && error.status < 500) {
                 throw error;
               }
-              
+
               // Don't retry on last attempt
               if (attempt === maxRetries - 1) {
                 throw error;
               }
-              
+
               // Exponential backoff for server errors and network issues
               const delay = baseDelay * Math.pow(2, attempt);
               await new Promise(resolve => setTimeout(resolve, delay));
             }
           }
-          
+
           throw lastError;
         };
       };
@@ -413,41 +413,41 @@ describe('Complete Weather API Service Coverage', () => {
         return {
           async call(apiFunction) {
             const now = Date.now();
-            
+
             // Reset circuit if enough time has passed
             if (state === 'open' && now - lastFailureTime > resetTimeout) {
               state = 'half-open';
               failureCount = 0;
             }
-            
+
             // Reject immediately if circuit is open
             if (state === 'open') {
               throw new Error('Circuit breaker is open');
             }
-            
+
             try {
               const result = await apiFunction();
-              
+
               // Success - reset failure count and close circuit
               if (state === 'half-open') {
                 state = 'closed';
               }
               failureCount = 0;
-              
+
               return result;
             } catch (error) {
               failureCount++;
               lastFailureTime = now;
-              
+
               // Open circuit if threshold exceeded
               if (failureCount >= threshold) {
                 state = 'open';
               }
-              
+
               throw error;
             }
           },
-          
+
           getState: () => state,
           getFailureCount: () => failureCount
         };
@@ -486,29 +486,29 @@ describe('Complete Weather API Service Coverage', () => {
           async measureApiCall(apiCall) {
             const startTime = Date.now();
             metrics.totalRequests++;
-            
+
             try {
               const result = await apiCall();
               const responseTime = Date.now() - startTime;
-              
+
               metrics.successfulRequests++;
               metrics.responseTimes.push(responseTime);
               metrics.averageResponseTime = metrics.responseTimes.reduce((a, b) => a + b, 0) / metrics.responseTimes.length;
-              
+
               return result;
             } catch (error) {
               const responseTime = Date.now() - startTime;
-              
+
               metrics.failedRequests++;
               metrics.responseTimes.push(responseTime);
               metrics.averageResponseTime = metrics.responseTimes.reduce((a, b) => a + b, 0) / metrics.responseTimes.length;
-              
+
               throw error;
             }
           },
-          
+
           getMetrics: () => ({ ...metrics }),
-          
+
           reset: () => {
             metrics.totalRequests = 0;
             metrics.successfulRequests = 0;
@@ -520,30 +520,30 @@ describe('Complete Weather API Service Coverage', () => {
       };
 
       const apiMetrics = createApiMetrics();
-      
+
       // Test successful API calls
       const fastApiCall = () => new Promise(resolve => setTimeout(() => resolve('fast'), 10));
       const slowApiCall = () => new Promise(resolve => setTimeout(() => resolve('slow'), 50));
-      
+
       await apiMetrics.measureApiCall(fastApiCall);
       await apiMetrics.measureApiCall(slowApiCall);
-      
+
       const metrics = apiMetrics.getMetrics();
       expect(metrics.totalRequests).toBe(2);
       expect(metrics.successfulRequests).toBe(2);
       expect(metrics.failedRequests).toBe(0);
       expect(metrics.averageResponseTime).toBeGreaterThan(0);
       expect(metrics.responseTimes).toHaveLength(2);
-      
+
       // Test failed API call
       const failingApiCall = () => Promise.reject(new Error('API error'));
-      
+
       try {
         await apiMetrics.measureApiCall(failingApiCall);
       } catch (error) {
         expect(error.message).toBe('API error');
       }
-      
+
       const updatedMetrics = apiMetrics.getMetrics();
       expect(updatedMetrics.totalRequests).toBe(3);
       expect(updatedMetrics.successfulRequests).toBe(2);

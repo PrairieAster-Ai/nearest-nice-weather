@@ -2,7 +2,7 @@
 
 ## Automated Fixes Applied
 - Added try-catch wrappers for unhandled promises
-- Added .catch() handlers to Promise chains  
+- Added .catch() handlers to Promise chains
 - Clarified negative array slice operations
 - Added Node.js version checks for V8 features
 - Added WebSocket availability checks

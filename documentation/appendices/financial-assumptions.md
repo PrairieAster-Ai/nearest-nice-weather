@@ -39,7 +39,7 @@ CAC = $3,000 ÷ 150 active users = $20 per active user
 ```
 MVP Free Tier: Complete Basic Experience
 - Temperature: coldest/comfortable/hottest
-- Precipitation: likely/sporadic/unlikely  
+- Precipitation: likely/sporadic/unlikely
 - Wind: high/medium/low
 - Unlimited saved filter combinations with custom names
 - Time-based feature voting system with scarcity mechanics
@@ -179,13 +179,13 @@ Conservative Assumption:
 ```
 Tourism Operators (Minnesota Department of Tourism):
 - Licensed fishing guides: 450
-- Resort/lodge operators: 280  
+- Resort/lodge operators: 280
 - Outfitters (BWCA, etc.): 125
 - Total addressable: 855 operators
 
 Average Revenue Impact:
 - Small operations: $200K annual revenue
-- Medium operations: $500K annual revenue  
+- Medium operations: $500K annual revenue
 - Large operations: $1.2M annual revenue
 
 Weather Impact Assessment:
@@ -226,7 +226,7 @@ Customer Acquisition Funnel:
 
 Monthly Acquisition:
 - Contacts: 100
-- Responses: 25  
+- Responses: 25
 - Demos: 15
 - Customers: 2-3
 
@@ -257,7 +257,7 @@ Seasonal Business Factors:
 
 Conservative Churn Rates:
 - Year 1: 15% (implementation challenges)
-- Year 2: 12% (competitive pressure)  
+- Year 2: 12% (competitive pressure)
 - Year 3+: 10% (established relationships)
 
 Industry Comparison:
@@ -312,7 +312,7 @@ Critical First Hires:
    - Annual cost: $52,000
 
 3. Junior Developer (Month 12):
-   - Salary: $70,000 annually  
+   - Salary: $70,000 annually
    - Benefits: $17,500
    - Total cost: $87,500
 
@@ -331,7 +331,7 @@ Total Phase 2 Personnel: $214,500 (12 months)
 Monthly Costs:
 - AWS/Cloud hosting: $500 (scalable)
 - Weather API subscriptions: $300
-- Database hosting: $200  
+- Database hosting: $200
 - CDN and security: $150
 - Monitoring and backup: $100
 - Total monthly: $1,250
@@ -385,7 +385,7 @@ Average Collection Period: 32 days
 Monthly Revenue Distribution:
 - Q1 (Jan-Mar): 70% of average (planning season)
 - Q2 (Apr-Jun): 120% of average (spring activities)
-- Q3 (Jul-Sep): 140% of average (peak season)  
+- Q3 (Jul-Sep): 140% of average (peak season)
 - Q4 (Oct-Dec): 70% of average (off-season)
 
 Cash Flow Management:
@@ -421,7 +421,7 @@ Cash Flow Management:
 **Fixed Costs (Monthly)**:
 ```
 Personnel: $17,875
-Infrastructure: $1,250  
+Infrastructure: $1,250
 Software: $283
 Office/Admin: $500
 Total Fixed: $19,908/month
@@ -457,7 +457,7 @@ Additional customers needed: 35 customers at $350/month average
 **Investment Phases**:
 ```
 Phase 1 Investment: $25,000 (Month 1-6)
-Phase 2 Investment: $75,000 (Month 7-18)  
+Phase 2 Investment: $75,000 (Month 7-18)
 Total Founder Investment: $100,000
 
 Business Valuation Scenarios (Year 3):

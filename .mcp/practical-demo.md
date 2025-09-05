@@ -72,7 +72,7 @@ mcp-github-project-manager --task "Implement rate limiting for OpenWeather API"
 
 # Would generate:
 # - Detailed implementation plan
-# - Code snippets and best practices  
+# - Code snippets and best practices
 # - Automatic sub-task creation
 # - Impact analysis on existing code
 ```
@@ -108,7 +108,7 @@ curl -X POST ... -d '{
 ### GitHub Official MCP:
 ```javascript
 // Through Claude Desktop/VS Code:
-"Create a GitHub issue for implementing weather API caching 
+"Create a GitHub issue for implementing weather API caching
 with 30-minute cache duration for rate limiting"
 
 // Time: 30 seconds to request + MCP processing
@@ -118,7 +118,7 @@ with 30-minute cache duration for rate limiting"
 ### Kunwar Project Manager MCP:
 ```javascript
 // AI-powered request:
-"Break down weather API caching implementation into detailed tasks 
+"Break down weather API caching implementation into detailed tasks
 with code examples and best practices"
 
 // Time: 1 minute to request + AI processing

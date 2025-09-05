@@ -134,7 +134,7 @@ fi
 # Apply custom Docker daemon configuration
 if [[ ! -f /etc/docker/daemon.json ]]; then
   echo "Creating Docker daemon configuration..."
-  
+
   sudo tee /etc/docker/daemon.json <<EOF
 {
   "bip": "172.31.0.1/24",
@@ -152,10 +152,10 @@ EOF
 
   echo "Restarting Docker to apply configuration..."
   sudo systemctl restart docker
-  
+
   # Wait for Docker to restart
   sleep 5
-  
+
   # Verify Docker is running
   if ! docker info &> /dev/null; then
     echo "❌ Docker failed to restart. Please check configuration."

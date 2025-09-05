@@ -11,7 +11,7 @@ import {
 
 describe('ContextualWeatherIntelligence - Core Functionality', () => {
   let intelligence: ContextualWeatherIntelligence;
-  
+
   // Sample test data
   const mockLocation1: WeatherLocation = {
     id: '1',
@@ -84,7 +84,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
   describe('Distance-based Nearness Calculation', () => {
     test('should return valid nearness scores', () => {
       const result = intelligence.calculateContextualNearness(mockLocation1, defaultUserContext);
-      
+
       expect(result).toHaveProperty('score');
       expect(result).toHaveProperty('reasoning');
       expect(result.score).toBeGreaterThanOrEqual(0);
@@ -95,7 +95,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
     test('should handle missing current location', () => {
       const noLocationContext = { ...defaultUserContext, currentLocation: undefined };
       const result = intelligence.calculateContextualNearness(mockLocation1, noLocationContext);
-      
+
       expect(result.score).toBe(0.5);
       expect(result.reasoning).toContain('Location unknown - distance assessment unavailable');
     });
@@ -103,14 +103,14 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
     test('should provide different scores for different distances', () => {
       const closeResult = intelligence.calculateContextualNearness(mockLocation1, defaultUserContext);
       const farResult = intelligence.calculateContextualNearness(mockLocation3, defaultUserContext);
-      
+
       expect(closeResult.score).toBeGreaterThan(farResult.score);
     });
 
     test('should adjust for camping activity', () => {
       const campingContext = { ...defaultUserContext, intendedActivity: 'camping' as const };
       const result = intelligence.calculateContextualNearness(mockLocation3, campingContext);
-      
+
       expect(result.reasoning.length).toBeGreaterThan(0);
     });
   });
@@ -118,7 +118,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
   describe('Weather Niceness Calculation', () => {
     test('should return valid niceness scores', () => {
       const result = intelligence.calculateWeatherNiceness(mockLocation1, defaultUserContext, mockLocations);
-      
+
       expect(result).toHaveProperty('score');
       expect(result).toHaveProperty('reasoning');
       expect(result.score).toBeGreaterThanOrEqual(0);
@@ -129,44 +129,44 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
     test('should handle different weather conditions', () => {
       const clearResult = intelligence.calculateWeatherNiceness(mockLocation1, defaultUserContext, mockLocations);
       const cloudyResult = intelligence.calculateWeatherNiceness(mockLocation3, defaultUserContext, mockLocations);
-      
+
       expect(clearResult.score).toBeGreaterThan(cloudyResult.score);
     });
 
     test('should handle different activities', () => {
       const hikingContext = { ...defaultUserContext, intendedActivity: 'hiking' as const };
       const fishingContext = { ...defaultUserContext, intendedActivity: 'fishing' as const };
-      
+
       const hikingResult = intelligence.calculateWeatherNiceness(mockLocation1, hikingContext, mockLocations);
       const fishingResult = intelligence.calculateWeatherNiceness(mockLocation1, fishingContext, mockLocations);
-      
+
       expect(hikingResult.reasoning).not.toEqual(fishingResult.reasoning);
     });
 
     test('should handle different seasons', () => {
       const summerContext = { ...defaultUserContext, season: 'summer' as const };
       const winterContext = { ...defaultUserContext, season: 'winter' as const };
-      
+
       const summerResult = intelligence.calculateWeatherNiceness(mockLocation1, summerContext, mockLocations);
       const winterResult = intelligence.calculateWeatherNiceness(mockLocation1, winterContext, mockLocations);
-      
+
       expect(summerResult.reasoning).not.toEqual(winterResult.reasoning);
     });
 
     test('should handle weather sensitivity', () => {
       const sensitiveContext = { ...defaultUserContext, weatherSensitivity: 'high' as const };
       const tolerantContext = { ...defaultUserContext, weatherSensitivity: 'low' as const };
-      
+
       const marginalWeather: WeatherLocation = {
         ...mockLocation1,
         temperature: 60,
         precipitation: 25,
         windSpeed: 15
       };
-      
+
       const sensitiveResult = intelligence.calculateWeatherNiceness(marginalWeather, sensitiveContext, mockLocations);
       const tolerantResult = intelligence.calculateWeatherNiceness(marginalWeather, tolerantContext, mockLocations);
-      
+
       expect(sensitiveResult.score).toBeLessThan(tolerantResult.score);
     });
   });
@@ -174,9 +174,9 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
   describe('Contextual Recommendations Generation', () => {
     test('should generate recommendations for all locations', () => {
       const recommendations = intelligence.generateContextualRecommendations(mockLocations, defaultUserContext);
-      
+
       expect(recommendations.length).toBe(mockLocations.length);
-      
+
       recommendations.forEach(rec => {
         expect(rec).toHaveProperty('location');
         expect(rec).toHaveProperty('nearnessFit');
@@ -189,7 +189,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test('should sort recommendations by overall score', () => {
       const recommendations = intelligence.generateContextualRecommendations(mockLocations, defaultUserContext);
-      
+
       for (let i = 0; i < recommendations.length - 1; i++) {
         expect(recommendations[i].overallScore).toBeGreaterThanOrEqual(recommendations[i + 1].overallScore);
       }
@@ -197,7 +197,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test('should provide meaningful comparison context', () => {
       const recommendations = intelligence.generateContextualRecommendations(mockLocations, defaultUserContext);
-      
+
       recommendations.forEach(rec => {
         expect(rec.comparisonContext).toHaveProperty('betterThan');
         expect(rec.comparisonContext).toHaveProperty('uniqueAdvantages');
@@ -208,13 +208,13 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test('should handle empty location list', () => {
       const recommendations = intelligence.generateContextualRecommendations([], defaultUserContext);
-      
+
       expect(recommendations).toEqual([]);
     });
 
     test('should handle single location', () => {
       const recommendations = intelligence.generateContextualRecommendations([mockLocation1], defaultUserContext);
-      
+
       expect(recommendations.length).toBe(1);
       expect(recommendations[0].comparisonContext.betterThan).toBe(0);
     });
@@ -225,7 +225,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test.each(activities)('should handle %s activity without errors', (activity) => {
       const activityContext = { ...defaultUserContext, intendedActivity: activity };
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations(mockLocations, activityContext);
       }).not.toThrow();
@@ -234,10 +234,10 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
     test('should provide activity-specific reasoning', () => {
       const hikingContext = { ...defaultUserContext, intendedActivity: 'hiking' as const };
       const campingContext = { ...defaultUserContext, intendedActivity: 'camping' as const };
-      
+
       const hikingRec = intelligence.generateContextualRecommendations([mockLocation1], hikingContext)[0];
       const campingRec = intelligence.generateContextualRecommendations([mockLocation1], campingContext)[0];
-      
+
       expect(hikingRec.reasoning.niceness.join(' ').toLowerCase()).toContain('hiking');
       expect(campingRec.reasoning.niceness.join(' ').toLowerCase()).toContain('camping');
     });
@@ -248,7 +248,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test.each(seasons)('should handle %s season without errors', (season) => {
       const seasonContext = { ...defaultUserContext, season };
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations(mockLocations, seasonContext);
       }).not.toThrow();
@@ -257,10 +257,10 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
     test('should provide different assessments for different seasons', () => {
       const summerContext = { ...defaultUserContext, season: 'summer' as const };
       const winterContext = { ...defaultUserContext, season: 'winter' as const };
-      
+
       const summerRec = intelligence.generateContextualRecommendations([mockLocation1], summerContext)[0];
       const winterRec = intelligence.generateContextualRecommendations([mockLocation1], winterContext)[0];
-      
+
       expect(summerRec.reasoning.niceness.join(' ')).toContain('summer');
       expect(winterRec.reasoning.niceness.join(' ')).toContain('winter');
     });
@@ -274,7 +274,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
         precipitation: 100,
         windSpeed: 50
       };
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations([extremeWeather], defaultUserContext);
       }).not.toThrow();
@@ -292,7 +292,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
         precipitation: 0,
         windSpeed: 0
       };
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations([incompleteWeather], defaultUserContext);
       }).not.toThrow();
@@ -300,7 +300,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test('should handle minimal user context', () => {
       const minimalContext: UserContext = {};
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations(mockLocations, minimalContext);
       }).not.toThrow();
@@ -312,7 +312,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
         lat: 200, // Invalid
         lng: 400  // Invalid
       };
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations([invalidLocation], defaultUserContext);
       }).not.toThrow();
@@ -327,11 +327,11 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
         lng: -93 + Math.random(),
         temperature: 50 + Math.random() * 40
       }));
-      
+
       const start = Date.now();
       const result = intelligence.generateContextualRecommendations(largeDataset, defaultUserContext);
       const duration = Date.now() - start;
-      
+
       expect(result.length).toBe(largeDataset.length);
       expect(duration).toBeLessThan(1000); // Should complete within 1 second
     });
@@ -342,7 +342,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test.each(timesOfDay)('should handle %s time without errors', (timeOfDay) => {
       const timeContext = { ...defaultUserContext, timeOfDay };
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations(mockLocations, timeContext);
       }).not.toThrow();
@@ -351,7 +351,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
     test('should apply night-specific concerns', () => {
       const nightContext = { ...defaultUserContext, timeOfDay: 'night' as const };
       const recommendations = intelligence.generateContextualRecommendations(mockLocations, nightContext);
-      
+
       expect(recommendations[0].reasoning.concerns.some(c => c.includes('night'))).toBeTruthy();
     });
   });
@@ -361,7 +361,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
 
     test.each(infrastructureTypes)('should handle %s infrastructure without errors', (infrastructure) => {
       const infraContext = { ...defaultUserContext, infrastructure };
-      
+
       expect(() => {
         intelligence.generateContextualRecommendations(mockLocations, infraContext);
       }).not.toThrow();
@@ -372,10 +372,10 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
     test('should respect travel willingness constraints', () => {
       const lowTravelContext = { ...defaultUserContext, travelWillingness: 10 };
       const highTravelContext = { ...defaultUserContext, travelWillingness: 200 };
-      
+
       const lowTravelRec = intelligence.generateContextualRecommendations([mockLocation3], lowTravelContext)[0];
       const highTravelRec = intelligence.generateContextualRecommendations([mockLocation3], highTravelContext)[0];
-      
+
       expect(lowTravelRec.nearnessFit).toBeLessThan(highTravelRec.nearnessFit);
     });
 
@@ -384,7 +384,7 @@ describe('ContextualWeatherIntelligence - Core Functionality', () => {
         { ...defaultUserContext, travelWillingness: 0 },
         { ...defaultUserContext, travelWillingness: 1000 }
       ];
-      
+
       extremeContexts.forEach(context => {
         expect(() => {
           intelligence.generateContextualRecommendations(mockLocations, context);

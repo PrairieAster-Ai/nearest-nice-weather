@@ -16,14 +16,14 @@ const generateReport = () => {
     <title>🎭 Playwright Testing Showcase - Executive Report</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
+        body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 2rem;
         }
-        .container { 
-            max-width: 1400px; 
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -36,13 +36,13 @@ const generateReport = () => {
             padding: 3rem;
             text-align: center;
         }
-        h1 { 
-            font-size: 3rem; 
+        h1 {
+            font-size: 3rem;
             margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
-        .subtitle { 
-            font-size: 1.5rem; 
+        .subtitle {
+            font-size: 1.5rem;
             opacity: 0.95;
         }
         .stats {
@@ -203,7 +203,7 @@ const generateReport = () => {
                 <div class="feature-icon">🎨</div>
                 <div class="feature-title">Visual Regression Testing</div>
                 <div class="feature-desc">
-                    Pixel-perfect screenshot comparison with automatic baseline generation 
+                    Pixel-perfect screenshot comparison with automatic baseline generation
                     and visual diff reporting. Catches UI regressions instantly.
                 </div>
             </div>
@@ -211,7 +211,7 @@ const generateReport = () => {
                 <div class="feature-icon">🌐</div>
                 <div class="feature-title">Cross-Browser Testing</div>
                 <div class="feature-desc">
-                    Parallel execution across Chromium, Firefox, and WebKit. 
+                    Parallel execution across Chromium, Firefox, and WebKit.
                     Ensures compatibility with 99.9% of users.
                 </div>
             </div>
@@ -219,7 +219,7 @@ const generateReport = () => {
                 <div class="feature-icon">📱</div>
                 <div class="feature-title">Mobile Device Emulation</div>
                 <div class="feature-desc">
-                    iPhone 14 Pro Max, Samsung Galaxy, iPad Pro emulation with 
+                    iPhone 14 Pro Max, Samsung Galaxy, iPad Pro emulation with
                     touch gestures and viewport testing.
                 </div>
             </div>
@@ -227,7 +227,7 @@ const generateReport = () => {
                 <div class="feature-icon">🔌</div>
                 <div class="feature-title">Network Interception</div>
                 <div class="feature-desc">
-                    API mocking, request interception, and response modification 
+                    API mocking, request interception, and response modification
                     for testing edge cases and error states.
                 </div>
             </div>
@@ -235,7 +235,7 @@ const generateReport = () => {
                 <div class="feature-icon">⚡</div>
                 <div class="feature-title">Performance Metrics</div>
                 <div class="feature-desc">
-                    Core Web Vitals, memory profiling, and runtime performance 
+                    Core Web Vitals, memory profiling, and runtime performance
                     monitoring with automatic regression detection.
                 </div>
             </div>
@@ -243,7 +243,7 @@ const generateReport = () => {
                 <div class="feature-icon">♿</div>
                 <div class="feature-title">Accessibility Testing</div>
                 <div class="feature-desc">
-                    WCAG 2.1 AA compliance verification, ARIA validation, 
+                    WCAG 2.1 AA compliance verification, ARIA validation,
                     and keyboard navigation testing.
                 </div>
             </div>

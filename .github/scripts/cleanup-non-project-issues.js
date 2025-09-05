@@ -26,7 +26,7 @@ class IssueCleanup {
 
   async getAllIssues() {
     console.log('📋 Fetching all repository issues...');
-    
+
     try {
       const issues = await octokit.paginate(octokit.rest.issues.listForRepo, {
         owner: this.owner,
@@ -47,7 +47,7 @@ class IssueCleanup {
   isKeeperIssue(issue) {
     const title = issue.title.toLowerCase();
     const body = (issue.body || '').toLowerCase();
-    
+
     // Always keep MVP work items (latest versions)
     if (issue.number >= 156) { // Latest full import batch
       return {
@@ -82,14 +82,14 @@ class IssueCleanup {
   async analyzeAllIssues() {
     console.log('🔍 ANALYZING ALL ISSUES FOR CLEANUP');
     console.log('===================================\n');
-    
+
     const allIssues = await this.getAllIssues();
-    
+
     console.log('📊 **ANALYSIS RESULTS**:\n');
 
     for (const issue of allIssues) {
       const analysis = this.isKeeperIssue(issue);
-      
+
       if (analysis.keep) {
         console.log(`✅ KEEP #${issue.number}: "${issue.title}"`);
         console.log(`    📝 Reason: ${analysis.reason}`);
@@ -130,7 +130,7 @@ class IssueCleanup {
     }
 
     console.log(`\n🗑️  ${dryRun ? 'DRY RUN: Would delete' : 'DELETING'} ${this.toDelete.length} issues:`);
-    
+
     let deletedCount = 0;
 
     for (const item of this.toDelete) {
@@ -175,13 +175,13 @@ class IssueCleanup {
   async performCleanup(dryRun = true) {
     console.log(`🧹 ${dryRun ? 'DRY RUN - ' : ''}REPOSITORY CLEANUP`);
     console.log('='.repeat(dryRun ? 35 : 20) + '\n');
-    
+
     const analysis = await this.analyzeAllIssues();
     const deletedCount = await this.deleteIssues(dryRun);
 
     console.log('\n🎯 **FINAL RESULT**');
     console.log('==================');
-    
+
     if (dryRun) {
       console.log('📋 This was a DRY RUN - no changes made');
       console.log(`🔍 Analysis complete: ${analysis.toDelete} issues would be cleaned up`);
@@ -197,7 +197,7 @@ class IssueCleanup {
     console.log(`🎯 Project Board: https://github.com/orgs/${this.owner}/projects/2`);
 
     console.log('\n✅ Cleanup analysis complete!');
-    
+
     return {
       analyzed: analysis.total,
       kept: analysis.toKeep,
@@ -212,7 +212,7 @@ async function main() {
   const cleanup = new IssueCleanup();
   const args = process.argv.slice(2);
   const force = args.includes('--force');
-  
+
   if (force) {
     console.log('⚠️  FORCE MODE: Will actually delete issues\n');
   } else {

@@ -20,10 +20,10 @@ NC='\033[0m' # No Color
 check_wiki_page() {
     local page_name="$1"
     local page_url="$2"
-    
+
     # Use curl to check if page exists (200 status)
     status_code=$(curl -s -o /dev/null -w "%{http_code}" "$page_url")
-    
+
     if [ "$status_code" = "200" ]; then
         echo -e "${GREEN}✅ $page_name exists${NC}"
         return 0

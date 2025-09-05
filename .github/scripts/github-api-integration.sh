@@ -16,7 +16,7 @@ if [ -z "$GITHUB_TOKEN" ]; then
     echo "3. Select PrairieAster-Ai/nearest-nice-weather repository"
     echo "4. Set permissions:"
     echo "   - Issues: Read and write"
-    echo "   - Metadata: Read"  
+    echo "   - Metadata: Read"
     echo "   - Projects: Read and write"
     echo "5. Copy the token and run:"
     echo "   export GITHUB_TOKEN='your_token_here'"
@@ -50,9 +50,9 @@ create_github_issue() {
     local title="$1"
     local body="$2"
     local labels="$3"
-    
+
     echo "📝 Creating issue: $title"
-    
+
     # Create issue via API
     local response=$(curl -s -X POST \
         -H "Authorization: token $GITHUB_TOKEN" \
@@ -66,10 +66,10 @@ create_github_issue() {
 }
 EOF
     )
-    
+
     local issue_number=$(echo "$response" | jq -r '.number // "error"')
     local issue_url=$(echo "$response" | jq -r '.html_url // "error"')
-    
+
     if [ "$issue_number" = "error" ] || [ "$issue_number" = "null" ]; then
         echo "❌ Failed to create issue"
         echo "Error: $(echo "$response" | jq -r '.message // "Unknown error"')"
@@ -84,9 +84,9 @@ EOF
 add_to_project() {
     local issue_number="$1"
     local project_url="https://github.com/orgs/PrairieAster-Ai/projects/2"
-    
+
     echo "📋 Adding issue #$issue_number to project..."
-    
+
     # Note: Adding to projects requires GraphQL API
     # This is a placeholder for the functionality
     echo "⚠️  Project addition requires manual step or GraphQL API"
@@ -103,7 +103,7 @@ if create_github_issue \
     "Feature: Live Weather Data Integration - Sprint 3 Critical Path" \
     "$FEATURE_BODY" \
     "epic,sprint-3,in-progress,revenue-critical"; then
-    
+
     FEATURE_NUMBER=$issue_number
     echo "💾 Feature issue created: #$FEATURE_NUMBER"
 fi
@@ -116,20 +116,20 @@ if create_github_issue \
     "Epic: Database Schema Production Deployment" \
     "$DATABASE_BODY" \
     "epic,database,sprint-3,production"; then
-    
+
     DATABASE_NUMBER=$issue_number
     echo "💾 Database epic created: #$DATABASE_NUMBER"
 fi
 
 echo ""
 
-# Create Weather API Epic  
+# Create Weather API Epic
 WEATHER_BODY=$(cat .github/issues/weather-api-epic.md)
 if create_github_issue \
     "Epic: Weather API Integration - Real-Time Data Pipeline" \
     "$WEATHER_BODY" \
     "epic,weather-api,sprint-3,openweather"; then
-    
+
     WEATHER_NUMBER=$issue_number
     echo "💾 Weather API epic created: #$WEATHER_NUMBER"
 fi

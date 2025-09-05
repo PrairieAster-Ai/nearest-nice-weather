@@ -1,8 +1,8 @@
 # POI Database Specification - Free & Low-Cost Activities
 ## Weather Intelligence Platform - Point of Interest Data Structure
 
-**Created**: 2025-07-19  
-**Purpose**: Define comprehensive POI database for free/low-cost outdoor activities  
+**Created**: 2025-07-19
+**Purpose**: Define comprehensive POI database for free/low-cost outdoor activities
 **Focus**: Mass market users seeking accessible outdoor recreation
 
 ---
@@ -35,7 +35,7 @@
   "category": "Local Park",
   "examples": [
     "City parks with walking paths",
-    "Neighborhood green spaces", 
+    "Neighborhood green spaces",
     "Community gardens",
     "Playground areas with trails",
     "Urban forests and nature areas"
@@ -54,7 +54,7 @@
 #### **County & Regional Parks**
 ```json
 {
-  "category": "County Park", 
+  "category": "County Park",
   "examples": [
     "Regional trail systems",
     "County beaches and lakeshores",
@@ -79,7 +79,7 @@
   "category": "State Park",
   "examples": [
     "State park hiking trails",
-    "Natural swimming areas", 
+    "Natural swimming areas",
     "Scenic overlooks and viewpoints",
     "State forests and preserves",
     "Geological formations"
@@ -381,7 +381,7 @@
   "name": "Minnehaha Falls Regional Park",
   "category": "County Park",
   "subcategory": "Waterfall/Hiking",
-  
+
   "location": {
     "address": "4801 S Minnehaha Dr, Minneapolis, MN 55417",
     "latitude": 44.9153,
@@ -390,7 +390,7 @@
     "county": "Hennepin",
     "state": "Minnesota"
   },
-  
+
   "access_info": {
     "cost": "Free",
     "hours": "6:00 AM - 10:00 PM daily",
@@ -398,23 +398,23 @@
     "accessibility": "Paved paths to main viewpoints",
     "pet_policy": "Dogs allowed on leash"
   },
-  
+
   "amenities": [
     "Restrooms",
     "Parking",
-    "Picnic areas", 
+    "Picnic areas",
     "Paved trails",
     "Dirt trails",
     "Scenic overlooks",
     "Historical interpretation"
   ],
-  
+
   "activities": {
     "primary": ["Hiking", "Photography", "Picnicking"],
     "secondary": ["Running", "Nature walking", "Sightseeing"],
     "seasonal": ["Winter hiking", "Fall colors", "Spring wildflowers"]
   },
-  
+
   "weather_suitability": {
     "hiking": {
       "excellent": ["Sunny", "Partly cloudy", "Cool and clear"],
@@ -429,20 +429,20 @@
       "poor": ["Heavy rain", "Fog"]
     }
   },
-  
+
   "seasonal_info": {
     "spring": "Waterfall peak flow, wildflowers blooming",
     "summer": "Full trail access, busy weekends",
-    "fall": "Excellent fall colors, popular for photography", 
+    "fall": "Excellent fall colors, popular for photography",
     "winter": "Frozen waterfall views, icy trails"
   },
-  
+
   "crowd_levels": {
     "low": ["Weekday mornings", "Winter months"],
     "medium": ["Weekday afternoons", "Spring/Fall weekdays"],
     "high": ["Summer weekends", "Fall color peak", "Holiday weekends"]
   },
-  
+
   "nearby_services": {
     "restaurants": ["Sea Salt Eatery (on-site)", "Longfellow Grill (1 mile)"],
     "gas_stations": ["Holiday Station (2 miles)", "BP (1.5 miles)"],
@@ -576,10 +576,10 @@
 
 **Example Ranking Calculation**:
 ```
-POI Score = (Weather Match × 0.4) + 
-           (Distance Score × 0.25) + 
-           (Cost Score × 0.15) + 
-           (Amenity Score × 0.1) + 
+POI Score = (Weather Match × 0.4) +
+           (Distance Score × 0.25) +
+           (Cost Score × 0.15) +
+           (Amenity Score × 0.1) +
            (User Rating × 0.1)
 
 Where:

@@ -3,14 +3,14 @@
 # ========================================================================
 # AUTOMATED DEPLOYMENT WITH DATABASE MIGRATION
 # ========================================================================
-# 
+#
 # @BUSINESS_PURPOSE: Deploy to preview/production with POI data sync
 # @TECHNICAL_APPROACH: Export dev data → Deploy → Import data → Validate
-# 
+#
 # USAGE:
 # ./scripts/deploy-with-migration.sh preview
 # ./scripts/deploy-with-migration.sh production
-# 
+#
 # REQUIREMENTS:
 # - Environment variables configured for all database branches
 # - Vercel CLI authenticated and configured

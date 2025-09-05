@@ -29,7 +29,7 @@ Comprehensive guide for implementing cache busting in Single Page Applications (
           "value": "no-cache, no-store, must-revalidate"
         },
         {
-          "key": "Pragma", 
+          "key": "Pragma",
           "value": "no-cache"
         },
         {
@@ -53,17 +53,17 @@ export default defineConfig({
     rollupOptions: {
       output: {
         entryFileNames: (_chunkInfo) => {
-          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || 
+          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ||
                           Math.random().toString(36).slice(2, 10)
           return `assets/[name]-[hash]-${buildId}.js`
         },
         chunkFileNames: (chunkInfo) => {
-          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || 
+          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ||
                           Math.random().toString(36).slice(2, 10)
           return `assets/[name]-[hash]-${buildId}.js`
         },
         assetFileNames: (assetInfo) => {
-          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || 
+          const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ||
                           Math.random().toString(36).slice(2, 10)
           if (assetInfo.name?.endsWith('.css')) {
             return `assets/styles/[name]-[hash]-${buildId}[extname]`
@@ -87,13 +87,13 @@ function addCacheBustingToHTML() {
   let html = fs.readFileSync(htmlPath, 'utf8');
   const timestamp = Date.now();
   const deployId = process.env.VERCEL_GIT_COMMIT_SHA || `local-${timestamp}`;
-  
+
   // Add cache-busting query parameters
   html = html.replace(
     /(src|href)="([^"]*\.(js|css))"/g,
     `$1="$2?v=${timestamp}&t=${deployId.slice(0, 8)}"`
   );
-  
+
   fs.writeFileSync(htmlPath, html);
 }
 ```
@@ -137,7 +137,7 @@ html = html.replace('</head>', `${cacheBustingMeta}</head>`);
       "source": "/(manifest\\.json|health\\.json|favicon\\.ico)",
       "headers": [
         {
-          "key": "Cache-Control", 
+          "key": "Cache-Control",
           "value": "public, max-age=300, stale-while-revalidate=60"
         }
       ]
@@ -166,7 +166,7 @@ const path = require('path');
 
 function addCacheBustingToHTML() {
   const htmlPath = path.join(__dirname, '../dist/index.html');
-  
+
   if (!fs.existsSync(htmlPath)) {
     console.error('❌ index.html not found at:', htmlPath);
     process.exit(1);
@@ -175,7 +175,7 @@ function addCacheBustingToHTML() {
   let html = fs.readFileSync(htmlPath, 'utf8');
   const timestamp = Date.now();
   const deployId = process.env.VERCEL_GIT_COMMIT_SHA || `local-${timestamp}`;
-  
+
   // Add cache-busting meta tags
   const cacheBustingMeta = `
     <meta name="cache-control" content="no-cache, no-store, must-revalidate">
@@ -185,17 +185,17 @@ function addCacheBustingToHTML() {
     <meta name="deployment-id" content="${deployId}">
     <meta name="cache-version" content="v${timestamp}">
   `;
-  
+
   html = html.replace('</head>', `${cacheBustingMeta}</head>`);
-  
+
   // Add query parameters to assets
   html = html.replace(
     /(src|href)="([^"]*\.(js|css))"/g,
     `$1="$2?v=${timestamp}&t=${deployId.slice(0, 8)}"`
   );
-  
+
   fs.writeFileSync(htmlPath, html);
-  
+
   console.log('✅ Cache busting applied to HTML:');
   console.log(`   📅 Timestamp: ${timestamp}`);
   console.log(`   🔗 Deploy ID: ${deployId}`);
@@ -290,14 +290,14 @@ describe('Cache Busting', () => {
     const response = await fetch('/');
     expect(response.headers.get('cache-control')).toContain('no-cache');
   });
-  
+
   test('Assets have unique filenames', async () => {
     const html = await fetch('/').then(r => r.text());
     const assetMatches = html.match(/assets\/[^"]*-[a-f0-9]{8,}-[a-z0-9]{8}\.(js|css)/g);
     expect(assetMatches).toBeTruthy();
     expect(assetMatches.length).toBeGreaterThan(0);
   });
-  
+
   test('Query parameters present', async () => {
     const html = await fetch('/').then(r => r.text());
     expect(html).toMatch(/\?v=\d+&t=[a-z0-9]{8}/);
@@ -346,26 +346,26 @@ const puppeteer = require('puppeteer');
 async function verifyCacheBusting() {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  
+
   // Enable request interception
   await page.setRequestInterception(true);
   const requests = [];
-  
+
   page.on('request', request => {
     requests.push(request.url());
     request.continue();
   });
-  
+
   await page.goto('https://www.yoursite.com/');
-  
+
   // Check for cache-busting patterns
-  const cacheBustedRequests = requests.filter(url => 
+  const cacheBustedRequests = requests.filter(url =>
     url.includes('?v=') && url.includes('&t=')
   );
-  
+
   console.log(`✅ ${cacheBustedRequests.length} cache-busted requests found`);
   console.log('Cache-busted assets:', cacheBustedRequests);
-  
+
   await browser.close();
 }
 
@@ -377,11 +377,11 @@ verifyCacheBusting();
 ### Issue: Assets still cached after deployment
 **Symptoms**: Old assets loading despite new deployment
 **Root Cause**: Insufficient cache headers or missing query parameters
-**Solution**: 
+**Solution**:
 ```bash
 # Verify all layers are implemented
 1. Check HTML cache headers
-2. Verify asset filename uniqueness  
+2. Verify asset filename uniqueness
 3. Confirm query parameters present
 4. Check CDN/proxy cache settings
 ```
@@ -403,7 +403,7 @@ const buildId = process.env.BUILD_ID || Date.now().toString(36);
 ```javascript
 // Ensure consistent behavior
 const isProduction = process.env.NODE_ENV === 'production';
-const deployId = isProduction 
+const deployId = isProduction
   ? process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8)
   : 'dev';
 ```
@@ -428,8 +428,8 @@ alerts:
   - name: "High HTML Cache Rate"
     condition: html_cache_hit_rate > 10%
     action: investigate_cache_headers
-    
-  - name: "Asset 404 Rate Spike"  
+
+  - name: "Asset 404 Rate Spike"
     condition: asset_404_rate > 1%
     action: check_cache_busting_deployment
 ```
@@ -447,7 +447,7 @@ alerts:
 - Support tickets: 3-5 per deployment
 - Hard refresh required for new features
 
-### After Implementation  
+### After Implementation
 - 0% broken page reports
 - Support tickets: 0 cache-related
 - Seamless user experience on deployments

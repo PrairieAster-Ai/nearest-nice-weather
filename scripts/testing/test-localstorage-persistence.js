@@ -2,13 +2,13 @@
 
 /**
  * LOCAL STORAGE PERSISTENCE VALIDATION TEST
- * 
+ *
  * Tests that user preferences are properly saved and restored:
  * 1. Weather filter settings persist across sessions
  * 2. User location is remembered (geolocation, IP, or manual)
  * 3. Map view settings (center, zoom) are preserved
  * 4. Location method tracking works correctly
- * 
+ *
  * Expected behavior:
  * - Returning users see their previous filter settings
  * - No repeated location prompts for users with saved locations
@@ -45,26 +45,26 @@ function testLocalStorageHook() {
   console.log('=' + '='.repeat(40));
 
   const localStorage = new LocalStorageMock();
-  
+
   // Test saving and loading weather filters
   console.log('\n📊 Weather Filters Persistence:');
   const defaultFilters = { temperature: 'mild', precipitation: 'none', wind: 'calm' };
   const userFilters = { temperature: 'cold', precipitation: 'light', wind: 'breezy' };
-  
+
   // Simulate initial load (should use defaults)
   let savedFilters = localStorage.getItem('nearestNiceWeather_filters');
   let loadedFilters = savedFilters ? JSON.parse(savedFilters) : defaultFilters;
   console.log('  Initial load (no saved data):', JSON.stringify(loadedFilters));
-  
+
   // Simulate user changing filters
   localStorage.setItem('nearestNiceWeather_filters', JSON.stringify(userFilters));
   console.log('  User changed filters to:', JSON.stringify(userFilters));
-  
+
   // Simulate page refresh/reload
   savedFilters = localStorage.getItem('nearestNiceWeather_filters');
   loadedFilters = savedFilters ? JSON.parse(savedFilters) : defaultFilters;
   console.log('  After page refresh:', JSON.stringify(loadedFilters));
-  
+
   if (JSON.stringify(loadedFilters) === JSON.stringify(userFilters)) {
     console.log('  ✅ SUCCESS: Weather filters persisted correctly');
   } else {
@@ -74,16 +74,16 @@ function testLocalStorageHook() {
   // Test user location persistence
   console.log('\n📍 User Location Persistence:');
   const testLocation = [45.0, -93.0]; // Minneapolis coordinates
-  
+
   localStorage.setItem('nearestNiceWeather_userLocation', JSON.stringify(testLocation));
   localStorage.setItem('nearestNiceWeather_locationMethod', JSON.stringify('geolocation'));
-  
+
   const savedLocation = JSON.parse(localStorage.getItem('nearestNiceWeather_userLocation'));
   const savedMethod = JSON.parse(localStorage.getItem('nearestNiceWeather_locationMethod'));
-  
+
   console.log('  Saved location:', savedLocation);
   console.log('  Location method:', savedMethod);
-  
+
   if (JSON.stringify(savedLocation) === JSON.stringify(testLocation) && savedMethod === 'geolocation') {
     console.log('  ✅ SUCCESS: User location persisted correctly');
   } else {
@@ -93,12 +93,12 @@ function testLocalStorageHook() {
   // Test map view persistence
   console.log('\n🗺️ Map View Persistence:');
   const mapView = { center: [46.0, -94.0], zoom: 10 };
-  
+
   localStorage.setItem('nearestNiceWeather_mapView', JSON.stringify(mapView));
   const savedMapView = JSON.parse(localStorage.getItem('nearestNiceWeather_mapView'));
-  
+
   console.log('  Saved map view:', JSON.stringify(savedMapView));
-  
+
   if (JSON.stringify(savedMapView) === JSON.stringify(mapView)) {
     console.log('  ✅ SUCCESS: Map view persisted correctly');
   } else {
@@ -167,11 +167,11 @@ function runPersistenceTests() {
   console.log('💾 LOCAL STORAGE PERSISTENCE TEST SUITE');
   console.log('🎯 Goal: Remember user preferences across sessions');
   console.log('📋 Business context: Enhanced UX for returning users\n');
-  
+
   testLocalStorageHook();
   testUserExperienceScenarios();
   testStorageKeyOrganization();
-  
+
   console.log('\n\n🎉 LocalStorage Persistence Summary:');
   console.log('✅ Weather filters preserved across sessions');
   console.log('✅ User location saved to skip repeated prompts');

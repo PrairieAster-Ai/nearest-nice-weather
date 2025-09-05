@@ -28,7 +28,7 @@ print_score() {
     local score=$1
     local max=$2
     local percentage=$((score * 100 / max))
-    
+
     if [ $percentage -ge 90 ]; then
         echo -e "${GREEN}🏆 EXCELLENT: $score/$max ($percentage%)${NC}"
     elif [ $percentage -ge 80 ]; then
@@ -44,7 +44,7 @@ check_service() {
     local name=$1
     local url=$2
     local points=$3
-    
+
     if curl -s "$url" >/dev/null 2>&1; then
         echo -e "   ✅ $name: ${GREEN}Running${NC}"
         HEALTH_SCORE=$((HEALTH_SCORE + points))
@@ -59,7 +59,7 @@ check_database() {
     local name=$1
     local command=$2
     local points=$3
-    
+
     if eval "$command" >/dev/null 2>&1; then
         echo -e "   ✅ $name: ${GREEN}Connected${NC}"
         HEALTH_SCORE=$((HEALTH_SCORE + points))
@@ -74,7 +74,7 @@ get_intelligence_data() {
     if curl -s http://localhost:3050/health >/dev/null 2>&1; then
         local system_data=$(curl -s http://localhost:3052/system-resources 2>/dev/null)
         local context_data=$(curl -s http://localhost:3058/business-context 2>/dev/null)
-        
+
         # Extract CPU and memory data
         if [ ! -z "$system_data" ]; then
             CPU_USAGE=$(echo "$system_data" | jq -r '.cpu.usage // "N/A"')
@@ -82,7 +82,7 @@ get_intelligence_data() {
             CPU_CORES=$(echo "$system_data" | jq -r '.cpu.cores // "N/A"')
             MEMORY_TOTAL=$(echo "$system_data" | jq -r '.memory.total // "N/A"')
         fi
-        
+
         # Extract recommendations
         if [ ! -z "$context_data" ]; then
             RECOMMENDATIONS=$(echo "$context_data" | jq -r '.recommendations[]' 2>/dev/null | head -3)

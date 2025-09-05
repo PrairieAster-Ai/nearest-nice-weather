@@ -1,7 +1,7 @@
 /**
  * Sanitize Utils Coverage Test using require() syntax
  * Tests actual source code with CommonJS imports to bypass ES module issues
- * 
+ *
  * @COVERAGE_TARGET: sanitize.ts (0% → 80%+)
  * @DUAL_API_CONTEXT: Tests sanitization used by both Express and Vercel APIs
  */
@@ -26,15 +26,15 @@ global.window = {
 // Mock URL constructor for sanitizeUrl tests
 global.URL = jest.fn().mockImplementation((url, base) => {
   const lowerUrl = String(url).toLowerCase();
-  
+
   if (lowerUrl.includes('javascript:') || lowerUrl.includes('data:')) {
     throw new Error('Invalid URL protocol');
   }
-  
-  const protocol = lowerUrl.startsWith('https:') ? 'https:' : 
-                   lowerUrl.startsWith('http:') ? 'http:' : 
+
+  const protocol = lowerUrl.startsWith('https:') ? 'https:' :
+                   lowerUrl.startsWith('http:') ? 'http:' :
                    lowerUrl.startsWith('mailto:') ? 'mailto:' : 'invalid:';
-                   
+
   return {
     protocol,
     toString: () => url,
@@ -54,11 +54,11 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         if (typeof input === 'number') {
           return input.toString();
         }
-        
+
         if (!input) {
           return '';
         }
-        
+
         // Use DOM manipulation for string input
         const div = document.createElement('div');
         div.textContent = input;
@@ -89,7 +89,7 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
 
       const maliciousString = '<script>alert("xss")</script>';
       const result = escapeHtml(maliciousString);
-      
+
       expect(document.createElement).toHaveBeenCalledWith('div');
       expect(result).toBe('escaped_script_content');
 
@@ -110,7 +110,7 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
           get textContent() { return this._text; },
           innerHTML: `escaped_${index}`
         });
-        
+
         const edgeResult = escapeHtml(edgeCase);
         expect(edgeResult).toBe(`escaped_${index}`);
       });
@@ -125,7 +125,7 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         }
 
         const trimmedUrl = url.trim().toLowerCase();
-        
+
         // Check for dangerous protocols
         if (trimmedUrl.startsWith('javascript:') || trimmedUrl.startsWith('data:')) {
           return '';
@@ -134,11 +134,11 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         try {
           const parsed = new URL(url, window.location.origin);
           const allowedProtocols = ['http:', 'https:', 'mailto:'];
-          
+
           if (allowedProtocols.includes(parsed.protocol)) {
             return url; // Return original URL if safe
           }
-          
+
           return '';
         } catch (error) {
           return '';
@@ -178,7 +178,7 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
 
       global.URL.mockImplementation((url, base) => ({
         protocol: url.toLowerCase().startsWith('https:') ? 'https:' :
-                 url.toLowerCase().startsWith('http:') ? 'http:' : 
+                 url.toLowerCase().startsWith('http:') ? 'http:' :
                  url.toLowerCase().startsWith('mailto:') ? 'mailto:' : 'unknown:',
         toString: () => url,
         href: url
@@ -214,14 +214,14 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
   describe('sanitizeObject function', () => {
     test('should process string properties while preserving others', () => {
       const mockEscapeHtml = jest.fn((value) => `escaped_${value}`);
-      
+
       const sanitizeObject = (obj) => {
         if (!obj || typeof obj !== 'object') {
           return {};
         }
 
         const result = {};
-        
+
         for (const [key, value] of Object.entries(obj)) {
           if (typeof value === 'string') {
             result[key] = mockEscapeHtml(value);
@@ -229,7 +229,7 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
             result[key] = value;
           }
         }
-        
+
         return result;
       };
 
@@ -238,7 +238,7 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         title: 'Test <script>alert("xss")</script> Title',
         description: 'Description with <b>HTML</b>',
         emptyString: '',
-        
+
         // Non-string properties (should be preserved)
         id: 12345,
         active: true,
@@ -246,7 +246,7 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         nullValue: null,
         undefinedValue: undefined,
         zeroValue: 0,
-        
+
         // Complex properties (should be preserved)
         tags: ['tag1', 'tag2'],
         metadata: { created: '2023-01-01' },
@@ -295,11 +295,11 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         if (typeof input === 'number') {
           return input.toString();
         }
-        
+
         if (!input) {
           return '';
         }
-        
+
         const div = document.createElement('div');
         div.textContent = input;
         return div.innerHTML;
@@ -333,18 +333,18 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         if (typeof input === 'number') {
           return input.toString();
         }
-        
+
         if (!input) {
           return '';
         }
-        
+
         const div = document.createElement('div');
         div.textContent = input;
         return div.innerHTML;
       };
 
       const largeString = 'x'.repeat(10000) + '<script>alert("xss")</script>' + 'y'.repeat(10000);
-      
+
       mockCreateElement.mockReturnValue({
         textContent: '',
         innerHTML: 'large_sanitized_content'
@@ -363,11 +363,11 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
         if (typeof input === 'number') {
           return input.toString();
         }
-        
+
         if (!input) {
           return '';
         }
-        
+
         const div = document.createElement('div');
         div.textContent = input;
         return div.innerHTML;
@@ -377,27 +377,27 @@ describe('Sanitize Utils Coverage - CommonJS', () => {
       expect(escapeHtml(Infinity)).toBe('Infinity');
       expect(escapeHtml(-Infinity)).toBe('-Infinity');
       expect(escapeHtml(NaN)).toBe('NaN'); // NaN is a number, gets toString()'d
-      
+
       // Reset mock for BigInt test
       mockCreateElement.mockReturnValue({
         set textContent(value) { this._text = value; },
         get textContent() { return this._text; },
         innerHTML: '123'
       });
-      
+
       // Test BigInt if supported
       if (typeof BigInt !== 'undefined') {
         // BigInt is not a number, so it goes through DOM path
         expect(escapeHtml(BigInt(123))).toBe('123');
       }
-      
-      // Reset mock for Symbol test  
+
+      // Reset mock for Symbol test
       mockCreateElement.mockReturnValue({
         set textContent(value) { this._text = value; },
         get textContent() { return this._text; },
         innerHTML: 'Symbol(test)'
       });
-      
+
       // Test Symbol
       const symbol = Symbol('test');
       expect(escapeHtml(symbol)).toBe('Symbol(test)');

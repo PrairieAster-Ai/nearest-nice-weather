@@ -22,7 +22,7 @@
 
 ### NEVER ALLOWED:
 - ❌ ALTER TABLE statements
-- ❌ CREATE TABLE statements  
+- ❌ CREATE TABLE statements
 - ❌ DROP TABLE statements
 - ❌ Adding columns to existing tables
 - ❌ Modifying column types
@@ -30,7 +30,7 @@
 - ❌ Renaming tables or columns
 - ❌ Creating new schemas
 
-### REASON: 
+### REASON:
 These actions cause the **database rebuild cycle** that created instability over the past 4 days.
 
 ---
@@ -96,7 +96,7 @@ class EnhancedDataSeeder {
     // Load elevation data via JSONB or external service
     // Use existing schema creatively
   }
-  
+
   async loadHistoricalWeatherPatterns() {
     // Use existing weather_conditions table with date ranges
     // Store historical data with different data_source values

@@ -18,7 +18,7 @@ const octokit = new Octokit({
 
 async function testWorkItemType() {
   console.log('🧪 Testing Work Item Type Field Assignment...\n');
-  
+
   try {
     // Get project field configuration
     const projectQuery = `
@@ -50,24 +50,24 @@ async function testWorkItemType() {
 
     const project = projectData.organization.projectV2;
     const projectId = project.id;
-    
+
     // Find the Work Item Type field
     const workItemTypeField = project.fields.nodes.find(
       field => field.name === 'Work Item Type'
     );
-    
+
     if (!workItemTypeField) {
       console.error('❌ Work Item Type field not found');
       return;
     }
-    
+
     console.log('✅ Found Work Item Type field:');
     console.log(`  Field ID: ${workItemTypeField.id}`);
     console.log('  Options:');
     workItemTypeField.options.forEach(option => {
       console.log(`    - ${option.name} (${option.id})`);
     });
-    
+
     // Create test Epic
     const testIssue = await octokit.rest.issues.create({
       owner: REPO_OWNER,
@@ -76,9 +76,9 @@ async function testWorkItemType() {
       body: 'This is a test epic to verify Work Item Type field assignment.',
       labels: ['type: epic', 'testing']
     });
-    
+
     console.log(`\n✅ Created test issue: #${testIssue.data.number}`);
-    
+
     // Add to project
     const addMutation = `
       mutation($projectId: ID!, $contentId: ID!) {
@@ -100,10 +100,10 @@ async function testWorkItemType() {
 
     const itemId = addResult.addProjectV2ItemById.item.id;
     console.log(`✅ Added to project with item ID: ${itemId}`);
-    
+
     // Set Work Item Type to "Epic"
     const epicOption = workItemTypeField.options.find(opt => opt.name === 'Epic');
-    
+
     if (epicOption) {
       const typeMutation = `
         mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String) {
@@ -119,21 +119,21 @@ async function testWorkItemType() {
           }
         }
       `;
-      
+
       await octokit.graphql(typeMutation, {
         projectId: projectId,
         itemId: itemId,
         fieldId: workItemTypeField.id,
         optionId: epicOption.id
       });
-      
+
       console.log(`✅ Set Work Item Type to: Epic`);
     }
-    
+
     console.log('\n🎉 Test successful! Work Item Type field assignment works.');
     console.log(`🔗 View in project: https://github.com/orgs/${REPO_OWNER}/projects/${PROJECT_NUMBER}`);
     console.log('   ⚠️  Check that the issue shows as "Epic" type, not "Feature"');
-    
+
   } catch (error) {
     console.error('❌ Test failed:', error.message);
     if (error.errors) {

@@ -22,7 +22,7 @@ npm run deploy:preview
 
 **Production Deployments** (Requires Explicit Confirmation):
 ```bash
-cd apps/web  
+cd apps/web
 npm run deploy:prod              # Shows info, requires --confirm
 npm run deploy:prod -- --confirm # Actually deploys after validation
 ```
@@ -69,7 +69,7 @@ vercel alias set <deployment-url> p.nearestniceweather.com
 ## Workflow Enforcement
 
 ### Required Commands Only:
-- **Preview**: `npm run deploy:preview` 
+- **Preview**: `npm run deploy:preview`
 - **Production**: `npm run deploy:prod -- --confirm`
 - **Domain Updates**: `vercel alias set <url> p.nearestniceweather.com`
 

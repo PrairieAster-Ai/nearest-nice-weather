@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS feature_data (
 ALTER TABLE locations ADD COLUMN IF NOT EXISTS feature_enabled BOOLEAN DEFAULT false;
 
 -- Add index for performance
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_locations_feature 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_locations_feature
 ON locations(feature_enabled) WHERE feature_enabled = true;
 
 COMMIT;

@@ -26,7 +26,7 @@ export class TestMetrics {
       startTime: Date.now(),
       status: 'running'
     };
-    
+
     this.metrics.testRuns.push(testRun);
     return testRun.id;
   }
@@ -37,7 +37,7 @@ export class TestMetrics {
       testRun.status = status;
       testRun.duration = duration;
       testRun.endTime = Date.now();
-      
+
       if (error) {
         testRun.error = {
           message: error.message,
@@ -53,7 +53,7 @@ export class TestMetrics {
     if (!this.metrics.performance[metric]) {
       this.metrics.performance[metric] = [];
     }
-    
+
     this.metrics.performance[metric].push({
       value,
       timestamp: Date.now(),
@@ -74,11 +74,11 @@ export class TestMetrics {
     const passedTests = this.metrics.testRuns.filter(run => run.status === 'passed').length;
     const failedTests = this.metrics.testRuns.filter(run => run.status === 'failed').length;
     const skippedTests = this.metrics.testRuns.filter(run => run.status === 'skipped').length;
-    
+
     const avgDuration = this.metrics.testRuns
       .filter(run => run.duration)
       .reduce((acc, run, _, arr) => acc + run.duration / arr.length, 0);
-    
+
     return {
       summary: {
         totalTests,
@@ -104,26 +104,26 @@ export class TestMetrics {
 
   saveMetrics(outputPath = 'test-results') {
     const summary = this.generateSummary();
-    
+
     if (!fs.existsSync(outputPath)) {
       fs.mkdirSync(outputPath, { recursive: true });
     }
-    
+
     const filename = `test-metrics-${Date.now()}.json`;
     const filepath = path.join(outputPath, filename);
-    
+
     fs.writeFileSync(filepath, JSON.stringify(summary, null, 2));
-    
+
     // Also create a latest.json file
     const latestPath = path.join(outputPath, 'latest.json');
     fs.writeFileSync(latestPath, JSON.stringify(summary, null, 2));
-    
+
     return filepath;
   }
 
   generateHTMLReport() {
     const summary = this.generateSummary();
-    
+
     const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -157,7 +157,7 @@ export class TestMetrics {
             <p class="timestamp">Generated: ${summary.timestamp}</p>
             <p class="timestamp">Environment: ${summary.environment}</p>
         </div>
-        
+
         <div class="metric-grid">
             <div class="metric-card">
                 <div class="metric-value">${summary.summary.totalTests}</div>
@@ -184,7 +184,7 @@ export class TestMetrics {
                 <div class="metric-label">Total Time</div>
             </div>
         </div>
-        
+
         ${summary.failures.length > 0 ? `
         <div class="section">
             <h2>Failed Tests</h2>
@@ -197,14 +197,14 @@ export class TestMetrics {
             `).join('')}
         </div>
         ` : ''}
-        
+
         <div class="section">
             <h2>Performance Metrics</h2>
             <div class="performance-chart">
                 ${Object.entries(summary.performance).map(([metric, values]) => `
                     <div style="margin-bottom: 15px;">
                         <strong>${metric}:</strong>
-                        ${values.length} measurements, 
+                        ${values.length} measurements,
                         avg: ${(values.reduce((acc, v) => acc + v.value, 0) / values.length).toFixed(2)},
                         min: ${Math.min(...values.map(v => v.value))},
                         max: ${Math.max(...values.map(v => v.value))}
@@ -212,7 +212,7 @@ export class TestMetrics {
                 `).join('')}
             </div>
         </div>
-        
+
         ${summary.coverage && Object.keys(summary.coverage).length > 0 ? `
         <div class="section">
             <h2>Coverage</h2>
@@ -225,15 +225,15 @@ export class TestMetrics {
 </body>
 </html>
     `;
-    
+
     const outputPath = 'test-results';
     if (!fs.existsSync(outputPath)) {
       fs.mkdirSync(outputPath, { recursive: true });
     }
-    
+
     const htmlPath = path.join(outputPath, 'test-report.html');
     fs.writeFileSync(htmlPath, html);
-    
+
     return htmlPath;
   }
 }
@@ -246,22 +246,22 @@ export class CustomJestReporter {
   onRunStart() {
     console.log('Starting test analytics collection...');
   }
-  
+
   onTestStart(test) {
     const testId = testMetrics.recordTestStart(test.path, test.context?.describe?.name || 'unknown');
     test._analyticsId = testId;
   }
-  
+
   onTestResult(test, testResult) {
     if (test._analyticsId) {
       const status = testResult.numFailingTests > 0 ? 'failed' : 'passed';
       const duration = testResult.perfStats.end - testResult.perfStats.start;
       const error = testResult.testResults.find(r => r.status === 'failed')?.failureMessages?.[0];
-      
+
       testMetrics.recordTestEnd(test._analyticsId, status, duration, error ? new Error(error) : null);
     }
   }
-  
+
   onRunComplete() {
     const reportPath = testMetrics.generateHTMLReport();
     console.log(`Test analytics report generated: ${reportPath}`);

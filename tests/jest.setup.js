@@ -1,6 +1,6 @@
 /**
  * Jest Setup for Nearest Nice Weather Tests
- * 
+ *
  * Global test configuration and utilities
  */
 
@@ -14,7 +14,7 @@ jest.setTimeout(30000);
 beforeAll(() => {
   // Ensure we're in test mode
   process.env.NODE_ENV = 'test';
-  
+
   // Log test environment info
   console.debug('🧪 Test Environment Setup');
   console.debug(`Database URL configured: ${!!process.env.DATABASE_URL}`);

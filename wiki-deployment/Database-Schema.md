@@ -4,9 +4,9 @@
 
 ## 🏗️ Database Architecture
 
-**Platform**: Neon PostgreSQL (Serverless)  
-**Environment Strategy**: Branch-based development (dev/preview/production)  
-**Data Focus**: Minnesota outdoor recreation Points of Interest (POIs)  
+**Platform**: Neon PostgreSQL (Serverless)
+**Environment Strategy**: Branch-based development (dev/preview/production)
+**Data Focus**: Minnesota outdoor recreation Points of Interest (POIs)
 **Scale**: 138 outdoor destinations, designed for 10,000+ users
 
 ## 📊 Current Schema
@@ -18,29 +18,29 @@
 CREATE TABLE poi_locations (
     -- Primary Key
     id SERIAL PRIMARY KEY,
-    
+
     -- Basic Information
     name VARCHAR(255) NOT NULL,              -- "Gooseberry Falls State Park"
     description TEXT,                        -- User-friendly description
-    
+
     -- Geographic Data
     lat DECIMAL(10, 8) NOT NULL,             -- 47.1389 (latitude)
     lng DECIMAL(11, 8) NOT NULL,             -- -91.4706 (longitude)
-    
+
     -- Classification
     park_type VARCHAR(100),                  -- "State Park", "Trail System", "Nature Center"
     place_rank INTEGER DEFAULT 30,           -- Importance ranking (10=National, 15=State, 20=Regional, 30=Local)
-    
+
     -- Data Management
     data_source VARCHAR(50),                 -- "seed_script", "manual", "api_import"
     external_id VARCHAR(100),                -- Unique identifier from data sources
     search_name JSONB,                       -- Alternative names for search
     last_modified TIMESTAMP DEFAULT NOW(),
-    
+
     -- OpenStreetMap Integration (Optional)
     osm_id BIGINT,                          -- OpenStreetMap node/way/relation ID
     osm_type VARCHAR(10),                   -- "node", "way", "relation"
-    
+
     -- Geographic Constraints
     CONSTRAINT poi_minnesota_bounds CHECK (
         lat BETWEEN 43.499356 AND 49.384472 AND
@@ -65,21 +65,21 @@ CREATE INDEX idx_poi_locations_name_gin ON poi_locations USING gin(to_tsvector('
 CREATE TABLE user_feedback (
     -- Primary Key
     id SERIAL PRIMARY KEY,
-    
+
     -- Feedback Content
     feedback_text TEXT NOT NULL,
     rating INTEGER CHECK (rating >= 1 AND rating <= 5),
     category VARCHAR(50),                    -- "general", "bug", "feature"
-    
+
     -- User Information (Optional)
     email VARCHAR(255),                      -- Optional contact email
-    
+
     -- Technical Metadata
     user_agent TEXT,                         -- Browser/device information
     ip_address VARCHAR(45),                  -- IPv4/IPv6 address
     session_id VARCHAR(255),                 -- Session tracking
     page_url TEXT,                          -- Page where feedback was submitted
-    
+
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -96,14 +96,14 @@ CREATE INDEX idx_user_feedback_rating ON user_feedback (rating);
 ```sql
 -- Data distribution by park type
 SELECT park_type, COUNT(*) as location_count
-FROM poi_locations 
+FROM poi_locations
 WHERE park_type IS NOT NULL
 GROUP BY park_type
 ORDER BY location_count DESC;
 
 -- Example output:
 -- State Park        | 45
--- Trail System      | 28  
+-- Trail System      | 28
 -- Nature Center     | 22
 -- Regional Park     | 18
 -- Forest            | 15
@@ -113,11 +113,11 @@ ORDER BY location_count DESC;
 ### Place Rank Classification
 ```sql
 -- Importance hierarchy for display prioritization
-SELECT 
+SELECT
   place_rank,
-  CASE 
+  CASE
     WHEN place_rank <= 10 THEN 'National Significance'
-    WHEN place_rank <= 15 THEN 'State Significance' 
+    WHEN place_rank <= 15 THEN 'State Significance'
     WHEN place_rank <= 20 THEN 'Regional Significance'
     ELSE 'Local Significance'
   END as significance_level,
@@ -130,8 +130,8 @@ ORDER BY place_rank;
 ### Geographic Distribution
 ```sql
 -- Minnesota regions represented in dataset
-SELECT 
-  CASE 
+SELECT
+  CASE
     WHEN lat >= 47.5 THEN 'Northern Minnesota'
     WHEN lat >= 45.5 THEN 'Central Minnesota'
     ELSE 'Southern Minnesota'
@@ -140,8 +140,8 @@ SELECT
   AVG(lat) as avg_latitude,
   AVG(lng) as avg_longitude
 FROM poi_locations
-GROUP BY 
-  CASE 
+GROUP BY
+  CASE
     WHEN lat >= 47.5 THEN 'Northern Minnesota'
     WHEN lat >= 45.5 THEN 'Central Minnesota'
     ELSE 'Southern Minnesota'
@@ -155,7 +155,7 @@ ORDER BY poi_count DESC;
 ```sql
 -- Example State Park (High Priority)
 INSERT INTO poi_locations (
-  name, lat, lng, park_type, place_rank, 
+  name, lat, lng, park_type, place_rank,
   description, data_source, external_id
 ) VALUES (
   'Gooseberry Falls State Park',
@@ -197,14 +197,14 @@ INSERT INTO poi_locations (
 #### 1. Distance-Based POI Search
 ```sql
 -- Find POIs within radius of user location (Haversine formula)
-SELECT 
+SELECT
   id, name, lat, lng, park_type, description, place_rank,
   (3959 * acos(
-    cos(radians(?)) * cos(radians(lat)) * 
-    cos(radians(lng) - radians(?)) + 
+    cos(radians(?)) * cos(radians(lat)) *
+    cos(radians(lng) - radians(?)) +
     sin(radians(?)) * sin(radians(lat))
   )) as distance_miles
-FROM poi_locations 
+FROM poi_locations
 WHERE park_type IS NOT NULL
 HAVING distance_miles <= ?
 ORDER BY distance_miles ASC, place_rank ASC
@@ -219,7 +219,7 @@ LIMIT ?;
 SELECT id, name, lat, lng, park_type, place_rank
 FROM poi_locations
 WHERE park_type IS NOT NULL
-ORDER BY 
+ORDER BY
   place_rank ASC,           -- Higher priority first
   name ASC                  -- Alphabetical within same priority
 LIMIT 200;
@@ -229,10 +229,10 @@ LIMIT 200;
 ```sql
 -- Text search across POI names and descriptions
 SELECT id, name, lat, lng, park_type, description,
-       ts_rank(to_tsvector('english', name || ' ' || COALESCE(description, '')), 
+       ts_rank(to_tsvector('english', name || ' ' || COALESCE(description, '')),
                plainto_tsquery('english', ?)) as search_rank
 FROM poi_locations
-WHERE to_tsvector('english', name || ' ' || COALESCE(description, '')) 
+WHERE to_tsvector('english', name || ' ' || COALESCE(description, ''))
       @@ plainto_tsquery('english', ?)
 ORDER BY search_rank DESC, place_rank ASC
 LIMIT 50;
@@ -243,7 +243,7 @@ LIMIT 50;
 #### 4. Feedback Analytics
 ```sql
 -- Feedback summary for product insights
-SELECT 
+SELECT
   category,
   AVG(rating)::DECIMAL(3,2) as avg_rating,
   COUNT(*) as feedback_count,
@@ -262,7 +262,7 @@ ORDER BY feedback_count DESC;
 # Development (Neon Dev Branch)
 DATABASE_URL="postgresql://username:password@dev-hostname/database?sslmode=require"
 
-# Production (Neon Main Branch) 
+# Production (Neon Main Branch)
 DATABASE_URL="postgresql://username:password@prod-hostname/database?sslmode=require"
 ```
 
@@ -293,12 +293,12 @@ const sql = neon(process.env.DATABASE_URL);
 -- Replaced by POI-centric architecture
 DROP TABLE IF EXISTS locations;
 
--- ❌ DEPRECATED: Legacy weather conditions table  
+-- ❌ DEPRECATED: Legacy weather conditions table
 -- Weather data now fetched real-time from APIs
 DROP TABLE IF EXISTS weather_conditions;
 ```
 
-**Migration Notes**: 
+**Migration Notes**:
 - Original application used cities/weather stations as primary data
 - Pivoted to outdoor recreation POIs for better user experience
 - Weather is now integrated real-time rather than stored
@@ -309,8 +309,8 @@ DROP TABLE IF EXISTS weather_conditions;
 ```sql
 -- Verify all POIs are within Minnesota bounds
 SELECT COUNT(*) as total_locations,
-       COUNT(CASE WHEN lat BETWEEN 43.499356 AND 49.384472 
-                    AND lng BETWEEN -97.239209 AND -89.491739 
+       COUNT(CASE WHEN lat BETWEEN 43.499356 AND 49.384472
+                    AND lng BETWEEN -97.239209 AND -89.491739
                   THEN 1 END) as locations_in_minnesota,
        COUNT(CASE WHEN park_type IS NOT NULL THEN 1 END) as locations_with_type
 FROM poi_locations;
@@ -321,7 +321,7 @@ FROM poi_locations;
 ### Data Completeness Analysis
 ```sql
 -- Check for missing essential data
-SELECT 
+SELECT
   COUNT(*) as total_records,
   COUNT(CASE WHEN name IS NULL OR name = '' THEN 1 END) as missing_names,
   COUNT(CASE WHEN lat IS NULL OR lng IS NULL THEN 1 END) as missing_coordinates,
@@ -335,15 +335,15 @@ FROM poi_locations;
 -- Find potential duplicate locations (within 100 meters)
 SELECT p1.id, p1.name, p2.id, p2.name,
        (3959 * acos(
-         cos(radians(p1.lat)) * cos(radians(p2.lat)) * 
-         cos(radians(p2.lng) - radians(p1.lng)) + 
+         cos(radians(p1.lat)) * cos(radians(p2.lat)) *
+         cos(radians(p2.lng) - radians(p1.lng)) +
          sin(radians(p1.lat)) * sin(radians(p2.lat))
        )) * 1609.34 as distance_meters
 FROM poi_locations p1
 JOIN poi_locations p2 ON p1.id < p2.id
 WHERE (3959 * acos(
-         cos(radians(p1.lat)) * cos(radians(p2.lat)) * 
-         cos(radians(p2.lng) - radians(p1.lng)) + 
+         cos(radians(p1.lat)) * cos(radians(p2.lat)) *
+         cos(radians(p2.lng) - radians(p1.lng)) +
          sin(radians(p1.lat)) * sin(radians(p2.lat))
        )) * 1609.34 < 100
 ORDER BY distance_meters;
@@ -357,7 +357,7 @@ ORDER BY distance_meters;
 CREATE INDEX CONCURRENTLY idx_poi_lat_lng_btree ON poi_locations (lat, lng);
 
 -- Composite index for common query patterns
-CREATE INDEX CONCURRENTLY idx_poi_type_rank ON poi_locations (park_type, place_rank) 
+CREATE INDEX CONCURRENTLY idx_poi_type_rank ON poi_locations (park_type, place_rank)
 WHERE park_type IS NOT NULL;
 
 -- Partial index for active POIs only
@@ -368,7 +368,7 @@ WHERE park_type IS NOT NULL;
 ### Query Performance
 ```sql
 -- Monitor query performance
-EXPLAIN (ANALYZE, BUFFERS) 
+EXPLAIN (ANALYZE, BUFFERS)
 SELECT id, name, lat, lng, park_type,
        (3959 * acos(...)) as distance_miles
 FROM poi_locations
@@ -386,11 +386,11 @@ ANALYZE poi_locations;
 ANALYZE user_feedback;
 
 -- Check database size and growth
-SELECT 
+SELECT
   schemaname,
   tablename,
   pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables 
+FROM pg_tables
 WHERE schemaname NOT IN ('information_schema', 'pg_catalog')
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 ```
@@ -414,8 +414,8 @@ cp .env.example .env
 # Edit .env with Neon development branch URL
 
 # 2. Verify database connection
-node -e "const { Pool } = require('pg'); 
-         const pool = new Pool({connectionString: process.env.DATABASE_URL}); 
+node -e "const { Pool } = require('pg');
+         const pool = new Pool({connectionString: process.env.DATABASE_URL});
          pool.query('SELECT COUNT(*) FROM poi_locations').then(console.log);"
 
 # 3. Run data validation

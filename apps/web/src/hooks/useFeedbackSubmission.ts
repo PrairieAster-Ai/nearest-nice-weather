@@ -14,7 +14,7 @@ export const useFeedbackSubmission = (options?: UseFeedbackSubmissionOptions) =>
   return useMutation({
     mutationFn: async (feedback: FeedbackFormData): Promise<FeedbackSubmissionResponse> => {
       const startTime = Date.now()
-      
+
       try {
         // Track the feedback submission attempt
         monitoring.captureUserAction('feedback_submission_started', {
@@ -25,7 +25,7 @@ export const useFeedbackSubmission = (options?: UseFeedbackSubmissionOptions) =>
 
         // Submit feedback to API
         const response = await weatherApi.submitFeedback(feedback)
-        
+
         // Track successful submission
         monitoring.captureUserAction('feedback_submission_completed', {
           category: feedback.category,
@@ -42,21 +42,21 @@ export const useFeedbackSubmission = (options?: UseFeedbackSubmissionOptions) =>
           rating: feedback.rating,
           duration: Date.now() - startTime,
         })
-        
+
         throw error
       }
     },
     onSuccess: (data) => {
       // Invalidate any feedback-related queries if they exist
       queryClient.invalidateQueries({ queryKey: ['feedback'] })
-      
+
       options?.onSuccess?.(data)
     },
     onError: (error) => {
       monitoring.captureError(error as Error, {
         context: 'feedback_submission_handler',
       })
-      
+
       options?.onError?.(error as Error)
     },
     retry: (failureCount, error) => {
@@ -67,7 +67,7 @@ export const useFeedbackSubmission = (options?: UseFeedbackSubmissionOptions) =>
           return false
         }
       }
-      
+
       // Retry up to 2 times for server errors
       return failureCount < 2
     },

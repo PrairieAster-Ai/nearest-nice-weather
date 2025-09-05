@@ -2,8 +2,8 @@ import { Box, Typography } from '@mui/material'
 
 export function UnifiedStickyFooter() {
   return (
-    <Box 
-      component="footer" 
+    <Box
+      component="footer"
       sx={{
         position: 'fixed',
         bottom: 0,
@@ -18,7 +18,7 @@ export function UnifiedStickyFooter() {
         padding: 0,
       }}
     >
-      <Box sx={{ 
+      <Box sx={{
         height: { xs: 'max(5.6vh, 42px)', sm: 'max(6vh, 50px)', md: 'max(5vh, 45px)' }, // iPhone reduced by 30%
         minHeight: { xs: '32px', sm: '45px', md: '45px' }, // iPhone min reduced by 30%
         maxHeight: { xs: '56px', sm: '80px', md: '80px' }, // iPhone max reduced by 30%
@@ -30,45 +30,45 @@ export function UnifiedStickyFooter() {
         margin: 0
       }}>
         {/* Tight Brand Layout - Purple Aster fills footer height, pinned to left */}
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
           height: '100%',
           gap: 0.5, // Minimal gap between aster and text
           pl: 1, // Small padding from left edge only
           pr: 0 // No right padding to stay left-aligned
         }}>
-          
+
           {/* Purple Aster - Full height, touching top/bottom */}
-          <Box sx={{ 
+          <Box sx={{
             height: '100%',
             display: 'flex',
             alignItems: 'center',
             flexShrink: 0
           }}>
-            <img 
-              src="/aster-official.svg" 
-              alt="Nearest Nice Weather" 
-              style={{ 
+            <img
+              src="/aster-official.svg"
+              alt="Nearest Nice Weather"
+              style={{
                 height: 'calc(100% - 4px)', // Nearly full height with 2px margin top/bottom
                 width: 'auto', // Maintain aspect ratio
                 maxWidth: '60px' // Reasonable max width
               }}
             />
           </Box>
-          
+
           {/* Text Block - Scales with footer, no flex-grow to avoid centering */}
-          <Box sx={{ 
+          <Box sx={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             minWidth: 0 // Allow text to shrink
           }}>
-            <Typography sx={{ 
-              fontWeight: 'bold', 
-              color: '#7563A8', 
+            <Typography sx={{
+              fontWeight: 'bold',
+              color: '#7563A8',
               lineHeight: 1.1,
-              fontSize: { 
+              fontSize: {
                 xs: 'clamp(0.63rem, 2.1vw, 0.77rem)', // iPhone reduced by 30%
                 sm: 'clamp(1rem, 2.5vw, 1.2rem)',
                 md: 'clamp(1.1rem, 2vw, 1.3rem)'
@@ -76,10 +76,10 @@ export function UnifiedStickyFooter() {
             }}>
               Nearest Nice Weather
             </Typography>
-            <Typography sx={{ 
-              color: '#7fa4cf', 
+            <Typography sx={{
+              color: '#7fa4cf',
               lineHeight: 1,
-              fontSize: { 
+              fontSize: {
                 xs: 'clamp(0.49rem, 1.4vw, 0.56rem)', // iPhone reduced by 30%
                 sm: 'clamp(0.75rem, 1.8vw, 0.85rem)',
                 md: 'clamp(0.8rem, 1.5vw, 0.9rem)'

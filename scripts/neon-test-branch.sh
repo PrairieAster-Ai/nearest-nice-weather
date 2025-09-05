@@ -19,13 +19,13 @@ BRANCH_NAME="${BRANCH_PREFIX}-${RUN_ID}"
 # Function to create database branch
 create_branch() {
     echo "🔄 Creating database branch: $BRANCH_NAME"
-    
+
     if [[ -z "$NEON_API_KEY" ]]; then
         echo "⚠️  NEON_API_KEY not set, skipping database branch creation"
         echo "Using existing DATABASE_URL for testing"
         return 0
     fi
-    
+
     # Create branch via Neon API
     response=$(curl -s -X POST \
         "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches" \
@@ -37,21 +37,21 @@ create_branch() {
                 \"parent_id\": \"$PARENT_BRANCH\"
             }
         }")
-    
+
     if echo "$response" | grep -q '"id"'; then
         echo "✅ Database branch created successfully"
-        
+
         # Extract connection string
         BRANCH_CONNECTION=$(echo "$response" | jq -r '.connection_uri')
-        
+
         # Export for use in tests
         export TEST_DATABASE_URL="$BRANCH_CONNECTION"
         echo "TEST_DATABASE_URL=$BRANCH_CONNECTION" >> $GITHUB_ENV
-        
+
         # Save branch info for cleanup
         echo "$BRANCH_NAME" > .neon-branch-name
         echo "$NEON_PROJECT_ID" > .neon-project-id
-        
+
         echo "📋 Branch connection available at: $BRANCH_CONNECTION"
     else
         echo "❌ Failed to create database branch"
@@ -63,17 +63,17 @@ create_branch() {
 # Function to delete database branch
 delete_branch() {
     echo "🧹 Cleaning up database branch: $BRANCH_NAME"
-    
+
     if [[ -z "$NEON_API_KEY" ]]; then
         echo "⚠️  NEON_API_KEY not set, skipping branch cleanup"
         return 0
     fi
-    
+
     # Delete branch via Neon API
     response=$(curl -s -X DELETE \
         "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches/$BRANCH_NAME" \
         -H "Authorization: Bearer $NEON_API_KEY")
-    
+
     if [[ $? -eq 0 ]]; then
         echo "✅ Database branch deleted successfully"
         rm -f .neon-branch-name .neon-project-id
@@ -86,10 +86,10 @@ delete_branch() {
 # Function to run tests with branch
 run_tests_with_branch() {
     echo "🧪 Running tests with database branch: $BRANCH_NAME"
-    
+
     # Wait for branch to be ready
     sleep 5
-    
+
     # Run database tests
     if [[ -n "$TEST_DATABASE_URL" ]]; then
         echo "🔍 Testing database connectivity..."
@@ -98,7 +98,7 @@ run_tests_with_branch() {
         echo "🔍 Running tests with existing database..."
         npm run test:database
     fi
-    
+
     # Run other tests
     echo "🔍 Running environment tests..."
     npm run test:environment

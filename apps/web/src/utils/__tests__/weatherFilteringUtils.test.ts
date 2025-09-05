@@ -2,25 +2,25 @@
  * ========================================================================
  * WEATHER FILTERING UTILITIES TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for weather filtering algorithms
  * 🔗 UTILITIES: weatherFilteringUtils.ts - Core weather and geographic filtering logic
  * 📊 COVERAGE: Weather filtering, distance calculations, percentile algorithms, threshold calculations
  * ⚙️ FUNCTIONALITY: Geographic and weather-based filtering for outdoor recreation
  * 🎯 BUSINESS_IMPACT: Ensures accurate weather filtering for optimal outdoor activity discovery
- * 
+ *
  * BUSINESS CONTEXT: Weather filtering for Minnesota outdoor enthusiasts
  * - Validates percentile-based weather threshold calculations
  * - Tests distance-based filtering for geographic constraints
  * - Ensures intelligent location sorting and filtering algorithms
  * - Verifies weather classification accuracy for outdoor activities
- * 
+ *
  * TECHNICAL COVERAGE: Pure function testing for weather and geographic algorithms
  * - Haversine formula accuracy validation
  * - Percentile calculation and threshold determination
  * - Weather filtering logic for temperature, precipitation, wind
  * - Distance sorting and geographic validation
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -44,9 +44,9 @@ import {
   EARTH_RADIUS_MILES,
   WEATHER_PERCENTILES
 } from '../weatherFilteringUtils'
-import type { 
-  Location, 
-  WeatherFilters, 
+import type {
+  Location,
+  WeatherFilters,
   Coordinates,
   WeatherThresholds,
   PrecipitationThresholds,
@@ -126,12 +126,12 @@ describe('Weather Filtering Utilities', () => {
       expect(WEATHER_PERCENTILES.HOT_THRESHOLD).toBe(0.6)
       expect(WEATHER_PERCENTILES.MILD_MIN).toBe(0.1)
       expect(WEATHER_PERCENTILES.MILD_MAX).toBe(0.9)
-      
+
       expect(WEATHER_PERCENTILES.DRY_THRESHOLD).toBe(0.6)
       expect(WEATHER_PERCENTILES.LIGHT_MIN).toBe(0.2)
       expect(WEATHER_PERCENTILES.LIGHT_MAX).toBe(0.7)
       expect(WEATHER_PERCENTILES.HEAVY_THRESHOLD).toBe(0.7)
-      
+
       expect(WEATHER_PERCENTILES.CALM_THRESHOLD).toBe(0.5)
       expect(WEATHER_PERCENTILES.BREEZY_MIN).toBe(0.3)
       expect(WEATHER_PERCENTILES.BREEZY_MAX).toBe(0.7)
@@ -142,7 +142,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Distance Calculations (Haversine Formula)', () => {
     it('should calculate distance between Minneapolis and Como Park', () => {
       const distance = calculateDistance(MINNEAPOLIS_COORDS, [44.9778, -93.1453])
-      
+
       // Como Park is approximately 4-5 miles from downtown Minneapolis
       expect(distance).toBeGreaterThan(3)
       expect(distance).toBeLessThan(6)
@@ -150,7 +150,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should calculate distance between Minneapolis and Duluth', () => {
       const distance = calculateDistance(MINNEAPOLIS_COORDS, [46.7867, -92.1005])
-      
+
       // Duluth is approximately 135 miles from Minneapolis
       expect(distance).toBeGreaterThan(130)
       expect(distance).toBeLessThan(140)
@@ -165,7 +165,7 @@ describe('Weather Filtering Utilities', () => {
       const point1: Coordinates = [-45.123, -93.456]
       const point2: Coordinates = [-45.124, -93.457]
       const distance = calculateDistance(point1, point2)
-      
+
       expect(distance).toBeGreaterThan(0)
       expect(distance).toBeLessThan(1) // Very close points
     })
@@ -173,10 +173,10 @@ describe('Weather Filtering Utilities', () => {
     it('should be symmetric (A to B = B to A)', () => {
       const pointA: Coordinates = [44.9537, -93.0900]
       const pointB: Coordinates = [46.7867, -92.1005]
-      
+
       const distanceAB = calculateDistance(pointA, pointB)
       const distanceBA = calculateDistance(pointB, pointA)
-      
+
       expect(distanceAB).toBeCloseTo(distanceBA, 10)
     })
   })
@@ -184,7 +184,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Temperature Threshold Calculations', () => {
     it('should calculate correct temperature thresholds', () => {
       const thresholds = calculateTemperatureThresholds(mockMNLocations)
-      
+
       // With 5 locations sorted: [65, 68, 72, 75, 78]
       // 40th percentile (index 2): 72°F
       // 60th percentile (index 3): 75°F
@@ -198,7 +198,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should handle empty location array', () => {
       const thresholds = calculateTemperatureThresholds([])
-      
+
       expect(thresholds.cold).toBe(0)
       expect(thresholds.hot).toBe(100)
       expect(thresholds.mildMin).toBe(0)
@@ -208,7 +208,7 @@ describe('Weather Filtering Utilities', () => {
     it('should handle single location', () => {
       const singleLocation = [mockMNLocations[0]]
       const thresholds = calculateTemperatureThresholds(singleLocation)
-      
+
       // All thresholds should be the same temperature
       expect(thresholds.cold).toBe(72)
       expect(thresholds.hot).toBe(72)
@@ -220,7 +220,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Precipitation Threshold Calculations', () => {
     it('should calculate correct precipitation thresholds', () => {
       const thresholds = calculatePrecipitationThresholds(mockMNLocations)
-      
+
       // With 5 locations sorted: [0, 0, 0.1, 0.2, 0.3]
       // 60th percentile (index 3): 0.2
       // 20th percentile (index 1): 0
@@ -233,7 +233,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should handle empty location array', () => {
       const thresholds = calculatePrecipitationThresholds([])
-      
+
       expect(thresholds.dry).toBe(0)
       expect(thresholds.lightMin).toBe(0)
       expect(thresholds.lightMax).toBe(0)
@@ -244,7 +244,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Wind Threshold Calculations', () => {
     it('should calculate correct wind thresholds', () => {
       const thresholds = calculateWindThresholds(mockMNLocations)
-      
+
       // With 5 locations sorted: [2, 3, 5, 8, 12]
       // 50th percentile (index 2): 5 mph
       // 30th percentile (index 1): 3 mph
@@ -257,7 +257,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should handle empty location array', () => {
       const thresholds = calculateWindThresholds([])
-      
+
       expect(thresholds.calm).toBe(0)
       expect(thresholds.breezyMin).toBe(0)
       expect(thresholds.breezyMax).toBe(0)
@@ -274,7 +274,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter cold temperatures correctly', () => {
       const filtered = applyTemperatureFilter(mockMNLocations, tempThresholds, 'cold')
-      
+
       // Should include locations with temp <= 72°F: [65, 68, 72]
       expect(filtered).toHaveLength(3)
       filtered.forEach(loc => {
@@ -284,7 +284,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter hot temperatures correctly', () => {
       const filtered = applyTemperatureFilter(mockMNLocations, tempThresholds, 'hot')
-      
+
       // Should include locations with temp >= 75°F: [75, 78]
       expect(filtered).toHaveLength(2)
       filtered.forEach(loc => {
@@ -294,7 +294,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter mild temperatures correctly', () => {
       const filtered = applyTemperatureFilter(mockMNLocations, tempThresholds, 'mild')
-      
+
       // Should include locations with temp between 65°F and 78°F: all locations
       expect(filtered).toHaveLength(5)
       filtered.forEach(loc => {
@@ -323,7 +323,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter dry conditions correctly', () => {
       const filtered = applyPrecipitationFilter(mockMNLocations, precipThresholds, 'none')
-      
+
       // Should include locations with precip <= 0.2: [0, 0, 0.1, 0.2]
       expect(filtered).toHaveLength(4)
       filtered.forEach(loc => {
@@ -333,7 +333,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter light precipitation correctly', () => {
       const filtered = applyPrecipitationFilter(mockMNLocations, precipThresholds, 'light')
-      
+
       // Should include locations with precip between 0 and 0.2
       filtered.forEach(loc => {
         expect(loc.precipitation).toBeGreaterThanOrEqual(0)
@@ -343,7 +343,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter heavy precipitation correctly', () => {
       const filtered = applyPrecipitationFilter(mockMNLocations, precipThresholds, 'heavy')
-      
+
       // Should include locations with precip >= 0.2: [0.2, 0.3]
       filtered.forEach(loc => {
         expect(loc.precipitation).toBeGreaterThanOrEqual(0.2)
@@ -365,7 +365,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter calm conditions correctly', () => {
       const filtered = applyWindFilter(mockMNLocations, windThresholds, 'calm')
-      
+
       // Should include locations with wind <= 5 mph: [2, 3, 5]
       expect(filtered).toHaveLength(3)
       filtered.forEach(loc => {
@@ -375,7 +375,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter breezy conditions correctly', () => {
       const filtered = applyWindFilter(mockMNLocations, windThresholds, 'breezy')
-      
+
       // Should include locations with wind between 3 and 8 mph
       filtered.forEach(loc => {
         expect(loc.windSpeed).toBeGreaterThanOrEqual(3)
@@ -385,7 +385,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should filter windy conditions correctly', () => {
       const filtered = applyWindFilter(mockMNLocations, windThresholds, 'windy')
-      
+
       // Should include locations with wind >= 8 mph: [8, 12]
       filtered.forEach(loc => {
         expect(loc.windSpeed).toBeGreaterThanOrEqual(8)
@@ -401,7 +401,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Distance Filtering', () => {
     it('should filter locations by distance correctly', () => {
       const filtered = filterByDistance(mockMNLocations, MINNEAPOLIS_COORDS, 10)
-      
+
       // Should include only locations within 10 miles of Minneapolis
       filtered.forEach(loc => {
         const distance = calculateDistance(MINNEAPOLIS_COORDS, [loc.lat, loc.lng])
@@ -428,7 +428,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Distance Sorting', () => {
     it('should sort locations by distance from user location', () => {
       const sorted = sortByDistance(mockMNLocations, MINNEAPOLIS_COORDS)
-      
+
       // Verify sorted order (distances should be non-decreasing)
       for (let i = 1; i < sorted.length; i++) {
         const distancePrev = calculateDistance(MINNEAPOLIS_COORDS, [sorted[i-1].lat, sorted[i-1].lng])
@@ -440,7 +440,7 @@ describe('Weather Filtering Utilities', () => {
     it('should not modify original array', () => {
       const original = [...mockMNLocations]
       const sorted = sortByDistance(mockMNLocations, MINNEAPOLIS_COORDS)
-      
+
       expect(mockMNLocations).toEqual(original)
       expect(sorted).not.toBe(mockMNLocations)
     })
@@ -464,7 +464,7 @@ describe('Weather Filtering Utilities', () => {
         precipitation: 'none',
         wind: 'calm'
       }
-      
+
       const filtered = applyWeatherFilters(
         mockMNLocations,
         mockMNLocations,
@@ -472,7 +472,7 @@ describe('Weather Filtering Utilities', () => {
         MINNEAPOLIS_COORDS,
         50
       )
-      
+
       // Should apply all filters in sequence
       expect(filtered.length).toBeGreaterThan(0)
       expect(filtered.length).toBeLessThanOrEqual(5)
@@ -480,19 +480,19 @@ describe('Weather Filtering Utilities', () => {
 
     it('should handle empty filters', () => {
       const filters: WeatherFilters = {}
-      
+
       const filtered = applyWeatherFilters(
         mockMNLocations,
         mockMNLocations,
         filters
       )
-      
+
       expect(filtered).toHaveLength(5)
     })
 
     it('should apply distance filtering when provided', () => {
       const filters: WeatherFilters = {}
-      
+
       const filtered = applyWeatherFilters(
         mockMNLocations,
         mockMNLocations,
@@ -500,7 +500,7 @@ describe('Weather Filtering Utilities', () => {
         MINNEAPOLIS_COORDS,
         10
       )
-      
+
       // All results should be within 10 miles
       filtered.forEach(loc => {
         const distance = calculateDistance(MINNEAPOLIS_COORDS, [loc.lat, loc.lng])
@@ -510,7 +510,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should handle empty location array', () => {
       const filters: WeatherFilters = { temperature: 'hot' }
-      
+
       const filtered = applyWeatherFilters([], [], filters)
       expect(filtered).toEqual([])
     })
@@ -519,7 +519,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Filter Result Counts', () => {
     it('should calculate filter counts for UI badges', () => {
       const counts = calculateFilterResultCounts(mockMNLocations)
-      
+
       expect(counts).toHaveProperty('temperature_cold')
       expect(counts).toHaveProperty('temperature_mild')
       expect(counts).toHaveProperty('temperature_hot')
@@ -529,7 +529,7 @@ describe('Weather Filtering Utilities', () => {
       expect(counts).toHaveProperty('wind_calm')
       expect(counts).toHaveProperty('wind_breezy')
       expect(counts).toHaveProperty('wind_windy')
-      
+
       // All counts should equal the number of visible POIs
       Object.values(counts).forEach(count => {
         expect(count).toBe(5)
@@ -577,10 +577,10 @@ describe('Weather Filtering Utilities', () => {
     it('should validate coordinates within Minnesota', () => {
       // Minneapolis
       expect(isWithinMinnesotaBounds([44.9537, -93.0900])).toBe(true)
-      
+
       // Duluth
       expect(isWithinMinnesotaBounds([46.7867, -92.1005])).toBe(true)
-      
+
       // Boundary Waters (northern Minnesota)
       expect(isWithinMinnesotaBounds([48.0, -91.5])).toBe(true)
     })
@@ -588,10 +588,10 @@ describe('Weather Filtering Utilities', () => {
     it('should reject coordinates outside Minnesota', () => {
       // Chicago (too far south and east)
       expect(isWithinMinnesotaBounds([41.8781, -87.6298])).toBe(false)
-      
+
       // Denver (too far south and west)
       expect(isWithinMinnesotaBounds([39.7392, -104.9903])).toBe(false)
-      
+
       // Winnipeg (too far north)
       expect(isWithinMinnesotaBounds([49.8951, -97.1384])).toBe(false)
     })
@@ -605,9 +605,9 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Closest Location Detection', () => {
     it('should find the closest location to user', () => {
       const closest = getClosestLocation(mockMNLocations, MINNEAPOLIS_COORDS)
-      
+
       expect(closest).toBeTruthy()
-      
+
       // Should be one of the Minneapolis-area locations
       const distance = calculateDistance(MINNEAPOLIS_COORDS, [closest!.lat, closest!.lng])
       expect(distance).toBeLessThan(50) // Within 50 miles of Minneapolis
@@ -628,7 +628,7 @@ describe('Weather Filtering Utilities', () => {
   describe('✅ Location Statistics', () => {
     it('should calculate location distribution statistics', () => {
       const stats = calculateLocationStats(mockMNLocations, MINNEAPOLIS_COORDS)
-      
+
       expect(stats.count).toBe(5)
       expect(stats.averageDistance).toBeGreaterThan(0)
       expect(stats.medianDistance).toBeGreaterThan(0)
@@ -640,7 +640,7 @@ describe('Weather Filtering Utilities', () => {
 
     it('should handle empty location array', () => {
       const stats = calculateLocationStats([], MINNEAPOLIS_COORDS)
-      
+
       expect(stats.count).toBe(0)
       expect(stats.averageDistance).toBe(0)
       expect(stats.medianDistance).toBe(0)
@@ -651,7 +651,7 @@ describe('Weather Filtering Utilities', () => {
     it('should calculate median correctly for odd number of locations', () => {
       const oddLocations = mockMNLocations.slice(0, 3)
       const stats = calculateLocationStats(oddLocations, MINNEAPOLIS_COORDS)
-      
+
       expect(stats.count).toBe(3)
       expect(stats.medianDistance).toBeGreaterThan(0)
     })
@@ -659,7 +659,7 @@ describe('Weather Filtering Utilities', () => {
     it('should calculate median correctly for even number of locations', () => {
       const evenLocations = mockMNLocations.slice(0, 4)
       const stats = calculateLocationStats(evenLocations, MINNEAPOLIS_COORDS)
-      
+
       expect(stats.count).toBe(4)
       expect(stats.medianDistance).toBeGreaterThan(0)
     })
@@ -667,7 +667,7 @@ describe('Weather Filtering Utilities', () => {
     it('should handle single location', () => {
       const singleLocation = [mockMNLocations[0]]
       const stats = calculateLocationStats(singleLocation, MINNEAPOLIS_COORDS)
-      
+
       expect(stats.count).toBe(1)
       expect(stats.averageDistance).toEqual(stats.medianDistance)
       expect(stats.closestDistance).toEqual(stats.farthestDistance)
@@ -678,7 +678,7 @@ describe('Weather Filtering Utilities', () => {
     it('should handle very small distances correctly', () => {
       const point1: Coordinates = [44.9537, -93.0900]
       const point2: Coordinates = [44.9537, -93.0901] // Very close
-      
+
       const distance = calculateDistance(point1, point2)
       expect(distance).toBeGreaterThan(0)
       expect(distance).toBeLessThan(0.1)
@@ -688,7 +688,7 @@ describe('Weather Filtering Utilities', () => {
       // Antipodal points (maximum distance on Earth)
       const north: Coordinates = [45, 0]
       const south: Coordinates = [-45, 180]
-      
+
       const distance = calculateDistance(north, south)
       // Maximum distance should be reasonable (approximately half Earth circumference)
       expect(distance).toBeGreaterThan(12000) // At least 12,000 miles
@@ -707,18 +707,18 @@ describe('Weather Filtering Utilities', () => {
         condition: 'blizzard',
         description: 'Extreme conditions'
       }
-      
+
       const locations = [extremeLocation, ...mockMNLocations]
       const tempThresholds = calculateTemperatureThresholds(locations)
       const windThresholds = calculateWindThresholds(locations)
-      
+
       // With 6 locations sorted: [-40, 65, 68, 72, 75, 78]
       // 40th percentile (index 2): 68°F
       // Wind sorted: [2, 3, 5, 8, 12, 100]
       // 70th percentile (index 4): 12 mph (not 100, that would be index 5)
       expect(tempThresholds.cold).toBe(68) // 40th percentile
       expect(windThresholds.windy).toBe(12) // 70th percentile
-      
+
       // But the extreme values should influence the distribution
       expect(tempThresholds.mildMin).toBe(-40) // 10th percentile includes extreme cold
       expect(windThresholds.breezyMax).toBe(12) // Max breezy includes higher winds
@@ -736,11 +736,11 @@ describe('Weather Filtering Utilities', () => {
         condition: 'sunny',
         description: 'Identical weather'
       }))
-      
+
       const tempThresholds = calculateTemperatureThresholds(identicalLocations)
       const precipThresholds = calculatePrecipitationThresholds(identicalLocations)
       const windThresholds = calculateWindThresholds(identicalLocations)
-      
+
       // All thresholds should be the same value
       expect(tempThresholds.cold).toBe(70)
       expect(tempThresholds.hot).toBe(70)
@@ -758,10 +758,10 @@ describe('Weather Filtering Utilities', () => {
         [89.999, 179.999], // Near boundaries
         [-89.999, -179.999]
       ]
-      
+
       boundaryCoords.forEach(coords => {
         expect(isValidCoordinates(coords)).toBe(true)
-        
+
         const distance = calculateDistance(MINNEAPOLIS_COORDS, coords)
         expect(distance).toBeGreaterThanOrEqual(0)
         expect(isFinite(distance)).toBe(true)
@@ -781,14 +781,14 @@ describe('Weather Filtering Utilities', () => {
  * ✅ Coordinate validation and regional bounds checking
  * ✅ Closest location detection and location statistics
  * ✅ Edge cases and error handling scenarios
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Weather filtering algorithm validation for outdoor recreation
  * ✅ Distance-based POI filtering for geographic constraints
  * ✅ Percentile-based weather classification for relative filtering
  * ✅ Minnesota-specific geographic validation and bounds checking
  * ✅ Location statistics and analysis for activity planning
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ Pure function testing for reliable algorithms
  * ✅ Geographic calculation accuracy validation

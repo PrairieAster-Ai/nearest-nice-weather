@@ -3,7 +3,7 @@
 /**
  * Claude Context API
  * Provides immediate access to high-value contextualizing data
- * 
+ *
  * PURPOSE: Enable Claude AI to make informed decisions instantly
  * PRIORITY: Maximum data accessibility for collaboration success
  */
@@ -21,7 +21,7 @@ class ClaudeContextAPI {
     this.dataDir = '/tmp/claude-intelligence';
     this.contextFile = path.join(this.dataDir, 'master-context.json');
     this.server = null;
-    
+
     this.endpoints = {
       '/context/full': this.getFullContext.bind(this),
       '/context/business': this.getBusinessContext.bind(this),
@@ -39,22 +39,22 @@ class ClaudeContextAPI {
       '/recommendations': this.getRecommendations.bind(this),
       '/alerts': this.getAlerts.bind(this)
     };
-    
+
     this.init();
   }
 
   async init() {
     console.log('🌐 Claude Context API Starting...');
     console.log('🎯 PURPOSE: Maximum data accessibility for collaboration success');
-    
+
     // Ensure data directory exists
     if (!fs.existsSync(this.dataDir)) {
       fs.mkdirSync(this.dataDir, { recursive: true });
     }
-    
+
     // Start HTTP server
     this.startServer();
-    
+
     console.log(`✅ Claude Context API Active on http://localhost:${this.port}`);
     console.log('📊 Available endpoints:');
     Object.keys(this.endpoints).forEach(endpoint => {
@@ -68,16 +68,16 @@ class ClaudeContextAPI {
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      
+
       if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
         return;
       }
-      
+
       const url = new URL(req.url, `http://localhost:${this.port}`);
       const endpoint = url.pathname;
-      
+
       if (this.endpoints[endpoint]) {
         try {
           const data = await this.endpoints[endpoint](url.searchParams);
@@ -93,7 +93,7 @@ class ClaudeContextAPI {
         res.end(JSON.stringify({ error: 'Endpoint not found', availableEndpoints: Object.keys(this.endpoints) }));
       }
     });
-    
+
     this.server.listen(this.port, () => {
       console.log(`🚀 Claude Context API listening on port ${this.port}`);
     });
@@ -169,13 +169,13 @@ class ClaudeContextAPI {
   async getDecisionContext(params) {
     const decisionDataFile = path.join(this.dataDir, 'decision-data.json');
     let decisionData = {};
-    
+
     if (fs.existsSync(decisionDataFile)) {
       decisionData = JSON.parse(fs.readFileSync(decisionDataFile, 'utf8'));
     }
-    
+
     const context = await this.loadContext();
-    
+
     return {
       timestamp: new Date().toISOString(),
       decisionHistory: context.decisionHistory || [],
@@ -223,7 +223,7 @@ class ClaudeContextAPI {
       resources: await this.getResourceStatus(),
       alerts: await this.getCurrentAlerts()
     };
-    
+
     return {
       ...realtimeData,
       businessImpact: this.calculateRealtimeBusinessImpact(realtimeData),
@@ -243,7 +243,7 @@ class ClaudeContextAPI {
       criticalActions: this.generateCriticalActions(context),
       nextSteps: this.generateNextSteps(context)
     };
-    
+
     return summary;
   }
 
@@ -256,16 +256,16 @@ class ClaudeContextAPI {
       dataQuality: await this.assessDataQuality(),
       recommendations: []
     };
-    
+
     // Assess overall health
     const serviceStatuses = Object.values(health.services);
     const unhealthyServices = serviceStatuses.filter(s => s.status !== 'healthy').length;
-    
+
     if (unhealthyServices > 0) {
       health.status = unhealthyServices > 2 ? 'unhealthy' : 'degraded';
       health.recommendations.push('Check service status and restart if needed');
     }
-    
+
     return health;
   }
 
@@ -305,7 +305,7 @@ class ClaudeContextAPI {
       technicalCritical: this.generateTechnicalCriticalRecommendations(context),
       priorityMatrix: this.generatePriorityMatrix(context)
     };
-    
+
     return recommendations;
   }
 
@@ -319,7 +319,7 @@ class ClaudeContextAPI {
       businessImpact: this.assessAlertBusinessImpact(context),
       recommendations: this.generateAlertRecommendations(context)
     };
-    
+
     return alerts;
   }
 
@@ -332,7 +332,7 @@ class ClaudeContextAPI {
     } catch (error) {
       console.error('Error loading context:', error.message);
     }
-    
+
     return {
       timestamp: new Date().toISOString(),
       businessGoals: { primary: "minimize_productivity_degradation" },
@@ -348,24 +348,24 @@ class ClaudeContextAPI {
 
   async getServiceHealth() {
     const services = {};
-    
+
     try {
       // Check API server
       const apiResponse = await this.checkService('http://localhost:4000/api/health');
       services.api = apiResponse;
-      
+
       // Check frontend
       const frontendResponse = await this.checkService('http://localhost:3001/');
       services.frontend = frontendResponse;
-      
+
       // Check PM2 processes
       const pm2Status = await this.checkPM2Status();
       services.pm2 = pm2Status;
-      
+
     } catch (error) {
       console.error('Error checking service health:', error.message);
     }
-    
+
     return services;
   }
 
@@ -392,7 +392,7 @@ class ClaudeContextAPI {
           resolve({ status: 'not_running', processes: [] });
           return;
         }
-        
+
         try {
           const processes = JSON.parse(stdout);
           resolve({

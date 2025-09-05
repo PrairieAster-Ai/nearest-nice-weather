@@ -6,7 +6,7 @@ describe('Deployment Configuration Tests', () => {
   describe('vercel.json Syntax Validation', () => {
     it('should have valid JSON syntax in root vercel.json', () => {
       const vercelConfigPath = join(process.cwd(), '../../vercel.json')
-      
+
       expect(() => {
         const content = readFileSync(vercelConfigPath, 'utf8')
         JSON.parse(content)
@@ -15,7 +15,7 @@ describe('Deployment Configuration Tests', () => {
 
     it('should have valid JSON syntax in apps/web/vercel.json', () => {
       const vercelConfigPath = join(process.cwd(), '../web/vercel.json')
-      
+
       expect(() => {
         const content = readFileSync(vercelConfigPath, 'utf8')
         JSON.parse(content)
@@ -24,7 +24,7 @@ describe('Deployment Configuration Tests', () => {
 
     it('should have valid JSON syntax in apps/api/vercel.json', () => {
       const vercelConfigPath = join(process.cwd(), 'vercel.json')
-      
+
       expect(() => {
         const content = readFileSync(vercelConfigPath, 'utf8')
         JSON.parse(content)
@@ -59,17 +59,17 @@ describe('Deployment Configuration Tests', () => {
     it('should have proper rewrites configuration', () => {
       expect(config.rewrites).toBeInstanceOf(Array)
       expect(config.rewrites.length).toBeGreaterThan(0)
-      
+
       // Check for health check rewrite
       const healthRewrite = config.rewrites.find(r => r.source === '/health.json')
       expect(healthRewrite).toBeDefined()
       expect(healthRewrite.destination).toBe('/health.json')
-      
+
       // Check for API rewrite
       const apiRewrite = config.rewrites.find(r => r.source === '/api/(.*)')
       expect(apiRewrite).toBeDefined()
       expect(apiRewrite.destination).toBe('/api/$1')
-      
+
       // Check for catch-all rewrite
       const catchAllRewrite = config.rewrites.find(r => r.source === '/(.*)')
       expect(catchAllRewrite).toBeDefined()
@@ -79,11 +79,11 @@ describe('Deployment Configuration Tests', () => {
     it('should have proper security headers', () => {
       expect(config.headers).toBeInstanceOf(Array)
       expect(config.headers.length).toBeGreaterThan(0)
-      
+
       const mainHeaders = config.headers.find(h => h.source === '/(.*)')
       expect(mainHeaders).toBeDefined()
       expect(mainHeaders.headers).toBeInstanceOf(Array)
-      
+
       const headerKeys = mainHeaders.headers.map(h => h.key)
       expect(headerKeys).toContain('X-Content-Type-Options')
       expect(headerKeys).toContain('X-Frame-Options')
@@ -95,7 +95,7 @@ describe('Deployment Configuration Tests', () => {
     it('should have proper CSP configuration', () => {
       const mainHeaders = config.headers.find(h => h.source === '/(.*)')
       const cspHeader = mainHeaders.headers.find(h => h.key === 'Content-Security-Policy')
-      
+
       expect(cspHeader).toBeDefined()
       expect(cspHeader.value).toContain("default-src 'self'")
       expect(cspHeader.value).toContain("script-src 'self'")
@@ -108,7 +108,7 @@ describe('Deployment Configuration Tests', () => {
     it('should have proper regions configuration', () => {
       expect(config.regions).toBeInstanceOf(Array)
       expect(config.regions.length).toBeGreaterThan(0)
-      
+
       // Should include some US regions
       expect(config.regions).toContain('cle1') // Cleveland
       expect(config.regions).toContain('iad1') // Washington DC
@@ -127,7 +127,7 @@ describe('Deployment Configuration Tests', () => {
     it('should have functions configuration', () => {
       if (config.functions) {
         expect(config.functions).toBeInstanceOf(Object)
-        
+
         // Check for common function patterns
         const functionKeys = Object.keys(config.functions)
         functionKeys.forEach(key => {
@@ -141,7 +141,7 @@ describe('Deployment Configuration Tests', () => {
     it('should validate build command components', () => {
       const buildCommand = 'cd apps/web && node deployment/health-check.cjs && vite build'
       const commands = buildCommand.split(' && ')
-      
+
       expect(commands).toHaveLength(3)
       expect(commands[0]).toBe('cd apps/web')
       expect(commands[1]).toBe('node deployment/health-check.cjs')
@@ -150,7 +150,7 @@ describe('Deployment Configuration Tests', () => {
 
     it('should validate health check file exists', () => {
       const healthCheckPath = join(process.cwd(), '../web/deployment/health-check.cjs')
-      
+
       expect(() => {
         readFileSync(healthCheckPath, 'utf8')
       }).not.toThrow()
@@ -160,7 +160,7 @@ describe('Deployment Configuration Tests', () => {
   describe('Output Directory Validation', () => {
     it('should validate output directory path', () => {
       const outputDir = 'apps/web/dist'
-      
+
       expect(outputDir).toMatch(/^apps\/web\/dist$/)
       expect(outputDir).not.toContain('..')
       expect(outputDir).not.toContain('node_modules')
@@ -180,7 +180,7 @@ describe('Deployment Configuration Tests', () => {
         'angular',
         'static'
       ]
-      
+
       const framework = 'vite'
       expect(validFrameworks).toContain(framework)
     })
@@ -202,7 +202,7 @@ describe('Deployment Configuration Tests', () => {
           destination: '/index.html'
         }
       ]
-      
+
       rewrites.forEach(rewrite => {
         expect(rewrite).toHaveProperty('source')
         expect(rewrite).toHaveProperty('destination')
@@ -218,7 +218,7 @@ describe('Deployment Configuration Tests', () => {
         source: '/api/(.*)',
         destination: '/api/$1'
       }
-      
+
       expect(apiRewrite.source).toMatch(/^\/api\/\(.*\)$/)
       expect(apiRewrite.destination).toMatch(/^\/api\/\$1$/)
     })
@@ -244,7 +244,7 @@ describe('Deployment Configuration Tests', () => {
           value: 'strict-origin-when-cross-origin'
         }
       ]
-      
+
       securityHeaders.forEach(header => {
         expect(header).toHaveProperty('key')
         expect(header).toHaveProperty('value')
@@ -257,11 +257,11 @@ describe('Deployment Configuration Tests', () => {
 
     it('should validate CSP header syntax', () => {
       const cspValue = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'"
-      
+
       expect(cspValue).toContain("default-src 'self'")
       expect(cspValue).toMatch(/;\s*script-src\s+/)
       expect(cspValue).toMatch(/;\s*style-src\s+/)
-      
+
       // Should not contain dangerous directives
       expect(cspValue).not.toContain("'unsafe-inline' 'unsafe-eval'")
     })
@@ -275,9 +275,9 @@ describe('Deployment Configuration Tests', () => {
         'nrt1', 'sin1', 'syd1', 'hnd1', // Asia/Pacific regions
         'gru1', // South America
       ]
-      
+
       const configuredRegions = ['cle1', 'iad1']
-      
+
       configuredRegions.forEach(region => {
         expect(validRegions).toContain(region)
         expect(region).toMatch(/^[a-z]{3}1$/)
@@ -290,7 +290,7 @@ describe('Deployment Configuration Tests', () => {
       const vercelConfigPath = join(process.cwd(), '../../vercel.json')
       const content = readFileSync(vercelConfigPath, 'utf8')
       const config = JSON.parse(content)
-      
+
       // Check for schema reference
       expect(config).toHaveProperty('$schema')
       expect(config.$schema).toBe('https://openapi.vercel.sh/vercel.json')

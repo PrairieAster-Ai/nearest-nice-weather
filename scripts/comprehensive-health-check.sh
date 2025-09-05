@@ -77,12 +77,12 @@ update_report() {
   local status="$2"
   local details="$3"
   local score="$4"
-  
+
   # Update health score
   if [[ "$status" == "passed" ]]; then
     HEALTH_SCORE=$((HEALTH_SCORE + score))
   fi
-  
+
   # Update report JSON
   jq --arg name "$check_name" \
      --arg status "$status" \
@@ -101,7 +101,7 @@ echo -e "${PURPLE}🔍 Phase 1: API Health Validation${NC}"
 
 check_api_health() {
   echo -n "  Testing API health endpoint... "
-  
+
   if curl -sf --max-time $TIMEOUT "$API_URL/api/health" > /dev/null 2>&1; then
     echo -e "${GREEN}✅ PASSED${NC}"
     update_report "api_health" "passed" "API health endpoint responding" 15
@@ -114,7 +114,7 @@ check_api_health() {
 
 check_poi_api() {
   echo -n "  Testing POI API endpoint... "
-  
+
   local response=$(curl -sf --max-time $TIMEOUT "$API_URL/api/poi-locations?limit=1" 2>/dev/null)
   if [[ $? -eq 0 ]]; then
     # Check for different possible response formats
@@ -124,7 +124,7 @@ check_poi_api() {
     elif echo "$response" | jq -e '.pois' >/dev/null 2>&1; then
       poi_count=$(echo "$response" | jq -r '.pois | length' 2>/dev/null)
     fi
-    
+
     if [[ "$poi_count" -gt 0 ]]; then
       echo -e "${GREEN}✅ PASSED${NC} (${poi_count} POIs)"
       update_report "poi_api" "passed" "POI endpoint returning ${poi_count} results" 15
@@ -141,7 +141,7 @@ check_poi_api() {
 
 check_weather_api() {
   echo -n "  Testing Weather API endpoint... "
-  
+
   if curl -sf --max-time $TIMEOUT "$API_URL/api/weather/minneapolis" > /dev/null 2>&1; then
     echo -e "${GREEN}✅ PASSED${NC}"
     update_report "weather_api" "passed" "Weather API endpoint responding" 10
@@ -156,7 +156,7 @@ echo -e "${PURPLE}🔍 Phase 2: Frontend Health Validation${NC}"
 
 check_frontend_loading() {
   echo -n "  Testing frontend HTML loading... "
-  
+
   local response=$(curl -sf --max-time $TIMEOUT "$BASE_URL/" 2>/dev/null)
   if [[ $? -eq 0 && "$response" =~ "<title>" ]]; then
     echo -e "${GREEN}✅ PASSED${NC}"
@@ -170,11 +170,11 @@ check_frontend_loading() {
 
 check_javascript_bundles() {
   echo -n "  Testing JavaScript bundle loading... "
-  
+
   # Extract bundle URL from HTML
   local html=$(curl -sf --max-time $TIMEOUT "$BASE_URL/" 2>/dev/null)
   local bundle_path=$(echo "$html" | grep -o '/assets/index-[^"]*\.js' | head -1)
-  
+
   if [[ -n "$bundle_path" ]]; then
     if curl -sf --max-time $TIMEOUT "$BASE_URL$bundle_path" > /dev/null 2>&1; then
       echo -e "${GREEN}✅ PASSED${NC}"
@@ -195,12 +195,12 @@ echo -e "${PURPLE}🔍 Phase 3: Business Logic Validation${NC}"
 
 check_poi_data_integrity() {
   echo -n "  Validating POI data integrity... "
-  
+
   local response=$(curl -sf --max-time $TIMEOUT "$API_URL/api/poi-locations?limit=10" 2>/dev/null)
   if [[ $? -eq 0 ]]; then
     local poi_count=0
     local minnesota_pois=0
-    
+
     # Handle different response formats
     if echo "$response" | jq -e '.data' >/dev/null 2>&1; then
       poi_count=$(echo "$response" | jq -r '.data | length' 2>/dev/null)
@@ -209,7 +209,7 @@ check_poi_data_integrity() {
       poi_count=$(echo "$response" | jq -r '.pois | length' 2>/dev/null)
       minnesota_pois=$(echo "$response" | jq -r '[.pois[] | select(.latitude >= 43.0 and .latitude <= 49.5 and .longitude >= -97.5 and .longitude <= -89.0)] | length' 2>/dev/null)
     fi
-    
+
     if [[ "$poi_count" -gt 0 && "$minnesota_pois" -eq "$poi_count" ]]; then
       echo -e "${GREEN}✅ PASSED${NC} (${poi_count} Minnesota POIs)"
       update_report "poi_data_integrity" "passed" "${poi_count} valid Minnesota POIs found" 15
@@ -228,12 +228,12 @@ check_poi_data_integrity() {
 
 check_business_model_compliance() {
   echo -n "  Checking business model compliance... "
-  
+
   local response=$(curl -sf --max-time $TIMEOUT "$API_URL/api/poi-locations?limit=5" 2>/dev/null)
   if [[ $? -eq 0 ]]; then
     local has_park_type=0
     local has_name=0
-    
+
     # Handle different response formats
     if echo "$response" | jq -e '.data' >/dev/null 2>&1; then
       has_park_type=$(echo "$response" | jq -r '.data[] | select(.park_type != null) | .park_type' 2>/dev/null | wc -l)
@@ -242,7 +242,7 @@ check_business_model_compliance() {
       has_park_type=$(echo "$response" | jq -r '.pois[] | select(.park_type != null) | .park_type' 2>/dev/null | wc -l)
       has_name=$(echo "$response" | jq -r '.pois[] | select(.name != null) | .name' 2>/dev/null | wc -l)
     fi
-    
+
     if [[ "$has_park_type" -gt 0 && "$has_name" -gt 0 ]]; then
       echo -e "${GREEN}✅ PASSED${NC} (POI-focused data)"
       update_report "business_model" "passed" "Data reflects B2C outdoor recreation focus" 10
@@ -264,12 +264,12 @@ echo -e "${PURPLE}🔍 Phase 4: Performance Validation${NC}"
 
 check_api_performance() {
   echo -n "  Testing API response times... "
-  
+
   local start_time=$(date +%s%N)
   curl -sf --max-time $TIMEOUT "$API_URL/api/poi-locations?limit=10" > /dev/null 2>&1
   local end_time=$(date +%s%N)
   local response_time=$(( (end_time - start_time) / 1000000 )) # Convert to milliseconds
-  
+
   if [[ $response_time -lt 1000 ]]; then
     echo -e "${GREEN}✅ PASSED${NC} (${response_time}ms)"
     update_report "api_performance" "passed" "API response time: ${response_time}ms" 10
@@ -287,7 +287,7 @@ echo -e "${PURPLE}🔍 Phase 5: MCP Integration Validation${NC}"
 
 check_playwright_integration() {
   echo -n "  Testing Playwright MCP integration... "
-  
+
   if command -v npx >/dev/null 2>&1 && npx playwright --version >/dev/null 2>&1; then
     echo -e "${GREEN}✅ PASSED${NC}"
     update_report "playwright_mcp" "passed" "Playwright MCP available and functional" 5
@@ -299,7 +299,7 @@ check_playwright_integration() {
 
 check_memory_bank_integration() {
   echo -n "  Testing Memory Bank MCP integration... "
-  
+
   if [[ -d "memory-bank" ]]; then
     echo -e "${GREEN}✅ PASSED${NC}"
     update_report "memory_bank_mcp" "passed" "Memory Bank directory exists" 5
@@ -315,18 +315,18 @@ run_health_checks() {
   check_api_health || true
   check_poi_api || true
   check_weather_api || true
-  
+
   # Phase 2: Frontend Health
   check_frontend_loading || true
   check_javascript_bundles || true
-  
+
   # Phase 3: Business Logic
   check_poi_data_integrity || true
   check_business_model_compliance || true
-  
+
   # Phase 4: Performance
   check_api_performance || true
-  
+
   # Phase 5: MCP Integration
   check_playwright_integration || true
   check_memory_bank_integration || true
@@ -335,7 +335,7 @@ run_health_checks() {
 # Generate summary report
 generate_summary() {
   local final_score=$(( (HEALTH_SCORE * 100) / MAX_SCORE ))
-  
+
   # Update final JSON report
   jq --arg score "$HEALTH_SCORE" \
      --arg maxScore "$MAX_SCORE" \
@@ -345,7 +345,7 @@ generate_summary() {
       .maxScore = ($maxScore | tonumber) |
       .finalScore = ($finalScore | tonumber) |
       .status = $status' "$REPORT_FILE" > "$REPORT_FILE.tmp" && mv "$REPORT_FILE.tmp" "$REPORT_FILE"
-  
+
   # Generate markdown summary
   cat > "$SUMMARY_FILE" << EOF
 # Health Check Summary - $ENVIRONMENT
@@ -374,7 +374,7 @@ EOF
   echo -e "${BLUE}🏆 Overall Score: ${final_score}% (${HEALTH_SCORE}/${MAX_SCORE} points)${NC}"
   echo -e "${BLUE}📋 Summary: $SUMMARY_FILE${NC}"
   echo -e "${BLUE}📄 Detailed Report: $REPORT_FILE${NC}"
-  
+
   return $(( final_score < 70 ? 1 : 0 ))
 }
 
@@ -415,17 +415,17 @@ generate_recommendations() {
 main() {
   echo -e "${BLUE}Starting comprehensive health check...${NC}"
   echo ""
-  
+
   run_health_checks
   generate_summary
-  
+
   local exit_code=$?
-  
+
   # Integration with Memory Bank (if available)
   if [[ -d "memory-bank" ]]; then
     cp "$REPORT_FILE" "memory-bank/latest-health-check.json"
   fi
-  
+
   exit $exit_code
 }
 
@@ -439,7 +439,7 @@ USAGE:
 
 ENVIRONMENTS:
   localhost    - Test local development server (default)
-  preview      - Test preview environment  
+  preview      - Test preview environment
   production   - Test production environment
   [URL]        - Test custom URL (must start with http/https)
 

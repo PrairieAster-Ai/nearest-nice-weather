@@ -45,7 +45,7 @@
 - **Data Quality**: Varies by county, generally good
 - **Access**: Mixed (some have APIs, others require web scraping)
 
-### **🌍 Tier 3: OpenStreetMap (Massive Coverage)** 
+### **🌍 Tier 3: OpenStreetMap (Massive Coverage)**
 
 #### 6. **OpenStreetMap Overpass API** ⭐⭐⭐⭐
 - **URL**: `https://overpass-api.de/api/interpreter`
@@ -84,7 +84,7 @@ out geom;
 
 ### **Phase 1: High-Quality Foundation (195 POIs)**
 1. **Minnesota DNR API**: State parks, forests, recreation areas
-2. **National Park Service API**: National parks and monuments  
+2. **National Park Service API**: National parks and monuments
 3. **Recreation.gov API**: Federal recreation facilities
 
 ### **Phase 2: Metro Area Expansion (395 POIs)**
@@ -100,7 +100,7 @@ out geom;
 ```javascript
 // 1. API Connectors
 class DNRConnector { /* Minnesota DNR API */ }
-class NPSConnector { /* National Park Service API */ }  
+class NPSConnector { /* National Park Service API */ }
 class RIDBConnector { /* Recreation.gov API */ }
 class CKANConnector { /* Minnesota GIS Commons */ }
 class OSMConnector { /* OpenStreetMap Overpass */ }
@@ -111,7 +111,7 @@ class POIDataNormalizer {
   normalizeToSchema(rawData, sourceType) { /* ... */ }
 }
 
-// 3. Database Synchronizer  
+// 3. Database Synchronizer
 class MultiEnvironmentSync {
   // Sync to all branches: development → preview → production
   syncToAllBranches(normalizedData) { /* ... */ }
@@ -125,25 +125,25 @@ CREATE TABLE poi_locations_expanded (
     name VARCHAR(255) NOT NULL,
     lat DECIMAL(10, 8) NOT NULL,
     lng DECIMAL(11, 8) NOT NULL,
-    
+
     -- Classification
     park_type VARCHAR(100), -- 'State Park', 'County Park', 'City Park', etc.
     park_level VARCHAR(50), -- 'national', 'state', 'county', 'municipal'
     ownership VARCHAR(100), -- 'Minnesota DNR', 'NPS', 'Hennepin County', etc.
     operator VARCHAR(255),
-    
+
     -- Metadata
     description TEXT,
     data_source VARCHAR(50), -- 'dnr_api', 'nps_api', 'osm', etc.
     source_id VARCHAR(100), -- Original ID from source system
     place_rank INTEGER DEFAULT 50,
-    
+
     -- Additional fields
     phone VARCHAR(20),
     website VARCHAR(255),
     amenities TEXT[], -- Array of amenity tags
     activities TEXT[], -- Array of activity types
-    
+
     -- Standard fields
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

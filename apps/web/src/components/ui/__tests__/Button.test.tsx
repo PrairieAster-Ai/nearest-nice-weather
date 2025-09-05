@@ -31,7 +31,7 @@ describe('Button Component', () => {
   it('calls onClick when clicked', () => {
     const handleClick = vi.fn()
     render(<Button onClick={handleClick}>Click me</Button>, { wrapper: TestWrapper })
-    
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
@@ -39,7 +39,7 @@ describe('Button Component', () => {
   it('does not call onClick when loading', () => {
     const handleClick = vi.fn()
     render(<Button loading onClick={handleClick}>Click me</Button>, { wrapper: TestWrapper })
-    
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).not.toHaveBeenCalled()
   })

@@ -1,9 +1,9 @@
 /**
  * QUICK LOCATION IMPROVEMENTS VALIDATION TEST
- * 
+ *
  * Test the implemented location estimation enhancements:
  * 1. Multiple IP providers
- * 2. Progressive enhancement 
+ * 2. Progressive enhancement
  * 3. Privacy features
  * 4. Performance improvements
  */
@@ -47,7 +47,7 @@ async function testLocationImprovements() {
 
         console.log('Testing multiple IP providers...');
         const startTime = performance.now();
-        
+
         const estimate = await locationEstimator.estimateLocation();
         const elapsedTime = performance.now() - startTime;
 
@@ -139,7 +139,7 @@ async function testLocationImprovements() {
 
         // Test privacy summary
         const privacySummary = locationEstimator.getPrivacySummary();
-        
+
         // Test permission checking
         const permissionStatus = await locationEstimator.checkPermissionStatus();
 
@@ -173,7 +173,7 @@ async function testLocationImprovements() {
 
         // Test performance of multiple calls (caching)
         const times = [];
-        
+
         for (let i = 0; i < 3; i++) {
           const start = performance.now();
           await locationEstimator.getFastLocation();
@@ -214,10 +214,10 @@ async function testLocationImprovements() {
       const mapContainer = document.querySelector('.leaflet-container');
       const markers = document.querySelectorAll('.leaflet-marker-icon');
       const fabButtons = document.querySelectorAll('.MuiFab-root');
-      
+
       // Check if location data is persisted
       const hasLocationStorage = localStorage.getItem('location_cache') !== null;
-      
+
       return {
         mapLoaded: !!mapContainer,
         markersPresent: markers.length > 0,
@@ -234,16 +234,16 @@ async function testLocationImprovements() {
     console.log(`✅ Location caching: ${integrationTest.locationCached ? 'Active' : 'None'}\n`);
 
     // Take screenshot of final state
-    await page.screenshot({ 
+    await page.screenshot({
       path: './location-improvements-validation.png',
-      fullPage: true 
+      fullPage: true
     });
     console.log('📸 Screenshot saved: ./location-improvements-validation.png');
 
     console.log('\n🎯 LOCATION IMPROVEMENTS VALIDATION COMPLETE');
     console.log('=============================================');
     console.log('✅ Multiple IP providers implemented and tested');
-    console.log('✅ Progressive enhancement strategy working');  
+    console.log('✅ Progressive enhancement strategy working');
     console.log('✅ Privacy features functional');
     console.log('✅ Performance optimizations validated');
     console.log('✅ React app integration successful');

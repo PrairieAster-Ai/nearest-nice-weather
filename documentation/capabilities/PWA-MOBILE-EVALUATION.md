@@ -1,8 +1,8 @@
 # PWA Mobile Features Evaluation & Improvement Plan
 
-**Date**: January 27, 2025  
-**Purpose**: Comprehensive analysis of current PWA mobile implementation with actionable improvement recommendations  
-**Current State**: Basic PWA setup with significant enhancement opportunities  
+**Date**: January 27, 2025
+**Purpose**: Comprehensive analysis of current PWA mobile implementation with actionable improvement recommendations
+**Current State**: Basic PWA setup with significant enhancement opportunities
 
 ---
 
@@ -112,14 +112,14 @@ Impact: Missing native-like capabilities
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-96x96.png", 
+      "src": "/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
       "src": "/icons/icon-128x128.png",
-      "sizes": "128x128", 
+      "sizes": "128x128",
       "type": "image/png",
       "purpose": "maskable any"
     },
@@ -132,7 +132,7 @@ Impact: Missing native-like capabilities
     {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png", 
+      "type": "image/png",
       "purpose": "maskable any"
     },
     {
@@ -151,7 +151,7 @@ Impact: Missing native-like capabilities
       "form_factor": "narrow"
     },
     {
-      "src": "/screenshots/desktop-screenshot-1.png", 
+      "src": "/screenshots/desktop-screenshot-1.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide"
@@ -195,7 +195,7 @@ VitePWA({
       },
       {
         urlPattern: /^https:\/\/.*tile.*\.(?:png|jpg)$/,
-        handler: 'CacheFirst', 
+        handler: 'CacheFirst',
         options: {
           cacheName: 'map-tiles-cache-v1',
           expiration: {
@@ -251,17 +251,17 @@ export default function InstallPrompt() {
   };
 
   return (
-    <Snackbar 
-      open={showInstallPrompt} 
+    <Snackbar
+      open={showInstallPrompt}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       sx={{ bottom: 80 }} // Above sticky footer
     >
-      <Alert 
-        severity="info" 
+      <Alert
+        severity="info"
         action={
-          <Button 
-            color="inherit" 
-            size="small" 
+          <Button
+            color="inherit"
+            size="small"
             startIcon={<InstallIcon />}
             onClick={handleInstall}
           >
@@ -286,17 +286,17 @@ import { useMediaQuery, useTheme } from '@mui/material';
 
 export function useResponsive() {
   const theme = useTheme();
-  
+
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
-  
+
   const isTouchDevice = 'ontouchstart' in window;
   const isPortrait = useMediaQuery('(orientation: portrait)');
-  
+
   return {
     isMobile,
-    isTablet, 
+    isTablet,
     isDesktop,
     isTouchDevice,
     isPortrait,
@@ -341,14 +341,14 @@ export default function ResponsiveFabSystem({ filters, onFiltersChange, resultCo
   return (
     <Box sx={fabContainerStyles}>
       {/* Temperature FAB */}
-      <Fab 
+      <Fab
         {...fabStyles}
         color="primary"
         onClick={() => handleTemperatureFilter()}
       >
         {getTemperatureIcon(filters.temperature)}
       </Fab>
-      
+
       {/* Additional FABs with responsive sizing */}
     </Box>
   );
@@ -369,20 +369,20 @@ export default function TouchOptimizedMap({ pois, userLocation }) {
   useEffect(() => {
     if (mapRef.current && isTouchDevice) {
       const map = mapRef.current;
-      
+
       // Enhanced touch controls
       map.options.touchZoom = true;
       map.options.tap = true;
       map.options.tapTolerance = 15; // Better for fat fingers
-      
+
       // Disable scroll zoom on mobile to prevent accidental zooming
       if (isMobile) {
         map.scrollWheelZoom.disable();
-        
+
         // Add double-tap to zoom
         map.on('dblclick', () => map.zoomIn());
       }
-      
+
       // Custom touch feedback for markers
       map.on('click', (e) => {
         // Add subtle haptic feedback if available
@@ -398,8 +398,8 @@ export default function TouchOptimizedMap({ pois, userLocation }) {
       ref={mapRef}
       center={userLocation || [46.7296, -94.6859]}
       zoom={isMobile ? 7 : 8}
-      style={{ 
-        height: '100%', 
+      style={{
+        height: '100%',
         width: '100%',
         touchAction: 'manipulation' // Prevent zoom on double-tap
       }}
@@ -471,8 +471,8 @@ export function useOffline() {
     return null;
   };
 
-  return { 
-    isOnline, 
+  return {
+    isOnline,
     offlineData: isOnline ? null : getOfflineData()
   };
 }
@@ -591,7 +591,7 @@ export class BackgroundSync {
 // src/utils/platformUtils.ts
 export function getPlatform() {
   const userAgent = navigator.userAgent.toLowerCase();
-  
+
   if (/iphone|ipad|ipod/.test(userAgent)) {
     return 'ios';
   } else if (/android/.test(userAgent)) {
@@ -604,18 +604,18 @@ export function getPlatform() {
 export function addPlatformSpecificStyles() {
   const platform = getPlatform();
   const root = document.documentElement;
-  
+
   // iOS specific adjustments
   if (platform === 'ios') {
     root.style.setProperty('--safe-area-inset-top', 'env(safe-area-inset-top)');
     root.style.setProperty('--safe-area-inset-bottom', 'env(safe-area-inset-bottom)');
-    
+
     // Handle iOS PWA status bar
     if (window.navigator.standalone) {
       document.body.classList.add('ios-pwa');
     }
   }
-  
+
   // Android specific adjustments
   if (platform === 'android') {
     // Handle Android chrome custom tabs
@@ -630,7 +630,7 @@ export function addPlatformSpecificStyles() {
 
 ### **Mobile Performance Targets**
 - **First Contentful Paint**: <1.5s on 3G
-- **Largest Contentful Paint**: <2.5s on 3G  
+- **Largest Contentful Paint**: <2.5s on 3G
 - **Touch Response Time**: <100ms
 - **PWA Install Rate**: >15% of repeat visitors
 - **Offline Usage**: Support core features without network
@@ -657,7 +657,7 @@ export function addPlatformSpecificStyles() {
 ### **User Experience Benefits**
 - **Faster Load Times**: Caching reduces repeat visit load times by 60%
 - **Offline Access**: Users can view cached POI data without connectivity
-- **Native Feel**: Installation creates app-like experience 
+- **Native Feel**: Installation creates app-like experience
 - **Better Engagement**: Touch optimizations improve user interaction
 
 ### **Technical Benefits**

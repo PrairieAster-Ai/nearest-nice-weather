@@ -59,14 +59,14 @@ class RateLimiter {
   isAllowed(key: string, limit: number, windowMs: number): boolean {
     const now = Date.now()
     const requests = this.requests.get(key) || []
-    
+
     // Remove old requests outside the window
     const validRequests = requests.filter(time => now - time < windowMs)
-    
+
     if (validRequests.length >= limit) {
       return false
     }
-    
+
     validRequests.push(now)
     this.requests.set(key, validRequests)
     return true
@@ -139,7 +139,7 @@ export const validateEnvironment = () => {
   ] as const
 
   const missing = requiredEnvVars.filter(envVar => !import.meta.env[envVar])
-  
+
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`)
   }

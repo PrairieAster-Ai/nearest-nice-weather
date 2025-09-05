@@ -6,31 +6,31 @@
 
 async function testPreviewDatabase() {
   console.log('🔍 Testing Preview Database Contents')
-  
+
   const endpoints = [
     '/api/poi-locations-with-weather?limit=200',  // Try higher limit
     '/api/poi-locations?limit=200',               // Try direct POI endpoint (may 404)
     '/api/health',                                // Health check
   ]
-  
+
   const baseUrl = 'https://p.nearestniceweather.com'
-  
+
   for (const endpoint of endpoints) {
     console.log(`\n🧪 Testing: ${endpoint}`)
-    
+
     try {
       const response = await fetch(`${baseUrl}${endpoint}`)
       const status = response.status()
-      
+
       console.log(`   Status: ${status}`)
-      
+
       if (status === 200) {
         const data = await response.json()
         console.log(`   Success: ${data.success}`)
-        
+
         if (data.data && Array.isArray(data.data)) {
           console.log(`   Data Records: ${data.data.length}`)
-          
+
           if (data.data.length > 0) {
             const firstRecord = data.data[0]
             console.log(`   First Record Keys: ${Object.keys(firstRecord)}`)
@@ -39,11 +39,11 @@ async function testPreviewDatabase() {
             console.log('   ❌ EMPTY DATA ARRAY - This explains missing map markers!')
           }
         }
-        
+
         if (data.debug) {
           console.log(`   Debug Info:`)
           console.log(`     Query Type: ${data.debug.query_type}`)
-          console.log(`     Data Source: ${data.debug.data_source}`) 
+          console.log(`     Data Source: ${data.debug.data_source}`)
           console.log(`     Environment: ${data.debug.environment || 'not specified'}`)
         }
       } else if (status === 404) {
@@ -56,7 +56,7 @@ async function testPreviewDatabase() {
       console.log(`   ❌ Request failed: ${error.message}`)
     }
   }
-  
+
   console.log('\n📋 Summary:')
   console.log('If data records = 0, the preview database is empty and needs POI migration')
   console.log('The localhost database has 138 POI records that need to be migrated to preview')

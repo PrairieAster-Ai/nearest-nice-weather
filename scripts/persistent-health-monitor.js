@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Persistent Health Monitor for Nearest Nice Weather
- * 
+ *
  * Runs independently of the unified startup script to provide continuous
  * monitoring and auto-healing capabilities even when main processes terminate.
  */
@@ -74,7 +74,7 @@ async function checkAPIProxy() {
 function restartService(serviceName) {
     return new Promise((resolve) => {
         log(`Attempting to restart ${serviceName} via PM2...`);
-        
+
         const pm2Restart = spawn('pm2', ['restart', serviceName], {
             stdio: ['ignore', 'pipe', 'pipe']
         });
@@ -103,10 +103,10 @@ function restartService(serviceName) {
 // Comprehensive health check
 async function performHealthCheck() {
     log('🔍 Performing comprehensive health check...');
-    
+
     const checks = await Promise.all([
         checkAPI(),
-        checkFrontend(), 
+        checkFrontend(),
         checkBrowserTools(),
         checkAPIProxy()
     ]);
@@ -138,11 +138,11 @@ async function performHealthCheck() {
     for (const service of unhealthyServices) {
         warning(`Attempting to heal ${service.name}...`);
         const restarted = await restartService(service.pm2Name);
-        
+
         if (restarted) {
             // Wait a bit and re-check
             await new Promise(resolve => setTimeout(resolve, 5000));
-            
+
             let recheckResult;
             if (service.name === 'API Server') {
                 recheckResult = await checkAPI();
@@ -151,7 +151,7 @@ async function performHealthCheck() {
             } else if (service.name === 'BrowserToolsMCP') {
                 recheckResult = await checkBrowserTools();
             }
-            
+
             if (recheckResult && recheckResult.healthy) {
                 success(`${service.name} successfully healed`);
             } else {
@@ -167,11 +167,11 @@ async function performHealthCheck() {
 async function checkPM2Available() {
     return new Promise((resolve) => {
         const pm2List = spawn('pm2', ['list'], { stdio: ['ignore', 'pipe', 'pipe'] });
-        
+
         pm2List.on('close', (code) => {
             resolve(code === 0);
         });
-        
+
         pm2List.on('error', () => {
             resolve(false);
         });

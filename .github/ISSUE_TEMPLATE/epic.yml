@@ -7,9 +7,9 @@ body:
     attributes:
       value: |
         ## Epic Template
-        
+
         Use this template for large features or initiatives that span multiple sprints and can be broken down into smaller user stories.
-        
+
   - type: textarea
     id: epic-description
     attributes:
@@ -18,7 +18,7 @@ body:
       placeholder: "Describe the overall goal and business value of this epic"
     validations:
       required: true
-      
+
   - type: textarea
     id: business-value
     attributes:
@@ -27,7 +27,7 @@ body:
       placeholder: "This epic enables users to... which results in increased engagement/revenue/retention"
     validations:
       required: true
-      
+
   - type: textarea
     id: success-metrics
     attributes:
@@ -39,7 +39,7 @@ body:
         - Metric 3: Target value
     validations:
       required: true
-      
+
   - type: dropdown
     id: size
     attributes:
@@ -51,7 +51,7 @@ body:
         - XXL (4+ sprints)
     validations:
       required: true
-      
+
   - type: textarea
     id: user-stories
     attributes:
@@ -61,16 +61,16 @@ body:
         - [ ] Story 1: Brief description
         - [ ] Story 2: Brief description
         - [ ] Story 3: Brief description
-        
+
         Note: This list may evolve as the epic is refined
-      
+
   - type: textarea
     id: assumptions
     attributes:
       label: Assumptions & Dependencies
       description: Key assumptions and external dependencies
       placeholder: "List any assumptions about user behavior, technical constraints, or external dependencies"
-      
+
   - type: textarea
     id: risks
     attributes:
@@ -79,7 +79,7 @@ body:
       placeholder: |
         - Risk 1: Description → Mitigation strategy
         - Risk 2: Description → Mitigation strategy
-        
+
   - type: textarea
     id: acceptance-criteria
     attributes:

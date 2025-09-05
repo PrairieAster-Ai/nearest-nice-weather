@@ -2,13 +2,13 @@
  * ========================================================================
  * SEMANTIC LOCATORS EXAMPLE - PLAYWRIGHT BEST PRACTICES
  * ========================================================================
- * 
+ *
  * @PURPOSE: Demonstrates proper use of semantic locators vs CSS selectors
  * @FOLLOWS: Playwright best practices for user-facing testing
- * 
+ *
  * This example shows the difference between implementation-driven testing
  * (CSS selectors) and user-facing testing (semantic locators)
- * 
+ *
  * ========================================================================
  */
 
@@ -25,7 +25,7 @@ test.describe('Semantic Locators - Best Practice Examples', () => {
     // Clear all state for complete test independence
     await context.clearCookies()
     await context.clearPermissions()
-    
+
     try {
       await page.evaluate(() => {
         if (typeof localStorage !== 'undefined') localStorage.clear()
@@ -48,16 +48,16 @@ test.describe('Semantic Locators - Best Practice Examples', () => {
 
     // ❌ WRONG: CSS selector (implementation detail)
     // await page.locator('.MuiFab-root').click()
-    
+
     // ✅ RIGHT: Semantic locator (user-facing)
     await page.getByRole('button', { name: /feedback/i }).click()
-    
+
     // ❌ WRONG: CSS class selector
     // await page.locator('.leaflet-marker-icon').first().click()
-    
+
     // ✅ RIGHT: User-facing locator
     await page.getByRole('button', { name: /park|trail|forest/i }).first().click()
-    
+
     console.log('✅ Semantic locators used correctly')
   })
 
@@ -65,14 +65,14 @@ test.describe('Semantic Locators - Best Practice Examples', () => {
     const mapPage = new MapPage(page)
     const filterPage = new FilterPage(page)
     const feedbackPage = new FeedbackPage(page)
-    
+
     // Wait for app to be ready
     await mapPage.waitForMapReady()
-    
+
     // User filters for hot weather
     await filterPage.selectTemperature('hot')
     await filterPage.waitForFilterUpdate()
-    
+
     // User explores a location
     const poiCount = await mapPage.getPOICount()
     if (poiCount > 0) {
@@ -80,7 +80,7 @@ test.describe('Semantic Locators - Best Practice Examples', () => {
       await mapPage.expectPopupVisible()
       await mapPage.closePopup()
     }
-    
+
     // User provides feedback
     await feedbackPage.openFeedback()
     await feedbackPage.selectRating(5)
@@ -88,7 +88,7 @@ test.describe('Semantic Locators - Best Practice Examples', () => {
     await feedbackPage.enterComment('Great outdoor spots!')
     await feedbackPage.submitFeedback()
     await feedbackPage.expectSuccessMessage()
-    
+
     console.log('✅ Complete user workflow with semantic locators')
   })
 
@@ -96,28 +96,28 @@ test.describe('Semantic Locators - Best Practice Examples', () => {
     // Test data-testid attributes work
     await expect(page.getByTestId('map-container')).toBeVisible()
     await expect(page.getByTestId('filter-temperature')).toBeVisible()
-    
-    // Test ARIA labels work  
+
+    // Test ARIA labels work
     await expect(page.getByRole('application', { name: /interactive map/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /temperature filter/i })).toBeVisible()
-    
+
     console.log('✅ Data-testid and ARIA labels working correctly')
   })
 
   test('Accessibility-focused locators', async ({ page }) => {
     const mapPage = new MapPage(page)
     await mapPage.waitForMapReady()
-    
+
     // Use accessibility-focused selectors
     const mapApplication = page.getByRole('application', { name: /interactive map/i })
     await expect(mapApplication).toBeVisible()
-    
+
     // Focus on keyboard navigation
     await page.keyboard.press('Tab')
     const focused = page.locator(':focus')
     const focusedRole = await focused.getAttribute('role')
     console.log(`First focusable element role: ${focusedRole}`)
-    
+
     console.log('✅ Accessibility-focused testing complete')
   })
 })
@@ -136,30 +136,30 @@ test.describe('Locator Strategy Examples', () => {
 
     // ❌ AVOID: CSS selectors (brittle, implementation-dependent)
     // page.locator('.MuiFab-root')
-    // page.locator('.leaflet-marker-icon') 
+    // page.locator('.leaflet-marker-icon')
     // page.locator('#some-id')
     // page.locator('[class*="MuiButton"]')
-    
+
     // ✅ PREFER: Semantic locators (stable, user-facing)
     const examples = [
       // Role-based (most stable)
       page.getByRole('button', { name: /feedback/i }),
       page.getByRole('application', { name: /map/i }),
       page.getByRole('dialog', { name: /feedback/i }),
-      
+
       // Test ID (good for custom components)
       page.getByTestId('map-container'),
       page.getByTestId('filter-temperature'),
-      
+
       // Label-based (user-facing text)
       page.getByLabel(/temperature filter/i),
       page.getByPlaceholder(/enter your feedback/i),
-      
+
       // Text content (actual user-visible text)
       page.getByText(/submit feedback/i),
       page.getByText(/directions/i)
     ]
-    
+
     // Test that semantic locators are more resilient
     for (let i = 0; i < Math.min(examples.length, 3); i++) {
       const locator = examples[i]
@@ -170,7 +170,7 @@ test.describe('Locator Strategy Examples', () => {
         console.log(`Locator ${i + 1}: ❌ Error - ${error.message.split('\n')[0]}`)
       }
     }
-    
+
     console.log('✅ Locator strategy comparison complete')
   })
 })

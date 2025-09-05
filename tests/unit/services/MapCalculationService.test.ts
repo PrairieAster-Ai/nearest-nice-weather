@@ -7,7 +7,7 @@
 const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
 
 // Import the service and types
-import { 
+import {
   MapCalculationService,
   LocationPoint,
   Coordinates,
@@ -27,7 +27,7 @@ describe('MapCalculationService', () => {
       lng: -93.2650
     },
     {
-      id: '2', 
+      id: '2',
       name: 'Saint Paul',
       lat: 44.9537,
       lng: -93.0900
@@ -65,7 +65,7 @@ describe('MapCalculationService', () => {
   describe('Geographic Bounds Calculation', () => {
     test('should calculate correct bounds for Minnesota cities', () => {
       const bounds = service.calculateBounds(mockLocations);
-      
+
       expect(bounds).not.toBeNull();
       expect(bounds!.minLat).toBeCloseTo(44.0121, 3); // Rochester
       expect(bounds!.maxLat).toBeCloseTo(47.4734, 3); // Bemidji
@@ -75,14 +75,14 @@ describe('MapCalculationService', () => {
 
     test('should return null for empty locations array', () => {
       const bounds = service.calculateBounds([]);
-      
+
       expect(bounds).toBeNull();
     });
 
     test('should handle single location correctly', () => {
       const singleLocation = [mockLocations[0]];
       const bounds = service.calculateBounds(singleLocation);
-      
+
       expect(bounds).not.toBeNull();
       expect(bounds!.minLat).toBe(bounds!.maxLat);
       expect(bounds!.minLng).toBe(bounds!.maxLng);
@@ -95,9 +95,9 @@ describe('MapCalculationService', () => {
         { id: '1', name: 'Location A', lat: 45.0, lng: -93.0 },
         { id: '2', name: 'Location B', lat: 45.0, lng: -93.0 }
       ];
-      
+
       const bounds = service.calculateBounds(identicalLocations);
-      
+
       expect(bounds).not.toBeNull();
       expect(bounds!.minLat).toBe(bounds!.maxLat);
       expect(bounds!.minLng).toBe(bounds!.maxLng);
@@ -112,9 +112,9 @@ describe('MapCalculationService', () => {
         minLng: -94.0,
         maxLng: -92.0
       };
-      
+
       const center = service.calculateCenter(bounds);
-      
+
       expect(center[0]).toBeCloseTo(45.0, 3); // (44 + 46) / 2
       expect(center[1]).toBeCloseTo(-93.0, 3); // (-94 + -92) / 2
     });
@@ -126,9 +126,9 @@ describe('MapCalculationService', () => {
         minLng: -93.0,
         maxLng: -93.0
       };
-      
+
       const center = service.calculateCenter(bounds);
-      
+
       expect(center[0]).toBe(45.0);
       expect(center[1]).toBe(-93.0);
     });
@@ -140,9 +140,9 @@ describe('MapCalculationService', () => {
         minLng: -100.0,
         maxLng: -90.0
       };
-      
+
       const center = service.calculateCenter(bounds);
-      
+
       expect(center[0]).toBeCloseTo(-7.5, 3);
       expect(center[1]).toBeCloseTo(-95.0, 3);
     });
@@ -156,9 +156,9 @@ describe('MapCalculationService', () => {
         minLng: -96.0,
         maxLng: -89.0
       };
-      
+
       const zoom = service.calculateOptimalZoom(bounds);
-      
+
       expect(zoom).toBeLessThanOrEqual(9); // Should be regional view
       expect(zoom).toBeGreaterThanOrEqual(6); // Should not be too zoomed out
     });
@@ -170,9 +170,9 @@ describe('MapCalculationService', () => {
         minLng: -93.5,
         maxLng: -93.0
       };
-      
+
       const zoom = service.calculateOptimalZoom(bounds);
-      
+
       expect(zoom).toBeGreaterThanOrEqual(10); // Should be closer view
       expect(zoom).toBeLessThanOrEqual(13);
     });
@@ -184,9 +184,9 @@ describe('MapCalculationService', () => {
         minLng: -93.27,
         maxLng: -93.25
       };
-      
+
       const zoom = service.calculateOptimalZoom(bounds);
-      
+
       expect(zoom).toBeGreaterThanOrEqual(10); // Should be close view (algorithm returns 10.5)
     });
 
@@ -197,10 +197,10 @@ describe('MapCalculationService', () => {
         minLng: -93.5,
         maxLng: -93.0
       };
-      
+
       const normalZoom = service.calculateOptimalZoom(bounds, { padding: 1.2 });
       const tightZoom = service.calculateOptimalZoom(bounds, { padding: 1.0 });
-      
+
       expect(tightZoom).toBeGreaterThanOrEqual(normalZoom); // Less padding = closer zoom
     });
 
@@ -211,17 +211,17 @@ describe('MapCalculationService', () => {
         minLng: -120.0,
         maxLng: -60.0
       };
-      
+
       const verySmallBounds: GeographicBounds = {
         minLat: 44.999,
         maxLat: 45.001,
         minLng: -93.001,
         maxLng: -92.999
       };
-      
+
       const largeZoom = service.calculateOptimalZoom(veryLargeBounds, { minZoom: 5, maxZoom: 12 });
       const smallZoom = service.calculateOptimalZoom(verySmallBounds, { minZoom: 8, maxZoom: 15 });
-      
+
       expect(largeZoom).toBeGreaterThanOrEqual(5);
       expect(largeZoom).toBeLessThanOrEqual(12);
       expect(smallZoom).toBeGreaterThanOrEqual(8);
@@ -232,7 +232,7 @@ describe('MapCalculationService', () => {
   describe('Optimal View Calculation', () => {
     test('should calculate optimal view for multiple locations', () => {
       const view = service.calculateOptimalView(mockLocations);
-      
+
       expect(view.center).toHaveLength(2);
       expect(view.center[0]).toBeGreaterThan(44.0); // Should be in Minnesota latitude range
       expect(view.center[0]).toBeLessThan(48.0);
@@ -244,7 +244,7 @@ describe('MapCalculationService', () => {
 
     test('should handle empty locations with fallback', () => {
       const view = service.calculateOptimalView([]);
-      
+
       expect(view.center).toEqual([44.9537, -93.0900]); // Minneapolis fallback
       expect(view.zoom).toBe(8); // Default zoom
     });
@@ -254,9 +254,9 @@ describe('MapCalculationService', () => {
         fallbackCenter: [45.0, -94.0],
         defaultZoom: 10
       };
-      
+
       const view = service.calculateOptimalView([], customOptions);
-      
+
       expect(view.center).toEqual([45.0, -94.0]);
       expect(view.zoom).toBe(10);
     });
@@ -264,7 +264,7 @@ describe('MapCalculationService', () => {
     test('should handle single location', () => {
       const singleLocation = [mockLocations[0]];
       const view = service.calculateOptimalView(singleLocation);
-      
+
       expect(view.center[0]).toBeCloseTo(44.9778, 3);
       expect(view.center[1]).toBeCloseTo(-93.2650, 3);
       expect(view.zoom).toBeGreaterThan(10); // Should zoom in on single location
@@ -275,7 +275,7 @@ describe('MapCalculationService', () => {
     test('should include user location in bounds calculation', () => {
       const userLocation: Coordinates = [46.0, -95.0]; // Northwest of Twin Cities
       const view = service.calculateViewWithUserLocation(mockLocations.slice(0, 2), userLocation);
-      
+
       // Should include user location in the view calculation
       expect(view.center[0]).toBeGreaterThan(44.9); // Between cities and user
       expect(view.center[0]).toBeLessThan(46.1);
@@ -286,7 +286,7 @@ describe('MapCalculationService', () => {
     test('should handle user location with no POIs', () => {
       const userLocation: Coordinates = [45.0, -93.0];
       const view = service.calculateViewWithUserLocation([], userLocation);
-      
+
       expect(view.center).toEqual(userLocation);
       expect(view.zoom).toBeGreaterThan(8); // Should zoom in on user location
     });
@@ -296,9 +296,9 @@ describe('MapCalculationService', () => {
       const distantLocations: LocationPoint[] = [
         { id: '1', name: 'Distant', lat: 47.0, lng: -94.0 }
       ];
-      
+
       const view = service.calculateViewWithUserLocation(distantLocations, userLocation);
-      
+
       // Should create view that includes both user and distant location
       expect(view.center[0]).toBeGreaterThan(44.9);
       expect(view.center[0]).toBeLessThan(47.1);
@@ -309,29 +309,29 @@ describe('MapCalculationService', () => {
     test('should calculate simple distance correctly', () => {
       const point1: Coordinates = [45.0, -93.0];
       const point2: Coordinates = [46.0, -94.0];
-      
+
       const distance = service.calculateSimpleDistance(point1, point2);
-      
+
       expect(distance).toBeCloseTo(Math.sqrt(2), 3); // sqrt((1)² + (1)²)
     });
 
     test('should return zero for identical points', () => {
       const point: Coordinates = [45.0, -93.0];
       const distance = service.calculateSimpleDistance(point, point);
-      
+
       expect(distance).toBe(0);
     });
 
     test('should find closest locations correctly', () => {
       const referencePoint: Coordinates = [44.9778, -93.2650]; // Minneapolis
       const closest = service.findClosestLocations(mockLocations, referencePoint, 3);
-      
+
       expect(closest).toHaveLength(3);
       expect(closest[0].name).toBe('Minneapolis'); // Should be closest to itself
       expect(closest[1].name).toBe('Saint Paul'); // Second closest
-      
+
       // Should be sorted by distance
-      const distances = closest.map(loc => 
+      const distances = closest.map(loc =>
         service.calculateSimpleDistance([loc.lat, loc.lng], referencePoint)
       );
       for (let i = 0; i < distances.length - 1; i++) {
@@ -342,14 +342,14 @@ describe('MapCalculationService', () => {
     test('should limit results to maxCount', () => {
       const referencePoint: Coordinates = [45.0, -93.0];
       const closest = service.findClosestLocations(mockLocations, referencePoint, 2);
-      
+
       expect(closest).toHaveLength(2);
     });
 
     test('should handle empty locations array', () => {
       const referencePoint: Coordinates = [45.0, -93.0];
       const closest = service.findClosestLocations([], referencePoint, 5);
-      
+
       expect(closest).toEqual([]);
     });
   });
@@ -362,7 +362,7 @@ describe('MapCalculationService', () => {
         minLng: -94.0,
         maxLng: -92.0
       };
-      
+
       expect(service.isWithinBounds([45.0, -93.0], bounds)).toBe(true);
       expect(service.isWithinBounds([43.0, -93.0], bounds)).toBe(false); // Below minLat
       expect(service.isWithinBounds([47.0, -93.0], bounds)).toBe(false); // Above maxLat
@@ -377,7 +377,7 @@ describe('MapCalculationService', () => {
         minLng: -94.0,
         maxLng: -92.0
       };
-      
+
       // Edge coordinates should be within bounds
       expect(service.isWithinBounds([44.0, -93.0], bounds)).toBe(true);
       expect(service.isWithinBounds([46.0, -93.0], bounds)).toBe(true);
@@ -392,19 +392,19 @@ describe('MapCalculationService', () => {
         minLng: -94.0,
         maxLng: -92.0
       };
-      
+
       const expanded = service.expandBounds(bounds, 1.5);
-      
+
       // Should be 50% larger in each direction
       expect(expanded.minLat).toBeLessThan(bounds.minLat);
       expect(expanded.maxLat).toBeGreaterThan(bounds.maxLat);
       expect(expanded.minLng).toBeLessThan(bounds.minLng);
       expect(expanded.maxLng).toBeGreaterThan(bounds.maxLng);
-      
+
       // Check specific expansion
       const latExpansion = (2.0 * 0.5) / 2; // (range * (factor - 1)) / 2
       const lngExpansion = (2.0 * 0.5) / 2;
-      
+
       expect(expanded.minLat).toBeCloseTo(44.0 - latExpansion, 3);
       expect(expanded.maxLat).toBeCloseTo(46.0 + latExpansion, 3);
       expect(expanded.minLng).toBeCloseTo(-94.0 - lngExpansion, 3);
@@ -418,9 +418,9 @@ describe('MapCalculationService', () => {
         minLng: -93.0,
         maxLng: -93.0
       };
-      
+
       const expanded = service.expandBounds(bounds, 2.0);
-      
+
       // Zero-size bounds should remain the same after expansion
       expect(expanded.minLat).toBe(45.0);
       expect(expanded.maxLat).toBe(45.0);
@@ -435,9 +435,9 @@ describe('MapCalculationService', () => {
         center: [45.123, -93.456],
         zoom: 10
       };
-      
+
       const summary = service.getCalculationSummary(view, 5);
-      
+
       expect(summary).toContain('5 locations');
       expect(summary).toContain('45.123');
       expect(summary).toContain('-93.456');
@@ -449,9 +449,9 @@ describe('MapCalculationService', () => {
         center: [45.123456789, -93.987654321],
         zoom: 12
       };
-      
+
       const summary = service.getCalculationSummary(view, 1);
-      
+
       expect(summary).toContain('45.123'); // Should round to 3 decimal places
       expect(summary).toContain('-93.988');
     });
@@ -463,9 +463,9 @@ describe('MapCalculationService', () => {
         { id: '1', name: 'North Pole', lat: 90, lng: 0 },
         { id: '2', name: 'South Pole', lat: -90, lng: 0 }
       ];
-      
+
       const view = service.calculateOptimalView(extremeLocations);
-      
+
       expect(view.center[0]).toBeCloseTo(0, 1); // Should center between poles
       expect(view.center[1]).toBe(0);
       expect(view.zoom).toBeGreaterThan(0);
@@ -476,10 +476,10 @@ describe('MapCalculationService', () => {
         { id: '1', name: 'East', lat: 45, lng: 179 },
         { id: '2', name: 'West', lat: 45, lng: -179 }
       ];
-      
+
       const bounds = service.calculateBounds(dateLineLocations);
       const view = service.calculateOptimalView(dateLineLocations);
-      
+
       expect(bounds).not.toBeNull();
       expect(view.center).toHaveLength(2);
       expect(view.zoom).toBeGreaterThan(0);
@@ -495,9 +495,9 @@ describe('MapCalculationService', () => {
           lng: -96 + Math.random() * 4
         });
       }
-      
+
       const view = service.calculateOptimalView(manyLocations);
-      
+
       expect(view.center).toHaveLength(2);
       expect(view.zoom).toBeGreaterThan(0);
       expect(view.zoom).toBeLessThan(20);
@@ -508,7 +508,7 @@ describe('MapCalculationService', () => {
         { id: '1', name: 'Invalid', lat: NaN, lng: -93 },
         { id: '2', name: 'Valid', lat: 45, lng: -93 }
       ];
-      
+
       // Should not throw error
       expect(() => {
         service.calculateOptimalView(invalidLocations);

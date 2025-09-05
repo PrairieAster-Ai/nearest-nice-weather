@@ -43,13 +43,13 @@ apps/web/src/
 export default function App() {
   const [userLocation, setUserLocation] = useLocalStorageState<[number, number] | null>('userLocation', null);
   const [weatherFilters, setWeatherFilters] = useWeatherFiltersStorage();
-  
+
   // Primary data fetching hook
-  const { 
-    data: poisWithWeather, 
-    loading, 
+  const {
+    data: poisWithWeather,
+    loading,
     error,
-    refetch 
+    refetch
   } = usePOILocations({
     userLocation,
     filters: weatherFilters,
@@ -59,23 +59,23 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <EnhancedLocationManager 
+        <EnhancedLocationManager
           userLocation={userLocation}
           onLocationUpdate={setUserLocation}
         />
-        
-        <MapContainer 
+
+        <MapContainer
           pois={poisWithWeather}
           userLocation={userLocation}
           onLocationSelect={setUserLocation}
         />
-        
-        <FabFilterSystem 
+
+        <FabFilterSystem
           filters={weatherFilters}
           onFiltersChange={setWeatherFilters}
           resultCount={poisWithWeather?.length || 0}
         />
-        
+
         <UnifiedStickyFooter />
       </Box>
     </QueryClientProvider>
@@ -94,7 +94,7 @@ interface LocationManagerProps {
 
 export default function EnhancedLocationManager({ userLocation, onLocationUpdate }: LocationManagerProps) {
   const locationEstimator = new UserLocationEstimator();
-  
+
   const handleGeolocationRequest = async () => {
     try {
       // High-accuracy geolocation with fallbacks
@@ -103,7 +103,7 @@ export default function EnhancedLocationManager({ userLocation, onLocationUpdate
         timeout: 10000,
         maximumAge: 300000 // 5 minutes
       });
-      
+
       onLocationUpdate([location.lat, location.lng]);
     } catch (error) {
       // Fallback to IP-based location
@@ -115,17 +115,17 @@ export default function EnhancedLocationManager({ userLocation, onLocationUpdate
   return (
     <Paper elevation={2} sx={{ p: 2, m: 1 }}>
       <Typography variant="h6">Find Outdoor Activities Near You</Typography>
-      
+
       {!userLocation ? (
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleGeolocationRequest}
           startIcon={<LocationOnIcon />}
         >
           Get My Location
         </Button>
       ) : (
-        <Chip 
+        <Chip
           label={`Location: ${userLocation[0].toFixed(3)}, ${userLocation[1].toFixed(3)}`}
           onDelete={() => onLocationUpdate(null)}
           deleteIcon={<ClearIcon />}
@@ -170,19 +170,19 @@ export default function MapContainer({ pois, userLocation, onLocationSelect }: M
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        
+
         {/* User location marker */}
         {userLocation && (
           <Marker position={userLocation} icon={userLocationIcon}>
             <Popup>Your Location</Popup>
           </Marker>
         )}
-        
+
         {/* POI markers with weather info */}
         {pois.map(poi => (
-          <Marker 
-            key={poi.id} 
-            position={[poi.lat, poi.lng]} 
+          <Marker
+            key={poi.id}
+            position={[poi.lat, poi.lng]}
             icon={createPOIIcon(poi.park_type, poi.temperature)}
           >
             <Popup>
@@ -190,7 +190,7 @@ export default function MapContainer({ pois, userLocation, onLocationSelect }: M
             </Popup>
           </Marker>
         ))}
-        
+
         {/* Click handler for manual location selection */}
         <MapClickHandler onLocationSelect={onLocationSelect} />
       </MapContainer>
@@ -215,8 +215,8 @@ export default function FabFilterSystem({ filters, onFiltersChange, resultCount 
   return (
     <>
       {/* Main filter FAB */}
-      <Fab 
-        color="primary" 
+      <Fab
+        color="primary"
         sx={{ position: 'fixed', bottom: 80, right: 16 }}
         onClick={() => setOpen(true)}
       >
@@ -230,8 +230,8 @@ export default function FabFilterSystem({ filters, onFiltersChange, resultCount 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Weather Preferences</DialogTitle>
         <DialogContent>
-          <FilterForm 
-            filters={filters} 
+          <FilterForm
+            filters={filters}
             onFiltersChange={onFiltersChange}
           />
         </DialogContent>
@@ -306,12 +306,12 @@ export function usePOILocations({ userLocation, filters, autoRefresh = false }: 
     queryKey: ['poi-locations', userLocation, filters],
     queryFn: async () => {
       const params = new URLSearchParams();
-      
+
       if (userLocation) {
         params.append('lat', userLocation[0].toString());
         params.append('lng', userLocation[1].toString());
       }
-      
+
       // Add weather filters
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(`filters[${key}]`, value);
@@ -319,7 +319,7 @@ export function usePOILocations({ userLocation, filters, autoRefresh = false }: 
 
       const response = await fetch(`/api/poi-locations-with-weather?${params}`);
       if (!response.ok) throw new Error('Failed to fetch POI locations');
-      
+
       const data = await response.json();
       return data.data as POIWithWeather[];
     },
@@ -338,7 +338,7 @@ export function useLocalStorageState<T>(key: string, defaultValue: T): [T, (valu
   const [state, setState] = useState<T>(() => {
     try {
       if (typeof window === 'undefined') return defaultValue;
-      
+
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : defaultValue;
     } catch (error) {
@@ -351,7 +351,7 @@ export function useLocalStorageState<T>(key: string, defaultValue: T): [T, (valu
     try {
       const valueToStore = value instanceof Function ? value(state) : value;
       setState(valueToStore);
-      
+
       if (typeof window !== 'undefined') {
         localStorage.setItem(key, JSON.stringify(valueToStore));
       }
@@ -364,10 +364,10 @@ export function useLocalStorageState<T>(key: string, defaultValue: T): [T, (valu
 }
 
 // Typed storage hooks for specific data
-export const useWeatherFiltersStorage = () => 
+export const useWeatherFiltersStorage = () =>
   useLocalStorageState<WeatherFilters>('weatherFilters', {
     temperature: 'mild',
-    precipitation: 'none', 
+    precipitation: 'none',
     wind: 'calm'
   });
 
@@ -523,18 +523,18 @@ export class WeatherFilteringService {
       case 'cold':
         const coldThreshold = temps[Math.floor(tempCount * 0.4)];
         return locations.filter(loc => loc.temperature <= coldThreshold);
-      
+
       case 'hot':
         const hotThreshold = temps[Math.floor(tempCount * 0.6)];
         return locations.filter(loc => loc.temperature >= hotThreshold);
-      
+
       case 'mild':
         const minThreshold = temps[Math.floor(tempCount * 0.1)];
         const maxThreshold = temps[Math.floor(tempCount * 0.9)];
-        return locations.filter(loc => 
+        return locations.filter(loc =>
           loc.temperature >= minThreshold && loc.temperature <= maxThreshold
         );
-      
+
       default:
         return locations;
     }
@@ -658,9 +658,9 @@ describe('EnhancedLocationManager', () => {
   it('should display location request button when no location provided', () => {
     render(
       <QueryClientProvider client={queryClient}>
-        <EnhancedLocationManager 
-          userLocation={null} 
-          onLocationUpdate={mockOnLocationUpdate} 
+        <EnhancedLocationManager
+          userLocation={null}
+          onLocationUpdate={mockOnLocationUpdate}
         />
       </QueryClientProvider>
     );
@@ -670,12 +670,12 @@ describe('EnhancedLocationManager', () => {
 
   it('should display current location when provided', () => {
     const location: [number, number] = [44.9537, -93.0900];
-    
+
     render(
       <QueryClientProvider client={queryClient}>
-        <EnhancedLocationManager 
-          userLocation={location} 
-          onLocationUpdate={mockOnLocationUpdate} 
+        <EnhancedLocationManager
+          userLocation={location}
+          onLocationUpdate={mockOnLocationUpdate}
         />
       </QueryClientProvider>
     );
@@ -696,7 +696,7 @@ const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } }
   });
-  
+
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       {children}

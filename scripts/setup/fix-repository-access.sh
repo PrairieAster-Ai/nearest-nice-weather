@@ -37,12 +37,12 @@ ORG_CHECK=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
 
 if echo "$ORG_CHECK" | grep -q '"login"'; then
     echo "✅ Organization found: PrairieAster-Ai"
-    
+
     # Check organization membership
     echo "   Checking your membership..."
     MEMBER_CHECK=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
       https://api.github.com/orgs/PrairieAster-Ai/members/rhspeer)
-    
+
     if [ "$?" -eq 0 ]; then
         echo "   ✅ You are a member of PrairieAster-Ai"
     else

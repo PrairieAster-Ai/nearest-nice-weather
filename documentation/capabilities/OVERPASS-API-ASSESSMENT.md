@@ -1,9 +1,9 @@
 # Overpass API Technical Assessment for POI Data Expansion
 
-**Date**: 2025-01-27  
-**Purpose**: Evaluate Overpass API as data source for expanding Minnesota outdoor recreation POI database  
-**Current State**: 138 manually curated POI locations  
-**Target**: Comprehensive Minnesota outdoor recreation coverage  
+**Date**: 2025-01-27
+**Purpose**: Evaluate Overpass API as data source for expanding Minnesota outdoor recreation POI database
+**Current State**: 138 manually curated POI locations
+**Target**: Comprehensive Minnesota outdoor recreation coverage
 
 ---
 
@@ -31,7 +31,7 @@ Geographic Coverage: ~15% of Minnesota outdoor recreation potential
 ```
 Estimated Minnesota Outdoor POI Coverage:
 - Parks (leisure=park): 2,000+ locations
-- Trails (highway=path, highway=track): 3,000+ segments  
+- Trails (highway=path, highway=track): 3,000+ segments
 - Nature Centers (tourism=information): 100+ locations
 - Forests (landuse=forest, natural=forest): 500+ areas
 - Water Access (leisure=beach, sport=fishing): 200+ locations
@@ -107,11 +107,11 @@ const osmData = await response.json();
   // State and local parks
   node["leisure"="park"](44.0,-97.0,49.0,-89.0);
   way["leisure"="park"](44.0,-97.0,49.0,-89.0);
-  
+
   // Nature reserves
   node["leisure"="nature_reserve"](44.0,-97.0,49.0,-89.0);
   way["leisure"="nature_reserve"](44.0,-97.0,49.0,-89.0);
-  
+
   // Recreational areas
   node["landuse"="recreation_ground"](44.0,-97.0,49.0,-89.0);
   way["landuse"="recreation_ground"](44.0,-97.0,49.0,-89.0);
@@ -126,11 +126,11 @@ out center;
   // Hiking trails
   way["highway"="path"]["trail_visibility"~"."](44.0,-97.0,49.0,-89.0);
   way["highway"="track"]["tracktype"~"grade[1-3]"](44.0,-97.0,49.0,-89.0);
-  
+
   // Bike paths
   way["highway"="cycleway"](44.0,-97.0,49.0,-89.0);
-  
-  // Cross-country ski trails  
+
+  // Cross-country ski trails
   way["piste:type"="nordic"](44.0,-97.0,49.0,-89.0);
 );
 out center;
@@ -143,10 +143,10 @@ out center;
   // Public beaches
   node["leisure"="beach"](44.0,-97.0,49.0,-89.0);
   way["leisure"="beach"](44.0,-97.0,49.0,-89.0);
-  
+
   // Fishing access
   node["leisure"="fishing"](44.0,-97.0,49.0,-89.0);
-  
+
   // Boat launches
   node["leisure"="slipway"](44.0,-97.0,49.0,-89.0);
 );
@@ -161,19 +161,19 @@ const tagMapping = {
   // Basic information
   name: element.tags.name || element.tags['name:en'] || 'Unnamed Location',
   description: element.tags.description || generateDescription(element.tags),
-  
+
   // Geographic data (direct mapping)
   lat: element.lat || element.center.lat,
   lng: element.lon || element.center.lon,
-  
+
   // Park type classification
   park_type: classifyParkType(element.tags),
   place_rank: calculateRank(element.tags),
-  
+
   // Enhanced metadata
   amenities: extractAmenities(element.tags),
   activities: inferActivities(element.tags),
-  
+
   // Data management
   data_source: 'overpass_api',
   external_id: `osm_${element.type}_${element.id}`,
@@ -201,7 +201,7 @@ function classifyParkType(tags) {
 - [ ] Compare against existing 138 POI database for overlap detection
 - [ ] Establish data normalization pipeline
 
-### Phase 2: Core Integration (Week 2-3)  
+### Phase 2: Core Integration (Week 2-3)
 - [ ] Implement full query suite (parks, trails, water access)
 - [ ] Build duplicate detection against existing database
 - [ ] Create data validation and quality scoring

@@ -18,7 +18,7 @@ const octokit = new Octokit({
 
 async function testProjectConnection() {
   console.log('🔧 Testing GitHub Project v2 Connection...\n');
-  
+
   try {
     // Get project ID and fields
     const projectQuery = `
@@ -66,7 +66,7 @@ async function testProjectConnection() {
     const project = projectData.organization.projectV2;
     console.log(`✅ Project Found: ${project.title}`);
     console.log(`✅ Project ID: ${project.id}\n`);
-    
+
     console.log('📋 **PROJECT FIELDS**:');
     const fields = project.fields.nodes;
     for (const field of fields) {
@@ -82,9 +82,9 @@ async function testProjectConnection() {
         });
       }
     }
-    
+
     console.log('\n✅ Project connection test successful!');
-    
+
   } catch (error) {
     console.error('❌ Project connection failed:', error.message);
   }

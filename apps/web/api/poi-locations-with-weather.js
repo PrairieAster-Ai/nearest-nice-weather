@@ -1,12 +1,12 @@
 /**
  * ========================================================================
- * POI LOCATIONS WITH WEATHER API - Production Vercel Function  
+ * POI LOCATIONS WITH WEATHER API - Production Vercel Function
  * ========================================================================
- * 
+ *
  * @PURPOSE: Primary frontend API - POI discovery with weather integration
  * @SYNC_TARGET: dev-api-server.js /api/poi-locations-with-weather endpoint
  * @BUSINESS_CRITICAL: Main map interface depends on this endpoint
- * 
+ *
  * This is the main API endpoint used by the frontend map interface.
  * Combines outdoor recreation POIs with mock weather data and filtering.
  * Uses identical logic to localhost Express.js endpoint.
@@ -117,8 +117,8 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'GET') {
-    return res.status(405).json({ 
-      success: false, 
+    return res.status(405).json({
+      success: false,
       error: 'Method not allowed'
     })
   }
@@ -133,14 +133,14 @@ export default async function handler(req, res) {
     if (lat && lng) {
       const userLat = parseFloat(lat)
       const userLng = parseFloat(lng)
-      
+
       result = await sql`
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities,
           (3959 * acos(
-            cos(radians(${userLat})) * cos(radians(lat)) * 
-            cos(radians(lng) - radians(${userLng})) + 
+            cos(radians(${userLat})) * cos(radians(lat)) *
+            cos(radians(lng) - radians(${userLng})) +
             sin(radians(${userLat})) * sin(radians(lat))
           )) as distance_miles
         FROM poi_locations
@@ -149,7 +149,7 @@ export default async function handler(req, res) {
       `
     } else {
       result = await sql`
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities
         FROM poi_locations
@@ -157,7 +157,7 @@ export default async function handler(req, res) {
         LIMIT ${limitNum}
       `
     }
-    
+
     // Transform results and add mock weather data
     const baseData = result.map(row => ({
       id: row.id.toString(),
@@ -185,7 +185,7 @@ export default async function handler(req, res) {
       // Deterministic mock weather based on POI ID for consistency
       const seed = parseInt(poi.id) + index
       const random = (seed * 9301 + 49297) % 233280 / 233280
-      
+
       return {
         ...poi,
         temperature: Math.floor(random * 50) + 40, // 40-90°F
@@ -221,7 +221,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('POI-Weather API error:', error)
-    
+
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve POI data with weather',

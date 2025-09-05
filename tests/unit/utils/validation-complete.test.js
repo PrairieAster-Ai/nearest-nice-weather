@@ -1,7 +1,7 @@
 /**
  * Complete Validation Utils Coverage Test
  * Comprehensive testing of validation.ts to achieve 90%+ coverage
- * 
+ *
  * @COVERAGE_TARGET: validation.ts (0% → 80%+)
  * @DUAL_API_CONTEXT: Tests validation used by both Express and Vercel APIs
  */
@@ -49,7 +49,7 @@ describe('Complete Validation Utils Coverage', () => {
         return input
           .trim()
           .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
-          .replace(/javascript:/gi, '') // Remove javascript: protocols  
+          .replace(/javascript:/gi, '') // Remove javascript: protocols
           .replace(/on\w+\s*=/gi, '') // Remove event handlers
       };
 
@@ -116,9 +116,9 @@ describe('Complete Validation Utils Coverage', () => {
         textContent: '',
         innerHTML: 'escaped_content'
       };
-      
+
       global.document.createElement.mockReturnValue(mockDiv);
-      
+
       // Create test implementation
       const sanitizeHtml = (input) => {
         const div = document.createElement('div');
@@ -139,7 +139,7 @@ describe('Complete Validation Utils Coverage', () => {
     test('should test weatherFilter schema comprehensively', async () => {
       // Import zod for schema testing
       const { z } = await import('zod');
-      
+
       // Recreate the weatherFilter schema
       const weatherFilterSchema = z.object({
         temperature: z.enum(['warm', 'mild', 'cool'], {
@@ -191,10 +191,10 @@ describe('Complete Validation Utils Coverage', () => {
 
     test('should test feedback schema with sanitization', async () => {
       const { z } = await import('zod');
-      
+
       // Mock sanitizeString for schema testing
       const sanitizeString = (input) => input.replace(/<[^>]*>/g, '').trim();
-      
+
       const feedbackSchema = z.object({
         rating: z.number().min(1).max(5, 'Rating must be between 1 and 5'),
         comment: z.string()
@@ -245,9 +245,9 @@ describe('Complete Validation Utils Coverage', () => {
 
     test('should test search schema validation', async () => {
       const { z } = await import('zod');
-      
+
       const sanitizeString = (input) => input.replace(/<[^>]*>/g, '').trim();
-      
+
       const searchSchema = z.object({
         query: z.string()
           .min(1, 'Search query cannot be empty')
@@ -294,14 +294,14 @@ describe('Complete Validation Utils Coverage', () => {
         isAllowed(key, limit, windowMs) {
           const now = Date.now();
           const requests = this.requests.get(key) || [];
-          
+
           // Remove requests outside the time window
           const validRequests = requests.filter(time => now - time < windowMs);
-          
+
           if (validRequests.length >= limit) {
             return false;
           }
-          
+
           validRequests.push(now);
           this.requests.set(key, validRequests);
           return true;
@@ -325,18 +325,18 @@ describe('Complete Validation Utils Coverage', () => {
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
-      
+
       // Test exceeding limit
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(false);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(false);
-      
+
       // Test different key
       expect(rateLimiter.isAllowed('different-user', limit, windowMs)).toBe(true);
-      
+
       // Test reset
       rateLimiter.reset(testKey);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
-      
+
       // Test request count
       expect(rateLimiter.getRequestCount(testKey)).toBe(1);
     });
@@ -350,14 +350,14 @@ describe('Complete Validation Utils Coverage', () => {
         isAllowed(key, limit, windowMs) {
           const now = Date.now();
           const requests = this.requests.get(key) || [];
-          
+
           // Remove requests outside the time window
           const validRequests = requests.filter(time => now - time < windowMs);
-          
+
           if (validRequests.length >= limit) {
             return false;
           }
-          
+
           validRequests.push(now);
           this.requests.set(key, validRequests);
           return true;
@@ -388,11 +388,11 @@ describe('Complete Validation Utils Coverage', () => {
       const validateEnvironmentVars = (envVars, requiredVars) => {
         const missing = requiredVars.filter(varName => !envVars[varName]);
         const warnings = [];
-        
+
         if (missing.length > 0) {
           warnings.push(`Missing required environment variables: ${missing.join(', ')}`);
         }
-        
+
         // Check for development-specific variables
         if (envVars.NODE_ENV === 'development') {
           const devVars = ['VITE_API_BASE_URL', 'VITE_DEBUG'];
@@ -401,7 +401,7 @@ describe('Complete Validation Utils Coverage', () => {
             warnings.push(`Missing development variables: ${missingDev.join(', ')}`);
           }
         }
-        
+
         return {
           isValid: missing.length === 0,
           missing,
@@ -415,7 +415,7 @@ describe('Complete Validation Utils Coverage', () => {
         VITE_API_BASE_URL: 'https://api.example.com',
         DATABASE_URL: 'postgresql://...'
       };
-      
+
       const result1 = validateEnvironmentVars(completeEnv, ['NODE_ENV', 'DATABASE_URL']);
       expect(result1.isValid).toBe(true);
       expect(result1.missing).toHaveLength(0);
@@ -424,7 +424,7 @@ describe('Complete Validation Utils Coverage', () => {
       const incompleteEnv = {
         NODE_ENV: 'production'
       };
-      
+
       const result2 = validateEnvironmentVars(incompleteEnv, ['NODE_ENV', 'DATABASE_URL', 'API_KEY']);
       expect(result2.isValid).toBe(false);
       expect(result2.missing).toEqual(['DATABASE_URL', 'API_KEY']);
@@ -435,7 +435,7 @@ describe('Complete Validation Utils Coverage', () => {
         NODE_ENV: 'development',
         DATABASE_URL: 'postgresql://localhost'
       };
-      
+
       const result3 = validateEnvironmentVars(devEnv, ['NODE_ENV', 'DATABASE_URL']);
       expect(result3.isValid).toBe(true);
       expect(result3.warnings.some(w => w.includes('development variables'))).toBe(true);
@@ -446,7 +446,7 @@ describe('Complete Validation Utils Coverage', () => {
     test('should handle malicious input patterns', () => {
       const advancedSanitize = (input) => {
         if (typeof input !== 'string') return '';
-        
+
         return input
           .trim()
           // Remove script tags (case insensitive, multiline)
@@ -509,13 +509,13 @@ describe('Complete Validation Utils Coverage', () => {
       };
 
       const result = sanitize(testContent);
-      
+
       expect(result).toContain('Hello World!');
       expect(result).toContain('https://example.com');
       expect(result).toContain('user@domain.com');
       expect(result).toContain('This should stay');
       expect(result).toContain('but keep this text');
-      
+
       expect(result).not.toContain('<script>');
       expect(result).not.toContain('alert("remove this")');
       expect(result).not.toContain('onclick="bad()"');

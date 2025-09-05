@@ -60,7 +60,7 @@ if [ -n "$WBS_REF" ]; then
     SLIDE_NUM=$(echo "$WBS_REF" | grep -o '#/[0-9]*' | tr -d '#/')
     if [ -n "$SLIDE_NUM" ]; then
         echo "  📄 WBS Slide: $SLIDE_NUM"
-        
+
         # Map slide to sprint
         case $SLIDE_NUM in
             3) echo "  🏃 Sprint Context: Sprint 1 - Core Weather Intelligence" ;;
@@ -106,7 +106,7 @@ if [ -n "$SPRINT_LABEL" ]; then
     echo "  🏃 Sprint Assignment: Sprint $SPRINT_NUM"
 fi
 
-# Business Value from Labels  
+# Business Value from Labels
 BUSINESS_VALUE=$(echo "$LABELS" | grep -E '(revenue|infrastructure|ux)')
 if [ -n "$BUSINESS_VALUE" ]; then
     echo "  💰 Business Value: $BUSINESS_VALUE"
@@ -201,6 +201,6 @@ echo "🎯 Context Summary Complete!"
 echo ""
 echo "💡 Next Actions:"
 echo "1. Review WBS presentation slide for complete context"
-echo "2. Check file references for implementation details"  
+echo "2. Check file references for implementation details"
 echo "3. Follow related issues for full scope understanding"
 echo "4. Validate business impact and sprint alignment"

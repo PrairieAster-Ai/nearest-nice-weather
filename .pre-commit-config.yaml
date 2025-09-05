@@ -1,0 +1,82 @@
+# Pre-commit hooks for security and code quality
+# See https://pre-commit.com for more information
+
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+
+  # Secret detection with detect-secrets
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+              package-lock\.json|
+              .*\.lock|
+              node_modules/.*|
+              \.git/.*|
+              tests/.*\.json
+          )$
+
+  # Secret detection with gitleaks
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+
+  # Local security validation hooks
+  - repo: local
+    hooks:
+      - id: security-env-check
+        name: Environment Security Validation
+        entry: node scripts/security/validate-env.cjs
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: credential-pattern-check
+        name: Credential Pattern Check
+        entry: bash -c 'if grep -r "github_pat_\|sk-[a-zA-Z0-9]\{48\}\|ssk_[a-zA-Z0-9]\+\|postgresql://[^@]\+:[^@]\+@" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" 2>/dev/null; then echo "❌ Potential credentials found!"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # JavaScript/Node.js specific security
+  - repo: local
+    hooks:
+      - id: npm-audit
+        name: NPM Security Audit
+        entry: bash -c 'if [ -f package.json ]; then npm audit --audit-level=high --production 2>/dev/null || echo "⚠️ High severity vulnerabilities found in dependencies"; fi'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+# Global settings
+default_language_version:
+  node: system
+  python: python3
+
+# Configure specific stages
+default_stages: [pre-commit]
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+      node_modules/.*|
+      \.git/.*|
+      wiki-repo/.*|
+      .*\.lock$|
+      .*\.min\.js$
+  )$

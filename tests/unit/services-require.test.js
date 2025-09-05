@@ -1,7 +1,7 @@
 /**
  * Services Layer Coverage Test using CommonJS approach
  * Comprehensive testing of service layer functionality
- * 
+ *
  * @COVERAGE_TARGET: services/monitoring.ts, services/UserLocationEstimator.ts
  * @PHASE: Phase 2 - Service layer coverage expansion
  */
@@ -268,7 +268,7 @@ describe('Services Layer Coverage - CommonJS', () => {
 
       // Test existing session ID retrieval
       window.sessionStorage.getItem.mockReturnValue('existing_session_123');
-      
+
       const existingSessionId = monitoring.getSessionId();
       expect(existingSessionId).toBe('existing_session_123');
 
@@ -378,8 +378,8 @@ describe('Services Layer Coverage - CommonJS', () => {
 
       // Verify PerformanceObserver was created and configured
       expect(global.PerformanceObserver).toHaveBeenCalledWith(expect.any(Function));
-      expect(observer.observe).toHaveBeenCalledWith({ 
-        entryTypes: ['largest-contentful-paint'] 
+      expect(observer.observe).toHaveBeenCalledWith({
+        entryTypes: ['largest-contentful-paint']
       });
 
       // Wait for async callback
@@ -508,7 +508,7 @@ describe('Services Layer Coverage - CommonJS', () => {
   describe('Global error handling', () => {
     test('should handle window error events', () => {
       const mockCaptureError = jest.fn();
-      
+
       // Simulate global error handler setup
       const setupGlobalErrorHandler = (captureError) => {
         window.addEventListener('error', (event) => {
@@ -628,7 +628,7 @@ describe('Services Layer Coverage - CommonJS', () => {
       }
 
       const monitoring = new MonitoringService();
-      
+
       const testData = {
         message: 'Test error',
         timestamp: '2023-01-01T12:00:00Z'
@@ -674,7 +674,7 @@ describe('Services Layer Coverage - CommonJS', () => {
       }
 
       const monitoring = new MonitoringService();
-      
+
       // Should not throw despite fetch failure
       await monitoring.sendToMonitoring('error', { test: 'data' });
 

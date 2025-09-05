@@ -2,7 +2,7 @@
   "version": "1.1.0",
   "lastUpdated": "2025-08-08",
   "description": "Centralized performance requirements for automated testing tools (PlaywrightMCP, etc.) - Updated with realistic thresholds based on comprehensive testing",
-  
+
   "globalRequirements": {
     "pageLoadTime": {
       "target": 3000,
@@ -41,7 +41,7 @@
         "description": "Slide-out animation for filter options"
       }
     },
-    
+
     "FilterManager": {
       "debounceDelay": {
         "target": 100,
@@ -57,7 +57,7 @@
         "description": "React state update propagation"
       }
     },
-    
+
     "LocationManager": {
       "ipGeolocationTimeout": {
         "target": 2000,
@@ -72,7 +72,7 @@
         "description": "Browser geolocation API timeout"
       }
     },
-    
+
     "MapComponent": {
       "markerRenderTime": {
         "target": 500,
@@ -94,7 +94,7 @@
         "description": "POI popup open animation"
       }
     },
-    
+
     "POINavigation": {
       "navigationClickDelay": {
         "target": 100,

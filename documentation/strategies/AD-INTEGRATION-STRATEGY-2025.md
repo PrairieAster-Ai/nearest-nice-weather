@@ -1,8 +1,8 @@
 # Ad Integration Strategy - POI Map Marker Popups
 ## Weather Intelligence Platform - Contextual Advertising Model
 
-**Created**: 2025-07-19  
-**Purpose**: Define contextual ad strategy for POI popup integration  
+**Created**: 2025-07-19
+**Purpose**: Define contextual ad strategy for POI popup integration
 **Focus**: User-helpful, location-relevant advertising that enhances experience
 
 ---
@@ -75,7 +75,7 @@
   "category": "Outdoor Gear",
   "businesses": [
     "REI Co-op",
-    "Dick's Sporting Goods", 
+    "Dick's Sporting Goods",
     "Local outdoor gear shops",
     "Sporting goods stores",
     "Bike shops",
@@ -88,7 +88,7 @@
   },
   "ad_content": [
     "Gear recommendations for current weather",
-    "Equipment rentals near destination", 
+    "Equipment rentals near destination",
     "Last-minute supplies and snacks",
     "Seasonal gear promotions"
   ]
@@ -178,7 +178,7 @@ function getRelevantAds(poi, userLocation, selectedActivity) {
   const routeBusinesses = findBusinessesAlongRoute(userLocation, poi.location);
   const destinationBusinesses = findBusinessesNear(poi.location, 5); // 5 mile radius
   const activityBusinesses = filterByActivity(selectedActivity);
-  
+
   return prioritizeAds([
     ...destinationBusinesses.filter(activityBusinesses),
     ...routeBusinesses.filter(relevantToTrip),

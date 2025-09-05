@@ -7,9 +7,9 @@ body:
     attributes:
       value: |
         ## Capability Template
-        
+
         Use this template for major strategic capabilities that represent significant business value and may include multiple epics.
-        
+
   - type: textarea
     id: capability-description
     attributes:
@@ -18,7 +18,7 @@ body:
       placeholder: "Describe the strategic capability and how it advances business objectives"
     validations:
       required: true
-      
+
   - type: textarea
     id: strategic-value
     attributes:
@@ -27,7 +27,7 @@ body:
       placeholder: "This capability enables the business to... which supports our strategic goal of..."
     validations:
       required: true
-      
+
   - type: textarea
     id: revenue-impact
     attributes:
@@ -39,7 +39,7 @@ body:
         - Revenue model: How this generates revenue
     validations:
       required: true
-      
+
   - type: dropdown
     id: size
     attributes:
@@ -51,7 +51,7 @@ body:
         - MEGA (4+ quarters)
     validations:
       required: true
-      
+
   - type: textarea
     id: epics
     attributes:
@@ -61,16 +61,16 @@ body:
         - [ ] Epic 1: Brief description
         - [ ] Epic 2: Brief description
         - [ ] Epic 3: Brief description
-        
+
         Note: Epic breakdown may evolve during planning
-      
+
   - type: textarea
     id: market-opportunity
     attributes:
       label: Market Opportunity
       description: Market size, competition, and opportunity analysis
       placeholder: "Market size, competitive landscape, and why now is the right time for this capability"
-      
+
   - type: textarea
     id: success-metrics
     attributes:
@@ -80,7 +80,7 @@ body:
         - KPI 1: Baseline → Target (Timeline)
         - KPI 2: Baseline → Target (Timeline)
         - KPI 3: Baseline → Target (Timeline)
-        
+
   - type: textarea
     id: risks-and-assumptions
     attributes:
@@ -90,11 +90,11 @@ body:
         **Key Assumptions:**
         - Assumption 1
         - Assumption 2
-        
+
         **Major Risks:**
         - Risk 1: Impact → Mitigation
         - Risk 2: Impact → Mitigation
-        
+
   - type: textarea
     id: acceptance-criteria
     attributes:

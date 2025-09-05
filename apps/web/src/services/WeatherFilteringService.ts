@@ -2,22 +2,22 @@
  * ========================================================================
  * WEATHER FILTERING SERVICE - INTELLIGENT LOCATION FILTERING
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Centralized weather-based location filtering with percentile algorithms
  * 🎯 BUSINESS LOGIC: Relative weather filtering for optimal outdoor activity discovery
  * 🔒 ALGORITHM STABILITY: Maintains consistent filter percentages per business rules
  * ⚡ PERFORMANCE: Optimized sorting and filtering for real-time UI updates
- * 
+ *
  * FILTERING STRATEGIES:
  * 1. 🌡️ Temperature: Percentile-based relative to current weather conditions
  * 2. 🌧️ Precipitation: Relative dry/light/heavy classification
  * 3. 💨 Wind: Relative calm/breezy/windy classification
  * 4. 📏 Distance: Haversine formula for geographic filtering
- * 
+ *
  * @BUSINESS_RULE: Percentile thresholds are fixed and must not be adjusted
  * @PERFORMANCE_CRITICAL: Efficient sorting and filtering for real-time UI
  * @CLAUDE_CONTEXT: Refactored to use extracted utilities for improved testability
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -39,12 +39,12 @@ export type { Location, WeatherFilters, Coordinates, FilterCounts };
 /**
  * Weather Filtering Service
  * Provides intelligent location filtering based on weather conditions
- * 
+ *
  * NOTE: Core filtering logic has been extracted to weatherFilteringUtils.ts
  * This service now acts as a wrapper for backward compatibility
  */
 export class WeatherFilteringService {
-  
+
   /**
    * Calculate distance between two geographic points using Haversine formula
    * @param point1 First coordinate [latitude, longitude]
@@ -64,15 +64,15 @@ export class WeatherFilteringService {
    * @returns Filtered array of locations matching criteria
    */
   applyWeatherFilters(
-    locations: Location[], 
-    filters: WeatherFilters, 
+    locations: Location[],
+    filters: WeatherFilters,
     userLocation?: Coordinates,
     maxDistance?: number
   ): Location[] {
     if (locations.length === 0) return [];
-    
+
     console.log(`🎯 WEATHER FILTERING: ${locations.length} locations → applying filters`);
-    
+
     const filtered = applyWeatherFilters(
       locations,
       locations, // Use all locations for threshold calculation
@@ -106,8 +106,8 @@ export class WeatherFilteringService {
    * @returns Locations within the specified distance
    */
   filterByDistance(
-    locations: Location[], 
-    userLocation: Coordinates, 
+    locations: Location[],
+    userLocation: Coordinates,
     maxDistance: number
   ): Location[] {
     return filterByDistance(locations, userLocation, maxDistance);

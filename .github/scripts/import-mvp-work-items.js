@@ -50,7 +50,7 @@ class MVPWorkItemImporter {
         },
         {
           name: 'Location-Based POI Discovery',
-          status: 'Done', 
+          status: 'Done',
           sprint: 'N/A',
           size: 'XL',
           priority: 'High',
@@ -65,7 +65,7 @@ class MVPWorkItemImporter {
           name: 'Real-Time Weather Intelligence',
           status: 'Ready',
           sprint: 'Database + Weather API',
-          size: 'XL', 
+          size: 'XL',
           priority: 'Critical',
           labels: ['type: capability', 'database', 'weather-api'],
           assignees: [''],
@@ -440,7 +440,7 @@ class MVPWorkItemImporter {
   // Initialize GitHub Project v2 connection
   async initializeProject() {
     console.log('🔧 Initializing GitHub Project connection...\n');
-    
+
     try {
       // Get project ID using GraphQL
       const projectQuery = `
@@ -485,7 +485,7 @@ class MVPWorkItemImporter {
       });
 
       this.projectId = projectData.organization.projectV2.id;
-      
+
       // Map field names to IDs
       const fields = projectData.organization.projectV2.fields.nodes;
       for (const field of fields) {
@@ -497,7 +497,7 @@ class MVPWorkItemImporter {
 
       console.log(`  ✅ Project ID: ${this.projectId}`);
       console.log(`  ✅ Found ${fields.length} project fields\n`);
-      
+
     } catch (error) {
       console.error('❌ Failed to initialize project:', error.message);
       throw error;
@@ -573,10 +573,10 @@ class MVPWorkItemImporter {
   async setProjectField(itemId, fieldName, optionId) {
     try {
       const fieldId = this.projectFieldIds[fieldName].id;
-      
+
       let updateMutation;
       let variables;
-      
+
       if (fieldName === 'Sprint') {
         // Iteration field uses iterationId
         updateMutation = `
@@ -593,7 +593,7 @@ class MVPWorkItemImporter {
             }
           }
         `;
-        
+
         variables = {
           projectId: this.projectId,
           itemId: itemId,
@@ -616,7 +616,7 @@ class MVPWorkItemImporter {
             }
           }
         `;
-        
+
         variables = {
           projectId: this.projectId,
           itemId: itemId,
@@ -638,39 +638,39 @@ class MVPWorkItemImporter {
     console.log('===================================\n');
     console.log(`📦 Repository: ${this.owner}/${this.repo}`);
     console.log(`🎯 Project: https://github.com/orgs/${this.owner}/projects/${this.projectNumber}\n`);
-    
+
     // Initialize project connection
     await this.initializeProject();
-    
+
     const workItems = this.getMVPWorkItems();
-    
+
     try {
       console.log('📊 **IMPORT PLAN**:');
       console.log(`  🌟 Capabilities: ${workItems.capabilities.length}`);
       console.log(`  📦 Epics: ${workItems.epics.length}`);
       console.log(`  👤 Stories: ${workItems.stories.length}\n`);
-      
+
       // Step 1: Create Capabilities
       console.log('🌟 Creating Capabilities...\n');
       for (const capability of workItems.capabilities) {
         await this.createCapability(capability);
       }
-      
+
       // Step 2: Create Epics
       console.log('\n📦 Creating Epics...\n');
       for (const epic of workItems.epics) {
         await this.createEpic(epic);
       }
-      
+
       // Step 3: Create Stories
       console.log('\n👤 Creating Stories...\n');
       for (const story of workItems.stories) {
         await this.createStory(story);
       }
-      
+
       // Step 4: Generate summary
       await this.generateImportSummary();
-      
+
     } catch (error) {
       console.error('❌ Error importing work items:', error.message);
     }
@@ -679,7 +679,7 @@ class MVPWorkItemImporter {
   async createCapability(capability) {
     const title = `Capability: ${capability.name}`;
     const body = this.generateCapabilityBody(capability);
-    
+
     try {
       const issue = await octokit.rest.issues.create({
         owner: this.owner,
@@ -689,17 +689,17 @@ class MVPWorkItemImporter {
         labels: capability.labels,
         assignees: capability.assignees.filter(a => a) // Remove empty strings
       });
-      
+
       console.log(`  ✅ Created: ${title} (#${issue.data.number})`);
       this.createdIssues.push(issue.data);
       this.issueMap.set(capability.name, issue.data.number);
-      
+
       // Add to project with field values
       await this.addIssueToProject(issue.data, capability);
-      
+
       // Add small delay to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 200));
-      
+
     } catch (error) {
       console.log(`  ❌ Failed to create ${title}: ${error.message}`);
     }
@@ -708,7 +708,7 @@ class MVPWorkItemImporter {
   async createEpic(epic) {
     const title = `Epic: ${epic.name}`;
     const body = this.generateEpicBody(epic);
-    
+
     try {
       const issue = await octokit.rest.issues.create({
         owner: this.owner,
@@ -718,16 +718,16 @@ class MVPWorkItemImporter {
         labels: epic.labels,
         assignees: epic.assignees.filter(a => a)
       });
-      
+
       console.log(`  ✅ Created: ${title} (#${issue.data.number})`);
       this.createdIssues.push(issue.data);
       this.issueMap.set(epic.name, issue.data.number);
-      
+
       // Add to project with field values
       await this.addIssueToProject(issue.data, epic);
-      
+
       await new Promise(resolve => setTimeout(resolve, 200));
-      
+
     } catch (error) {
       console.log(`  ❌ Failed to create ${title}: ${error.message}`);
     }
@@ -736,7 +736,7 @@ class MVPWorkItemImporter {
   async createStory(story) {
     const title = `Story: ${story.name}`;
     const body = this.generateStoryBody(story);
-    
+
     try {
       const issue = await octokit.rest.issues.create({
         owner: this.owner,
@@ -746,23 +746,23 @@ class MVPWorkItemImporter {
         labels: story.labels,
         assignees: story.assignees.filter(a => a)
       });
-      
+
       console.log(`  ✅ Created: ${title} (#${issue.data.number})`);
       this.createdIssues.push(issue.data);
       this.issueMap.set(story.name, issue.data.number);
-      
+
       // Add to project with field values
       await this.addIssueToProject(issue.data, story);
-      
+
       await new Promise(resolve => setTimeout(resolve, 200));
-      
+
     } catch (error) {
       console.log(`  ❌ Failed to create ${title}: ${error.message}`);
     }
   }
 
   generateCapabilityBody(capability) {
-    const parentIssueNumber = capability.parentCapability ? 
+    const parentIssueNumber = capability.parentCapability ?
       this.issueMap.get(capability.parentCapability) || 'TBD' : 'N/A (Top-level capability)';
 
     return `## 🌟 Capability: ${capability.name}
@@ -887,29 +887,29 @@ ${story.completed ? '✅ **COMPLETED** - This story has been successfully delive
   async generateImportSummary() {
     console.log('\n📊 **IMPORT SUMMARY**');
     console.log('====================\n');
-    
+
     console.log(`✅ Successfully created: ${this.createdIssues.length} issues`);
-    
+
     const capabilities = this.createdIssues.filter(issue => issue.title.startsWith('Capability:'));
     const epics = this.createdIssues.filter(issue => issue.title.startsWith('Epic:'));
     const stories = this.createdIssues.filter(issue => issue.title.startsWith('Story:'));
-    
+
     console.log(`  🌟 Capabilities: ${capabilities.length}`);
     console.log(`  📦 Epics: ${epics.length}`);
     console.log(`  👤 Stories: ${stories.length}`);
-    
+
     console.log('\n🔗 **QUICK LINKS**:');
     console.log(`  📋 All Issues: https://github.com/${this.owner}/${this.repo}/issues`);
     console.log(`  🎯 Project Board: https://github.com/orgs/${this.owner}/projects/${this.projectNumber}`);
     console.log(`  🏷️  Labels: https://github.com/${this.owner}/${this.repo}/labels`);
-    
+
     console.log('\n🎯 **NEXT STEPS**:');
     console.log('1. Visit the Project Board to see all imported work items');
     console.log('2. Organize issues into project board columns by status');
     console.log('3. Set up project field values (Sprint, Size, Priority)');
     console.log('4. Create sub-issues for detailed implementation tasks');
     console.log('5. Begin development on Ready items in current sprint');
-    
+
     console.log('\n✅ MVP Work Items Import Complete!');
   }
 }

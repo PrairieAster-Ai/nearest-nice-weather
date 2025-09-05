@@ -2,10 +2,10 @@
 # ========================================================================
 # POI DATA IMPORT RUNNER - 1000+ Minnesota Parks
 # ========================================================================
-# 
+#
 # Automated script to run the POI data pipeline with proper environment setup
 # Handles API keys, database connections, and multi-environment deployment
-# 
+#
 # Usage:
 #   ./scripts/run-poi-import.sh                    # Import to development only
 #   ./scripts/run-poi-import.sh --all-environments # Import to dev/preview/prod

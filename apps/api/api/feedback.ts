@@ -35,9 +35,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { email, feedback, session_id, page_url }: FeedbackRequest = req.body
 
     if (!feedback || feedback.trim().length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Feedback text is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Feedback text is required'
       })
     }
 
@@ -48,15 +48,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Insert feedback into database
     const client = await pool.connect()
-    
+
     try {
       const query = `
-        INSERT INTO user_feedback 
+        INSERT INTO user_feedback
         (email, feedback_text, user_agent, ip_address, session_id, page_url, created_at)
         VALUES ($1, $2, $3, $4, $5, $6, NOW())
         RETURNING id, created_at
       `
-      
+
       const result = await client.query(query, [
         email || null,
         feedback.trim(),
@@ -81,7 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error('Feedback submission error:', error)
-    
+
     res.status(500).json({
       success: false,
       error: 'Failed to submit feedback. Please try again.',

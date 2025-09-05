@@ -67,7 +67,7 @@ CREATE TABLE poi_locations (
     search_name JSONB,                      -- Alternative names for search
     external_id VARCHAR(100),               -- Unique identifier from seeding
     last_modified TIMESTAMP DEFAULT NOW(),
-    
+
     -- Minnesota bounds constraint
     CONSTRAINT poi_minnesota_bounds CHECK (
         lat BETWEEN 43.499356 AND 49.384472 AND
@@ -101,7 +101,7 @@ CREATE TABLE user_feedback (
 // Vercel Edge Function (apps/web/api/poi-locations-with-weather.js)
 export default async function handler(req, res) {
     const { lat, lng, limit = 200 } = req.query;
-    
+
     // Query POI locations from database
     const poiQuery = sql`
         SELECT id, name, lat, lng, park_type, description, place_rank,
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
         ORDER BY distance_miles ASC
         LIMIT ${limit}
     `;
-    
+
     // Enhance with weather data
     const poisWithWeather = pois.map(poi => ({
         ...poi,
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
         condition: getWeatherData(poi.lat, poi.lng).condition,
         // ... weather fields
     }));
-    
+
     return res.json({ success: true, data: poisWithWeather });
 }
 ```
@@ -132,7 +132,7 @@ export default async function handler(req, res) {
 | **Preview** | Vercel CDN | Vercel Functions | Neon prod branch |
 | **Production** | Vercel CDN | Vercel Functions | Neon prod branch |
 
-**Dual API Architecture**: 
+**Dual API Architecture**:
 - `dev-api-server.js` - Fast localhost development with hot reload
 - `apps/web/api/*.js` - Production serverless functions
 - **Maintenance**: Must sync changes between both implementations
@@ -153,10 +153,10 @@ export async function fetchWeatherData(lat, lng) {
     // Check 5-minute cache first
     const cached = weatherCache.get(`${lat},${lng}`);
     if (cached) return cached;
-    
+
     // Fetch from OpenWeather API
     const weather = await fetch(`https://api.openweathermap.org/...`);
-    
+
     // Cache and return
     weatherCache.set(`${lat},${lng}`, weather);
     return weather;
@@ -184,7 +184,7 @@ npm start                    # Starts frontend + API
 # Preview deployment
 npm run deploy:preview       # Creates preview on p.nearestniceweather.com
 
-# Production deployment  
+# Production deployment
 npm run deploy:production    # Requires confirmation, deploys to production
 ```
 
@@ -226,13 +226,13 @@ npm run deploy:production    # Requires confirmation, deploys to production
 
 ## ⚠️ What This Architecture is NOT
 
-❌ **NOT FastAPI** - Legacy docs mention it, actual is Vercel Functions  
-❌ **NOT PostGIS** - Using simple PostgreSQL without GIS extensions  
-❌ **NOT Microservices** - Simple serverless functions only  
-❌ **NOT Redis/Caching** - Only in-memory weather cache  
-❌ **NOT Complex** - Intentionally simple for maintainability  
+❌ **NOT FastAPI** - Legacy docs mention it, actual is Vercel Functions
+❌ **NOT PostGIS** - Using simple PostgreSQL without GIS extensions
+❌ **NOT Microservices** - Simple serverless functions only
+❌ **NOT Redis/Caching** - Only in-memory weather cache
+❌ **NOT Complex** - Intentionally simple for maintainability
 
 ---
 
-**For business context, see `/README.md` and `/PROJECT-OVERVIEW-FOR-CLAUDE.md`**  
+**For business context, see `/README.md` and `/PROJECT-OVERVIEW-FOR-CLAUDE.md`**
 **For API implementation details, see `/dev-api-server.js` (well documented)**

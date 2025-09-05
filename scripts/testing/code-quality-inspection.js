@@ -2,7 +2,7 @@
 
 /**
  * CODE QUALITY INSPECTION
- * 
+ *
  * PURPOSE: Analyze code after break-fix session for:
  * - Code quality issues
  * - Maintainability concerns
@@ -30,7 +30,7 @@ async function inspectCodeQuality() {
   // 1. TEMPORARY FIXES ANALYSIS
   console.log('1️⃣ TEMPORARY FIXES & COMMENTED CODE');
   console.log('=' + '='.repeat(40));
-  
+
   const tempFixes = [
     {
       file: 'apps/web/src/App.tsx',
@@ -63,7 +63,7 @@ async function inspectCodeQuality() {
   // 2. DEPENDENCY ARRAY ISSUES
   console.log('2️⃣ REACT HOOK DEPENDENCY ISSUES');
   console.log('=' + '='.repeat(40));
-  
+
   const dependencyIssues = [
     {
       file: 'apps/web/src/hooks/useLocalStorageState.ts',
@@ -95,7 +95,7 @@ async function inspectCodeQuality() {
   // 3. DRY VIOLATIONS
   console.log('3️⃣ DRY (DON\'T REPEAT YOURSELF) VIOLATIONS');
   console.log('=' + '='.repeat(40));
-  
+
   const dryViolations = [
     {
       severity: 'high',
@@ -134,7 +134,7 @@ async function inspectCodeQuality() {
   // 4. MAINTAINABILITY CONCERNS
   console.log('4️⃣ MAINTAINABILITY CONCERNS');
   console.log('=' + '='.repeat(40));
-  
+
   const maintainabilityIssues = [
     {
       severity: 'high',
@@ -178,7 +178,7 @@ async function inspectCodeQuality() {
   // 5. PERFORMANCE IMPLICATIONS
   console.log('5️⃣ PERFORMANCE IMPLICATIONS');
   console.log('=' + '='.repeat(40));
-  
+
   const performanceIssues = [
     {
       severity: 'medium',
@@ -208,7 +208,7 @@ async function inspectCodeQuality() {
   // 6. TECHNICAL DEBT INTRODUCED
   console.log('6️⃣ TECHNICAL DEBT FROM BREAK-FIX SESSION');
   console.log('=' + '='.repeat(40));
-  
+
   const technicalDebt = [
     {
       severity: 'high',

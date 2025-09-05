@@ -32,7 +32,7 @@ export const useWeatherSearch = () => {
     mutationFn: async (filters: WeatherFilter) => {
       // Track user action
       monitoring.captureUserAction('weather_search', { filters })
-      
+
       const startTime = performance.now()
       const locations = await weatherApi.getLocations()
       const endTime = performance.now()
@@ -75,7 +75,7 @@ export const useWeatherSearch = () => {
       monitoring.captureError(
         error instanceof Error ? error : new Error(String(error)),
         {
-          additionalContext: { 
+          additionalContext: {
             action: 'weather_search',
             errorType: error instanceof WeatherApiError ? 'api_error' : 'unknown_error'
           }

@@ -9,7 +9,7 @@ import { cleanup } from '@testing-library/react'
 // Enhanced localStorage mock that avoids React Testing Library conflicts
 export const createLocalStorageMock = () => {
   const store: Record<string, string> = {}
-  
+
   return {
     store,
     getItem: vi.fn((key: string) => store[key] || null),
@@ -32,11 +32,11 @@ export const setupLocalStorageTest = () => {
   beforeEach(() => {
     // Clean up React components
     cleanup()
-    
+
     // Reset all mocks
     vi.clearAllMocks()
     vi.clearAllTimers()
-    
+
     // Ensure window and localStorage are available
     if (typeof global.window === 'undefined') {
       Object.defineProperty(global, 'window', {

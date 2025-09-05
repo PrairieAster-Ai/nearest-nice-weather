@@ -26,7 +26,7 @@ if [ "$choice" = "y" ]; then
     echo ""
     echo "Installing @andrebuzeli/github-mcp-v2..."
     npm install -g @andrebuzeli/github-mcp-v2
-    
+
     echo ""
     echo "✅ Alternative server installed"
     echo ""
@@ -52,7 +52,7 @@ if [ -n "$CLASSIC_TOKEN" ]; then
     echo ""
     RESPONSE=$(curl -s -H "Authorization: token $CLASSIC_TOKEN" https://api.github.com/user)
     LOGIN=$(echo "$RESPONSE" | jq -r '.login')
-    
+
     if [ "$LOGIN" != "null" ] && [ -n "$LOGIN" ]; then
         echo "✅ Classic token works! User: $LOGIN"
         echo "Updating .env with working token..."

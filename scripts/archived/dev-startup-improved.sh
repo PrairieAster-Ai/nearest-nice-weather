@@ -3,18 +3,18 @@
 # ========================================================================
 # NEAREST NICE WEATHER - IMPROVED DEVELOPMENT STARTUP SCRIPT
 # ========================================================================
-# 
+#
 # 📋 PURPOSE: Reliable startup for development environment with health monitoring
 # 🔧 FEATURES: Service management, health checks, auto-recovery, debugging tools
 # 🎯 IMPROVEMENTS: PlaywrightMCP integration, better error handling, visual feedback
-# 
+#
 # USAGE: ./dev-startup-improved.sh [options]
 # OPTIONS:
 #   --skip-tests     Skip PlaywrightMCP test suite
 #   --no-monitor     Disable continuous monitoring
 #   --verbose        Show detailed output
 #   --clean          Clean start (remove all caches)
-# 
+#
 # ========================================================================
 
 # Color codes for better visibility
@@ -84,12 +84,12 @@ check_port() {
 free_port() {
     local port=$1
     local service=$2
-    
+
     if check_port $port; then
         warning "Port $port in use, attempting to free it for $service..."
         lsof -ti:$port | xargs kill -9 2>/dev/null || true
         sleep 1
-        
+
         if check_port $port; then
             error "Could not free port $port"
             return 1
@@ -110,36 +110,36 @@ start_service() {
     local pid_file="$PID_DIR/${name// /_}.pid"
     local max_retries=3
     local retry=0
-    
+
     # Check if already running
     if [ -f "$pid_file" ] && kill -0 $(cat "$pid_file") 2>/dev/null; then
         local pid=$(cat "$pid_file")
         success "$name already running (PID: $pid)"
         return 0
     fi
-    
+
     # Free port if needed
     if [ -n "$port" ]; then
         free_port $port "$name" || return 1
     fi
-    
+
     while [ $retry -lt $max_retries ]; do
         log "Starting $name (attempt $((retry + 1))/$max_retries)..."
-        
+
         # Start service with logging
         if [ "$VERBOSE" = true ]; then
             eval "$command" 2>&1 | tee "$log_file" &
         else
             eval "$command" > "$log_file" 2>&1 &
         fi
-        
+
         local pid=$!
         echo $pid > "$pid_file"
-        
+
         # Wait for service to start
         local wait_time=0
         local max_wait=10
-        
+
         while [ $wait_time -lt $max_wait ]; do
             if [ -n "$port" ] && check_port $port; then
                 success "$name started successfully (PID: $pid)"
@@ -151,11 +151,11 @@ start_service() {
                 break
             fi
         done
-        
+
         error "$name failed to start (see $log_file)"
         retry=$((retry + 1))
     done
-    
+
     error "Failed to start $name after $max_retries attempts"
     return 1
 }
@@ -165,7 +165,7 @@ health_check() {
     local name=$1
     local url=$2
     local expected=$3
-    
+
     if curl -s "$url" 2>/dev/null | grep -q "$expected"; then
         success "$name health check passed"
         return 0
@@ -264,7 +264,7 @@ log "🔧 Phase 4: Optional Services"
 # Environment validation
 if [ -f ".env" ]; then
     success ".env file exists"
-    
+
     # Check critical environment variables
     if grep -q "DATABASE_URL\|POSTGRES_URL" .env; then
         success "Database URL configured"
@@ -280,7 +280,7 @@ if [ "$SKIP_TESTS" = false ] && check_port 3026; then
     echo ""
     log "🧪 Phase 5: Running Playwright Tests"
     info "Running basic smoke tests..."
-    
+
     # Run a simple smoke test
     cat > "$PROJECT_ROOT/smoke-test.spec.js" << 'EOF'
 import { test, expect } from '@playwright/test';
@@ -292,13 +292,13 @@ test('smoke test', async ({ page }) => {
   console.log('✅ Application loaded successfully');
 });
 EOF
-    
+
     if npx playwright test smoke-test.spec.js --reporter=list 2>/dev/null; then
         success "Smoke tests passed"
     else
         warning "Smoke tests failed - application may have issues"
     fi
-    
+
     rm -f smoke-test.spec.js
 fi
 
@@ -306,7 +306,7 @@ fi
 if [ "$NO_MONITOR" = false ]; then
     echo ""
     log "📊 Phase 6: Setting up continuous monitoring"
-    
+
     # Create monitoring script
     cat > "$PID_DIR/monitor.sh" << 'EOF'
 #!/bin/bash
@@ -316,18 +316,18 @@ while true; do
         echo "[$(date +'%H:%M:%S')] API server down, restarting..."
         node dev-api-server.js >> logs/API_Server.log 2>&1 &
     fi
-    
+
     # Check frontend
     if ! curl -s "http://localhost:3001/" >/dev/null 2>&1; then
         echo "[$(date +'%H:%M:%S')] Frontend down, restarting..."
         cd apps/web && npm run dev >> ../../logs/Frontend_Server.log 2>&1 &
         cd ../..
     fi
-    
+
     sleep 30
 done
 EOF
-    
+
     chmod +x "$PID_DIR/monitor.sh"
     nohup "$PID_DIR/monitor.sh" > "$LOG_DIR/monitor.log" 2>&1 &
     echo $! > "$PID_DIR/monitor.pid"

@@ -2,25 +2,25 @@
  * ========================================================================
  * USE DEBOUNCE HOOK TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for useDebounce hook functionality
  * 🔗 HOOK: useDebounce - Performance optimization for user interactions
  * 📊 COVERAGE: Debouncing logic, timing accuracy, edge cases, constants
  * ⚙️ FUNCTIONALITY: Prevents excessive API calls during rapid user input
  * 🎯 BUSINESS_IMPACT: Ensures optimal UX and prevents API rate limiting
- * 
+ *
  * BUSINESS CONTEXT: Performance optimization for instant gratification UX
  * - Tests biological UX timing for <100ms perceived instant feedback
  * - Validates API call optimization to prevent rate limiting
  * - Ensures smooth filter interactions for weather discovery
  * - Tests timing constants for different interaction patterns
- * 
+ *
  * TECHNICAL COVERAGE: React hook testing with timing
  * - Debounce timing accuracy with different delays
  * - Hook stability and cleanup behavior
  * - Multiple rapid value changes
  * - Edge cases with zero delay and extreme values
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -40,7 +40,7 @@ describe('useDebounce Hook', () => {
   describe('✅ Basic Debouncing', () => {
     it('should return initial value immediately', () => {
       const { result } = renderHook(() => useDebounce('initial', 300))
-      
+
       expect(result.current).toBe('initial')
     })
 
@@ -54,7 +54,7 @@ describe('useDebounce Hook', () => {
 
       // Change value
       rerender({ value: 'updated', delay: 300 })
-      
+
       // Should still be initial value before delay
       expect(result.current).toBe('initial')
 
@@ -74,7 +74,7 @@ describe('useDebounce Hook', () => {
       )
 
       rerender({ value: 'world' })
-      
+
       expect(result.current).toBe('hello')
 
       act(() => {
@@ -91,7 +91,7 @@ describe('useDebounce Hook', () => {
       )
 
       rerender({ value: 42 })
-      
+
       expect(result.current).toBe(0)
 
       act(() => {
@@ -111,7 +111,7 @@ describe('useDebounce Hook', () => {
       )
 
       rerender({ value: updatedObj })
-      
+
       expect(result.current).toBe(initialObj)
 
       act(() => {
@@ -206,10 +206,10 @@ describe('useDebounce Hook', () => {
       // Rapid sequence of changes
       rerender({ value: 'second' })
       act(() => { vi.advanceTimersByTime(100) })
-      
+
       rerender({ value: 'third' })
       act(() => { vi.advanceTimersByTime(100) })
-      
+
       rerender({ value: 'fourth' })
       act(() => { vi.advanceTimersByTime(100) })
 
@@ -217,7 +217,7 @@ describe('useDebounce Hook', () => {
       expect(result.current).toBe('first')
 
       rerender({ value: 'final' })
-      
+
       // Complete the final timeout
       act(() => { vi.advanceTimersByTime(300) })
 
@@ -257,7 +257,7 @@ describe('useDebounce Hook', () => {
       for (let i = 0; i < 5; i++) {
         rerender({ value: 'B' })
         act(() => { vi.advanceTimersByTime(50) })
-        
+
         rerender({ value: 'A' })
         act(() => { vi.advanceTimersByTime(50) })
       }
@@ -353,7 +353,7 @@ describe('useDebounce Hook', () => {
 
       // Change value with original delay
       rerender({ value: 'first', delay: 100 })
-      
+
       // Change delay before timeout
       rerender({ value: 'first', delay: 200 })
 
@@ -372,9 +372,9 @@ describe('useDebounce Hook', () => {
       )
 
       rerender({ value: 'middle', delay: 300 })
-      
+
       act(() => { vi.advanceTimersByTime(150) })
-      
+
       // Change delay - should restart timer
       rerender({ value: 'middle', delay: 200 })
 
@@ -451,7 +451,7 @@ describe('useDebounce Hook', () => {
 
     it('should maintain referential stability for unchanged values', () => {
       const obj = { id: 1, name: 'test' }
-      
+
       const { result, rerender } = renderHook(
         ({ value }) => useDebounce(value, 100),
         { initialProps: { value: obj } }
@@ -479,13 +479,13 @@ describe('useDebounce Hook', () => {
  * ✅ Hook lifecycle and cleanup behavior
  * ✅ Memory leak prevention and stability
  * ✅ Referential stability for unchanged values
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Instant feedback UX timing (<100ms)
  * ✅ API rate limiting prevention
  * ✅ Filter interaction optimization
  * ✅ Performance optimization for user experience
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ React hook testing with timer mocking
  * ✅ Timeout management and cleanup

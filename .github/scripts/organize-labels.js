@@ -155,23 +155,23 @@ class LabelOrganizer {
 
   async getCurrentLabels() {
     console.log('📋 Fetching current repository labels...\n');
-    
+
     try {
       const response = await octokit.rest.issues.listLabelsForRepo({
         owner: this.owner,
         repo: this.repo,
         per_page: 100,
       });
-      
+
       this.existingLabels = response.data;
       console.log(`✅ Found ${this.existingLabels.length} existing labels`);
-      
+
       // Display current labels
       console.log('\n📊 **CURRENT LABELS**:');
       this.existingLabels.forEach(label => {
         console.log(`  🏷️  ${label.name} (#${label.color}) - ${label.description || 'No description'}`);
       });
-      
+
     } catch (error) {
       console.error('❌ Error fetching current labels:', error.message);
     }
@@ -179,14 +179,14 @@ class LabelOrganizer {
 
   async planLabelChanges() {
     console.log('\n🎯 Planning label organization changes...\n');
-    
+
     const organizedLabels = this.getOrganizedLabels();
     const existingLabelNames = this.existingLabels.map(label => label.name);
-    
+
     // Determine what needs to be created, updated, or deleted
     Object.entries(organizedLabels).forEach(([name, config]) => {
       const existingLabel = this.existingLabels.find(label => label.name === name);
-      
+
       if (!existingLabel) {
         // Label doesn't exist - create it
         this.labelsToCreate.push({ name, ...config });
@@ -195,7 +195,7 @@ class LabelOrganizer {
         this.labelsToUpdate.push({ name, ...config });
       }
     });
-    
+
     // Check for labels that should be deleted (optional - we'll be conservative)
     const organizedLabelNames = Object.keys(organizedLabels);
     this.existingLabels.forEach(label => {
@@ -204,13 +204,13 @@ class LabelOrganizer {
         this.labelsToDelete.push(label);
       }
     });
-    
+
     // Display plan
     console.log('📋 **LABEL ORGANIZATION PLAN**:');
     console.log(`  ✅ Labels to create: ${this.labelsToCreate.length}`);
     console.log(`  🔄 Labels to update: ${this.labelsToUpdate.length}`);
     console.log(`  🗑️  Labels to delete: ${this.labelsToDelete.length}\n`);
-    
+
     if (this.labelsToCreate.length > 0) {
       console.log('🆕 **LABELS TO CREATE**:');
       this.labelsToCreate.forEach(label => {
@@ -218,7 +218,7 @@ class LabelOrganizer {
       });
       console.log('');
     }
-    
+
     if (this.labelsToUpdate.length > 0) {
       console.log('🔄 **LABELS TO UPDATE**:');
       this.labelsToUpdate.forEach(label => {
@@ -229,7 +229,7 @@ class LabelOrganizer {
       });
       console.log('');
     }
-    
+
     if (this.labelsToDelete.length > 0) {
       console.log('🗑️  **LABELS TO DELETE** (outdated):');
       this.labelsToDelete.forEach(label => {
@@ -247,16 +247,16 @@ class LabelOrganizer {
       'duplicate',
       'question' // GitHub default labels we might not need
     ];
-    
+
     return outdatedLabels.includes(labelName);
   }
 
   async executeLabelChanges() {
     console.log('🚀 Executing label organization changes...\n');
-    
+
     let successCount = 0;
     let errorCount = 0;
-    
+
     // Create new labels
     for (const label of this.labelsToCreate) {
       try {
@@ -274,7 +274,7 @@ class LabelOrganizer {
         errorCount++;
       }
     }
-    
+
     // Update existing labels
     for (const label of this.labelsToUpdate) {
       try {
@@ -292,25 +292,25 @@ class LabelOrganizer {
         errorCount++;
       }
     }
-    
+
     // Delete outdated labels (optional - require confirmation)
     if (this.labelsToDelete.length > 0) {
       console.log('\n⚠️  **LABEL DELETION SKIPPED** (requires manual confirmation)');
       console.log('To delete outdated labels manually, visit:');
       console.log(`https://github.com/${this.owner}/${this.repo}/labels`);
     }
-    
+
     console.log(`\n📊 **RESULTS**: ${successCount} successful, ${errorCount} errors`);
   }
 
   async generateLabelSummary() {
     console.log('\n📋 **ORGANIZED LABEL SYSTEM SUMMARY**');
     console.log('===========================================\n');
-    
+
     const organizedLabels = this.getOrganizedLabels();
-    
+
     console.log('🎯 **LABEL CATEGORIES**:\n');
-    
+
     // Group labels by category
     const categories = {
       'Type Labels (Primary)': ['type: capability', 'type: epic', 'type: story'],
@@ -320,7 +320,7 @@ class LabelOrganizer {
       'Size Labels': ['size: XS', 'size: S', 'size: M', 'size: L', 'size: XL'],
       'Priority Labels': ['priority: critical', 'priority: high', 'priority: medium', 'priority: low']
     };
-    
+
     Object.entries(categories).forEach(([category, labelNames]) => {
       console.log(`**${category}:**`);
       labelNames.forEach(name => {
@@ -330,14 +330,14 @@ class LabelOrganizer {
       });
       console.log('');
     });
-    
+
     console.log('🔍 **FILTERING EXAMPLES**:');
     console.log('  - All Epics: `label:"type: epic"`');
     console.log('  - Database Stories: `label:"type: story" label:"database"`');
     console.log('  - Blocked Items: `label:"blocked"`');
     console.log('  - High Priority: `label:"priority: high"`');
     console.log('  - Large Items: `label:"size: L"`');
-    
+
     console.log('\n✅ Label organization complete!');
   }
 
@@ -346,20 +346,20 @@ class LabelOrganizer {
     console.log('===============================\n');
     console.log(`📦 Repository: ${this.owner}/${this.repo}`);
     console.log(`🔗 Labels URL: https://github.com/${this.owner}/${this.repo}/labels\n`);
-    
+
     try {
       // Step 1: Get current labels
       await this.getCurrentLabels();
-      
+
       // Step 2: Plan changes
       await this.planLabelChanges();
-      
+
       // Step 3: Execute changes
       await this.executeLabelChanges();
-      
+
       // Step 4: Generate summary
       await this.generateLabelSummary();
-      
+
     } catch (error) {
       console.error('❌ Error organizing labels:', error.message);
     }

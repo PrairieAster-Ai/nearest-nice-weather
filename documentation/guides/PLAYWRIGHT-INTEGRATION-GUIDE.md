@@ -7,12 +7,12 @@ We've successfully replaced the unreliable BrowserToolsMCP with **Microsoft Play
 
 ## Key Benefits
 
-✅ **Cross-browser Testing**: Chrome, Firefox, Safari/WebKit support  
-✅ **Official Microsoft Support**: Active development and maintenance  
-✅ **Accessibility-First**: Uses accessibility tree instead of pixel-based automation  
-✅ **MCP Protocol Native**: Built specifically for Claude Code integration  
-✅ **Comprehensive API**: 17+ browser automation tools  
-✅ **Performance**: Fast, lightweight, deterministic automation  
+✅ **Cross-browser Testing**: Chrome, Firefox, Safari/WebKit support
+✅ **Official Microsoft Support**: Active development and maintenance
+✅ **Accessibility-First**: Uses accessibility tree instead of pixel-based automation
+✅ **MCP Protocol Native**: Built specifically for Claude Code integration
+✅ **Comprehensive API**: 17+ browser automation tools
+✅ **Performance**: Fast, lightweight, deterministic automation
 
 ## Installation & Setup
 
@@ -56,7 +56,7 @@ npm run health:visual
 
 # Screenshots saved to: screenshots/
 # - page-load.png
-# - map-initialized.png  
+# - map-initialized.png
 # - final-state.png
 ```
 
@@ -161,7 +161,7 @@ npm run health:visual && npm run test:browser
   run: |
     npm run health:visual
     npm run test:browser
-    
+
 - name: Upload Screenshots
   uses: actions/upload-artifact@v3
   with:

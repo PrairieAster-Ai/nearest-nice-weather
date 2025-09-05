@@ -53,7 +53,7 @@ EOF
 case $RESULT in
     "success")
         echo "🎉 Experiment successful - preparing for merge to main"
-        
+
         cat >> "$EXPERIMENT_FILE" << EOF
 ### Success Summary
 - ✅ Hypothesis validated
@@ -62,7 +62,7 @@ case $RESULT in
 
 **Merging to main branch for immediate deployment.**
 EOF
-        
+
         # Commit final documentation
         git add "$EXPERIMENT_FILE"
         git commit -m "📊 Complete experiment: $EXPERIMENT_NAME - SUCCESS
@@ -73,17 +73,17 @@ Ready for production deployment.
 🤖 Generated with [Claude Code](https://claude.ai/code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
-        
+
         # Push final changes
         git push origin "$BRANCH_NAME"
-        
+
         # Create and merge PR
         echo "🔄 Creating pull request..."
         gh pr create --title "🎉 Experiment Success: $EXPERIMENT_NAME" \
                      --body-file "$EXPERIMENT_FILE" \
                      --label "experiment" \
                      --label "ready-to-merge" || echo "⚠️ Could not create PR automatically"
-        
+
         echo ""
         echo "✅ Experiment completed successfully!"
         echo "📋 Next steps:"
@@ -91,10 +91,10 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
         echo "   2. Monitor production deployment"
         echo "   3. Validate customer impact"
         ;;
-        
+
     "failure")
         echo "❌ Experiment failed - archiving and cleaning up"
-        
+
         cat >> "$EXPERIMENT_FILE" << EOF
 ### Failure Analysis
 - ❌ Hypothesis not validated
@@ -103,7 +103,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 **Experiment archived. No changes merged to main.**
 EOF
-        
+
         # Commit final documentation
         git add "$EXPERIMENT_FILE"
         git commit -m "📊 Complete experiment: $EXPERIMENT_NAME - FAILED
@@ -114,25 +114,25 @@ No changes will be merged to main.
 🤖 Generated with [Claude Code](https://claude.ai/code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
-        
+
         # Archive the branch
         git push origin "$BRANCH_NAME"
         git tag "experiment-failed-$EXPERIMENT_NAME" HEAD
         git push origin "experiment-failed-$EXPERIMENT_NAME"
-        
+
         # Return to main
         git checkout main
         git pull origin main
-        
+
         echo ""
         echo "🗄️ Experiment archived as failed"
         echo "📚 Lessons learned saved in experiment documentation"
         echo "🏷️ Tagged as: experiment-failed-$EXPERIMENT_NAME"
         ;;
-        
+
     "inconclusive")
         echo "🤔 Experiment inconclusive - archiving for future reference"
-        
+
         cat >> "$EXPERIMENT_FILE" << EOF
 ### Inconclusive Results
 - ❓ More data needed for validation
@@ -141,7 +141,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 **Experiment paused. May be revisited in the future.**
 EOF
-        
+
         # Commit final documentation
         git add "$EXPERIMENT_FILE"
         git commit -m "📊 Complete experiment: $EXPERIMENT_NAME - INCONCLUSIVE
@@ -152,22 +152,22 @@ Experiment paused for future consideration.
 🤖 Generated with [Claude Code](https://claude.ai/code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
-        
+
         # Archive the branch
         git push origin "$BRANCH_NAME"
         git tag "experiment-inconclusive-$EXPERIMENT_NAME" HEAD
         git push origin "experiment-inconclusive-$EXPERIMENT_NAME"
-        
+
         # Return to main
         git checkout main
         git pull origin main
-        
+
         echo ""
         echo "🗄️ Experiment archived as inconclusive"
         echo "🔮 Available for future investigation"
         echo "🏷️ Tagged as: experiment-inconclusive-$EXPERIMENT_NAME"
         ;;
-        
+
     *)
         echo "❌ Invalid result: $RESULT"
         echo "Valid options: success, failure, inconclusive"

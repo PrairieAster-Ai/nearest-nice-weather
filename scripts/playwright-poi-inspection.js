@@ -3,7 +3,7 @@
  * ========================================================================
  * PLAYWRIGHT POI INSPECTION - Edge Case Testing
  * ========================================================================
- * 
+ *
  * Comprehensive inspection of POI functionality across environments
  * Tests edge cases, error handling, and user interaction scenarios
  */
@@ -15,7 +15,7 @@ dotenv.config()
 
 const ENVIRONMENTS = {
   localhost: 'http://localhost:3002',
-  preview: 'https://p.nearestniceweather.com', 
+  preview: 'https://p.nearestniceweather.com',
   production: 'https://www.nearestniceweather.com'
 }
 
@@ -88,7 +88,7 @@ class POIInspector {
           await page.waitForSelector('.leaflet-popup', { timeout: 5000 })
           const popupVisible = await page.isVisible('.leaflet-popup')
           console.log(`  ${popupVisible ? '✅' : '❌'} POI popup visible: ${popupVisible}`)
-          
+
           // Check for navigation buttons
           const navButtons = await page.locator('[data-popup-nav="true"] button').count()
           envResults.navigationWorking = navButtons > 0
@@ -105,7 +105,7 @@ class POIInspector {
           consoleErrors.push(msg.text())
         }
       })
-      
+
       await page.waitForTimeout(2000)
       if (consoleErrors.length > 0) {
         envResults.errors.push(...consoleErrors)
@@ -148,17 +148,17 @@ class POIInspector {
           data: await response.json()
         }
       }, apiBase)
-      
+
       apiResults.poiLocations = poiResponse.status === 200
       console.log(`  ${apiResults.poiLocations ? '✅' : '❌'} POI locations API: ${poiResponse.status}`)
-      
+
       // Check for expanded fields
       if (poiResponse.data?.data?.length > 0) {
         const firstPoi = poiResponse.data.data[0]
         const hasExpandedFields = firstPoi.park_level || firstPoi.ownership || firstPoi.amenities
         apiResults.expandedFields = !!hasExpandedFields
         console.log(`  ${apiResults.expandedFields ? '✅' : '❌'} Expanded fields present: ${!!hasExpandedFields}`)
-        
+
         // Log sample POI for inspection
         console.log(`  📋 Sample POI: ${firstPoi.name} (${firstPoi.park_type}) - Source: ${firstPoi.data_source}`)
       }
@@ -172,10 +172,10 @@ class POIInspector {
           data: await response.json()
         }
       }, apiBase)
-      
+
       apiResults.poiWithWeather = weatherResponse.status === 200
       console.log(`  ${apiResults.poiWithWeather ? '✅' : '❌'} POI with weather API: ${weatherResponse.status}`)
-      
+
       // Check weather data
       if (weatherResponse.data?.data?.length > 0) {
         const firstPoi = weatherResponse.data.data[0]
@@ -195,7 +195,7 @@ class POIInspector {
             data: await response.json()
           }
         }, apiBase)
-        
+
         apiResults.health = healthResponse.status === 200
         console.log(`  ${apiResults.health ? '✅' : '❌'} Health API: ${healthResponse.status}`)
       }
@@ -315,7 +315,7 @@ class POIInspector {
         console.log('  🔄 Scenario: Navigate between POIs...')
         await markers.first().click()
         await page.waitForSelector('.leaflet-popup', { timeout: 5000 })
-        
+
         const navButtons = await page.locator('[data-popup-nav="true"] button')
         const navCount = await navButtons.count()
         if (navCount > 0) {
@@ -351,7 +351,7 @@ class POIInspector {
   async generateReport() {
     console.log('\n📊 GENERATING COMPREHENSIVE POI INSPECTION REPORT')
     console.log('=' .repeat(80))
-    
+
     // Environment Health Summary
     console.log('\n🌍 ENVIRONMENT HEALTH')
     console.log('-' .repeat(50))
@@ -359,21 +359,21 @@ class POIInspector {
       const score = Object.values(results).filter(v => v === true).length
       const total = Object.keys(results).length - 1 // Subtract errors array
       console.log(`${env}: ${score}/${total} checks passed`)
-      
+
       if (results.errors.length > 0) {
         console.log(`  ⚠️ Errors: ${results.errors.length}`)
         results.errors.slice(0, 3).forEach(err => console.log(`    - ${err}`))
       }
     }
 
-    // API Health Summary  
+    // API Health Summary
     console.log('\n🔌 API ENDPOINTS')
     console.log('-' .repeat(50))
     for (const [env, results] of Object.entries(this.results.apiTests)) {
       const score = Object.values(results).filter(v => v === true).length
       const total = Object.keys(results).length - 1 // Subtract errors array
       console.log(`${env}: ${score}/${total} endpoints working`)
-      
+
       if (!results.expandedFields) {
         console.log(`  ⚠️ Using fallback POI table (missing expanded fields)`)
       }
@@ -400,10 +400,10 @@ class POIInspector {
     // Overall Assessment
     console.log('\n🏆 OVERALL ASSESSMENT')
     console.log('-' .repeat(50))
-    
+
     let totalScore = 0
     let totalPossible = 0
-    
+
     for (const category of Object.values(this.results)) {
       for (const envResults of Object.values(category)) {
         if (typeof envResults === 'object' && envResults.errors) {
@@ -414,10 +414,10 @@ class POIInspector {
         }
       }
     }
-    
+
     const overallScore = Math.round((totalScore / totalPossible) * 100)
     console.log(`Overall Health Score: ${overallScore}%`)
-    
+
     if (overallScore >= 90) {
       console.log('🎉 EXCELLENT: POI system is working well across all environments')
     } else if (overallScore >= 75) {
@@ -447,10 +447,10 @@ class POIInspector {
 // Main execution
 async function main() {
   const inspector = new POIInspector()
-  
+
   try {
     await inspector.initialize()
-    
+
     // Test all environments
     for (const [envName, baseUrl] of Object.entries(ENVIRONMENTS)) {
       if (envName === 'localhost') {
@@ -466,34 +466,34 @@ async function main() {
           continue
         }
       }
-      
+
       console.log(`\n🔍 INSPECTING ${envName.toUpperCase()} ENVIRONMENT`)
       console.log('=' .repeat(60))
-      
+
       await inspector.testEnvironmentHealth(envName, baseUrl)
       await inspector.testAPIEndpoints(envName, API_ENDPOINTS[envName])
       await inspector.testEdgeCases(envName, baseUrl)
       await inspector.testUserScenarios(envName, baseUrl)
     }
-    
+
     // Generate comprehensive report
     const report = await inspector.generateReport()
-    
+
     console.log('\n📋 RECOMMENDATIONS')
     console.log('-' .repeat(50))
-    
+
     if (report.results.apiTests.preview?.expandedFields === false) {
       console.log('1. Redeploy preview environment to pick up expanded POI table support')
     }
     if (report.results.apiTests.production?.expandedFields === false) {
-      console.log('2. Deploy to production environment with expanded POI table support')  
+      console.log('2. Deploy to production environment with expanded POI table support')
     }
     if (report.overallScore < 90) {
       console.log('3. Address identified issues to improve system reliability')
     }
-    
+
     console.log('\n✅ POI Inspection Complete!')
-    
+
   } catch (error) {
     console.error('❌ Inspection failed:', error)
     process.exit(1)

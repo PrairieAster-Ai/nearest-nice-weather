@@ -5,7 +5,7 @@ This directory contains structured business context for Claude Code pair program
 ## Directory Structure
 
 - **business-context/**: Core business model and requirements
-- **technical-patterns/**: Successful patterns and anti-patterns  
+- **technical-patterns/**: Successful patterns and anti-patterns
 - **troubleshooting/**: Common issues and proven solutions
 - **session-handoffs/**: Templates for session continuity
 - **qa-automation/**: QA patterns and test requirements
@@ -34,7 +34,7 @@ npm start
 ## Red Flags (Stop and Fix Immediately)
 
 - ❌ Cities showing instead of parks/trails
-- ❌ Blank screen on any environment  
+- ❌ Blank screen on any environment
 - ❌ API queries using legacy "locations" table
 - ❌ Manual screenshot sharing workflow
 - ❌ B2B tourism features being developed

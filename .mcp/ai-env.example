@@ -9,7 +9,7 @@ GITHUB_REPO=nearest-nice-weather
 # AI Provider API Keys (Choose one or more)
 # ANTHROPIC_API_KEY=sk-ant-api03-...  # Recommended for best results
 # OPENAI_API_KEY=sk-...               # Alternative
-# GOOGLE_API_KEY=...                  # Alternative  
+# GOOGLE_API_KEY=...                  # Alternative
 # PERPLEXITY_API_KEY=...              # Alternative
 
 # MCP Server Configuration

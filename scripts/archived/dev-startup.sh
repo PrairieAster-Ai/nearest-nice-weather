@@ -24,21 +24,21 @@ start_service() {
     local port=$3
     local max_retries=3
     local retry=0
-    
+
     while [ $retry -lt $max_retries ]; do
         echo "🔄 Starting $name (attempt $((retry + 1))/$max_retries)..."
-        
+
         if [ -n "$port" ]; then
             if check_port $port; then
                 echo "✅ $name already running on port $port"
                 return 0
             fi
         fi
-        
+
         eval $command &
         local pid=$!
         sleep 3
-        
+
         if kill -0 $pid 2>/dev/null; then
             echo "✅ $name started successfully (PID: $pid)"
             return 0
@@ -47,7 +47,7 @@ start_service() {
             retry=$((retry + 1))
         fi
     done
-    
+
     echo "❌ Failed to start $name after $max_retries attempts"
     return 1
 }
@@ -133,11 +133,11 @@ echo "🧠 Starting Claude Intelligence Suite..."
 if ! curl -s "http://localhost:3050/health" >/dev/null 2>&1; then
     echo "🔄 Starting intelligence monitoring..."
     cd /home/robertspeer/Projects/GitRepo/nearest-nice-weather
-    DATABASE_URL="postgresql://postgres:postgres@localhost:5432/weather_intelligence" \
+    DATABASE_URL="${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/weather_intelligence}" \
     PROJECT_NAME="nearest-nice-weather" \
     node claude-intelligence-suite-portable.js >/dev/null 2>&1 &
     sleep 3
-    
+
     if curl -s "http://localhost:3050/health" >/dev/null 2>&1; then
         echo "✅ Claude Intelligence Suite started successfully"
     else

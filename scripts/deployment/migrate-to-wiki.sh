@@ -32,7 +32,7 @@ cp README.md wiki-content/developer-onboarding/
 cp documentation/technical/current-database-schema.md wiki-content/technical-architecture/
 cp documentation/technical/architecture-overview-updated.md wiki-content/technical-architecture/
 
-# 3. API Reference  
+# 3. API Reference
 cp dev-api-server.js wiki-content/api-reference/
 cp -r apps/web/api/ wiki-content/api-reference/production-apis/
 

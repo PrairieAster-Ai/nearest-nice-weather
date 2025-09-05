@@ -7,7 +7,7 @@ Comprehensive improvements for the development startup script, replacing Browser
 
 ### 1. **PlaywrightMCP Integration** 🧪
 - **Replaced**: BrowserToolsMCP → PlaywrightMCP
-- **Benefits**: 
+- **Benefits**:
   - Native Playwright testing integration
   - Better browser automation capabilities
   - More reliable screenshot and testing features
@@ -55,7 +55,7 @@ services:
       - ./apps/web:/app
     environment:
       - VITE_API_URL=http://api:4000
-    
+
   api:
     build: .
     ports:
@@ -63,7 +63,7 @@ services:
     env_file: .env
     depends_on:
       - postgres
-    
+
   postgres:
     image: postgis/postgis:15-3.3
     environment:
@@ -72,7 +72,7 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    
+
   playwright:
     image: mcr.microsoft.com/playwright:v1.40.0
     ports:
@@ -128,7 +128,7 @@ app.get('/', async (req, res) => {
       <body>
         <h1>Development Environment Status</h1>
         <ul>
-          ${statuses.map(s => 
+          ${statuses.map(s =>
             `<li class="${s.status}">${s.name}: ${s.status.toUpperCase()}</li>`
           ).join('')}
         </ul>
@@ -149,7 +149,7 @@ app.listen(3099, () => {
 
 validate_env() {
     local errors=0
-    
+
     # Check Node version
     NODE_VERSION=$(node -v | cut -d'v' -f2)
     REQUIRED_VERSION="20.0.0"
@@ -157,20 +157,20 @@ validate_env() {
         echo "❌ Node.js version $NODE_VERSION is below required $REQUIRED_VERSION"
         ((errors++))
     fi
-    
+
     # Check required environment variables
     REQUIRED_VARS=(
         "DATABASE_URL"
         "VITE_API_PROXY_URL"
     )
-    
+
     for var in "${REQUIRED_VARS[@]}"; do
         if ! grep -q "^$var=" .env 2>/dev/null; then
             echo "❌ Missing required environment variable: $var"
             ((errors++))
         fi
     done
-    
+
     # Check required ports are available
     REQUIRED_PORTS=(3001 4000)
     for port in "${REQUIRED_PORTS[@]}"; do
@@ -178,13 +178,13 @@ validate_env() {
             echo "⚠️  Port $port is already in use"
         fi
     done
-    
+
     # Check npm packages
     if [ ! -d "node_modules" ]; then
         echo "❌ Node modules not installed. Run: npm install"
         ((errors++))
     fi
-    
+
     return $errors
 }
 ```
@@ -224,7 +224,7 @@ const responseTime = require('response-time');
 
 app.use(responseTime((req, res, time) => {
   console.log(`${req.method} ${req.url} - ${time}ms`);
-  
+
   // Alert on slow requests
   if (time > 1000) {
     console.warn(`⚠️ Slow request: ${req.url} took ${time}ms`);
@@ -313,7 +313,7 @@ module.exports = {
       startCommand: 'npx @modelcontextprotocol/server-playwright'
     }
   },
-  
+
   healthCheckInterval: 30000,
   startupTimeout: 30000,
   shutdownGracePeriod: 5000
@@ -328,25 +328,25 @@ module.exports = {
 debug_snapshot() {
     local timestamp=$(date +%Y%m%d_%H%M%S)
     local snapshot_dir="debug_snapshots/$timestamp"
-    
+
     mkdir -p "$snapshot_dir"
-    
+
     # Capture process info
     ps aux | grep -E "node|vite|playwright" > "$snapshot_dir/processes.txt"
-    
+
     # Capture port usage
     lsof -i :3001,4000,3026 > "$snapshot_dir/ports.txt" 2>&1
-    
+
     # Capture recent logs
     tail -n 100 logs/*.log > "$snapshot_dir/recent_logs.txt" 2>&1
-    
+
     # Capture environment
     env | grep -E "NODE|VITE|DATABASE" > "$snapshot_dir/environment.txt"
-    
+
     # Test endpoints
     curl -s http://localhost:4000/api/health > "$snapshot_dir/api_health.json" 2>&1
     curl -s http://localhost:3001 > "$snapshot_dir/frontend.html" 2>&1
-    
+
     echo "Debug snapshot saved to $snapshot_dir"
 }
 ```

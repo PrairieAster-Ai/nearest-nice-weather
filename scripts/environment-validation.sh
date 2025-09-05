@@ -126,15 +126,15 @@ test_api_endpoint() {
     local endpoint="$1"
     local description="$2"
     local expected_field="$3"
-    
+
     ((API_TESTS_TOTAL++))
     log "Testing API: $description"
-    
+
     # Test with timeout and capture both status and response
     local response=$(curl -s -w "%{http_code}" --max-time $TIMEOUT "$TARGET_URL$endpoint" 2>/dev/null)
     local http_code="${response: -3}"
     local body="${response%???}"
-    
+
     if [[ "$http_code" == "200" ]]; then
         if [[ -n "$expected_field" ]]; then
             if echo "$body" | jq -e ".$expected_field" >/dev/null 2>&1; then
@@ -156,12 +156,12 @@ test_api_endpoint() {
 test_frontend_asset() {
     local asset_path="$1"
     local description="$2"
-    
+
     ((FRONTEND_TESTS_TOTAL++))
     log "Testing Frontend: $description"
-    
+
     local http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time $TIMEOUT "$TARGET_URL$asset_path")
-    
+
     if [[ "$http_code" == "200" ]]; then
         success "$description - Asset loaded"
         ((FRONTEND_TESTS_PASSED++))
@@ -185,24 +185,24 @@ main() {
     # PHASE 1: API VALIDATION
     # =============================================================================
     log "📡 Phase 1: API Endpoint Validation"
-    
+
     # Test 1: Health check - Most basic API test
     test_api_endpoint "/api/health" "Health Check" "success"
-    
+
     # Test 2: Weather locations - Database connectivity
     test_api_endpoint "/api/weather-locations?limit=3" "Weather Locations" "data"
-    
+
     # Test 3: Feedback system - Database write operations (skip for production)
     if [[ "$ENVIRONMENT" != "production" && "$ENVIRONMENT" != "prod" ]]; then
         local feedback_payload='{"feedback":"Validation test '$ENVIRONMENT'","rating":5,"category":"general"}'
         log "Testing API: Feedback Submission"
         ((API_TESTS_TOTAL++))
-        
+
         local feedback_response=$(curl -s -w "%{http_code}" --max-time $TIMEOUT \
             -X POST "$TARGET_URL/api/feedback" \
             -H "Content-Type: application/json" \
             -d "$feedback_payload" 2>/dev/null)
-        
+
         local feedback_code="${feedback_response: -3}"
         if [[ "$feedback_code" == "200" ]]; then
             success "Feedback Submission - POST successful"
@@ -213,18 +213,18 @@ main() {
     else
         warning "Feedback Submission - Skipped for production environment"
     fi
-    
+
     echo
-    
+
     # =============================================================================
     # PHASE 2: FRONTEND VALIDATION
     # =============================================================================
     log "🎨 Phase 2: Frontend Asset Validation"
-    
+
     # Test 4: Main HTML page
     log "Testing Frontend: Main HTML Page"
     ((FRONTEND_TESTS_TOTAL++))
-    
+
     local html_response=$(curl -s --max-time $TIMEOUT "$TARGET_URL/")
     if echo "$html_response" | grep -q "<!doctype html>" && echo "$html_response" | grep -q "Nearest Nice Weather"; then
         success "Main HTML Page - HTML structure valid"
@@ -233,55 +233,55 @@ main() {
         error "Main HTML Page - Invalid HTML or missing title"
         log "HTML Response Preview: $(echo "$html_response" | head -5)"
     fi
-    
+
     # Test 5: Static assets (favicon, manifest)
     test_frontend_asset "/favicon.ico" "Favicon"
     test_frontend_asset "/manifest.json" "PWA Manifest"
-    
+
     # Test 6: Check for JavaScript bundle loading
     log "Testing Frontend: JavaScript Bundle Detection"
     ((FRONTEND_TESTS_TOTAL++))
-    
+
     if echo "$html_response" | grep -q "assets.*\.js"; then
         success "JavaScript Bundle - References found in HTML"
         ((FRONTEND_TESTS_PASSED++))
     else
         error "JavaScript Bundle - No JS references found"
     fi
-    
+
     echo
-    
+
     # =============================================================================
     # PHASE 3: BROWSER VALIDATION (if BrowserToolsMCP available)
     # =============================================================================
     log "🌐 Phase 3: Browser Validation"
-    
+
     # Test 7: BrowserToolsMCP availability
     if curl -s --max-time 5 "$BROWSERTOOLS_URL/identity" >/dev/null 2>&1; then
         success "BrowserToolsMCP - Server available"
-        
+
         # Test 8: Console error detection
         log "Testing Browser: Console Error Detection"
         local console_logs=$(curl -s --max-time 10 "$BROWSERTOOLS_URL/mcp/console-logs/all?limit=10" 2>/dev/null)
-        
+
         if echo "$console_logs" | jq -e '.logs[]' >/dev/null 2>&1; then
             warning "Console logs detected - Manual review recommended"
         else
             success "Console Error Detection - No errors found"
         fi
-        
+
         # Test 9: Screenshot capture attempt
         log "Testing Browser: Screenshot Capability"
         local screenshot_result=$(curl -s -X POST "$BROWSERTOOLS_URL/mcp/screenshot" \
             -H "Content-Type: application/json" \
             -d '{"url":"'$TARGET_URL'","filename":"validation-'$ENVIRONMENT'-test.png"}' 2>/dev/null)
-        
+
         if echo "$screenshot_result" | jq -e '.success' >/dev/null 2>&1; then
             success "Screenshot Capability - Available for manual verification"
         else
             warning "Screenshot Capability - May require manual browser navigation"
         fi
-        
+
         # Test 10: Manual verification warning
         warning "IMPORTANT: Automated tests cannot detect React runtime failures"
         warning "MANUAL VERIFICATION REQUIRED: Check $TARGET_URL in browser for blank screen"
@@ -293,30 +293,30 @@ main() {
     else
         warning "BrowserToolsMCP - Server not available (optional)"
     fi
-    
+
     echo
-    
+
     # =============================================================================
     # PHASE 4: COMPREHENSIVE ANALYSIS
     # =============================================================================
     log "📊 Phase 4: Results Analysis"
-    
+
     # Calculate scores
     local api_score=0
     local frontend_score=0
-    
+
     if [[ $API_TESTS_TOTAL -gt 0 ]]; then
         api_score=$((API_TESTS_PASSED * 100 / API_TESTS_TOTAL))
     fi
-    
+
     if [[ $FRONTEND_TESTS_TOTAL -gt 0 ]]; then
         frontend_score=$((FRONTEND_TESTS_PASSED * 100 / FRONTEND_TESTS_TOTAL))
     fi
-    
+
     # Report results
     log "API Tests: $API_TESTS_PASSED/$API_TESTS_TOTAL passed ($api_score%)"
     log "Frontend Tests: $FRONTEND_TESTS_PASSED/$FRONTEND_TESTS_TOTAL passed ($frontend_score%)"
-    
+
     # Determine overall status
     if [[ $api_score -ge 80 && $frontend_score -ge 80 ]]; then
         success "OVERALL STATUS: HEALTHY - Preview environment fully operational"
@@ -342,7 +342,7 @@ show_diagnostics() {
         echo
         log "🔍 DIAGNOSTIC GUIDANCE"
         echo
-        
+
         for issue in "${CRITICAL_ISSUES[@]}"; do
             case "$issue" in
                 *"frontend"*|*"HTML"*|*"JavaScript"*)
@@ -386,7 +386,7 @@ show_diagnostics() {
             esac
             echo
         done
-        
+
         log "ENVIRONMENT-SPECIFIC FIXES:"
         case "$ENVIRONMENT" in
             "localhost"|"local")

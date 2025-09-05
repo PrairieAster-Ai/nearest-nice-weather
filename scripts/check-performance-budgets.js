@@ -6,7 +6,7 @@ const { execSync } = require('child_process');
 
 /**
  * Performance Budget Checker for Nearest Nice Weather
- * 
+ *
  * Analyzes build output and enforces performance budgets
  * Generates reports for CI/CD pipeline integration
  */
@@ -19,12 +19,12 @@ const PERFORMANCE_BUDGETS = {
   maxCSSBundle: 200000,       // 200KB for CSS
   maxAssetSize: 500000,       // 500KB for individual assets
   maxChunks: 15,              // Maximum number of chunks
-  
+
   // Core Web Vitals targets
   maxLCP: 2500,               // Largest Contentful Paint (ms)
   maxFID: 100,                // First Input Delay (ms)
   maxCLS: 0.1,                // Cumulative Layout Shift
-  
+
   // Performance score targets
   minPerformanceScore: 85,    // Lighthouse performance score
   minAccessibilityScore: 90,  // Accessibility score
@@ -64,11 +64,11 @@ function getGzippedSize(filePath) {
  */
 function analyzeBundleSize() {
   console.log('📊 Analyzing bundle sizes...');
-  
+
   if (!fs.existsSync(DIST_PATH)) {
     throw new Error(`Build directory not found: ${DIST_PATH}`);
   }
-  
+
   const files = fs.readdirSync(DIST_PATH, { recursive: true })
     .filter(file => typeof file === 'string')
     .map(file => path.join(DIST_PATH, file))
@@ -78,7 +78,7 @@ function analyzeBundleSize() {
       // Exclude development artifacts from production bundle analysis
       return !relativePath.includes('stats.html');
     });
-  
+
   const analysis = {
     totalSize: 0,
     totalGzippedSize: 0,
@@ -88,16 +88,16 @@ function analyzeBundleSize() {
     chunkCount: 0,
     files: []
   };
-  
+
   files.forEach(file => {
     const ext = path.extname(file);
     const size = getFileSize(file);
     const gzippedSize = getGzippedSize(file);
     const relativePath = path.relative(DIST_PATH, file);
-    
+
     analysis.totalSize += size;
     analysis.totalGzippedSize += gzippedSize;
-    
+
     if (ext === '.js') {
       analysis.jsSize += size;
       if (relativePath.includes('chunk') || relativePath.includes('assets')) {
@@ -108,7 +108,7 @@ function analyzeBundleSize() {
     } else if (['.png', '.jpg', '.jpeg', '.svg', '.ico', '.woff', '.woff2'].includes(ext)) {
       analysis.assetSize += size;
     }
-    
+
     analysis.files.push({
       path: relativePath,
       size,
@@ -116,7 +116,7 @@ function analyzeBundleSize() {
       type: ext.slice(1) || 'other'
     });
   });
-  
+
   return analysis;
 }
 
@@ -125,9 +125,9 @@ function analyzeBundleSize() {
  */
 function checkBudgets(analysis) {
   console.log('🎯 Checking performance budgets...');
-  
+
   const results = [];
-  
+
   // Total size budget
   results.push({
     name: 'Total Bundle Size',
@@ -136,7 +136,7 @@ function checkBudgets(analysis) {
     status: analysis.totalSize <= PERFORMANCE_BUDGETS.maxTotalSize ? 'pass' : 'fail',
     impact: analysis.totalSize > PERFORMANCE_BUDGETS.maxTotalSize ? 'high' : 'none'
   });
-  
+
   // JavaScript size budget
   results.push({
     name: 'JavaScript Bundle Size',
@@ -145,16 +145,16 @@ function checkBudgets(analysis) {
     status: analysis.jsSize <= PERFORMANCE_BUDGETS.maxJSBundle ? 'pass' : 'fail',
     impact: analysis.jsSize > PERFORMANCE_BUDGETS.maxJSBundle ? 'medium' : 'none'
   });
-  
+
   // CSS size budget
   results.push({
-    name: 'CSS Bundle Size', 
+    name: 'CSS Bundle Size',
     actual: `${(analysis.cssSize / 1024).toFixed(1)}KB`,
     limit: `${(PERFORMANCE_BUDGETS.maxCSSBundle / 1024).toFixed(1)}KB`,
     status: analysis.cssSize <= PERFORMANCE_BUDGETS.maxCSSBundle ? 'pass' : 'fail',
     impact: analysis.cssSize > PERFORMANCE_BUDGETS.maxCSSBundle ? 'low' : 'none'
   });
-  
+
   // Chunk count budget
   results.push({
     name: 'Chunk Count',
@@ -163,7 +163,7 @@ function checkBudgets(analysis) {
     status: analysis.chunkCount <= PERFORMANCE_BUDGETS.maxChunks ? 'pass' : 'warn',
     impact: analysis.chunkCount > PERFORMANCE_BUDGETS.maxChunks ? 'low' : 'none'
   });
-  
+
   // Check individual large files
   const largeFiles = analysis.files.filter(file => file.size > PERFORMANCE_BUDGETS.maxAssetSize);
   if (largeFiles.length > 0) {
@@ -176,7 +176,7 @@ function checkBudgets(analysis) {
       details: largeFiles.map(f => `${f.path} (${(f.size / 1024).toFixed(1)}KB)`)
     });
   }
-  
+
   return results;
 }
 
@@ -185,37 +185,37 @@ function checkBudgets(analysis) {
  */
 function generateRecommendations(analysis, budgetResults) {
   const recommendations = [];
-  
+
   // Bundle size recommendations
   if (analysis.totalSize > PERFORMANCE_BUDGETS.maxTotalSize) {
     recommendations.push('Consider code splitting and lazy loading for non-critical features');
     recommendations.push('Analyze bundle with `npm run build:analyze` to identify large dependencies');
   }
-  
+
   if (analysis.jsSize > PERFORMANCE_BUDGETS.maxJSBundle) {
     recommendations.push('Review and remove unused JavaScript dependencies');
     recommendations.push('Implement dynamic imports for route-based code splitting');
   }
-  
+
   if (analysis.chunkCount > PERFORMANCE_BUDGETS.maxChunks) {
     recommendations.push('Optimize chunk splitting strategy to reduce HTTP requests');
   }
-  
+
   // Specific weather app recommendations
   if (analysis.assetSize > 100000) { // 100KB
     recommendations.push('Optimize weather icons and map assets (consider WebP format)');
   }
-  
+
   const largeFiles = analysis.files.filter(f => f.size > 100000);
   if (largeFiles.length > 0) {
     recommendations.push('Consider compressing or optimizing large assets');
   }
-  
+
   if (recommendations.length === 0) {
     recommendations.push('Bundle size is within acceptable limits 🎉');
     recommendations.push('Consider implementing progressive loading for enhanced performance');
   }
-  
+
   return recommendations;
 }
 
@@ -239,7 +239,7 @@ function generateReport(analysis, budgetResults, recommendations) {
     },
     files: analysis.files.sort((a, b) => b.size - a.size).slice(0, 10) // Top 10 largest files
   };
-  
+
   return report;
 }
 
@@ -249,7 +249,7 @@ function generateReport(analysis, budgetResults, recommendations) {
 function main() {
   try {
     console.log('🚀 Starting performance budget analysis...\n');
-    
+
     // Analyze bundle
     const analysis = analyzeBundleSize();
     console.log(`📦 Total bundle size: ${(analysis.totalSize / 1024).toFixed(1)}KB`);
@@ -258,31 +258,31 @@ function main() {
     console.log(`🎨 CSS: ${(analysis.cssSize / 1024).toFixed(1)}KB`);
     console.log(`🖼️  Assets: ${(analysis.assetSize / 1024).toFixed(1)}KB`);
     console.log(`📊 Chunks: ${analysis.chunkCount}\n`);
-    
+
     // Check budgets
     const budgetResults = checkBudgets(analysis);
     const failedBudgets = budgetResults.filter(r => r.status === 'fail');
     const warnings = budgetResults.filter(r => r.status === 'warn');
-    
+
     // Generate recommendations
     const recommendations = generateRecommendations(analysis, budgetResults);
-    
+
     // Generate report
     const report = generateReport(analysis, budgetResults, recommendations);
     fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
-    
+
     // Display results
     console.log('📋 Performance Budget Results:');
     budgetResults.forEach(result => {
       const icon = result.status === 'pass' ? '✅' : result.status === 'warn' ? '⚠️' : '❌';
       console.log(`${icon} ${result.name}: ${result.actual} (limit: ${result.limit})`);
     });
-    
+
     if (recommendations.length > 0) {
       console.log('\n💡 Recommendations:');
       recommendations.forEach(rec => console.log(`• ${rec}`));
     }
-    
+
     // Exit with appropriate code
     if (failedBudgets.length > 0) {
       console.log(`\n❌ ${failedBudgets.length} budget(s) exceeded!`);
@@ -294,7 +294,7 @@ function main() {
       console.log('\n✅ All performance budgets passed!');
       process.exit(0);
     }
-    
+
   } catch (error) {
     console.error('❌ Performance budget check failed:', error.message);
     process.exit(1);

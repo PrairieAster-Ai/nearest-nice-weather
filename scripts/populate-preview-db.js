@@ -30,7 +30,7 @@ const testPOIs = [
     name: "Split Rock Lighthouse State Park",
     lat: 47.2005,
     lng: -91.4690,
-    park_type: "State Park", 
+    park_type: "State Park",
     park_level: "state",
     ownership: "Minnesota DNR",
     operator: "Minnesota DNR",
@@ -47,7 +47,7 @@ const testPOIs = [
     park_type: "National Park",
     park_level: "national",
     ownership: "National Park Service",
-    operator: "National Park Service", 
+    operator: "National Park Service",
     description: "Water-based national park in the Boundary Waters region",
     data_source: "manual_test",
     source_id: "preview_test_003",
@@ -58,7 +58,7 @@ const testPOIs = [
 
 async function populatePreviewDB() {
   console.log('🔄 Populating preview database with test POI data')
-  
+
   try {
     // Create expanded table
     await sql`
@@ -85,7 +85,7 @@ async function populatePreviewDB() {
       )
     `
     console.log('✅ Expanded POI table ready')
-    
+
     // Insert test POIs
     for (const poi of testPOIs) {
       await sql`
@@ -105,9 +105,9 @@ async function populatePreviewDB() {
       `
       console.log(`✅ Added: ${poi.name}`)
     }
-    
+
     console.log(`\n🎉 Preview database populated with ${testPOIs.length} test POIs`)
-    
+
   } catch (error) {
     console.error('❌ Preview database population failed:', error)
   }

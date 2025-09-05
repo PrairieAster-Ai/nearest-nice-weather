@@ -18,7 +18,7 @@ gh-create() {
         echo "Example: gh-create 'New Epic' 'Description here' 'epic,sprint-1'"
         return 1
     fi
-    
+
     npm run gh:create "$1" "$2" "${3:-}"
 }
 
@@ -28,7 +28,7 @@ gh-assign() {
         echo "Example: gh-assign '10,11,12' 1"
         return 1
     fi
-    
+
     node .github/scripts/github-manager.js assign "$1" "$2"
 }
 
@@ -38,7 +38,7 @@ gh-sprint() {
         echo "Example: gh-sprint 3"
         return 1
     fi
-    
+
     npm run gh:issues "$1"
 }
 

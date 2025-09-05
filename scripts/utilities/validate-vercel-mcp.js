@@ -4,17 +4,17 @@
  * ========================================================================
  * VERCEL MCP VALIDATION SCRIPT
  * ========================================================================
- * 
+ *
  * @PURPOSE: Validate Vercel MCP server configuration and integration
  * @SCOPE: Deployment automation, preview environment management, monitoring
- * 
+ *
  * Key Validations:
  * - MCP server configuration
  * - Vercel CLI availability
  * - Project configuration
  * - Deployment status
  * - Preview environment management
- * 
+ *
  * ========================================================================
  */
 
@@ -66,13 +66,13 @@ const mcpConfigPath = resolve(PROJECT_ROOT, '.mcp/claude-desktop-config.json');
 if (existsSync(mcpConfigPath)) {
   try {
     const mcpConfig = JSON.parse(readFileSync(mcpConfigPath, 'utf8'));
-    
+
     validateCheck(
       'Vercel MCP server configured',
       mcpConfig.mcpServers?.vercel !== undefined,
       'Found @mistertk/vercel-mcp in configuration'
     );
-    
+
     const vercelConfig = mcpConfig.mcpServers?.vercel;
     if (vercelConfig) {
       validateCheck(
@@ -80,19 +80,19 @@ if (existsSync(mcpConfigPath)) {
         vercelConfig.args?.includes('@mistertk/vercel-mcp@latest'),
         '@mistertk/vercel-mcp@latest'
       );
-      
+
       validateCheck(
         'Environment variables configured',
         vercelConfig.env !== undefined,
         `${Object.keys(vercelConfig.env || {}).length} env vars`
       );
-      
+
       validateWarning(
         'Access token configured',
         vercelConfig.env?.VERCEL_ACCESS_TOKEN !== 'VERCEL_TOKEN_PLACEHOLDER',
         'Update VERCEL_ACCESS_TOKEN in MCP config'
       );
-      
+
       validateCheck(
         'Project name configured',
         vercelConfig.env?.VERCEL_PROJECT_NAME === 'nearest-nice-weather'
@@ -130,13 +130,13 @@ if (existsSync(packageJsonPath)) {
   try {
     const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
     const scripts = packageJson.scripts || {};
-    
+
     validateCheck(
       'Deploy scripts configured',
       scripts['deploy:preview'] !== undefined,
       'npm run deploy:preview available'
     );
-    
+
     validateCheck(
       'Validation scripts configured',
       scripts['validate:preview'] !== undefined,
@@ -157,7 +157,7 @@ try {
     gitRemote !== 'no-remote' && gitRemote.includes('github.com'),
     'GitHub repository linked'
   );
-  
+
   // Check if .vercel directory exists (indicates previous deployments)
   const vercelDirPath = resolve(PROJECT_ROOT, '.vercel');
   validateWarning(
@@ -165,7 +165,7 @@ try {
     existsSync(vercelDirPath),
     'Run vercel --prod to initialize'
   );
-  
+
 } catch (error) {
   validateWarning('Deployment status check', false, error.message);
 }

@@ -1,7 +1,7 @@
 /**
  * Validation Utils Coverage Test using require() syntax
  * Tests validation logic with CommonJS imports to bypass ES module issues
- * 
+ *
  * @COVERAGE_TARGET: validation.ts functions
  * @DUAL_API_CONTEXT: Tests validation used by both Express and Vercel APIs
  */
@@ -97,7 +97,7 @@ describe('Validation Utils Coverage - CommonJS', () => {
         return {
           validate: (input) => {
             const errors = [];
-            
+
             if (!validTemperatures.includes(input.temperature)) {
               errors.push('Invalid temperature selection');
             }
@@ -107,7 +107,7 @@ describe('Validation Utils Coverage - CommonJS', () => {
             if (!validWind.includes(input.wind)) {
               errors.push('Invalid wind selection');
             }
-            
+
             return {
               success: errors.length === 0,
               data: errors.length === 0 ? input : null,
@@ -157,17 +157,17 @@ describe('Validation Utils Coverage - CommonJS', () => {
           .replace(/javascript:/gi, '')
           .replace(/on\w+\s*=/gi, '');
       });
-      
+
       const createFeedbackValidator = (sanitizeString) => ({
         validate: (input) => {
           const errors = [];
           const result = { ...input };
-          
+
           // Rating validation
           if (typeof input.rating !== 'number' || input.rating < 1 || input.rating > 5) {
             errors.push('Rating must be between 1 and 5');
           }
-          
+
           // Comment validation and sanitization
           if (typeof input.comment === 'string') {
             if (input.comment.length > 1000) {
@@ -175,7 +175,7 @@ describe('Validation Utils Coverage - CommonJS', () => {
             }
             result.comment = sanitizeString(input.comment);
           }
-          
+
           // Email validation
           if (input.email && input.email !== '') {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -183,13 +183,13 @@ describe('Validation Utils Coverage - CommonJS', () => {
               errors.push('Invalid email format');
             }
           }
-          
+
           // Category validation
           const validCategories = ['bug', 'feature', 'general'];
           if (!validCategories.includes(input.category)) {
             errors.push('Invalid feedback category');
           }
-          
+
           return {
             success: errors.length === 0,
             data: errors.length === 0 ? result : null,
@@ -242,14 +242,14 @@ describe('Validation Utils Coverage - CommonJS', () => {
         isAllowed(key, limit, windowMs) {
           const now = Date.now();
           const requests = this.requests.get(key) || [];
-          
+
           // Remove requests outside the time window
           const validRequests = requests.filter(time => now - time < windowMs);
-          
+
           if (validRequests.length >= limit) {
             return false;
           }
-          
+
           validRequests.push(now);
           this.requests.set(key, validRequests);
           return true;
@@ -273,18 +273,18 @@ describe('Validation Utils Coverage - CommonJS', () => {
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
-      
+
       // Test exceeding limit
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(false);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(false);
-      
+
       // Test different key
       expect(rateLimiter.isAllowed('different-user', limit, windowMs)).toBe(true);
-      
+
       // Test reset
       rateLimiter.reset(testKey);
       expect(rateLimiter.isAllowed(testKey, limit, windowMs)).toBe(true);
-      
+
       // Test request count
       expect(rateLimiter.getRequestCount(testKey)).toBe(1);
     });
@@ -298,14 +298,14 @@ describe('Validation Utils Coverage - CommonJS', () => {
         isAllowed(key, limit, windowMs) {
           const now = Date.now();
           const requests = this.requests.get(key) || [];
-          
+
           // Remove requests outside the time window
           const validRequests = requests.filter(time => now - time < windowMs);
-          
+
           if (validRequests.length >= limit) {
             return false;
           }
-          
+
           validRequests.push(now);
           this.requests.set(key, validRequests);
           return true;
@@ -367,14 +367,14 @@ describe('Validation Utils Coverage - CommonJS', () => {
       };
 
       const csp = generateCSP();
-      
+
       // Verify CSP includes essential directives
       expect(csp).toContain("default-src 'self'");
       expect(csp).toContain("script-src 'self'");
       expect(csp).toContain("frame-src 'none'");
       expect(csp).toContain("object-src 'none'");
       expect(csp).toContain(mockEnv.VITE_API_BASE_URL);
-      
+
       // Verify proper formatting
       const directives = csp.split('; ');
       expect(directives.length).toBeGreaterThan(5);
@@ -409,11 +409,11 @@ describe('Validation Utils Coverage - CommonJS', () => {
       const validateEnvironmentVars = (envVars, requiredVars) => {
         const missing = requiredVars.filter(varName => !envVars[varName]);
         const warnings = [];
-        
+
         if (missing.length > 0) {
           warnings.push(`Missing required environment variables: ${missing.join(', ')}`);
         }
-        
+
         // Check for development-specific variables
         if (envVars.NODE_ENV === 'development') {
           const devVars = ['VITE_API_BASE_URL', 'VITE_DEBUG'];
@@ -422,7 +422,7 @@ describe('Validation Utils Coverage - CommonJS', () => {
             warnings.push(`Missing development variables: ${missingDev.join(', ')}`);
           }
         }
-        
+
         return {
           isValid: missing.length === 0,
           missing,
@@ -436,7 +436,7 @@ describe('Validation Utils Coverage - CommonJS', () => {
         VITE_API_BASE_URL: 'https://api.example.com',
         DATABASE_URL: 'postgresql://...'
       };
-      
+
       const result1 = validateEnvironmentVars(completeEnv, ['NODE_ENV', 'DATABASE_URL']);
       expect(result1.isValid).toBe(true);
       expect(result1.missing).toHaveLength(0);
@@ -445,7 +445,7 @@ describe('Validation Utils Coverage - CommonJS', () => {
       const incompleteEnv = {
         NODE_ENV: 'production'
       };
-      
+
       const result2 = validateEnvironmentVars(incompleteEnv, ['NODE_ENV', 'DATABASE_URL', 'API_KEY']);
       expect(result2.isValid).toBe(false);
       expect(result2.missing).toEqual(['DATABASE_URL', 'API_KEY']);
@@ -456,7 +456,7 @@ describe('Validation Utils Coverage - CommonJS', () => {
         NODE_ENV: 'development',
         DATABASE_URL: 'postgresql://localhost'
       };
-      
+
       const result3 = validateEnvironmentVars(devEnv, ['NODE_ENV', 'DATABASE_URL']);
       expect(result3.isValid).toBe(true);
       expect(result3.warnings.some(w => w.includes('development variables'))).toBe(true);

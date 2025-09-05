@@ -55,7 +55,7 @@ show_deployment_instructions() {
 display_file_content() {
     local file="$1"
     local title="$2"
-    
+
     echo ""
     echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
     echo -e "${GREEN}$title${NC}"
@@ -83,7 +83,7 @@ while true; do
     clear
     show_menu
     read choice
-    
+
     case $choice in
         1)
             display_file_content "wiki-deployment/Home.md" "HOME PAGE CONTENT"

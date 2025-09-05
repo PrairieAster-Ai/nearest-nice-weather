@@ -2,15 +2,15 @@
  * ========================================================================
  * SHARED WEATHER FILTERING - Unified Logic for Dual API Architecture
  * ========================================================================
- * 
+ *
  * @PURPOSE: Single source of truth for all weather-based POI filtering
  * @USAGE: Used by both Express.js (localhost) and Vercel functions (production)
  * @BENEFIT: Eliminates filtering logic duplication and sync maintenance overhead
- * 
+ *
  * This module provides consistent weather filtering logic across environments:
  * - localhost: dev-api-server.js imports applyWeatherFilters()
  * - production: apps/web/api/poi-locations-with-weather.js imports applyWeatherFilters()
- * 
+ *
  * Uses percentile-based filtering for relative weather preferences
  * that adapt to current seasonal conditions automatically.
  */
@@ -18,11 +18,11 @@
 /**
  * Apply weather-based filtering to POI results
  * Uses percentile-based filtering for relative weather preferences
- * 
+ *
  * @param {Array} locations - POI locations with weather data
  * @param {Object} filters - Weather filter preferences
  * @param {string} filters.temperature - 'cold', 'mild', 'hot', or empty
- * @param {string} filters.precipitation - 'none', 'light', 'heavy', or empty  
+ * @param {string} filters.precipitation - 'none', 'light', 'heavy', or empty
  * @param {string} filters.wind - 'calm', 'breezy', 'windy', or empty
  * @returns {Array} Filtered POI locations
  */
@@ -114,7 +114,7 @@ export function applyWeatherFilters(locations, filters) {
 /**
  * Generate mock weather data for testing
  * Used when real weather API is unavailable
- * 
+ *
  * @param {number} seed - Random seed for consistent mock data
  * @returns {Object} Mock weather data
  */
@@ -127,10 +127,10 @@ export function generateMockWeather(seed = Math.random()) {
     'Pleasant conditions for outdoor fun',
     'Nice weather for park visits'
   ]
-  
+
   // Use seed for consistent results during testing
   const random = () => (seed * 9301 + 49297) % 233280 / 233280
-  
+
   return {
     temperature: Math.floor(random() * 50) + 40, // 40-90°F
     condition: conditions[Math.floor(random() * conditions.length)],
@@ -145,7 +145,7 @@ export function generateMockWeather(seed = Math.random()) {
 /**
  * Validate weather filter parameters
  * Ensures consistent parameter validation across environments
- * 
+ *
  * @param {Object} filters - Filter parameters to validate
  * @returns {Object} Validation result with normalized filters
  */
@@ -153,10 +153,10 @@ export function validateWeatherFilters(filters) {
   const validTemperatures = ['cold', 'mild', 'hot']
   const validPrecipitation = ['none', 'light', 'heavy']
   const validWind = ['calm', 'breezy', 'windy']
-  
+
   const normalized = {}
   const errors = []
-  
+
   if (filters.temperature) {
     if (validTemperatures.includes(filters.temperature)) {
       normalized.temperature = filters.temperature
@@ -164,7 +164,7 @@ export function validateWeatherFilters(filters) {
       errors.push(`Invalid temperature filter: ${filters.temperature}`)
     }
   }
-  
+
   if (filters.precipitation) {
     if (validPrecipitation.includes(filters.precipitation)) {
       normalized.precipitation = filters.precipitation
@@ -172,7 +172,7 @@ export function validateWeatherFilters(filters) {
       errors.push(`Invalid precipitation filter: ${filters.precipitation}`)
     }
   }
-  
+
   if (filters.wind) {
     if (validWind.includes(filters.wind)) {
       normalized.wind = filters.wind
@@ -180,7 +180,7 @@ export function validateWeatherFilters(filters) {
       errors.push(`Invalid wind filter: ${filters.wind}`)
     }
   }
-  
+
   return {
     valid: errors.length === 0,
     errors: errors,

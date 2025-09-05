@@ -5,23 +5,23 @@ on:
     types: [opened, edited, closed, reopened]
   pull_request:
     types: [opened, closed, merged]
-  
+
 jobs:
   project-automation:
     runs-on: ubuntu-latest
     name: Automate Project Management
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Add Issue to Project
       if: github.event.action == 'opened' && github.event.issue
       uses: actions/add-to-project@v0.5.0
       with:
         project-url: https://github.com/orgs/PrairieAster-Ai/projects/2
         github-token: ${{ secrets.PROJECT_TOKEN }}
-        
+
     - name: Set Sprint Field
       if: github.event.action == 'opened' && github.event.issue
       uses: actions/github-script@v7
@@ -30,16 +30,16 @@ jobs:
         script: |
           const issue = context.payload.issue;
           const labels = issue.labels.map(label => label.name);
-          
+
           // Determine sprint from labels
           let sprint = 'Sprint 3'; // Default to current sprint
           if (labels.includes('sprint-1')) sprint = 'Sprint 1';
           if (labels.includes('sprint-2')) sprint = 'Sprint 2';
           if (labels.includes('sprint-3')) sprint = 'Sprint 3';
           if (labels.includes('sprint-4')) sprint = 'Sprint 4';
-          
+
           console.log(`Setting sprint to: ${sprint} for issue #${issue.number}`);
-          
+
     - name: Validate File References
       if: github.event.action == 'opened' || github.event.action == 'edited'
       uses: actions/github-script@v7
@@ -48,18 +48,18 @@ jobs:
           const fs = require('fs');
           const issue = context.payload.issue;
           const body = issue.body || '';
-          
+
           // Extract file references from issue body
           const fileRegex = /`([^`]+\.(js|ts|tsx|jsx|md|sql))`/g;
           const files = [];
           let match;
-          
+
           while ((match = fileRegex.exec(body)) !== null) {
             files.push(match[1]);
           }
-          
+
           console.log('Found file references:', files);
-          
+
           // Check if files exist
           const missingFiles = [];
           for (const file of files) {
@@ -71,7 +71,7 @@ jobs:
               console.log(`Could not check file: ${file}`);
             }
           }
-          
+
           // Comment on issue if missing files found
           if (missingFiles.length > 0) {
             await github.rest.issues.createComment({
@@ -83,12 +83,12 @@ jobs:
           } else if (files.length > 0) {
             await github.rest.issues.createComment({
               owner: context.repo.owner,
-              repo: context.repo.repo, 
+              repo: context.repo.repo,
               issue_number: issue.number,
               body: `✅ **File Reference Validation**\n\nAll referenced files were found:\n${files.map(f => `- \`${f}\``).join('\n')}`
             });
           }
-          
+
     - name: Story Points Extraction
       if: github.event.action == 'opened' || github.event.action == 'edited'
       uses: actions/github-script@v7
@@ -96,15 +96,15 @@ jobs:
         script: |
           const issue = context.payload.issue;
           const body = issue.body || '';
-          
+
           // Extract story points from issue body
           const storyPointsRegex = /\*\*Story Points\*\*:\s*(\d+)/i;
           const match = body.match(storyPointsRegex);
-          
+
           if (match) {
             const storyPoints = parseInt(match[1]);
             console.log(`Found story points: ${storyPoints}`);
-            
+
             // Add comment with story points summary
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -113,7 +113,7 @@ jobs:
               body: `📊 **WBS Integration**: This issue has **${storyPoints} story points** as defined in the MVP WBS presentation.`
             });
           }
-          
+
     - name: Epic Progress Tracking
       if: github.event.action == 'closed' && github.event.issue
       uses: actions/github-script@v7
@@ -121,16 +121,16 @@ jobs:
         script: |
           const issue = context.payload.issue;
           const labels = issue.labels.map(label => label.name);
-          
+
           if (labels.includes('epic') || labels.includes('story')) {
             // Find parent issues by searching for references
             const issueNumber = issue.number;
-            
+
             // Search for issues that reference this one
             const { data: searchResults } = await github.rest.search.issuesAndPullRequests({
               q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open #${issueNumber}`
             });
-            
+
             for (const parentIssue of searchResults.items) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -140,7 +140,7 @@ jobs:
               });
             }
           }
-          
+
     - name: WBS Alignment Check
       if: github.event.action == 'opened'
       uses: actions/github-script@v7
@@ -149,34 +149,34 @@ jobs:
           const issue = context.payload.issue;
           const body = issue.body || '';
           const title = issue.title || '';
-          
+
           // Check for WBS alignment indicators
           const hasWBSReference = body.includes('MVP-WBS.html') || body.includes('WBS Reference');
           const hasStoryPoints = body.includes('Story Points');
           const hasFileReference = body.includes('File Reference') || body.includes('apps/web/');
           const hasSprintInfo = body.includes('Sprint:') || title.includes('Sprint');
-          
+
           let alignmentScore = 0;
           const missing = [];
-          
+
           if (hasWBSReference) alignmentScore++; else missing.push('WBS Reference');
           if (hasStoryPoints) alignmentScore++; else missing.push('Story Points');
           if (hasFileReference) alignmentScore++; else missing.push('File References');
           if (hasSprintInfo) alignmentScore++; else missing.push('Sprint Information');
-          
+
           const alignmentPercentage = (alignmentScore / 4) * 100;
-          
+
           let status = '🔴';
           if (alignmentPercentage >= 75) status = '🟢';
           else if (alignmentPercentage >= 50) status = '🟡';
-          
+
           await github.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: issue.number,
             body: `${status} **WBS Alignment Check**: ${alignmentPercentage}% aligned with MVP WBS structure\n\n${missing.length > 0 ? `Missing: ${missing.join(', ')}` : 'Fully aligned with WBS requirements!'}\n\n📋 For complete alignment, ensure issues include:\n- Reference to MVP-WBS.html slide\n- Story points from WBS presentation\n- File references with accurate paths\n- Sprint assignment (1-4)`
           });
-          
+
     - name: Sprint Completion Detection
       if: github.event.action == 'closed'
       uses: actions/github-script@v7
@@ -184,14 +184,14 @@ jobs:
         script: |
           const issue = context.payload.issue;
           const labels = issue.labels.map(label => label.name);
-          
+
           // Check if this is a sprint epic completion
           if (labels.includes('epic') && labels.some(l => l.startsWith('sprint-'))) {
             const sprintLabel = labels.find(l => l.startsWith('sprint-'));
             const sprintNumber = sprintLabel ? sprintLabel.replace('sprint-', '') : '';
-            
+
             console.log(`Epic completed for Sprint ${sprintNumber}`);
-            
+
             // Create a summary comment
             await github.rest.issues.createComment({
               owner: context.repo.owner,

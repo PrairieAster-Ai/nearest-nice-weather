@@ -26,7 +26,7 @@ class GitHubCleanup {
 
   async deleteAllIssues() {
     console.log('🗑️ Cleaning up all GitHub issues and milestones...\n');
-    
+
     try {
       // Get all open issues
       console.log('📋 Fetching all open issues...');
@@ -56,7 +56,7 @@ class GitHubCleanup {
 
       console.log('\n✅ GitHub cleanup complete!');
       console.log('📝 Ready to create issues based on actual MVP & WBS documentation');
-      
+
     } catch (error) {
       console.error('❌ Error during cleanup:', error.message);
     }
@@ -109,7 +109,7 @@ class GitHubCleanup {
         labels: ['deleted', 'cleanup'],
         title: `[DELETED] ${await this.getIssueTitle(issueNumber)}`
       });
-      
+
       console.log(`  ✅ Closed issue #${issueNumber} (marked as deleted)`);
     } catch (error) {
       console.error(`  ❌ Failed to close issue #${issueNumber}:`, error.message);
@@ -146,7 +146,7 @@ class GitHubCleanup {
     console.log('⚠️  WARNING: This will clean up ALL GitHub issues and milestones!');
     console.log('📝 Reason: Issues created did not align with actual MVP & WBS documentation');
     console.log('🎯 Goal: Start fresh with correct content from presentations\n');
-    
+
     // In a script context, we'll proceed automatically
     // In interactive mode, you could add prompts here
     console.log('🚀 Proceeding with cleanup...\n');
@@ -157,7 +157,7 @@ class GitHubCleanup {
 // CLI Interface
 async function main() {
   const cleanup = new GitHubCleanup();
-  
+
   const confirmed = await cleanup.confirmCleanup();
   if (confirmed) {
     await cleanup.deleteAllIssues();

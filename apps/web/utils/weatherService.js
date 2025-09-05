@@ -2,17 +2,17 @@
  * ========================================================================
  * WEATHER SERVICE - Redis Cache Integrated
  * ========================================================================
- * 
+ *
  * @BUSINESS_PURPOSE: Cost-optimized weather data with Redis caching
  * @TECHNICAL_APPROACH: OpenWeather API + Redis cache for 60% cost reduction
  * @PRD_REF: PRD-REDIS-CACHING-180.md
- * 
+ *
  * CACHE OPTIMIZATIONS:
  * - Redis caching for 6-hour weather data persistence
  * - Batch weather requests with cache-first strategy
  * - Graceful fallback when cache unavailable
  * - Environment-aware cache configuration
- * 
+ *
  * ========================================================================
  */
 
@@ -40,7 +40,7 @@ async function getCacheServiceDynamic() {
 /**
  * Fetch weather data with Redis cache integration
  * @param {number} lat - Latitude
- * @param {number} lng - Longitude  
+ * @param {number} lng - Longitude
  * @returns {Promise<Object>} Weather data object with cache status
  */
 export async function fetchWeatherData(lat, lng) {
@@ -75,28 +75,28 @@ export async function fetchWeatherData(lat, lng) {
 
     const apiKey = process.env.OPENWEATHER_API_KEY
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=imperial`
-    
+
     console.log(`Fetching weather from OpenWeather API for ${lat}, ${lng}`)
-    
+
     // Use fetch with timeout for serverless environment
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
-    
-    const response = await fetch(url, { 
+
+    const response = await fetch(url, {
       signal: controller.signal,
       headers: {
         'User-Agent': 'NearestNiceWeather/1.0'
       }
     })
-    
+
     clearTimeout(timeoutId)
-    
+
     if (!response.ok) {
       throw new Error(`OpenWeather API error: ${response.status}`)
     }
-    
+
     const data = await response.json()
-    
+
     // Transform OpenWeather response to our format
     const weatherData = {
       temperature: Math.round(data.main.temp),
@@ -108,13 +108,13 @@ export async function fetchWeatherData(lat, lng) {
       weather_timestamp: new Date().toISOString(),
       cache_status: cacheStatus
     }
-    
+
     // Cache the weather data for 6 hours
     await cacheService.setWeatherData(lat, lng, weatherData, 2)
     console.log(`Cached weather data for ${lat}, ${lng}`)
-    
+
     return weatherData
-    
+
   } catch (error) {
     console.error('Weather API error:', error.message)
     const fallbackWeather = getFallbackWeather(lat, lng)
@@ -135,14 +135,14 @@ function mapWeatherCondition(openWeatherMain) {
     'Clear': 'Clear',
     'Clouds': 'Partly Cloudy',
     'Rain': 'Light Rain',
-    'Drizzle': 'Light Rain', 
+    'Drizzle': 'Light Rain',
     'Thunderstorm': 'Thunderstorms',
     'Snow': 'Snow',
     'Mist': 'Foggy',
     'Fog': 'Foggy',
     'Haze': 'Hazy'
   }
-  
+
   return conditionMap[openWeatherMain] || 'Clear'
 }
 
@@ -153,14 +153,14 @@ function calculatePrecipitationChance(data) {
   if (data.rain?.['1h'] > 0 || data.snow?.['1h'] > 0) {
     return Math.min(90, Math.max(20, Math.round((data.rain?.['1h'] || 0) * 10)))
   }
-  
+
   // Estimate based on conditions
   const condition = data.weather[0].main
   if (condition === 'Rain' || condition === 'Drizzle') return 80
   if (condition === 'Thunderstorm') return 90
   if (condition === 'Snow') return 85
   if (condition === 'Clouds') return 20
-  
+
   return 10
 }
 
@@ -190,21 +190,21 @@ export async function fetchBatchWeather(locations, maxConcurrent = 5) {
   let cacheHits = 0
   let cacheMisses = 0
   let apiRequests = 0
-  
+
   console.log(`Starting batch weather fetch for ${locations.length} locations`)
-  
+
   try {
     // PHASE 1: Check cache for all locations first
     const coordinates = locations.map(loc => ({ lat: loc.lat, lng: loc.lng }))
     const cachedResults = await cacheService.getBatchWeatherData(coordinates, 2)
-    
+
     const results = []
     const uncachedLocations = []
-    
+
     for (const location of locations) {
       const cacheKey = `nnw:weather:lat:${Math.round(location.lat * 100) / 100}|lng:${Math.round(location.lng * 100) / 100}`
       const cachedWeather = cachedResults.get(cacheKey)
-      
+
       if (cachedWeather) {
         cacheHits++
         results.push({
@@ -217,19 +217,19 @@ export async function fetchBatchWeather(locations, maxConcurrent = 5) {
         uncachedLocations.push(location)
       }
     }
-    
+
     console.log(`Cache analysis: ${cacheHits} hits, ${cacheMisses} misses`)
-    
+
     // PHASE 2: Fetch weather for uncached locations only
     if (uncachedLocations.length > 0) {
       console.log(`Fetching weather for ${uncachedLocations.length} uncached locations`)
-      
+
       // Process in batches to avoid overwhelming the API
       const batches = []
       for (let i = 0; i < uncachedLocations.length; i += maxConcurrent) {
         batches.push(uncachedLocations.slice(i, i + maxConcurrent))
       }
-      
+
       for (const batch of batches) {
         const batchPromises = batch.map(async (location) => {
           apiRequests++
@@ -239,27 +239,27 @@ export async function fetchBatchWeather(locations, maxConcurrent = 5) {
             ...weather
           }
         })
-        
+
         const batchResults = await Promise.all(batchPromises)
         results.push(...batchResults)
-        
+
         // Small delay between batches to be respectful to API
         if (batches.length > 1) {
           await new Promise(resolve => setTimeout(resolve, 100))
         }
       }
     }
-    
+
     // Sort results to match original order
     const sortedResults = locations.map(originalLoc => {
-      return results.find(result => 
-        Math.abs(result.lat - originalLoc.lat) < 0.001 && 
+      return results.find(result =>
+        Math.abs(result.lat - originalLoc.lat) < 0.001 &&
         Math.abs(result.lng - originalLoc.lng) < 0.001
       )
     }).filter(Boolean)
-    
+
     console.log(`Batch weather completed: ${cacheHits} cached, ${apiRequests} API calls`)
-    
+
     return {
       locations: sortedResults,
       cache_stats: {
@@ -269,10 +269,10 @@ export async function fetchBatchWeather(locations, maxConcurrent = 5) {
         hit_rate: locations.length > 0 ? (cacheHits / locations.length) * 100 : 0
       }
     }
-    
+
   } catch (error) {
     console.error('Batch weather fetch error:', error)
-    
+
     // Fallback: use individual requests without cache optimization
     const fallbackResults = []
     for (const location of locations) {
@@ -291,7 +291,7 @@ export async function fetchBatchWeather(locations, maxConcurrent = 5) {
         })
       }
     }
-    
+
     return {
       locations: fallbackResults,
       cache_stats: {

@@ -3,11 +3,11 @@
 # ========================================================================
 # AUTOMATED DATABASE SYNC: Localhost → Preview
 # ========================================================================
-# 
+#
 # @CLAUDE_CONTEXT: Automates the complete database synchronization process
 # @BUSINESS_PURPOSE: Maintain preview environment for stable feature testing
 # @TECHNICAL_APPROACH: Extract, clear, populate, verify workflow automation
-# 
+#
 # Eliminates manual database consistency workflow (15 min → 2 min)
 # Ensures preview environment matches localhost for testing
 # ========================================================================
@@ -73,7 +73,7 @@ if ! curl -s -X POST "https://p.nearestniceweather.com/api/migrate-data" \
     exit 1
 fi
 
-echo "   - Populating weather locations..."  
+echo "   - Populating weather locations..."
 if ! curl -s -X POST "https://p.nearestniceweather.com/api/migrate-data" \
     -H "Content-Type: application/json" \
     -d "{\"action\": \"populate\", \"table\": \"locations\", \"data\": $(cat "$TEMP_DIR/localhost-weather-data.json")}" \
@@ -106,7 +106,7 @@ echo "   Preview sample:   $PREVIEW_SAMPLE"
 
 # Check if coordinates match (names should match, coordinates should be identical)
 LOCALHOST_LAT=$(echo "$LOCALHOST_SAMPLE" | jq -r '.lat')
-PREVIEW_LAT=$(echo "$PREVIEW_SAMPLE" | jq -r '.lat') 
+PREVIEW_LAT=$(echo "$PREVIEW_SAMPLE" | jq -r '.lat')
 LOCALHOST_LNG=$(echo "$LOCALHOST_SAMPLE" | jq -r '.lng')
 PREVIEW_LNG=$(echo "$PREVIEW_SAMPLE" | jq -r '.lng')
 
@@ -114,7 +114,7 @@ if [ "$LOCALHOST_LAT" = "$PREVIEW_LAT" ] && [ "$LOCALHOST_LNG" = "$PREVIEW_LNG" 
     echo "   ✅ Data types and coordinates match"
 else
     echo "   ⚠️  Coordinate mismatch detected"
-    echo "      Localhost: lat=$LOCALHOST_LAT, lng=$LOCALHOST_LNG"  
+    echo "      Localhost: lat=$LOCALHOST_LAT, lng=$LOCALHOST_LNG"
     echo "      Preview:   lat=$PREVIEW_LAT, lng=$PREVIEW_LNG"
 fi
 

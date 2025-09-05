@@ -16,7 +16,7 @@
   "action_required_threshold": "< 70%",
   "interpretation": {
     "95-100%": "OPTIMAL - Proceed with complex development tasks",
-    "85-94%": "GOOD - Safe for normal development, monitor trends", 
+    "85-94%": "GOOD - Safe for normal development, monitor trends",
     "70-84%": "DEGRADED - Focus on incremental changes, avoid major refactoring",
     "< 70%": "CRITICAL - Stop feature development, prioritize environment fixes"
   }
@@ -43,10 +43,10 @@
 ```json
 {
   "cpu_usage": "GET http://localhost:3052/system-resources .cpu.usage",
-  "memory_usage": "GET http://localhost:3052/system-resources .memory.percentage", 
+  "memory_usage": "GET http://localhost:3052/system-resources .memory.percentage",
   "thresholds": {
     "cpu_optimal": "< 70%",
-    "cpu_warning": "70-85%", 
+    "cpu_warning": "70-85%",
     "cpu_critical": "> 85%",
     "memory_optimal": "< 60%",
     "memory_warning": "60-80%",
@@ -81,7 +81,7 @@ resolution_commands:
   - "Check vite.config.ts proxy configuration"
 ```
 
-### **Pattern 2: Service Startup Race Conditions** 
+### **Pattern 2: Service Startup Race Conditions**
 ```yaml
 trigger_conditions:
   - cpu_usage > 85% AND process_count.node > 3
@@ -191,11 +191,11 @@ claude_priority: "Refuse non-essential requests until environment stable"
 #### **When User Requests Complex Task + Environment Degraded**
 ```yaml
 claude_response_pattern: |
-  "I notice the development environment health is at X%. Before proceeding with [complex task], 
+  "I notice the development environment health is at X%. Before proceeding with [complex task],
   let me help stabilize the environment first. Running environment diagnostics..."
-  
+
   [Run health check]
-  
+
   "I recommend addressing these environment issues first:
   - [specific issues found]
   - Estimated fix time: X minutes
@@ -208,9 +208,9 @@ claude_response_pattern: |
   "The environment monitoring shows all services healthy (X% score), but you're experiencing [issue].
   This suggests the problem may be:
   - Recent code changes affecting [specific area]
-  - Browser cache or client-side issues  
+  - Browser cache or client-side issues
   - Specific feature configuration rather than infrastructure
-  
+
   Let me focus on [specific debugging approach] rather than environment troubleshooting."
 ```
 
@@ -223,10 +223,10 @@ claude_response_pattern: |
 weekly_time_allocation:
   environment_issues: "14-19 hours (35-50% of development time)"
   feature_development: "10-15 hours (50-65% of development time)"
-  
+
 issue_categories:
   port_conflicts: "8-10 hours/week"
-  database_connectivity: "4-6 hours/week" 
+  database_connectivity: "4-6 hours/week"
   docker_networking: "2-4 hours/week"
   configuration_drift: "2-3 hours/week"
 
@@ -240,12 +240,12 @@ commit_analysis:
 weekly_time_allocation:
   environment_issues: "<5 hours (10-15% of development time)"
   feature_development: "25-30 hours (85-90% of development time)"
-  
+
 productivity_gains:
   environment_stability: "35-50% time recovery"
   proactive_issue_prevention: "80% reduction in troubleshooting"
   context_preservation: "95% fewer 'what was I working on?' moments"
-  
+
 success_metrics:
   environment_commits: "<15% of total commits"
   repeated_issues: "Zero tolerance for same issue twice"
@@ -271,7 +271,7 @@ success_metrics:
 ```bash
 # Claude should periodically check (every 30 minutes during active development):
 - Environment health score trends
-- Resource utilization patterns  
+- Resource utilization patterns
 - Service availability changes
 - Early warning indicators for known patterns
 

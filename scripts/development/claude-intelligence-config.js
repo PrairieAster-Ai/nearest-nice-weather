@@ -5,10 +5,10 @@ module.exports = {
   // Project identification
   projectName: 'nearest-nice-weather',
   description: 'B2C weather intelligence platform for Minnesota outdoor recreation consumers',
-  
+
   // Network configuration - avoid conflicts with existing services
   basePort: 3050,  // Uses ports 3050-3059
-  
+
   // Enabled intelligence tools
   enabledTools: [
     'system',    // System resource monitoring (essential for development)
@@ -16,7 +16,7 @@ module.exports = {
     'database',  // Database performance monitoring (Neon PostgreSQL)
     'context'    // Unified context API (maximum Claude AI intelligence)
   ],
-  
+
   // Project-specific configuration
   environment: {
     projectType: 'React + Vite PWA',
@@ -25,12 +25,12 @@ module.exports = {
     deployment: 'Vercel',
     collaboration: 'Claude AI + Human'
   },
-  
+
   // Data and logging
   dataDir: '/tmp/claude-intelligence/nearest-nice-weather',
   logLevel: 'info',  // Detailed logging for development
   autoDetectServices: true,
-  
+
   // System monitoring configuration
   systemConfig: {
     monitorInterval: 10000,  // 10 seconds
@@ -45,7 +45,7 @@ module.exports = {
       trackBrowser: true      // Monitor browser processes
     }
   },
-  
+
   // Git intelligence configuration
   gitConfig: {
     mainBranch: 'main',
@@ -59,10 +59,10 @@ module.exports = {
       trackClaudeGenerated: true  // Track Claude-generated commits
     }
   },
-  
+
   // Database intelligence configuration
   databaseConfig: {
-    connectionString: process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/weather_intelligence",
+    connectionString: process.env.DATABASE_URL || "postgresql://username:password@localhost:5432/weather_intelligence",
     maxConnections: 20,
     monitorQueries: true,
     trackPerformance: true,
@@ -74,15 +74,15 @@ module.exports = {
       trackUserQueries: true       // Monitor user location queries
     }
   },
-  
+
   // Context API configuration
   contextConfig: {
     businessGoals: {
       primary: 'minimize_productivity_degradation',
-      secondary: 'maximize_development_velocity', 
+      secondary: 'maximize_development_velocity',
       tertiary: 'optimize_weather_platform_features'
     },
-    
+
     projectPriorities: [
       'weather_data_accuracy',
       'user_experience_optimization',
@@ -90,7 +90,7 @@ module.exports = {
       'collaboration_efficiency',
       'deployment_reliability'
     ],
-    
+
     keyMetrics: [
       'development_velocity',
       'commit_quality',
@@ -98,7 +98,7 @@ module.exports = {
       'system_performance',
       'api_response_times'
     ],
-    
+
     intelligenceFeatures: {
       businessAlignment: true,     // Track business goal alignment
       riskDetection: true,         // Detect productivity risks
@@ -106,7 +106,7 @@ module.exports = {
       collaborationOptimization: true // Optimize collaboration patterns
     }
   },
-  
+
   // Nearest Nice Weather specific monitoring
   weatherPlatformConfig: {
     apiEndpoints: [
@@ -114,20 +114,20 @@ module.exports = {
       '/api/feedback',
       '/api/health'
     ],
-    
+
     performanceTargets: {
       apiResponseTime: 500,    // Target: < 500ms
       pageLoadTime: 2000,     // Target: < 2s
       databaseQueryTime: 100   // Target: < 100ms
     },
-    
+
     businessMetrics: {
       trackUserEngagement: true,
       trackWeatherAccuracy: true,
       trackConsumerValue: true,
       trackCollaborationSuccess: true
     },
-    
+
     developmentWorkflow: {
       trackFeatureVelocity: true,
       trackBugResolution: true,
@@ -135,7 +135,7 @@ module.exports = {
       trackContextPreservation: true
     }
   },
-  
+
   // Claude AI collaboration optimization
   claudeOptimization: {
     contextPreservation: {
@@ -144,14 +144,14 @@ module.exports = {
       maintainBusinessContext: true,
       trackLearningPatterns: true
     },
-    
+
     productivityMetrics: {
       trackDecisionSpeed: true,
       trackContextTransferTime: true,
       trackProblemResolutionTime: true,
       trackCollaborationEfficiency: true
     },
-    
+
     intelligenceEnhancement: {
       aggregateMultiSourceData: true,
       providePredictiveInsights: true,
@@ -159,7 +159,7 @@ module.exports = {
       optimizeWorkflowPatterns: true
     }
   },
-  
+
   // Integration with existing services
   serviceIntegration: {
     // Vite development server (port 3001)
@@ -168,21 +168,21 @@ module.exports = {
       monitor: true,
       healthCheck: 'http://localhost:3001/'
     },
-    
+
     // API server (port 4000)
     apiServer: {
       port: 4000,
       monitor: true,
       healthCheck: 'http://localhost:4000/api/health'
     },
-    
+
     // Browser Tools MCP (port 3025)
     browserTools: {
       port: 3025,
       monitor: true,
       integrate: true
     },
-    
+
     // Simple server (port 3008)
     simpleServer: {
       port: 3008,
@@ -190,19 +190,19 @@ module.exports = {
       healthCheck: 'http://localhost:3008/'
     }
   },
-  
+
   // Alerts and notifications
   alerting: {
     enableSlackNotifications: false, // Disable for now
     enableEmailNotifications: false, // Disable for now
-    
+
     criticalAlerts: [
       'system_resource_critical',
       'database_connection_lost',
       'api_endpoint_down',
       'deployment_failure'
     ],
-    
+
     warningAlerts: [
       'high_resource_usage',
       'slow_database_queries',
@@ -210,18 +210,18 @@ module.exports = {
       'context_transfer_issues'
     ]
   },
-  
+
   // Deployment and environment specific settings
   deployment: {
     environment: process.env.NODE_ENV || 'development',
-    
+
     development: {
       enableAllTools: true,
       verboseLogging: true,
       realTimeMonitoring: true,
       performanceOptimization: false
     },
-    
+
     production: {
       enableAllTools: false,
       verboseLogging: false,
@@ -230,7 +230,7 @@ module.exports = {
       enabledTools: ['system', 'context'] // Minimal set for production
     }
   },
-  
+
   // Data retention and cleanup
   dataManagement: {
     retentionDays: 30,        // Keep 30 days of intelligence data

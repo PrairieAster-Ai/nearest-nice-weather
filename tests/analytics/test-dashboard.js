@@ -35,12 +35,12 @@ app.get('/api/metrics/history', (req, res) => {
     if (!fs.existsSync(resultsDir)) {
       return res.json([]);
     }
-    
+
     const files = fs.readdirSync(resultsDir)
       .filter(file => file.startsWith('test-metrics-') && file.endsWith('.json'))
       .sort()
       .slice(-10); // Last 10 runs
-    
+
     const history = files.map(file => {
       const data = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
       return {
@@ -49,7 +49,7 @@ app.get('/api/metrics/history', (req, res) => {
         summary: data.summary
       };
     });
-    
+
     res.json(history);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -101,7 +101,7 @@ app.get('/', (req, res) => {
             <button class="refresh-btn" onclick="refreshData()">Refresh Data</button>
             <span id="last-update"></span>
         </div>
-        
+
         <div class="metrics-grid">
             <div class="metric-card">
                 <div class="metric-value" id="total-tests">-</div>
@@ -128,26 +128,26 @@ app.get('/', (req, res) => {
                 <div class="metric-label">Total Time (s)</div>
             </div>
         </div>
-        
+
         <div class="chart-container">
             <h2>Test History</h2>
             <div id="history-chart">Loading history...</div>
         </div>
-        
+
         <div class="chart-container">
             <h2>Recent Failures</h2>
             <div id="failures-list">No recent failures</div>
         </div>
-        
+
         <div class="chart-container">
             <h2>Performance Trends</h2>
             <div id="performance-trends">No performance data</div>
         </div>
     </div>
-    
+
     <script>
         let refreshInterval;
-        
+
         async function fetchLatestMetrics() {
             try {
                 const response = await fetch('/api/metrics/latest');
@@ -159,7 +159,7 @@ app.get('/', (req, res) => {
                 return null;
             }
         }
-        
+
         async function fetchHistory() {
             try {
                 const response = await fetch('/api/metrics/history');
@@ -171,26 +171,26 @@ app.get('/', (req, res) => {
                 return [];
             }
         }
-        
+
         function updateDashboard(data) {
             if (!data || data.error) {
                 document.getElementById('total-tests').textContent = 'No Data';
                 return;
             }
-            
+
             const summary = data.summary || {};
-            
+
             document.getElementById('total-tests').textContent = summary.totalTests || 0;
             document.getElementById('passed-tests').textContent = summary.passedTests || 0;
             document.getElementById('failed-tests').textContent = summary.failedTests || 0;
             document.getElementById('pass-rate').textContent = (summary.passRate || 0) + '%';
             document.getElementById('avg-duration').textContent = summary.avgDuration || 0;
             document.getElementById('total-duration').textContent = Math.round((summary.totalDuration || 0) / 1000);
-            
+
             // Update failures
             const failuresList = document.getElementById('failures-list');
             if (data.failures && data.failures.length > 0) {
-                failuresList.innerHTML = data.failures.map(failure => 
+                failuresList.innerHTML = data.failures.map(failure =>
                     '<div class="history-item">' +
                     '<span><span class="status-indicator status-failed"></span>' + failure.suite + ' › ' + failure.name + '</span>' +
                     '<span>' + (failure.error || 'No error message') + '</span>' +
@@ -199,7 +199,7 @@ app.get('/', (req, res) => {
             } else {
                 failuresList.innerHTML = '<p style="color: #10b981;">No recent failures ✓</p>';
             }
-            
+
             // Update performance trends
             const performanceTrends = document.getElementById('performance-trends');
             if (data.performance && Object.keys(data.performance).length > 0) {
@@ -215,51 +215,51 @@ app.get('/', (req, res) => {
             } else {
                 performanceTrends.innerHTML = '<p>No performance data available</p>';
             }
-            
+
             document.getElementById('last-update').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
         }
-        
+
         function updateHistoryChart(history) {
             const historyChart = document.getElementById('history-chart');
-            
+
             if (!history || history.length === 0) {
                 historyChart.innerHTML = '<p>No historical data available</p>';
                 return;
             }
-            
+
             historyChart.innerHTML = history.slice(-5).map((run, index) => {
                 const summary = run.summary;
                 const passRate = summary.passRate || 0;
                 const statusClass = passRate >= 90 ? 'status-passed' : passRate >= 70 ? 'status-running' : 'status-failed';
-                
+
                 return '<div class="history-item">' +
                        '<span><span class="status-indicator ' + statusClass + '"></span>' + new Date(run.timestamp).toLocaleString() + '</span>' +
                        '<span>' + summary.totalTests + ' tests, ' + passRate + '% pass rate</span>' +
                        '</div>';
             }).join('');
         }
-        
+
         function refreshData() {
             fetchLatestMetrics();
             fetchHistory();
         }
-        
+
         function startAutoRefresh() {
             refreshInterval = setInterval(refreshData, 5000); // Refresh every 5 seconds
         }
-        
+
         function stopAutoRefresh() {
             if (refreshInterval) {
                 clearInterval(refreshInterval);
             }
         }
-        
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             refreshData();
             startAutoRefresh();
         });
-        
+
         // Stop refresh when page is not visible
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
@@ -272,7 +272,7 @@ app.get('/', (req, res) => {
 </body>
 </html>
   `;
-  
+
   res.send(html);
 });
 

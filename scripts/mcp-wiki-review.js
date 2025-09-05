@@ -14,7 +14,7 @@ class WikiMigrationReviewer {
 
   async connectToGitHub() {
     console.log('🔌 Starting GitHub MCP Server for wiki migration review...');
-    
+
     const serverProcess = spawn('docker', [
       'run', '-i', '--rm',
       '-e', 'GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}',
@@ -47,9 +47,9 @@ class WikiMigrationReviewer {
       };
 
       console.log(`📤 MCP Request: ${method}`);
-      
+
       serverProcess.stdin.write(JSON.stringify(request) + '\n');
-      
+
       const timeout = setTimeout(() => {
         reject(new Error('MCP Request timeout'));
       }, 10000);
@@ -64,7 +64,7 @@ class WikiMigrationReviewer {
                 if (response.id === request.id) {
                   clearTimeout(timeout);
                   serverProcess.stdout.removeListener('data', responseHandler);
-                  
+
                   if (response.error) {
                     reject(new Error(response.error.message));
                   } else {
@@ -88,12 +88,12 @@ class WikiMigrationReviewer {
 
   async reviewWikiMigrationPlan() {
     let serverProcess;
-    
+
     try {
       console.log('🔍 GitHub MCP-Powered Wiki Migration Plan Review\n');
-      
+
       serverProcess = await this.connectToGitHub();
-      
+
       // Initialize MCP connection
       console.log('🤝 Initializing MCP connection...');
       await this.sendMCPRequest(serverProcess, 'initialize', {
@@ -104,15 +104,15 @@ class WikiMigrationReviewer {
           version: '1.0.0'
         }
       });
-      
+
       // Get available tools
       console.log('🛠️ Getting available MCP tools...');
       const tools = await this.sendMCPRequest(serverProcess, 'tools/list', {});
       console.log(`✅ Found ${tools.tools.length} available GitHub MCP tools\n`);
-      
+
       // Review repository
       console.log('📊 Repository Analysis for Wiki Migration:');
-      
+
       // Get repository info
       const repoInfo = await this.sendMCPRequest(serverProcess, 'tools/call', {
         name: 'get_repository',
@@ -121,12 +121,12 @@ class WikiMigrationReviewer {
           repo: 'nearest-nice-weather'
         }
       });
-      
+
       console.log('✅ Repository Status:');
       console.log(`   • Name: ${repoInfo.content[0].text.split('\n')[0]}`);
       console.log(`   • Wiki Enabled: ${repoInfo.content[0].text.includes('has_wiki_enabled: true') ? '✅ YES' : '❌ NO'}`);
       console.log(`   • Private: ${repoInfo.content[0].text.includes('visibility: private') ? '✅ YES' : '❌ NO'}`);
-      
+
       // Get recent issues to understand project activity
       const issues = await this.sendMCPRequest(serverProcess, 'tools/call', {
         name: 'list_issues',
@@ -137,7 +137,7 @@ class WikiMigrationReviewer {
           per_page: 5
         }
       });
-      
+
       console.log('\n🎯 Recent Project Activity:');
       if (issues.content[0].text.includes('Issues:')) {
         const issueLines = issues.content[0].text.split('\n').filter(line => line.includes('#'));
@@ -145,7 +145,7 @@ class WikiMigrationReviewer {
           console.log(`   • ${issue.trim()}`);
         });
       }
-      
+
       // Wiki Migration Plan Assessment
       console.log('\n📋 Wiki Migration Plan Assessment:');
       console.log('✅ Repository is READY for wiki migration');
@@ -153,13 +153,13 @@ class WikiMigrationReviewer {
       console.log('✅ Private repository provides secure documentation environment');
       console.log('✅ Active development (recent issues) benefits from improved documentation');
       console.log('✅ 127 prepared documentation files ready for migration');
-      
+
       console.log('\n🚀 Recommendation: PROCEED with wiki migration immediately');
       console.log('   • All prerequisites met');
-      console.log('   • Repository actively maintained');  
+      console.log('   • Repository actively maintained');
       console.log('   • Content prepared and validated');
       console.log('   • Team collaboration will be enhanced');
-      
+
     } catch (error) {
       console.error('❌ MCP Review failed:', error.message);
     } finally {

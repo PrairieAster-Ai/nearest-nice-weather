@@ -78,17 +78,17 @@ interface WeatherLocation {
 // NEW PATTERN (Primary - for main map interface):
 // ```
 // import { usePOINavigation } from './hooks/usePOINavigation'
-// const { 
-//   visiblePOIs, 
-//   loading, 
+// const {
+//   visiblePOIs,
+//   loading,
 //   error,
 //   expandDistance,
-//   hasMorePOIs 
+//   hasMorePOIs
 // } = usePOINavigation([lat, lng], filters)
 // ```
 //
 // NEW PATTERN (Secondary - for simple POI lists):
-// ```  
+// ```
 // import { usePOILocations } from './hooks/usePOILocations'
 // const { locations, loading, error } = usePOILocations({
 //   userLocation: [lat, lng],

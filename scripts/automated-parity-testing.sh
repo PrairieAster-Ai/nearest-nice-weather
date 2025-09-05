@@ -3,11 +3,11 @@
 # ========================================================================
 # AUTOMATED PARITY TESTING - Post-Sync Verification
 # ========================================================================
-# 
+#
 # @CLAUDE_CONTEXT: Comprehensive testing for localhost/preview consistency
 # @BUSINESS_PURPOSE: Verify identical functionality after database sync
 # @TECHNICAL_APPROACH: API response comparison and functional testing
-# 
+#
 # Ensures preview environment perfectly matches localhost after sync
 # Catches data inconsistencies and functional differences automatically
 # ========================================================================
@@ -44,9 +44,9 @@ trap cleanup EXIT
 run_test() {
     local test_name="$1"
     local test_command="$2"
-    
+
     echo -n "   Testing $test_name... "
-    
+
     if eval "$test_command" > /dev/null 2>&1; then
         echo -e "${GREEN}✅ PASS${NC}"
         ((TESTS_PASSED++))
@@ -63,22 +63,22 @@ compare_api_responses() {
     local endpoint="$1"
     local test_name="$2"
     local comparison_fields="$3"
-    
+
     echo -n "   $test_name... "
-    
+
     # Fetch responses
     local localhost_response=$(curl -s "$LOCALHOST_URL$endpoint")
     local preview_response=$(curl -s "$PREVIEW_URL$endpoint")
-    
+
     # Save full responses for debugging
     echo "$localhost_response" > "$TEMP_DIR/localhost_${endpoint//\//_}.json"
     echo "$preview_response" > "$TEMP_DIR/preview_${endpoint//\//_}.json"
-    
+
     # Compare specified fields
     if [ -n "$comparison_fields" ]; then
         local localhost_data=$(echo "$localhost_response" | jq "$comparison_fields")
         local preview_data=$(echo "$preview_response" | jq "$comparison_fields")
-        
+
         if [ "$localhost_data" = "$preview_data" ]; then
             echo -e "${GREEN}✅ MATCH${NC}"
             ((TESTS_PASSED++))
@@ -113,7 +113,7 @@ compare_api_responses "/api/health" "Health endpoint comparison" ".status"
 # Test 2: POI locations count
 compare_api_responses "/api/poi-locations" "POI locations count" ".count"
 
-# Test 3: Weather locations count  
+# Test 3: Weather locations count
 compare_api_responses "/api/weather-locations" "Weather locations count" ".count"
 
 # Test 4: POI data types (first record)

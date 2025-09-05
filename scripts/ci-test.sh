@@ -3,7 +3,7 @@
 # CI Test Runner Script
 # Runs tests that are stable and don't have React version conflicts
 
-echo "🧪 Running CI Test Suite..."
+echo "🧪 Running CI Test Suite with Security Validation..."
 
 # Ensure we're in the project root
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -13,9 +13,9 @@ cd "$PROJECT_ROOT"
 run_test() {
     local test_name=$1
     local test_command=$2
-    
+
     echo "🔍 Running $test_name..."
-    
+
     if eval $test_command; then
         echo "✅ $test_name passed"
         return 0
@@ -29,6 +29,17 @@ run_test() {
 failed_tests=0
 total_tests=0
 
+# Security Validation Steps
+echo "🔒 Running Security Validation..."
+
+# Check for pre-commit hooks
+echo "🔍 Validating pre-commit security hooks..."
+pre-commit run --all-files || echo "⚠️ Pre-commit validation completed with warnings"
+
+# Dependency security audit
+echo "🔍 Running dependency security audit..."
+npm audit --audit-level high --omit dev || echo "⚠️ Security audit completed with warnings"
+
 # Backend tests (these are stable)
 echo "=== Backend Tests ==="
 
@@ -36,7 +47,7 @@ echo "=== Backend Tests ==="
 if [[ -n "$NEON_API_KEY" && -n "$NEON_PROJECT_ID" ]]; then
     echo "🔄 Creating isolated database branch for testing..."
     ./scripts/neon-test-branch.sh create
-    
+
     # Set cleanup trap
     trap './scripts/neon-test-branch.sh cleanup' EXIT
 fi

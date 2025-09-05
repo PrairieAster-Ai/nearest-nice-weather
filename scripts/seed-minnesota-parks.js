@@ -3,10 +3,10 @@
 /**
  * 🌻 SEED MINNESOTA PARKS - Quick Bloom for 200+ Parks
  * ====================================================
- * 
+ *
  * Like prairie asters spreading across Minnesota's landscape,
  * this script plants a beautiful variety of parks in our database!
- * 
+ *
  * @BUSINESS_PURPOSE: Rapidly expand POI coverage to 200+ locations
  * @APPROACH: Curated list of Minnesota's finest outdoor destinations
  */
@@ -33,7 +33,7 @@ const MINNESOTA_PARKS = [
   { name: "Grand Portage State Park", lat: 48.0000, lng: -89.5833, type: "State Park", description: "Minnesota's highest waterfall and northernmost state park" },
   { name: "Judge C.R. Magney State Park", lat: 47.8167, lng: -90.0500, type: "State Park", description: "Home to the mysterious Devil's Kettle waterfall" },
   { name: "George H. Crosby Manitou State Park", lat: 47.4833, lng: -91.1167, type: "State Park", description: "Backpacking paradise with rugged terrain and quiet solitude" },
-  
+
   // 🌲 Northern Minnesota Parks - Land of lakes and forests
   { name: "Itasca State Park", lat: 47.2419, lng: -95.2061, type: "State Park", description: "Headwaters of the Mississippi River and old-growth pine forests" },
   { name: "Lake Bemidji State Park", lat: 47.5333, lng: -94.8333, type: "State Park", description: "Beautiful beaches and bog walk on Lake Bemidji" },
@@ -42,7 +42,7 @@ const MINNESOTA_PARKS = [
   { name: "McCarthy Beach State Park", lat: 47.6522, lng: -93.0603, type: "State Park", description: "Sandy beach on Side Lake with excellent swimming" },
   { name: "Hill Annex Mine State Park", lat: 47.5167, lng: -93.2667, type: "State Park", description: "Historic open-pit iron mine with fossil hunting" },
   { name: "Soudan Underground Mine State Park", lat: 47.8147, lng: -92.2442, type: "State Park", description: "Minnesota's oldest iron mine with underground tours" },
-  
+
   // 🦌 Central Minnesota Parks - Prairie meets forest
   { name: "Mille Lacs Kathio State Park", lat: 46.1308, lng: -93.7447, type: "State Park", description: "Archaeological sites and hiking trails near Mille Lacs Lake" },
   { name: "Father Hennepin State Park", lat: 46.1667, lng: -93.4500, type: "State Park", description: "Peninsula park on Mille Lacs Lake with great fishing" },
@@ -51,7 +51,7 @@ const MINNESOTA_PARKS = [
   { name: "Lake Maria State Park", lat: 45.3214, lng: -93.9306, type: "State Park", description: "Remnant of Big Woods with trails and backcountry campsites" },
   { name: "Sibley State Park", lat: 45.0014, lng: -95.0142, type: "State Park", description: "Mount Tom offers panoramic views of the prairie landscape" },
   { name: "Monson Lake State Park", lat: 45.3167, lng: -95.2667, type: "State Park", description: "Historic site with swimming beach and hiking trails" },
-  
+
   // 🌊 Mississippi River Valley Parks
   { name: "Interstate State Park", lat: 45.3908, lng: -92.6522, type: "State Park", description: "Dramatic glacial potholes and cliffs along the St. Croix River" },
   { name: "Wild River State Park", lat: 45.5342, lng: -92.7506, type: "State Park", description: "18 miles of St. Croix River shoreline with diverse habitats" },
@@ -61,7 +61,7 @@ const MINNESOTA_PARKS = [
   { name: "John A. Latsch State Park", lat: 44.0667, lng: -91.8667, type: "State Park", description: "Blufftop park with Mississippi River valley views" },
   { name: "Great River Bluffs State Park", lat: 43.9344, lng: -91.4083, type: "State Park", description: "Spectacular bluff-top views of the Mississippi River" },
   { name: "Beaver Creek Valley State Park", lat: 43.6381, lng: -91.5972, type: "State Park", description: "Spring-fed trout stream in a narrow valley" },
-  
+
   // 🌻 Southern Minnesota Parks - Prairies and rivers
   { name: "Whitewater State Park", lat: 44.0597, lng: -92.0386, type: "State Park", description: "Limestone bluffs and trout streams in the Driftless Area" },
   { name: "Carley State Park", lat: 44.1103, lng: -92.1636, type: "State Park", description: "Prairie restoration and Whitewater River access" },
@@ -73,7 +73,7 @@ const MINNESOTA_PARKS = [
   { name: "Fort Ridgely State Park", lat: 44.4433, lng: -94.7267, type: "State Park", description: "Historic fort site with golf course and trails" },
   { name: "Lake Shetek State Park", lat: 44.1044, lng: -95.6917, type: "State Park", description: "Largest lake in southwest Minnesota with diverse recreation" },
   { name: "Camden State Park", lat: 44.3667, lng: -95.9167, type: "State Park", description: "Spring-fed Redwood River valley with swimming and trails" },
-  
+
   // 🦅 Southwest Minnesota Parks - Prairie landscape
   { name: "Blue Mounds State Park", lat: 43.7067, lng: -96.1892, type: "State Park", description: "Sioux quartzite cliff and bison herd on the prairie" },
   { name: "Split Rock Creek State Park", lat: 43.5000, lng: -96.3667, type: "State Park", description: "Historic dam and lake on Split Rock Creek" },
@@ -81,7 +81,7 @@ const MINNESOTA_PARKS = [
   { name: "Upper Sioux Agency State Park", lat: 44.7333, lng: -95.4667, type: "State Park", description: "Historic site with hiking and horseback riding trails" },
   { name: "Lac qui Parle State Park", lat: 45.0000, lng: -95.8833, type: "State Park", description: "Prairie wetlands and historic sites" },
   { name: "Big Stone Lake State Park", lat: 45.3667, lng: -96.4500, type: "State Park", description: "Minnesota's western border lake with great fishing" },
-  
+
   // 🏞️ Metro Area Regional Parks - Urban nature escapes
   { name: "Fort Snelling State Park", lat: 44.8928, lng: -93.1811, type: "State Park", description: "Historic fort at confluence of Mississippi and Minnesota rivers" },
   { name: "Minnehaha Regional Park", lat: 44.9153, lng: -93.2100, type: "Regional Park", description: "53-foot waterfall and limestone bluffs in Minneapolis" },
@@ -98,7 +98,7 @@ const MINNESOTA_PARKS = [
   { name: "Coon Rapids Dam Regional Park", lat: 45.1444, lng: -93.3117, type: "Regional Park", description: "Mississippi River dam with visitor center" },
   { name: "Rice Creek Chain of Lakes Park Reserve", lat: 45.1389, lng: -93.0917, type: "Regional Park", description: "Multiple lakes connected by channels" },
   { name: "Bunker Hills Regional Park", lat: 45.2181, lng: -93.2839, type: "Regional Park", description: "Wave pool, golf, and extensive trails" },
-  
+
   // 🌲 State Forests - Wilderness adventures
   { name: "Chengwatana State Forest", lat: 45.8500, lng: -92.8833, type: "State Forest", description: "Pine forests with ATV and snowmobile trails" },
   { name: "Sand Dunes State Forest", lat: 46.4000, lng: -93.0667, type: "State Forest", description: "Unique sand dune ecosystem with OHV recreation" },
@@ -110,7 +110,7 @@ const MINNESOTA_PARKS = [
   { name: "General C.C. Andrews State Forest", lat: 46.1667, lng: -92.7000, type: "State Forest", description: "Historic forestry site with trails" },
   { name: "D.A.R. State Forest", lat: 45.9833, lng: -93.1833, type: "State Forest", description: "Hardwood forests near the St. Croix River" },
   { name: "Snake River State Forest", lat: 46.1333, lng: -93.1167, type: "State Forest", description: "Canoeing and camping along the Snake River" },
-  
+
   // 🦌 Wildlife Management Areas & Refuges
   { name: "Minnesota Valley National Wildlife Refuge", lat: 44.8075, lng: -93.5272, type: "Wildlife Refuge", description: "Urban refuge along the Minnesota River" },
   { name: "Sherburne National Wildlife Refuge", lat: 45.4167, lng: -93.9500, type: "Wildlife Refuge", description: "Oak savanna and wetlands sanctuary" },
@@ -122,13 +122,13 @@ const MINNESOTA_PARKS = [
   { name: "Crane Meadows National Wildlife Refuge", lat: 46.2333, lng: -93.8333, type: "Wildlife Refuge", description: "Wetlands for waterfowl and sandhill cranes" },
   { name: "Northern Tallgrass Prairie National Wildlife Refuge", lat: 44.0833, lng: -96.1667, type: "Wildlife Refuge", description: "Scattered prairie remnants preservation" },
   { name: "Rydell National Wildlife Refuge", lat: 47.5333, lng: -95.3000, type: "Wildlife Refuge", description: "Transition zone between prairie and forest" },
-  
+
   // 🏔️ Unique Natural Areas
   { name: "Pipestone National Monument", lat: 44.0133, lng: -96.3253, type: "National Monument", description: "Sacred Native American quarries" },
   { name: "Grand Portage National Monument", lat: 47.9953, lng: -89.6842, type: "National Monument", description: "Historic fur trade depot and Ojibwe heritage" },
   { name: "Saint Croix National Scenic Riverway", lat: 45.4000, lng: -92.6500, type: "Scenic River", description: "Protected river corridor for paddling" },
   { name: "Mississippi National River and Recreation Area", lat: 44.9489, lng: -93.0983, type: "Recreation Area", description: "72-mile river corridor through Twin Cities" },
-  
+
   // 🚴 Popular Trail Systems
   { name: "Root River State Trail", lat: 43.7833, lng: -92.0667, type: "Trail System", description: "42 miles through bluff country" },
   { name: "Paul Bunyan State Trail", lat: 46.3500, lng: -94.2000, type: "Trail System", description: "120 miles - Minnesota's longest rail-trail" },
@@ -140,7 +140,7 @@ const MINNESOTA_PARKS = [
   { name: "Sakatah Singing Hills State Trail", lat: 44.2167, lng: -93.5333, type: "Trail System", description: "39 miles through lakes and towns" },
   { name: "Minnesota River State Trail", lat: 44.5333, lng: -93.9667, type: "Trail System", description: "Growing trail along Minnesota River valley" },
   { name: "Gateway State Trail", lat: 45.0000, lng: -92.9333, type: "Trail System", description: "18 miles from St. Paul to Pine Point Park" },
-  
+
   // 🏕️ Popular Camping & Recreation Areas
   { name: "Zippel Bay State Park", lat: 48.8667, lng: -94.8500, type: "State Park", description: "Lake of the Woods beaches and fishing" },
   { name: "Hayes Lake State Park", lat: 48.6333, lng: -95.5167, type: "State Park", description: "Remote northern wilderness park" },
@@ -154,7 +154,7 @@ const MINNESOTA_PARKS = [
   { name: "Sakatah Lake State Park", lat: 44.2333, lng: -93.5167, type: "State Park", description: "Hardwood forests and lake recreation" },
   { name: "Rice Lake State Park", lat: 44.0833, lng: -93.0667, type: "State Park", description: "Southern hardwood forests" },
   { name: "Nerstrand Big Woods State Park", lat: 44.3453, lng: -93.0972, type: "State Park", description: "Last remnant of Big Woods with hidden waterfall" },
-  
+
   // 🌊 Water Recreation Areas
   { name: "Crosslake Recreation Area", lat: 46.6581, lng: -94.1133, type: "Recreation Area", description: "Popular lake area in Brainerd Lakes region" },
   { name: "Pelican Lake Recreation Area", lat: 46.6000, lng: -94.1500, type: "Recreation Area", description: "Excellent fishing and water sports" },
@@ -163,7 +163,7 @@ const MINNESOTA_PARKS = [
   { name: "Lake Vermilion State Park", lat: 47.8292, lng: -92.4283, type: "State Park", description: "Newest state park on scenic Lake Vermilion" },
   { name: "Kabetogama State Forest", lat: 48.3333, lng: -93.0000, type: "State Forest", description: "Gateway to Voyageurs National Park waters" },
   { name: "Lake of the Woods State Forest", lat: 48.7500, lng: -95.0833, type: "State Forest", description: "Vast northern waters and forests" },
-  
+
   // 🎣 Special Interest Areas
   { name: "Whiteface River State Water Trail", lat: 46.6667, lng: -92.7500, type: "Water Trail", description: "Scenic paddling through forests" },
   { name: "Kettle River State Water Trail", lat: 46.5167, lng: -92.8667, type: "Water Trail", description: "Whitewater paddling adventure" },
@@ -171,14 +171,14 @@ const MINNESOTA_PARKS = [
   { name: "Minnesota River State Water Trail", lat: 44.8833, lng: -93.9333, type: "Water Trail", description: "Historic river route" },
   { name: "Red Lake River State Water Trail", lat: 47.8833, lng: -96.0833, type: "Water Trail", description: "Northern river journey" },
   { name: "Straight River State Water Trail", lat: 44.0167, lng: -93.3000, type: "Water Trail", description: "Clear water paddling" },
-  
+
   // 🏛️ Historic Sites with Outdoor Recreation
   { name: "Historic Fort Snelling", lat: 44.8928, lng: -93.1811, type: "Historic Site", description: "1820s military fort with trails" },
   { name: "Oliver H. Kelley Farm", lat: 45.2333, lng: -93.6667, type: "Historic Site", description: "Historic farm with nature trails" },
   { name: "Jeffers Petroglyphs", lat: 44.0667, lng: -95.0500, type: "Historic Site", description: "Ancient rock carvings on the prairie" },
   { name: "Split Rock Creek State Park", lat: 43.8833, lng: -96.3667, type: "State Park", description: "Historic dam and recreation area" },
   { name: "Lac qui Parle Mission", lat: 45.0333, lng: -95.9167, type: "Historic Site", description: "1835 mission site with trails" },
-  
+
   // 🌿 Nature Centers & Environmental Learning
   { name: "Wolf Ridge Environmental Learning Center", lat: 47.4667, lng: -91.3833, type: "Nature Center", description: "Environmental education on Lake Superior" },
   { name: "Audubon Center of the North Woods", lat: 46.8667, lng: -93.1333, type: "Nature Center", description: "Wildlife education and trails" },
@@ -214,27 +214,27 @@ function calculatePlaceRank(parkType) {
 async function seedMinnesotaParks() {
   console.log('🌸 MINNESOTA PARKS SEEDING - Time to help our data bloom!')
   console.log('=========================================================')
-  
+
   const client = await pool.connect()
-  
+
   try {
     await client.query('BEGIN')
-    
+
     // Clear existing parks except manually added ones
     console.log('🌿 Clearing old growth to make room for new blooms...')
     await client.query(`
-      DELETE FROM poi_locations 
+      DELETE FROM poi_locations
       WHERE data_source != 'manual'
     `)
-    
+
     console.log(`🌻 Planting ${MINNESOTA_PARKS.length} beautiful Minnesota parks...`)
-    
+
     let planted = 0
     for (const park of MINNESOTA_PARKS) {
       try {
         await client.query(`
           INSERT INTO poi_locations (
-            name, lat, lng, park_type, description, 
+            name, lat, lng, park_type, description,
             data_source, place_rank, external_id
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `, [
@@ -248,7 +248,7 @@ async function seedMinnesotaParks() {
           `mn_park_${park.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
         ])
         planted++
-        
+
         if (planted % 10 === 0) {
           console.log(`  🌱 ${planted} parks planted...`)
         }
@@ -256,28 +256,28 @@ async function seedMinnesotaParks() {
         console.warn(`  🥀 Failed to plant ${park.name}:`, error.message)
       }
     }
-    
+
     await client.query('COMMIT')
-    
+
     // Show what bloomed
     const stats = await client.query(`
-      SELECT park_type, COUNT(*) as count 
-      FROM poi_locations 
-      GROUP BY park_type 
+      SELECT park_type, COUNT(*) as count
+      FROM poi_locations
+      GROUP BY park_type
       ORDER BY count DESC
     `)
-    
+
     console.log('\n🌺 Our Minnesota Parks Garden has bloomed!')
     console.log('=====================================')
     stats.rows.forEach(row => {
       console.log(`  🌿 ${row.park_type}: ${row.count} locations`)
     })
-    
+
     const total = await client.query('SELECT COUNT(*) as total FROM poi_locations')
     console.log(`\n✨ Total POIs in full bloom: ${total.rows[0].total} locations!`)
-    
+
     console.log('\n🎉 Your map is now blooming with Minnesota\'s finest outdoor destinations!')
-    
+
   } catch (error) {
     await client.query('ROLLBACK')
     console.error('🥀 Seeding failed:', error)

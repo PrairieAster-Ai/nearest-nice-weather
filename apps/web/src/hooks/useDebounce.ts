@@ -1,16 +1,16 @@
 /**
  * PERFORMANCE OPTIMIZATION HOOK - DEBOUNCED VALUES
- * 
+ *
  * PURPOSE: Prevents excessive API calls during rapid user interactions
  * - Delays execution of expensive operations (like API calls) until user stops interacting
  * - Critical for <100ms dopamine hit user experience with weather filters
  * - Prevents API rate limiting and reduces server load
- * 
+ *
  * USAGE: Weather filter changes debounced to 150ms for optimal balance:
  * - Fast enough for instant gratification feeling
  * - Slow enough to prevent API spam during rapid filter changes
  * - Allows "instant" UI feedback while debouncing actual data fetching
- * 
+ *
  * BUSINESS CONTEXT: Core to "biological UX optimization" mentioned in business plan
  * - Users get instant visual feedback from UI state changes
  * - Backend calls optimized to prevent performance degradation
@@ -20,7 +20,7 @@
 import { useState, useEffect } from 'react';
 
 // 🔗 INTEGRATION: Critical for FilterManager.tsx debounced state management
-// 🔗 INTEGRATION: Used throughout App.tsx for performance-optimized user interactions  
+// 🔗 INTEGRATION: Used throughout App.tsx for performance-optimized user interactions
 // 🔗 SEE ALSO: DEBOUNCE_DELAYS exported constants used by multiple components
 
 export function useDebounce<T>(value: T, delay: number): T {

@@ -15,7 +15,7 @@ class MCPClient {
 
   async connectToGitHubOfficial() {
     console.log('🔌 Connecting to GitHub Official MCP Server...');
-    
+
     const serverProcess = spawn('docker', [
       'run', '-i', '--rm',
       '-e', 'GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}',
@@ -29,7 +29,7 @@ class MCPClient {
 
   async connectToProjectManager() {
     console.log('🔌 Connecting to Project Manager MCP Server...');
-    
+
     const serverProcess = spawn('mcp-github-project-manager', [
       '--token', '${GITHUB_TOKEN}',
       '--owner', 'PrairieAster-Ai',
@@ -47,7 +47,7 @@ class MCPClient {
       serverProcess.stdout.on('data', (data) => {
         const message = data.toString();
         console.log(`📨 [${serverName}] ${message.trim()}`);
-        
+
         if (!isConnected && (message.includes('running on stdio') || message.includes('GitHub MCP Server running') || message.includes('server running'))) {
           isConnected = true;
           console.log(`✅ Connected to ${serverName} MCP Server`);
@@ -82,9 +82,9 @@ class MCPClient {
       };
 
       console.log(`📤 Sending MCP request: ${method}`);
-      
+
       serverProcess.stdin.write(JSON.stringify(request) + '\n');
-      
+
       const timeout = setTimeout(() => {
         reject(new Error('Request timeout'));
       }, 5000);
@@ -95,7 +95,7 @@ class MCPClient {
           if (response.id === request.id) {
             clearTimeout(timeout);
             serverProcess.stdout.removeListener('data', responseHandler);
-            
+
             if (response.error) {
               reject(new Error(response.error.message));
             } else {
@@ -114,11 +114,11 @@ class MCPClient {
   async testGitHubConnection() {
     try {
       console.log('🧪 Testing GitHub MCP Server connections...\n');
-      
+
       // Test GitHub Official
       try {
         const githubProcess = await this.connectToGitHubOfficial();
-        
+
         // Send initialization request
         const initResult = await this.sendMCPRequest(githubProcess, 'initialize', {
           protocolVersion: '2024-11-05',
@@ -128,9 +128,9 @@ class MCPClient {
             version: '1.0.0'
           }
         });
-        
+
         console.log('✅ GitHub Official MCP initialized:', initResult);
-        
+
         githubProcess.kill();
       } catch (error) {
         console.error('❌ GitHub Official MCP failed:', error.message);
@@ -139,7 +139,7 @@ class MCPClient {
       // Test Project Manager
       try {
         const pmProcess = await this.connectToProjectManager();
-        
+
         // Send initialization request
         const initResult = await this.sendMCPRequest(pmProcess, 'initialize', {
           protocolVersion: '2024-11-05',
@@ -149,9 +149,9 @@ class MCPClient {
             version: '1.0.0'
           }
         });
-        
+
         console.log('✅ Project Manager MCP initialized:', initResult);
-        
+
         pmProcess.kill();
       } catch (error) {
         console.error('❌ Project Manager MCP failed:', error.message);
@@ -172,17 +172,17 @@ async function main() {
     case 'test':
       await client.testGitHubConnection();
       break;
-      
+
     case 'github':
       const githubProcess = await client.connectToGitHubOfficial();
       console.log('GitHub MCP server running. Press Ctrl+C to exit.');
       break;
-      
+
     case 'pm':
       const pmProcess = await client.connectToProjectManager();
       console.log('Project Manager MCP server running. Press Ctrl+C to exit.');
       break;
-      
+
     default:
       console.log(`
 🔌 MCP Client for GitHub Servers

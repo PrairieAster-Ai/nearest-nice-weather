@@ -78,12 +78,12 @@ if ! git clone "$WIKI_URL" "$WIKI_REPO_DIR" 2>/dev/null; then
     cd "$WIKI_REPO_DIR"
     git init
     git remote add origin "$WIKI_URL"
-    
+
     # Create initial commit
     echo "# Nearest Nice Weather Wiki" > README.md
     git add README.md
     git commit -m "Initial wiki setup"
-    
+
     # Create and switch to master branch (GitHub wikis use master)
     git branch -M master
 else
@@ -105,12 +105,12 @@ fi
 # Copy all other prepared files
 find "$WIKI_PREP_DIR" -name "*.md" | while read -r file; do
     filename=$(basename "$file")
-    
+
     # Skip index file
     if [ "$filename" = "_Content-Index.md" ]; then
         continue
     fi
-    
+
     echo "  📄 Copying: $filename"
     cp "$file" "$WIKI_REPO_DIR/$filename"
     COPIED_COUNT=$((COPIED_COUNT + 1))

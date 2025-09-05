@@ -29,33 +29,33 @@ class LabelCleanup {
     return [
       // Old type labels (replaced with new ones)
       'type:capability',
-      'type:epic', 
+      'type:epic',
       'type:story',
       'type:task',
       'type:future',
       'type:sprint',
-      
+
       // Old status labels (replaced with organized ones)
       'status:blocked',
-      
+
       // Old priority labels (replaced with consistent naming)
       'priority:high',
-      'priority:medium', 
+      'priority:medium',
       'priority:low',
-      
+
       // Sprint-specific labels (better managed through project fields)
       'sprint-1',
-      'sprint-2', 
+      'sprint-2',
       'sprint-3',
       'sprint-4',
       'sprint',
-      
+
       // GitHub default labels we don't need
       'duplicate',
       'invalid',
       'question',
       'wontfix',
-      
+
       // Overly specific labels (can be handled with combinations)
       'epic-parent',
       'has-children',
@@ -65,7 +65,7 @@ class LabelCleanup {
       'revenue-critical',
       'phase:post-mvp',
       'post-mvp',
-      
+
       // Too granular technical labels (use main categories)
       'leaflet',
       'openweather',
@@ -80,13 +80,13 @@ class LabelCleanup {
       'machine-learning',
       'cognitive-load',
       'weather-intelligence',
-      
+
       // Status labels that duplicate project field functionality
       'completed',
       'in-progress',
       'planned',
       'future',
-      
+
       // Business model labels (too specific)
       'b2b',
       'b2c',
@@ -94,14 +94,14 @@ class LabelCleanup {
       'enterprise',
       'subscription',
       'tourism-operators',
-      
+
       // Development phase labels (managed elsewhere)
       'foundation',
       'implementation',
       'launch',
       'expansion',
       'advanced-features',
-      
+
       // Overly specific feature labels
       'user-registration',
       'user-generated-content',
@@ -115,7 +115,7 @@ class LabelCleanup {
       'dashboard',
       'mapping',
       'minnesota',
-      
+
       // Generic labels that don't add value
       'cleanup',
       'planning',
@@ -135,14 +135,14 @@ class LabelCleanup {
     console.log('🧹 GITHUB LABELS CLEANUP');
     console.log('========================\n');
     console.log(`📦 Repository: ${this.owner}/${this.repo}\n`);
-    
+
     const labelsToRemove = this.getLabelsToCleanup();
     let successCount = 0;
     let notFoundCount = 0;
     let errorCount = 0;
-    
+
     console.log(`🎯 Attempting to remove ${labelsToRemove.length} old/duplicate labels...\n`);
-    
+
     for (const labelName of labelsToRemove) {
       try {
         await octokit.rest.issues.deleteLabel({
@@ -161,16 +161,16 @@ class LabelCleanup {
           errorCount++;
         }
       }
-      
+
       // Add small delay to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     console.log(`\n📊 **CLEANUP RESULTS**:`);
     console.log(`  ✅ Successfully removed: ${successCount}`);
     console.log(`  ℹ️  Already removed: ${notFoundCount}`);
     console.log(`  ❌ Errors: ${errorCount}`);
-    
+
     console.log(`\n🎉 **LABEL CLEANUP COMPLETE!**`);
     console.log(`Visit https://github.com/${this.owner}/${this.repo}/labels to see the clean, organized labels.`);
   }

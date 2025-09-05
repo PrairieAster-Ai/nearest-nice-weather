@@ -4,10 +4,10 @@
 
 **⚠️ AUTHORITATIVE SOURCE**: This GitHub Project is the **single source of truth** for all current and near-future work planning for NearestNiceWeather.com. All other documents, including local PRDs, session handoffs, and historical WBS documents, serve as supporting context only.
 
-**Project Name:** NearestNiceWeather.com App Development  
-**Project URL:** https://github.com/orgs/PrairieAster-Ai/projects/2  
-**Repository:** PrairieAster-Ai/nearest-nice-weather  
-**Project Type:** GitHub Projects v2 (Beta)  
+**Project Name:** NearestNiceWeather.com App Development
+**Project URL:** https://github.com/orgs/PrairieAster-Ai/projects/2
+**Repository:** PrairieAster-Ai/nearest-nice-weather
+**Project Type:** GitHub Projects v2 (Beta)
 **Workflow:** Sprint-based Agile Development
 
 ## 📋 WORK PLANNING HIERARCHY
@@ -67,7 +67,7 @@
 
 - **URL:** https://github.com/orgs/PrairieAster-Ai/projects/2/views/1
 - **Layout:** Board layout with status columns
-- **Columns:** 
+- **Columns:**
   - 📥 **Backlog** - Future work and next sprint items (Stories, Epics, Capabilities)
   - 🎯 **Ready** - Current sprint items ready to start (Stories, Epics, Capabilities)
   - 🔄 **In progress** - Active development work (Stories, Epics, Capabilities)
@@ -148,7 +148,7 @@ Labels serve as the primary categorization system using GitHub native functional
 
 #### **Technical Labels (Work Classification):**
 - **`database`** - 🗄️ Database schema, queries, migrations
-- **`weather-api`** - 🌤️ Weather service integration  
+- **`weather-api`** - 🌤️ Weather service integration
 - **`frontend`** - 💻 UI/UX, React components, styling
 - **`backend`** - ⚙️ Server-side logic, APIs, services
 - **`mobile`** - 📱 Mobile optimization, responsive design
@@ -196,7 +196,7 @@ Capability: Real-Time Weather Intelligence (#1)
 ### **Relationship Implementation**
 
 - **Stories → Epics:** User Stories use Relationships field to link to their parent Epic
-- **Epics → Capabilities:** Epics use Relationships field to link to their parent Capability  
+- **Epics → Capabilities:** Epics use Relationships field to link to their parent Capability
 - **Sub-issues → Stories:** Sub-issues are created within Stories using GitHub's native sub-issue feature
 - **Progress Tracking:** Parent Stories automatically show completion percentage based on sub-issue status
 - **Dependencies:** Noted in issue descriptions when applicable
@@ -252,20 +252,20 @@ Capability: Real-Time Weather Intelligence (#1)
 ### **Current Sprint Process**
 
 1. **Sprint Planning:**
-   
+
    - All current sprint issues assigned to "Database + Weather API" sprint field
    - Issues categorized using native GitHub labels (type:epic, type:story, type:capability)
    - Issues prioritized and estimated using Size field (XS, S, M, L, XL)
    - Sprint goal communicated: "Database + Weather API integration"
 
 2. **Daily Development:**
-   
+
    - Work items move: Backlog → Ready → In progress → In review → Done → In Production
    - Blockers marked with comments and labels
    - Progress tracked via sub-issue completion and Sub-issues Progress field
 
 3. **Sprint Review:**
-   
+
    - Demo completed work to stakeholders
    - Update sprint progress (target: 75% MVP completion)
    - Plan next sprint based on current sprint outcomes
@@ -285,7 +285,7 @@ Capability: Real-Time Weather Intelligence (#1)
 #### **Current Sprint Work**
 
 ```
-sprint:"Database + Weather API" 
+sprint:"Database + Weather API"
 ```
 
 #### **Ready for Development**
@@ -319,7 +319,7 @@ label:"type: story" status:"In progress"
 
 ### **Issue Title Format**
 
-- **Epic:** `Epic: [Work Area] [Status Emoji]`  
+- **Epic:** `Epic: [Work Area] [Status Emoji]`
 - **Story:** `Story: [User Action Description]`
 - **Sub-issue:** `[Technical Implementation Task]` (no prefix, appears as sub-issue of parent Story)
 
@@ -381,12 +381,12 @@ label:"type: story" status:"In progress"
 
 **⚠️ CRITICAL**: Always check the GitHub Project FIRST before referencing any local documentation for current work. The GitHub Project is the authoritative source for:
 - What work is currently planned and in progress
-- Sprint assignments and priorities  
+- Sprint assignments and priorities
 - Issue status and progress tracking
 - Story point estimates and capacity planning
 
 1. **Issue Creation (PRIMARY WORKFLOW):**
-   
+
    - **START HERE**: Check GitHub Project for existing work before creating new issues
    - Use proper hierarchy (Capability → Epic → Story → Sub-issues)
    - Apply correct labels and status to main issues (Capability, Epic, Story)
@@ -395,21 +395,21 @@ label:"type: story" status:"In progress"
    - Create sub-issues within Stories for technical tasks
 
 2. **Status Updates (REAL-TIME TRACKING):**
-   
+
    - **UPDATE IMMEDIATELY**: Move issues through workflow states as work progresses
    - Update parent issues when children complete
    - Add comments for significant progress
    - GitHub Project reflects live status, not local documents
 
 3. **Sprint Planning (AUTHORITATIVE SOURCE):**
-   
+
    - **PRIMARY REFERENCE**: Use GitHub Project sprint assignments, not local files
    - Focus on current sprint assignments in GitHub Project
    - Keep next sprint items in backlog status
    - Respect story point estimates and capacity as defined in GitHub Project
 
 4. **Project Queries (CURRENT STATE):**
-   
+
    - **FIRST CHECK**: Query GitHub Project for current work state
    - Use GitHub Project filters to find relevant work
    - Check sprint progress via GitHub Project dashboard
@@ -421,7 +421,7 @@ label:"type: story" status:"In progress"
 ```bash
 # Create new story in Sprint 3
 # - Set status: "Ready"
-# - Set sprint: "Database + Weather API"  
+# - Set sprint: "Database + Weather API"
 # - Add label: "type: story"
 # - Add relevant technical labels (database, weather-api, etc.)
 # - Set Relationships to link to parent Epic
@@ -458,7 +458,7 @@ label:"type: story" status:"In progress"
 ### **Key Metrics to Track**
 
 - **Current Sprint Progress:** X/Y issues completed
-- **Story Points Burned:** X/Y points completed  
+- **Story Points Burned:** X/Y points completed
 - **Critical Path Items:** Database + Weather API status
 - **Blocked Items:** Count and resolution time
 - **Current Sprint Goal:** 75% MVP completion progress
@@ -466,7 +466,7 @@ label:"type: story" status:"In progress"
 ### **Daily Standup Questions**
 
 1. What did I complete yesterday?
-2. What will I work on today?  
+2. What will I work on today?
 3. What blockers do I have?
 4. Is current sprint on track for completion goals?
 
@@ -482,7 +482,7 @@ Database + Weather API (July 28 - Aug 18, 2025)
 
 # Priority order
 1. Database schema deployment
-2. OpenWeather API integration  
+2. OpenWeather API integration
 3. Redis caching implementation
 4. Minnesota POI data loading
 
@@ -517,7 +517,7 @@ This reference document provides Claude Code with complete context about your Gi
 
 #### **GitHub Issue Templates (Professional Forms):**
 - **Story Template:** 👤 User-focused work items (3-13 points) with structured forms
-- **Epic Template:** 📦 Major work containers (20+ points) with child story planning  
+- **Epic Template:** 📦 Major work containers (20+ points) with child story planning
 - **Capability Template:** 🌟 Cross-sprint platform capabilities with business metrics
 - **Clean Interface:** Fixed priority dropdowns (Critical/High/Medium/Low)
 - **Auto-labeling:** Automatic type label assignment on creation

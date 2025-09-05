@@ -2,25 +2,25 @@
  * ========================================================================
  * LOCATION ESTIMATION UTILITIES - EXTRACTED GEOLOCATION ALGORITHMS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Pure functions extracted from UserLocationEstimator for testability
  * 🔗 EXTRACTED_FROM: services/UserLocationEstimator.ts - intelligent positioning service
  * 📊 COVERAGE: Location scoring, confidence calculation, accuracy estimation, validation
  * ⚙️ FUNCTIONALITY: Geographic algorithms for location estimation and quality assessment
  * 🎯 BUSINESS_IMPACT: Ensures accurate location estimation for outdoor recreation discovery
- * 
+ *
  * BUSINESS CONTEXT: Location intelligence for Minnesota outdoor enthusiasts
  * - Calculates location confidence and accuracy for user positioning
  * - Provides Minnesota-specific optimizations for better local accuracy
  * - Enables intelligent fallback strategies for location estimation
  * - Supports privacy-aware location caching and validation
- * 
+ *
  * TECHNICAL DETAILS: Pure functions for location quality assessment
  * - Location confidence scoring based on accuracy and age
  * - Minnesota-specific IP geolocation accuracy improvements
  * - Location estimate scoring for method comparison
  * - Cache validation and location summary generation
- * 
+ *
  * EXTRACTED FROM: UserLocationEstimator class to improve testability and maintainability
  * @CLAUDE_CONTEXT: Pure function extraction for comprehensive geolocation testing
  */
@@ -59,7 +59,7 @@ export const METHOD_SCORES = {
 } as const;
 
 // Type definitions (extracted from UserLocationEstimator)
-export type LocationMethod = 
+export type LocationMethod =
   | 'gps'           // High accuracy GPS
   | 'network'       // Network-based (WiFi/cell towers)
   | 'ip'           // IP geolocation
@@ -87,21 +87,21 @@ export interface LocationEstimate {
  */
 export function calculateConfidence(accuracy: number, timestamp: number): LocationConfidence {
   const age = Date.now() - timestamp;
-  
-  if (accuracy < LOCATION_CONFIDENCE_THRESHOLDS.HIGH_ACCURACY_METERS && 
+
+  if (accuracy < LOCATION_CONFIDENCE_THRESHOLDS.HIGH_ACCURACY_METERS &&
       age < LOCATION_CONFIDENCE_THRESHOLDS.HIGH_AGE_MINUTES * 60 * 1000) {
     return 'high';      // <50m, <5min
   }
-  
-  if (accuracy < LOCATION_CONFIDENCE_THRESHOLDS.MEDIUM_ACCURACY_METERS && 
+
+  if (accuracy < LOCATION_CONFIDENCE_THRESHOLDS.MEDIUM_ACCURACY_METERS &&
       age < LOCATION_CONFIDENCE_THRESHOLDS.MEDIUM_AGE_MINUTES * 60 * 1000) {
     return 'medium';    // <1km, <30min
   }
-  
+
   if (accuracy < LOCATION_CONFIDENCE_THRESHOLDS.LOW_ACCURACY_METERS) {
     return 'low';       // <10km
   }
-  
+
   return 'unknown';
 }
 
@@ -117,7 +117,7 @@ export function estimateIPAccuracy(city?: string, region?: string): number {
   const urbanCities = ['minneapolis', 'saint paul', 'duluth', 'rochester', 'bloomington', 'st. paul'];
   const cityName = city?.toLowerCase() || '';
   const regionName = region?.toLowerCase() || '';
-  
+
   // Minnesota-specific accuracy improvements
   if (regionName.includes('minnesota') || regionName.includes('mn')) {
     // Special handling for St. Paul variations
@@ -126,19 +126,19 @@ export function estimateIPAccuracy(city?: string, region?: string): number {
     }
     return MINNESOTA_ACCURACY_ESTIMATES.RURAL_METERS; // ~15km for rural Minnesota
   }
-  
+
   // General urban vs rural classification
   if (urbanCities.includes(cityName) || cityName.includes('minneapolis') || cityName.includes('paul')) {
     return MINNESOTA_ACCURACY_ESTIMATES.GENERAL_URBAN_METERS; // ~5km for urban areas
   }
-  
+
   return MINNESOTA_ACCURACY_ESTIMATES.GENERAL_RURAL_METERS; // ~25km for rural areas
 }
 
 /**
  * Calculate IP geolocation confidence based on available location data
  * @param city - City name from IP geolocation
- * @param region - Region/state name from IP geolocation  
+ * @param region - Region/state name from IP geolocation
  * @param country - Country name from IP geolocation
  * @returns Location confidence level
  */
@@ -148,7 +148,7 @@ export function calculateIPConfidence(city?: string, region?: string, country?: 
   const hasRegion = region && region.toLowerCase() !== 'unknown';
   const isMinnesota = region?.toLowerCase().includes('minnesota') || region?.toLowerCase().includes('mn');
   const isUS = country?.toLowerCase().includes('us') || country?.toLowerCase().includes('united states');
-  
+
   if (isMinnesota && hasCity) {
     return 'medium'; // Good confidence for Minnesota cities
   } else if (isUS && hasCity && hasRegion) {
@@ -167,7 +167,7 @@ export function calculateIPConfidence(city?: string, region?: string, country?: 
  */
 export function scoreEstimate(estimate: LocationEstimate): number {
   const ageScore = Math.max(0, 100 - (Date.now() - estimate.timestamp) / 60000); // Decay over time
-  
+
   // Handle zero accuracy case to avoid -Infinity from log10(0)
   const safeAccuracy = Math.max(1, estimate.accuracy); // Minimum 1 meter for scoring
   const accuracyScore = Math.max(0, 100 - Math.log10(safeAccuracy));
@@ -196,17 +196,17 @@ export function isCacheValid(location: LocationEstimate, maxAge: number): boolea
  * @returns Formatted summary string
  */
 export function getLocationSummary(estimate: LocationEstimate): string {
-  const accuracy = estimate.accuracy < 1000 
+  const accuracy = estimate.accuracy < 1000
     ? `±${Math.round(estimate.accuracy)}m`
     : `±${Math.round(estimate.accuracy / 1000)}km`;
-    
+
   const age = Date.now() - estimate.timestamp;
-  const ageText = age < 60000 
+  const ageText = age < 60000
     ? 'just now'
-    : age < 3600000 
+    : age < 3600000
       ? `${Math.round(age / 60000)}min ago`
       : `${Math.round(age / 3600000)}h ago`;
-      
+
   const methodText = {
     'gps': 'GPS',
     'network': 'Network',
@@ -216,7 +216,7 @@ export function getLocationSummary(estimate: LocationEstimate): string {
     'fallback': 'Default',
     'none': 'Unknown'
   }[estimate.method];
-  
+
   return `${methodText} (${accuracy}) • ${ageText}`;
 }
 
@@ -237,14 +237,14 @@ export function getPrivacySummary(cachedLocation: LocationEstimate | null): {
       dataAge: 'No stored location data'
     };
   }
-  
+
   const age = Date.now() - cachedLocation.timestamp;
-  const dataAge = age < 3600000 
+  const dataAge = age < 3600000
     ? `${Math.round(age / 60000)} minutes ago`
-    : age < 86400000 
+    : age < 86400000
       ? `${Math.round(age / 3600000)} hours ago`
       : `${Math.round(age / 86400000)} days ago`;
-      
+
   return {
     hasStoredData: true,
     lastUpdate: cachedLocation.timestamp,
@@ -261,24 +261,24 @@ export function isValidLocationCoordinates(coordinates: [number, number]): boole
   if (!coordinates || coordinates.length !== 2) {
     return false;
   }
-  
+
   const [lat, lng] = coordinates;
-  
+
   // Check for NaN or Infinity
   if (!isFinite(lat) || !isFinite(lng)) {
     return false;
   }
-  
+
   // Valid latitude: -90 to 90
   if (lat < -90 || lat > 90) {
     return false;
   }
-  
+
   // Valid longitude: -180 to 180
   if (lng < -180 || lng > 180) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -291,9 +291,9 @@ export function isWithinExpectedRegion(coordinates: [number, number]): boolean {
   if (!isValidLocationCoordinates(coordinates)) {
     return false;
   }
-  
+
   const [lat, lng] = coordinates;
-  
+
   // Extended Upper Midwest bounds (Minnesota + surrounding states)
   const UPPER_MIDWEST_BOUNDS = {
     north: 50.0,  // Canadian border
@@ -301,10 +301,10 @@ export function isWithinExpectedRegion(coordinates: [number, number]): boolean {
     east: -85.0,  // Eastern boundary
     west: -105.0  // Western boundary
   };
-  
-  return lat >= UPPER_MIDWEST_BOUNDS.south && 
-         lat <= UPPER_MIDWEST_BOUNDS.north && 
-         lng >= UPPER_MIDWEST_BOUNDS.west && 
+
+  return lat >= UPPER_MIDWEST_BOUNDS.south &&
+         lat <= UPPER_MIDWEST_BOUNDS.north &&
+         lng >= UPPER_MIDWEST_BOUNDS.west &&
          lng <= UPPER_MIDWEST_BOUNDS.east;
 }
 
@@ -357,7 +357,7 @@ export function formatCoordinates(coordinates: [number, number], precision: numb
 export function selectBestEstimate(estimate1: LocationEstimate, estimate2: LocationEstimate): LocationEstimate {
   const score1 = scoreEstimate(estimate1);
   const score2 = scoreEstimate(estimate2);
-  
+
   return score1 >= score2 ? estimate1 : estimate2;
 }
 
@@ -368,16 +368,16 @@ export function selectBestEstimate(estimate1: LocationEstimate, estimate2: Locat
  * @returns Filtered estimates meeting confidence requirement
  */
 export function filterByConfidence(
-  estimates: LocationEstimate[], 
+  estimates: LocationEstimate[],
   minConfidence: LocationConfidence
 ): LocationEstimate[] {
   const confidenceOrder: LocationConfidence[] = ['unknown', 'low', 'medium', 'high'];
   const minIndex = confidenceOrder.indexOf(minConfidence);
-  
+
   if (minIndex === -1) {
     return estimates; // Invalid confidence level, return all
   }
-  
+
   return estimates.filter(estimate => {
     const estimateIndex = confidenceOrder.indexOf(estimate.confidence);
     return estimateIndex >= minIndex;

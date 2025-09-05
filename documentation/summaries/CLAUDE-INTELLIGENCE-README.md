@@ -87,10 +87,10 @@ http://localhost:3050
 const options = {
   // Project identification
   projectName: 'auto-detected',        // Your project name
-  
-  // Network configuration  
+
+  // Network configuration
   basePort: 3050,                      // Starting port (uses 10 consecutive ports)
-  
+
   // Tool selection
   enabledTools: [                      // Choose which tools to enable
     'system',                          // System resource monitoring
@@ -98,12 +98,12 @@ const options = {
     'database',                       // Database performance (auto-detected)
     'context'                         // Unified context API
   ],
-  
+
   // Data and logging
   dataDir: '/tmp/claude-intelligence',  // Data storage directory
   logLevel: 'info',                    // Logging verbosity: debug, info, warn, error
   autoDetectServices: true,            // Automatically detect databases, etc.
-  
+
   // Environment detection
   detectProjectType: true,             // Auto-detect React, Node.js, Python, etc.
   detectRunningServices: true         // Check for running development servers
@@ -129,7 +129,7 @@ claude-intelligence
 The intelligence suite automatically detects and optimizes for:
 
 - **React** / **Vue** / **Angular** - Frontend frameworks
-- **Node.js** / **Express** / **Fastify** - Backend frameworks  
+- **Node.js** / **Express** / **Fastify** - Backend frameworks
 - **Next.js** / **Nuxt** - Full-stack frameworks
 - **Python** - Django, Flask, FastAPI projects
 - **Go** - Go module projects
@@ -248,7 +248,7 @@ npm install ws pg  # WebSocket and PostgreSQL support
 
 ### Platform Compatibility
 - **Linux**: Full feature support
-- **macOS**: Full feature support  
+- **macOS**: Full feature support
 - **Windows**: Core features (some system monitoring limitations)
 - **Docker**: Full support in Linux containers
 

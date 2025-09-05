@@ -15,7 +15,7 @@ if [ -z "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
     echo "3) Load from ~/.github_token file"
     echo ""
     read -p "Enter choice [1-3]: " choice
-    
+
     case $choice in
         1)
             echo ""
@@ -71,7 +71,7 @@ export GITHUB_REPO="nearest-nice-weather"
 echo ""
 echo "✅ Environment configured securely:"
 echo "   GITHUB_TOKEN: [HIDDEN - $(echo $GITHUB_TOKEN | head -c 10)...]"
-echo "   GITHUB_OWNER: $GITHUB_OWNER"  
+echo "   GITHUB_OWNER: $GITHUB_OWNER"
 echo "   GITHUB_REPO: $GITHUB_REPO"
 echo ""
 

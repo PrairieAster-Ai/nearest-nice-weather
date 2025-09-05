@@ -3,16 +3,16 @@
 # ========================================================================
 # PLAYWRIGHT TEST SUITE VIDEO RECORDING SCRIPT
 # ========================================================================
-# 
+#
 # PURPOSE: Records a comprehensive video demonstration of the Playwright
 #          test suite running, showcasing best practices implementation
-# 
+#
 # FEATURES:
 # - Records multiple test examples in sequence
 # - Captures both desktop and mobile views
 # - Creates organized output with timestamps
 # - Demonstrates all best practices implemented
-# 
+#
 # ========================================================================
 
 set -e
@@ -44,12 +44,12 @@ run_test_demo() {
     local test_name=$1
     local test_file=$2
     local project=${3:-chromium-video}
-    
+
     echo ""
     echo "🎯 Recording: $test_name"
     echo "📝 Test file: $test_file"
     echo "🖥️  Project: $project"
-    
+
     # Run the test with video recording
     npx playwright test "$test_file" \
         --config=playwright.config.video.js \
@@ -57,7 +57,7 @@ run_test_demo() {
         --output="$OUTPUT_DIR/$test_name" \
         --reporter=list \
         || echo "⚠️ Test completed with issues (this is expected for demo purposes)"
-    
+
     echo "✅ Completed: $test_name"
 }
 
@@ -105,7 +105,7 @@ the implementation of all official Playwright best practices.
 - **Features**: Page Objects, semantic locators, test isolation, user behavior focus
 
 ### 2. Semantic Locators Demo (\`02-semantic-locators-demo/\`)
-- **File**: \`tests/semantic-locators-example.spec.js\`  
+- **File**: \`tests/semantic-locators-example.spec.js\`
 - **Demonstrates**: CSS selectors vs semantic locators comparison
 - **Features**: getByRole, getByTestId, accessibility-focused testing
 
@@ -134,7 +134,7 @@ Each demo directory contains:
 ## Best Practices Demonstrated
 
 ✅ **Data-testid and ARIA labels** - Semantic element identification
-✅ **Page Object Model** - Maintainable test architecture  
+✅ **Page Object Model** - Maintainable test architecture
 ✅ **Test isolation** - Proper beforeEach hooks with state clearing
 ✅ **Semantic locators** - User-facing element selection
 ✅ **User behavior focus** - Testing user workflows, not implementation

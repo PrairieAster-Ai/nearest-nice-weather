@@ -36,9 +36,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { event_type, event_data, session_id, user_location, page_url }: AnalyticsEvent = req.body
 
     if (!event_type) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Event type is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Event type is required'
       })
     }
 
@@ -54,15 +54,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const client = await pool.connect()
-    
+
     try {
       const query = `
-        INSERT INTO user_events 
+        INSERT INTO user_events
         (session_id, event_type, event_data, user_location, user_agent, ip_address, page_url, created_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
         RETURNING id, created_at
       `
-      
+
       const result = await client.query(query, [
         sessionId,
         event_type,
@@ -87,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error('Analytics tracking error:', error)
-    
+
     res.status(500).json({
       success: false,
       error: 'Failed to track event',

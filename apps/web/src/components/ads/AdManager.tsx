@@ -2,17 +2,17 @@
  * ========================================================================
  * AD MANAGER - Centralized AdSense Management
  * ========================================================================
- * 
+ *
  * @BUSINESS_PURPOSE: Centralized ad loading, error handling, and analytics
  * @TECHNICAL_APPROACH: Service layer for ad optimization and performance tracking
  * @PRD_REF: PRD-GOOGLE-ADSENSE-181.md
- * 
+ *
  * FEATURES:
  * - Centralized ad configuration and loading
  * - Performance monitoring and analytics
  * - A/B testing framework for ad optimization
  * - Error handling and fallback strategies
- * 
+ *
  * ========================================================================
  */
 
@@ -101,11 +101,11 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
       script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
       script.async = true
       script.crossOrigin = 'anonymous'
-      
+
       script.onload = () => {
         console.log('AdSense script loaded successfully')
         setState(prev => ({ ...prev, adsLoaded: true }))
-        
+
         // Initialize adsbygoogle if not already done
         if (typeof window !== 'undefined' && !window.adsbygoogle) {
           ;(window.adsbygoogle = window.adsbygoogle || []).push({})
@@ -204,22 +204,22 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
   // Check if ads should be enabled for specific placement
   const isAdEnabled = (placement: string): boolean => {
     if (!enableAds || state.isAdBlockDetected) return false
-    
+
     // Business hours optimization for higher eCPM
     const now = new Date()
     const hour = now.getHours()
     const isBusinessHours = hour >= 9 && hour <= 17
-    
+
     // Outdoor recreation apps see higher engagement during business hours and weekends
     const isWeekend = now.getDay() === 0 || now.getDay() === 6
-    
+
     // Enable more ads during high-value periods
     if (placement === 'homepage-banner') return true
     if (placement === 'weather-results') return isBusinessHours || isWeekend
     if (placement === 'poi-detail') return true
     if (placement === 'sidebar') return isBusinessHours
     if (placement === 'map-overlay') return isWeekend
-    
+
     return true
   }
 

@@ -52,13 +52,13 @@ function App() {
           <h1 className="text-4xl font-bold text-center mb-8 text-blue-600">
             🌤️ Nearest Nice Weather
           </h1>
-          
+
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-4">Weather Intelligence Platform</h2>
             <p className="text-gray-600 mb-4">
               Find the nearest locations with your perfect weather conditions.
             </p>
-            
+
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h3 className="font-semibold text-blue-800">Platform Status</h3>
               <p className="text-sm text-blue-600">✅ Ready for Development</p>
@@ -71,7 +71,7 @@ function App() {
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-4">Quick Links</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <a href="/api/docs" target="_blank" 
+              <a href="/api/docs" target="_blank"
                  className="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 text-center block">
                 📖 API Documentation
               </a>

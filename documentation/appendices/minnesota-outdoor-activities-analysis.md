@@ -149,7 +149,7 @@ This appendix provides comprehensive analysis of Minnesota's outdoor recreation 
 
 **Key Business Assumptions** ⚠️ (*All percentages require customer discovery validation*):
 - **Estimated 95% of ice fishing guides** also provide open-water fishing services
-- **Estimated 80% of hunting guides** also offer fishing services  
+- **Estimated 80% of hunting guides** also offer fishing services
 - **Estimated 75% of BWCA outfitters** expanding to winter wilderness services
 - **Estimated 60% of serious anglers** also hunt during fall/winter seasons
 

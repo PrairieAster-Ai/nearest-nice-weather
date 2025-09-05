@@ -2,10 +2,10 @@
  * ========================================================================
  * SHARED TEST UTILITIES FOR PLAYWRIGHT TESTS
  * ========================================================================
- * 
+ *
  * @PURPOSE: Common test utilities to reduce redundancy and improve efficiency
  * @BENEFITS: 60-70% speed improvement, 80% less flaky tests, 40% easier maintenance
- * 
+ *
  * ========================================================================
  */
 
@@ -15,16 +15,16 @@
  */
 export async function waitForMapReady(page, timeout = 5000) {
   await page.waitForSelector('.leaflet-container', { timeout })
-  
+
   // Wait for map instance to be available
   await page.waitForFunction(
     () => window.leafletMapInstance && window.leafletMapInstance.getCenter,
     { timeout }
   )
-  
+
   // Wait for tiles to start loading (more reliable than waiting for all tiles)
   await page.waitForSelector('.leaflet-tile-pane', { timeout, state: 'attached' })
-  
+
   return page.evaluate(() => ({
     center: window.leafletMapInstance.getCenter(),
     zoom: window.leafletMapInstance.getZoom(),
@@ -38,14 +38,14 @@ export async function waitForMapReady(page, timeout = 5000) {
  */
 export async function clickFirstPOIMarker(page, timeout = 5000) {
   const markers = await page.locator('.leaflet-marker-icon').all()
-  
+
   if (markers.length === 0) {
     throw new Error('No POI markers found on map')
   }
-  
+
   await markers[0].click()
   await page.waitForSelector('.leaflet-popup', { timeout })
-  
+
   const popupContent = await page.locator('.leaflet-popup-content').first()
   return {
     popup: popupContent,
@@ -60,7 +60,7 @@ export async function clickFirstPOIMarker(page, timeout = 5000) {
  */
 export async function waitForPOIUpdate(page, expectedChange = 'any', timeout = 5000) {
   const initialCount = await page.locator('.leaflet-marker-icon').count()
-  
+
   try {
     if (expectedChange === 'increase') {
       await page.waitForFunction(
@@ -86,7 +86,7 @@ export async function waitForPOIUpdate(page, expectedChange = 'any', timeout = 5
     // No change detected within timeout - this might be expected
     console.log(`No POI change detected within ${timeout}ms`)
   }
-  
+
   const finalCount = await page.locator('.leaflet-marker-icon').count()
   return {
     initial: initialCount,
@@ -106,10 +106,10 @@ export async function setupMobileViewport(page, device = 'iPhone 12 Pro') {
     'iPad': { width: 768, height: 1024 },
     'iPad Pro': { width: 1024, height: 1366 }
   }
-  
+
   const viewport = viewports[device] || viewports['iPhone 12 Pro']
   await page.setViewportSize(viewport)
-  
+
   return viewport
 }
 
@@ -125,12 +125,12 @@ export async function setMockLocation(page, location = 'minneapolis') {
     rochester: { latitude: 44.0234, longitude: -92.4630 },
     stpaul: { latitude: 44.9537, longitude: -93.0900 }
   }
-  
+
   const coords = locations[location] || locations.minneapolis
-  
+
   // Use context for geolocation instead of page
   await page.context().setGeolocation(coords)
-  
+
   return coords
 }
 
@@ -141,7 +141,7 @@ export async function setMockLocation(page, location = 'minneapolis') {
 export async function waitForDebouncedFilter(page, timeout = 3000) {
   // Monitor for the filtering indicator
   const filteringIndicator = page.locator('[data-testid="filtering-indicator"], .filtering-active')
-  
+
   try {
     // Wait for filtering to start
     await filteringIndicator.waitFor({ state: 'visible', timeout: 500 })
@@ -163,19 +163,19 @@ export async function clickWeatherFilter(page, filterType = 'temperature') {
     precipitation: 1,
     wind: 2
   }
-  
+
   const fabIndex = filterMap[filterType] || 0
   const filterFabs = await page.locator('.MuiFab-root').all()
-  
+
   if (filterFabs.length <= fabIndex) {
     throw new Error(`Filter FAB ${filterType} not found`)
   }
-  
+
   const fab = filterFabs[fabIndex]
   const initialContent = await fab.textContent()
-  
+
   await fab.click()
-  
+
   // Wait for content to change (indicates state update)
   await page.waitForFunction(
     (el, initial) => el.textContent !== initial,
@@ -185,7 +185,7 @@ export async function clickWeatherFilter(page, filterType = 'temperature') {
   ).catch(() => {
     // Content might not change if cycling back to same state
   })
-  
+
   return {
     initial: initialContent,
     final: await fab.textContent()
@@ -203,12 +203,12 @@ export async function mockAPIResponses(page, options = {}) {
     poiCount = 35,
     responseDelay = 0
   } = options
-  
+
   if (mockPOI) {
     // Mock both endpoints to handle different API patterns
     await page.route('**/api/weather-locations*', async route => {
       if (responseDelay) await new Promise(r => setTimeout(r, responseDelay))
-      
+
       const mockData = generateMockPOIData(poiCount)
       await route.fulfill({
         status: 200,
@@ -216,10 +216,10 @@ export async function mockAPIResponses(page, options = {}) {
         body: JSON.stringify(mockData)
       })
     })
-    
+
     await page.route('**/api/poi-locations*', async route => {
       if (responseDelay) await new Promise(r => setTimeout(r, responseDelay))
-      
+
       const mockData = generateMockPOIData(poiCount)
       await route.fulfill({
         status: 200,
@@ -228,11 +228,11 @@ export async function mockAPIResponses(page, options = {}) {
       })
     })
   }
-  
+
   if (mockWeather) {
     await page.route('**/api/weather*', async route => {
       if (responseDelay) await new Promise(r => setTimeout(r, responseDelay))
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -257,7 +257,7 @@ function generateMockPOIData(count = 35) {
     'Minnehaha Falls', 'Lake Harriet', 'Como Park', 'Hidden Falls',
     'Fort Snelling State Park', 'Bde Maka Ska', 'Lake Nokomis'
   ]
-  
+
   for (let i = 0; i < count; i++) {
     pois.push({
       id: `poi-${i}`,
@@ -271,7 +271,7 @@ function generateMockPOIData(count = 35) {
       distance_miles: (Math.random() * 20).toFixed(1)
     })
   }
-  
+
   return pois
 }
 
@@ -282,15 +282,15 @@ function generateMockPOIData(count = 35) {
 export async function measurePerformance(page, operation, expectedTime = 1000, retries = 3) {
   let bestTime = Infinity
   let lastError = null
-  
+
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       const startTime = Date.now()
       await operation()
       const duration = Date.now() - startTime
-      
+
       bestTime = Math.min(bestTime, duration)
-      
+
       if (duration <= expectedTime) {
         return {
           duration,
@@ -298,18 +298,18 @@ export async function measurePerformance(page, operation, expectedTime = 1000, r
           attempt: attempt + 1
         }
       }
-      
+
       lastError = `Performance requirement not met: ${duration}ms > ${expectedTime}ms`
     } catch (error) {
       lastError = error
     }
-    
+
     // Brief pause between retries
     if (attempt < retries - 1) {
       await page.waitForTimeout(500)
     }
   }
-  
+
   return {
     duration: bestTime,
     passed: false,
@@ -324,16 +324,16 @@ export async function measurePerformance(page, operation, expectedTime = 1000, r
  */
 export async function screenshotComponent(page, selector, name) {
   const element = await page.locator(selector).first()
-  
+
   if (!await element.isVisible()) {
     throw new Error(`Component ${selector} not visible for screenshot`)
   }
-  
+
   const screenshot = await element.screenshot({
     path: `test-results/screenshots/${name}.png`,
     animations: 'disabled'
   })
-  
+
   return screenshot
 }
 
@@ -369,10 +369,10 @@ export async function clearTestData(page) {
     // localStorage might not be available in some test contexts
     console.log('Note: Could not clear storage (this is normal for some test environments)')
   }
-  
+
   // Clear cookies
   await page.context().clearCookies()
-  
+
   // Clear permissions
   await page.context().clearPermissions()
 }
@@ -388,32 +388,32 @@ export async function setupTest(page, options = {}) {
     location = 'minneapolis',
     viewport = null
   } = options
-  
+
   if (clearData) {
     await clearTestData(page)
   }
-  
+
   if (mockAPI) {
     await mockAPIResponses(page)
   }
-  
+
   if (location) {
     await setMockLocation(page, location)
   }
-  
+
   if (viewport) {
     await setupMobileViewport(page, viewport)
   }
-  
+
   // Handle any alert dialogs that might block tests
   page.on('dialog', async dialog => {
     console.log(`Alert dialog: ${dialog.message()}`)
     await dialog.accept()
   })
-  
+
   await page.goto(process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001')
   await waitForMapReady(page)
-  
+
   return {
     mapReady: true,
     location: location

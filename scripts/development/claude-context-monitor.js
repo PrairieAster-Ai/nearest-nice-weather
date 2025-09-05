@@ -27,15 +27,15 @@ class ClaudeContextMonitor {
     console.log('🤖 Claude AI Context Monitor Starting...');
     console.log('📊 Business Goal: Minimize productivity degradation');
     console.log('🎯 Focus: Development velocity optimization');
-    
+
     // Initial health check
     await this.performHealthCheck();
-    
+
     // Start monitoring loops
     this.startProcessMonitoring();
     this.startBusinessMetricsTracking();
     this.startLogAggregation();
-    
+
     console.log('✅ Claude Context Monitor Active');
   }
 
@@ -51,28 +51,28 @@ class ClaudeContextMonitor {
       // Check API server
       const apiCheck = await this.checkService('http://localhost:4000/api/health');
       status.services.api = apiCheck;
-      
+
       // Check frontend
       const frontendCheck = await this.checkService('http://localhost:3001/');
       status.services.frontend = frontendCheck;
-      
+
       // Check PM2 processes
       const pm2Status = await this.checkPM2Status();
       status.services.pm2 = pm2Status;
-      
+
       // Assess business impact
       status.businessImpact = this.assessBusinessImpact(status.services);
       status.recommendations = this.generateRecommendations(status.services);
-      
+
       // Update metrics
       this.businessMetrics.lastHealthCheck = status.timestamp;
       this.businessMetrics.uptime = this.calculateUptime(status.services);
-      
+
       // Save status for Claude AI access
       fs.writeFileSync(this.statusFile, JSON.stringify(status, null, 2));
-      
+
       this.logWithContext('HEALTH_CHECK', status);
-      
+
     } catch (error) {
       this.logWithContext('HEALTH_CHECK_ERROR', { error: error.message });
       status.businessImpact = 'high';
@@ -103,7 +103,7 @@ class ClaudeContextMonitor {
           resolve({ status: 'not_running', processes: [] });
           return;
         }
-        
+
         try {
           const processes = JSON.parse(stdout);
           const processStatus = processes.map(p => ({
@@ -114,7 +114,7 @@ class ClaudeContextMonitor {
             memory: p.monit.memory,
             cpu: p.monit.cpu
           }));
-          
+
           resolve({
             status: 'running',
             processes: processStatus,
@@ -130,19 +130,19 @@ class ClaudeContextMonitor {
 
   assessBusinessImpact(services) {
     const issues = [];
-    
+
     if (services.api?.status !== 'healthy') {
       issues.push('API service down - blocking development');
     }
-    
+
     if (services.frontend?.status !== 'healthy') {
       issues.push('Frontend service down - blocking UI development');
     }
-    
+
     if (services.pm2?.status !== 'running') {
       issues.push('Process manager not running - stability risk');
     }
-    
+
     if (issues.length === 0) return 'none';
     if (issues.length === 1) return 'low';
     if (issues.length === 2) return 'medium';
@@ -151,26 +151,26 @@ class ClaudeContextMonitor {
 
   generateRecommendations(services) {
     const recommendations = [];
-    
+
     if (services.api?.status !== 'healthy') {
       recommendations.push('Run: pm2 restart weather-api');
       recommendations.push('Check: /tmp/weather-api-error.log');
     }
-    
+
     if (services.frontend?.status !== 'healthy') {
       recommendations.push('Run: pm2 restart weather-frontend');
       recommendations.push('Check: /tmp/weather-frontend-error.log');
     }
-    
+
     if (services.pm2?.status !== 'running') {
       recommendations.push('Run: pm2 start pm2-claude-context.config.js');
       recommendations.push('Check: pm2 logs');
     }
-    
+
     if (recommendations.length === 0) {
       recommendations.push('All services healthy - optimal development environment');
     }
-    
+
     return recommendations;
   }
 
@@ -204,12 +204,12 @@ class ClaudeContextMonitor {
     exec('git log --oneline --since="1 hour ago" | wc -l', (error, stdout) => {
       this.businessMetrics.deploymentVelocity = parseInt(stdout) || 0;
     });
-    
+
     // Calculate error rate from logs
     exec('grep -i "error" /tmp/weather-*.log | wc -l', (error, stdout) => {
       this.businessMetrics.errorRate = parseInt(stdout) || 0;
     });
-    
+
     this.logWithContext('BUSINESS_METRICS', this.businessMetrics);
   }
 
@@ -220,9 +220,9 @@ class ClaudeContextMonitor {
       '/tmp/vite.log',
       '/tmp/browser-tools.log'
     ];
-    
+
     const aggregatedLogs = [];
-    
+
     logSources.forEach(logFile => {
       if (fs.existsSync(logFile)) {
         try {
@@ -237,7 +237,7 @@ class ClaudeContextMonitor {
         }
       }
     });
-    
+
     // Save aggregated logs for Claude AI
     fs.writeFileSync('/tmp/claude-aggregated-logs.json', JSON.stringify(aggregatedLogs, null, 2));
   }
@@ -253,10 +253,10 @@ class ClaudeContextMonitor {
         project: 'nearest_nice_weather'
       }
     };
-    
+
     const logLine = JSON.stringify(logEntry) + '\n';
     fs.appendFileSync(this.logFile, logLine);
-    
+
     // Also log to console for immediate visibility
     console.log(`[${event}] ${JSON.stringify(data)}`);
   }

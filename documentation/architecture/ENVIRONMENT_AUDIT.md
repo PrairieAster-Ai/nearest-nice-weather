@@ -56,7 +56,7 @@ VITE_API_BASE_URL="/api"
 
 ### Issue: Frontend shows old data after database changes
 **Root Cause**: Frontend proxying to production while expecting local database
-**Check**: 
+**Check**:
 - `VITE_API_PROXY_URL` should point to local server
 - `VITE_API_BASE_URL` should match local API server
 - Local API server should use local `DATABASE_URL`
@@ -105,7 +105,7 @@ netstat -tlnp | grep -E "(3001|4001|4000)"
 ## Environment Variable Checklist
 
 - [ ] All database connections use environment variables
-- [ ] All API endpoints use environment variables  
+- [ ] All API endpoints use environment variables
 - [ ] All ports and hosts use environment variables
 - [ ] No hardcoded URLs in production code
 - [ ] .env.example documents all required variables

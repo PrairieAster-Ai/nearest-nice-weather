@@ -2,25 +2,25 @@
  * ========================================================================
  * MAP VIEW CALCULATION UTILITIES
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Extracted testable map view calculation logic from App.tsx
  * 🔗 DEPENDENCIES: MapCalculationService for optimal view calculations
  * 📊 COVERAGE: Pure functions for map center and zoom calculations
  * ⚙️ FUNCTIONALITY: Location-aware map view optimization
  * 🎯 BUSINESS_IMPACT: Optimal map views improve user experience and POI discovery
- * 
+ *
  * BUSINESS CONTEXT: Map view optimization for POI discovery
  * - Calculates optimal map center and zoom for multiple POIs
  * - Handles user location integration for proximity-based views
  * - Provides fallback calculations for edge cases
- * 
+ *
  * TECHNICAL CONTEXT: Pure utility functions
  * - No side effects or React dependencies
  * - Easily testable mathematical calculations
  * - Compatible with existing MapViewManager hook
- * 
+ *
  * EXTRACTED FROM: App.tsx lines 287-308 (map view calculation logic)
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -65,7 +65,7 @@ export function calculateOptimalMapView(
 
   // Multiple locations - calculate bounds
   const bounds = calculateLocationBounds(locations, userLocation)
-  
+
   return {
     center: bounds.center,
     zoom: bounds.zoom
@@ -83,7 +83,7 @@ export function calculateLocationBounds(
   userLocation?: [number, number] | null
 ): MapViewBounds {
   const allPoints = [...locations]
-  
+
   // Include user location in bounds calculation if available
   if (userLocation) {
     allPoints.push({
@@ -104,7 +104,7 @@ export function calculateLocationBounds(
   // Calculate bounding box
   const lats = allPoints.map(point => point.lat)
   const lngs = allPoints.map(point => point.lng)
-  
+
   const minLat = Math.min(...lats)
   const maxLat = Math.max(...lats)
   const minLng = Math.min(...lngs)
@@ -122,7 +122,7 @@ export function calculateLocationBounds(
   // Zoom calculation based on geographic span
   let zoom = 10 // Default zoom
   if (maxDiff > 5) zoom = 6      // Very wide area
-  else if (maxDiff > 2) zoom = 7  // Wide area  
+  else if (maxDiff > 2) zoom = 7  // Wide area
   else if (maxDiff > 1) zoom = 8  // Moderate area
   else if (maxDiff > 0.5) zoom = 9 // Small area
   else zoom = 10                  // Very small area
@@ -145,18 +145,18 @@ export function calculateDistance(
 ): number {
   const [lat1, lng1] = point1
   const [lat2, lng2] = point2
-  
+
   const R = 3959 // Earth's radius in miles
   const dLat = toRadians(lat2 - lat1)
   const dLng = toRadians(lng2 - lng1)
-  
-  const a = 
+
+  const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * 
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
     Math.sin(dLng / 2) * Math.sin(dLng / 2)
-  
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  
+
   return R * c
 }
 
@@ -205,7 +205,7 @@ export function findClosestLocation(
   for (let i = 1; i < locations.length; i++) {
     const location = locations[i]
     const distance = calculateDistance([location.lat, location.lng], referencePoint)
-    
+
     if (distance < minDistance) {
       minDistance = distance
       closest = location

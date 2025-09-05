@@ -3,7 +3,7 @@
 /**
  * Claude AI Data Intelligence System
  * TOP PRIORITY: Maximize contextual data collection for collaboration success
- * 
+ *
  * Business Critical: High-value contextualizing data is essential for:
  * - Rapid decision making
  * - Avoiding productivity degradation
@@ -24,7 +24,7 @@ class ClaudeDataIntelligence {
     this.businessMetricsFile = path.join(this.dataDir, 'business-metrics.json');
     this.decisionDataFile = path.join(this.dataDir, 'decision-data.json');
     this.sessionHistoryFile = path.join(this.dataDir, 'session-history.json');
-    
+
     this.masterContext = {
       timestamp: new Date().toISOString(),
       businessGoals: {
@@ -41,7 +41,7 @@ class ClaudeDataIntelligence {
       riskFactors: [],
       successFactors: []
     };
-    
+
     this.init();
   }
 
@@ -50,42 +50,42 @@ class ClaudeDataIntelligence {
     if (!fs.existsSync(this.dataDir)) {
       fs.mkdirSync(this.dataDir, { recursive: true });
     }
-    
+
     console.log('🧠 Claude Data Intelligence System Initializing...');
     console.log('🎯 TOP PRIORITY: High-value contextualizing data collection');
     console.log('📊 Focus: Maximize collaboration success through data intelligence');
-    
+
     await this.collectInitialContext();
     await this.startContinuousDataCollection();
-    
+
     console.log('✅ Claude Data Intelligence System Active');
   }
 
   async collectInitialContext() {
     console.log('📋 Collecting initial high-value context...');
-    
+
     // Project state analysis
     this.masterContext.projectState = await this.analyzeProjectState();
-    
+
     // Technical environment mapping
     this.masterContext.technicalEnvironment = await this.mapTechnicalEnvironment();
-    
+
     // Business metrics baseline
     this.masterContext.businessMetrics = await this.captureBusinessMetrics();
-    
+
     // Knowledge base initialization
     this.masterContext.knowledgeBase = await this.buildKnowledgeBase();
-    
+
     // Collaboration patterns
     this.masterContext.collaborationPatterns = await this.analyzeCollaborationPatterns();
-    
+
     // Risk and success factors
     this.masterContext.riskFactors = await this.identifyRiskFactors();
     this.masterContext.successFactors = await this.identifySuccessFactors();
-    
+
     // Save initial context
     await this.saveContext();
-    
+
     console.log('✅ Initial high-value context collected');
   }
 
@@ -105,7 +105,7 @@ class ClaudeDataIntelligence {
       const gitStatus = await execAsync('git status --porcelain');
       const gitLog = await execAsync('git log --oneline -10');
       const gitBranch = await execAsync('git branch --show-current');
-      
+
       projectState.gitStatus = {
         modifiedFiles: gitStatus.stdout.split('\n').filter(line => line.trim()).length,
         recentCommits: gitLog.stdout.split('\n').filter(line => line.trim()),
@@ -119,7 +119,7 @@ class ClaudeDataIntelligence {
 
       // Feature progress analysis
       projectState.featureProgress = await this.analyzeFeatureProgress();
-      
+
       // Business value assessment
       projectState.businessValue = await this.assessBusinessValue();
 
@@ -143,13 +143,13 @@ class ClaudeDataIntelligence {
     try {
       // Service mapping
       techEnv.services = await this.mapServices();
-      
+
       // Dependency analysis
       techEnv.dependencies = await this.analyzeDependencies();
-      
+
       // Configuration audit
       techEnv.configuration = await this.auditConfiguration();
-      
+
       // Performance baseline
       techEnv.performance = await this.capturePerformanceBaseline();
 
@@ -173,13 +173,13 @@ class ClaudeDataIntelligence {
     try {
       // Development velocity
       metrics.developmentVelocity = await this.measureDevelopmentVelocity();
-      
+
       // Quality metrics
       metrics.qualityMetrics = await this.assessQualityMetrics();
-      
+
       // Collaboration efficiency
       metrics.collaborationEfficiency = await this.measureCollaborationEfficiency();
-      
+
       // Business impact
       metrics.businessImpact = await this.assessBusinessImpact();
 
@@ -203,13 +203,13 @@ class ClaudeDataIntelligence {
     try {
       // Extract technical patterns from code
       knowledgeBase.technicalPatterns = await this.extractTechnicalPatterns();
-      
+
       // Business rules from documentation
       knowledgeBase.businessRules = await this.extractBusinessRules();
-      
+
       // Decision frameworks
       knowledgeBase.decisionFrameworks = await this.buildDecisionFrameworks();
-      
+
       // Best practices
       knowledgeBase.bestPractices = await this.compileBestPractices();
 
@@ -255,11 +255,11 @@ class ClaudeDataIntelligence {
       // Technical risks
       const techRisks = await this.identifyTechnicalRisks();
       riskFactors.push(...techRisks);
-      
+
       // Business risks
       const businessRisks = await this.identifyBusinessRisks();
       riskFactors.push(...businessRisks);
-      
+
       // Collaboration risks
       const collabRisks = await this.identifyCollaborationRisks();
       riskFactors.push(...collabRisks);
@@ -278,11 +278,11 @@ class ClaudeDataIntelligence {
       // Technical success patterns
       const techSuccess = await this.identifyTechnicalSuccessPatterns();
       successFactors.push(...techSuccess);
-      
+
       // Business success indicators
       const businessSuccess = await this.identifyBusinessSuccessIndicators();
       successFactors.push(...businessSuccess);
-      
+
       // Collaboration success patterns
       const collabSuccess = await this.identifyCollaborationSuccessPatterns();
       successFactors.push(...collabSuccess);
@@ -296,17 +296,17 @@ class ClaudeDataIntelligence {
 
   async startContinuousDataCollection() {
     console.log('🔄 Starting continuous data collection...');
-    
+
     // Update context every 30 seconds
     setInterval(async () => {
       await this.updateContext();
     }, 30000);
-    
+
     // Capture decision data in real-time
     setInterval(async () => {
       await this.captureDecisionData();
     }, 10000);
-    
+
     // Update business metrics every 5 minutes
     setInterval(async () => {
       await this.updateBusinessMetrics();
@@ -318,7 +318,7 @@ class ClaudeDataIntelligence {
       this.masterContext.timestamp = new Date().toISOString();
       this.masterContext.projectState = await this.analyzeProjectState();
       this.masterContext.technicalEnvironment = await this.mapTechnicalEnvironment();
-      
+
       await this.saveContext();
     } catch (error) {
       console.error('Error updating context:', error.message);
@@ -339,7 +339,7 @@ class ClaudeDataIntelligence {
 
   async updateBusinessMetrics() {
     this.masterContext.businessMetrics = await this.captureBusinessMetrics();
-    
+
     // Save business metrics separately for trend analysis
     fs.writeFileSync(this.businessMetricsFile, JSON.stringify(this.masterContext.businessMetrics, null, 2));
   }
@@ -347,7 +347,7 @@ class ClaudeDataIntelligence {
   async saveContext() {
     // Save master context
     fs.writeFileSync(this.contextFile, JSON.stringify(this.masterContext, null, 2));
-    
+
     // Create session history entry
     const sessionEntry = {
       timestamp: new Date().toISOString(),
@@ -356,19 +356,19 @@ class ClaudeDataIntelligence {
       riskLevel: this.calculateRiskLevel(),
       successProbability: this.calculateSuccessProbability()
     };
-    
+
     let sessionHistory = [];
     if (fs.existsSync(this.sessionHistoryFile)) {
       sessionHistory = JSON.parse(fs.readFileSync(this.sessionHistoryFile, 'utf8'));
     }
-    
+
     sessionHistory.push(sessionEntry);
-    
+
     // Keep only last 100 sessions
     if (sessionHistory.length > 100) {
       sessionHistory = sessionHistory.slice(-100);
     }
-    
+
     fs.writeFileSync(this.sessionHistoryFile, JSON.stringify(sessionHistory, null, 2));
   }
 
@@ -627,7 +627,7 @@ class ClaudeDataIntelligence {
     // Placeholder for success probability calculation
     const successCount = this.masterContext.successFactors.length;
     const riskCount = this.masterContext.riskFactors.length;
-    
+
     if (successCount > riskCount) return 'high';
     if (successCount === riskCount) return 'medium';
     return 'low';

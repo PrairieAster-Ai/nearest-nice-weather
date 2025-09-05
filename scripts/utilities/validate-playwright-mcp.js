@@ -4,17 +4,17 @@
  * ========================================================================
  * PLAYWRIGHT MCP VALIDATION SCRIPT
  * ========================================================================
- * 
+ *
  * @PURPOSE: Validate enhanced PlaywrightMCP configuration and integration
  * @SCOPE: Environment validation, MCP server connectivity, test capabilities
- * 
+ *
  * Enhanced Features:
  * - Environment variable validation
- * - MCP server connectivity testing  
+ * - MCP server connectivity testing
  * - Playwright configuration validation
  * - Test directory structure verification
  * - Performance baseline validation
- * 
+ *
  * ========================================================================
  */
 
@@ -76,7 +76,7 @@ if (existsSync(mcpConfigPath)) {
       mcpConfig.mcpServers?.playwright !== undefined,
       'Found in .mcp/claude-desktop-config.json'
     );
-    
+
     const playwrightConfig = mcpConfig.mcpServers?.playwright;
     if (playwrightConfig) {
       validateCheck(
@@ -84,12 +84,12 @@ if (existsSync(mcpConfigPath)) {
         playwrightConfig.env !== undefined,
         `${Object.keys(playwrightConfig.env || {}).length} env vars`
       );
-      
+
       validateCheck(
         'PLAYWRIGHT_BASE_URL configured',
         playwrightConfig.env?.PLAYWRIGHT_BASE_URL === 'http://localhost:3001'
       );
-      
+
       validateCheck(
         'PLAYWRIGHT_CONFIG path configured',
         playwrightConfig.env?.PLAYWRIGHT_CONFIG === './playwright.config.js'
@@ -140,7 +140,7 @@ if (existsSync(testDir)) {
       testCount > 0,
       `${testCount} test files`
     );
-    
+
     validateWarning(
       'Comprehensive test coverage',
       testCount >= 30,
@@ -158,25 +158,25 @@ if (existsSync(packagePath)) {
   try {
     const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
     const scripts = packageJson.scripts || {};
-    
+
     validateCheck(
       'Enhanced MCP scripts configured',
       scripts['test:mcp'] !== undefined,
       'test:mcp script available'
     );
-    
+
     validateCheck(
       'Debug scripts configured',
       scripts['test:debug'] !== undefined,
       'test:debug script available'
     );
-    
+
     validateCheck(
       'Record scripts configured',
       scripts['test:record'] !== undefined,
       'test:record script available'
     );
-    
+
     validateCheck(
       'Playwright dependency present',
       packageJson.devDependencies?.['@playwright/test'] !== undefined,

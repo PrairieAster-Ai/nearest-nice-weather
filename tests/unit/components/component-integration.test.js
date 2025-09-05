@@ -1,7 +1,7 @@
 /**
  * React Component Integration Tests
  * Tests actual source code components to increase coverage
- * 
+ *
  * @COVERAGE_TARGET: apps/web/src/components/*
  * @DUAL_API_CONTEXT: Tests components that interact with both localhost and Vercel APIs
  */
@@ -15,20 +15,20 @@ describe('React Component Integration Tests', () => {
       // Mock validation logic that components would use
       const validateFeedbackInput = (feedback) => {
         const errors = [];
-        
+
         if (!feedback || typeof feedback !== 'object') {
           errors.push('Feedback must be an object');
           return { isValid: false, errors };
         }
-        
+
         if (!feedback.message || feedback.message.trim().length === 0) {
           errors.push('Message is required');
         }
-        
+
         if (feedback.email && !/\S+@\S+\.\S+/.test(feedback.email)) {
           errors.push('Invalid email format');
         }
-        
+
         return {
           isValid: errors.length === 0,
           errors
@@ -40,13 +40,13 @@ describe('React Component Integration Tests', () => {
         message: 'Great weather app!',
         email: 'user@example.com'
       };
-      
+
       const invalidFeedback = {
         type: 'invalid',
         message: '',
         email: 'not-an-email'
       };
-      
+
       expect(validateFeedbackInput(validFeedback).isValid).toBe(true);
       expect(validateFeedbackInput(invalidFeedback).isValid).toBe(false);
       expect(validateFeedbackInput(invalidFeedback).errors).toContain('Message is required');
@@ -55,7 +55,7 @@ describe('React Component Integration Tests', () => {
     test('should sanitize user input for XSS protection', () => {
       const sanitizeInput = (input) => {
         if (typeof input !== 'string') return '';
-        
+
         return input
           .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
           .replace(/javascript:/gi, '')
@@ -65,13 +65,13 @@ describe('React Component Integration Tests', () => {
 
       const maliciousInput = '<script>alert("xss")</script>Hello World';
       const cleanInput = sanitizeInput(maliciousInput);
-      
+
       expect(cleanInput).not.toContain('<script>');
       expect(cleanInput).toContain('Hello World');
-      
+
       const jsInput = 'javascript:alert("xss")';
       expect(sanitizeInput(jsInput)).toBe('alert("xss")');
-      
+
       const eventInput = 'onclick="alert()"';
       expect(sanitizeInput(eventInput)).toBe('');
     });
@@ -81,7 +81,7 @@ describe('React Component Integration Tests', () => {
         if (typeof input !== 'string') return '';
         return input.replace(/<[^>]*>/g, '').trim();
       };
-      
+
       expect(sanitizeInput(null)).toBe('');
       expect(sanitizeInput(undefined)).toBe('');
       expect(sanitizeInput(123)).toBe('');
@@ -203,7 +203,7 @@ describe('React Component Integration Tests', () => {
       };
 
       const isNetworkError = (error) => {
-        return error.name === 'NetworkError' || 
+        return error.name === 'NetworkError' ||
                error.message === 'Failed to fetch' ||
                (error.message && error.message.includes('network'));
       };
@@ -273,23 +273,23 @@ describe('React Component Integration Tests', () => {
     test('should validate POI location data structure', () => {
       const validatePOILocation = (poi) => {
         const errors = [];
-        
+
         if (!poi.id || typeof poi.id !== 'string') {
           errors.push('POI must have string ID');
         }
-        
+
         if (!poi.name || typeof poi.name !== 'string') {
           errors.push('POI must have string name');
         }
-        
+
         if (typeof poi.lat !== 'number' || poi.lat < -90 || poi.lat > 90) {
           errors.push('POI must have valid latitude (-90 to 90)');
         }
-        
+
         if (typeof poi.lng !== 'number' || poi.lng < -180 || poi.lng > 180) {
           errors.push('POI must have valid longitude (-180 to 180)');
         }
-        
+
         return {
           isValid: errors.length === 0,
           errors

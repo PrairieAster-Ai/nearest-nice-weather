@@ -1,7 +1,7 @@
 /**
  * React Hooks Coverage Tests
  * Direct testing of custom hooks to achieve source code coverage
- * 
+ *
  * @COVERAGE_TARGET: apps/web/src/hooks/*
  * @DUAL_API_CONTEXT: Tests hooks that interface with both localhost and Vercel APIs
  */
@@ -32,22 +32,22 @@ describe('React Hooks Source Coverage', () => {
       const createDebounceHook = (value, delay) => {
         let timeoutId;
         const [debouncedValue, setDebouncedValue] = [value, jest.fn()];
-        
+
         const debounceLogic = () => {
           clearTimeout(timeoutId);
           timeoutId = setTimeout(() => {
             setDebouncedValue(value);
           }, delay);
         };
-        
+
         return { debouncedValue, debounceLogic, setDebouncedValue };
       };
 
       const debounceHook = createDebounceHook('test', 300);
-      
+
       expect(typeof debounceHook.debounceLogic).toBe('function');
       expect(debounceHook.setDebouncedValue).toHaveBeenCalledTimes(0);
-      
+
       // Test debounce behavior
       debounceHook.debounceLogic();
       expect(debounceHook.setDebouncedValue).toHaveBeenCalledTimes(0); // Should not call immediately
@@ -62,7 +62,7 @@ describe('React Hooks Source Coverage', () => {
         setItem: jest.fn(),
         removeItem: jest.fn()
       };
-      
+
       Object.defineProperty(window, 'localStorage', {
         value: mockLocalStorage,
         writable: true
@@ -91,24 +91,24 @@ describe('React Hooks Source Coverage', () => {
       };
 
       const storage = createLocalStorageLogic('weatherFilter', { temperature: 'mild' });
-      
+
       // Test getting default value
       mockLocalStorage.getItem.mockReturnValue(null);
       expect(storage.getStoredValue()).toEqual({ temperature: 'mild' });
-      
+
       // Test getting stored value
       mockLocalStorage.getItem.mockReturnValue('{"temperature":"hot"}');
       expect(storage.getStoredValue()).toEqual({ temperature: 'hot' });
-      
+
       // Test setting value
       storage.setStoredValue({ temperature: 'cold' });
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith('weatherFilter', '{"temperature":"cold"}');
-      
+
       // Test error handling
       mockLocalStorage.getItem.mockImplementation(() => {
         throw new Error('localStorage not available');
       });
-      
+
       expect(storage.getStoredValue()).toEqual({ temperature: 'mild' }); // Should return default
     });
   });
@@ -136,7 +136,7 @@ describe('React Hooks Source Coverage', () => {
       };
 
       const feedbackLogic = createFeedbackSubmissionLogic();
-      
+
       // Mock successful response
       global.fetch.mockResolvedValue({
         ok: true,
@@ -151,7 +151,7 @@ describe('React Hooks Source Coverage', () => {
       };
 
       const result = await feedbackLogic.submitFeedback(testFeedback);
-      
+
       expect(global.fetch).toHaveBeenCalledWith('/api/feedback', {
         method: 'POST',
         headers: {
@@ -159,9 +159,9 @@ describe('React Hooks Source Coverage', () => {
         },
         body: JSON.stringify(testFeedback),
       });
-      
+
       expect(result).toEqual({ success: true, message: 'Feedback submitted' });
-      
+
       // Test error handling
       global.fetch.mockResolvedValue({
         ok: false,
@@ -176,12 +176,12 @@ describe('React Hooks Source Coverage', () => {
     test('should test weather location fetching with dual API support', async () => {
       const createWeatherLocationsLogic = () => {
         const fetchWeatherLocations = async (params = {}) => {
-          const apiBaseUrl = process.env.NODE_ENV === 'development' 
-            ? 'http://localhost:4000' 
+          const apiBaseUrl = process.env.NODE_ENV === 'development'
+            ? 'http://localhost:4000'
             : '';
-          
+
           const queryParams = new URLSearchParams();
-          
+
           Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {
               queryParams.append(key, String(value));
@@ -189,7 +189,7 @@ describe('React Hooks Source Coverage', () => {
           });
 
           const url = `${apiBaseUrl}/api/weather-locations?${queryParams.toString()}`;
-          
+
           const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -202,7 +202,7 @@ describe('React Hooks Source Coverage', () => {
           }
 
           const data = await response.json();
-          
+
           // Standardize response format for dual API compatibility
           return Array.isArray(data) ? data : data.data || [];
         };
@@ -211,7 +211,7 @@ describe('React Hooks Source Coverage', () => {
       };
 
       const weatherLogic = createWeatherLocationsLogic();
-      
+
       // Test successful fetch with parameters
       global.fetch.mockResolvedValue({
         ok: true,
@@ -234,14 +234,14 @@ describe('React Hooks Source Coverage', () => {
       };
 
       const result = await weatherLogic.fetchWeatherLocations(params);
-      
+
       expect(global.fetch).toHaveBeenCalled();
       const fetchCall = global.fetch.mock.calls[0];
       expect(fetchCall[0]).toContain('/api/weather-locations');
       expect(fetchCall[0]).toContain('lat=44.9778');
       expect(fetchCall[0]).toContain('lng=-93.265');
       expect(fetchCall[0]).toContain('limit=10');
-      
+
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('Minneapolis Parks');
     });
@@ -288,7 +288,7 @@ describe('React Hooks Source Coverage', () => {
 
           const queryString = new URLSearchParams(params).toString();
           const response = await fetch(`/api/poi-locations-with-weather?${queryString}`);
-          
+
           if (!response.ok) {
             throw new Error(`POI API error: ${response.status}`);
           }
@@ -321,7 +321,7 @@ describe('React Hooks Source Coverage', () => {
       ];
 
       const processed = poiLogic.processPOIResponse(mockRawData);
-      
+
       expect(processed.locations).toHaveLength(1);
       expect(processed.locations[0].id).toBe('1');
       expect(processed.locations[0].lat).toBe(44.9153);
@@ -338,9 +338,9 @@ describe('React Hooks Source Coverage', () => {
 
       const userLocation = { lat: 44.9778, lng: -93.2650 };
       const filters = { weather_filter: 'mild' };
-      
+
       const fetchResult = await poiLogic.fetchPOILocations(userLocation, filters);
-      
+
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/poi-locations-with-weather')
       );
@@ -352,7 +352,7 @@ describe('React Hooks Source Coverage', () => {
     test('should test search functionality with debouncing', async () => {
       const createWeatherSearchLogic = () => {
         let searchTimeout;
-        
+
         const debouncedSearch = (searchTerm, callback, delay = 300) => {
           clearTimeout(searchTimeout);
           searchTimeout = setTimeout(() => {
@@ -364,7 +364,7 @@ describe('React Hooks Source Coverage', () => {
 
         const searchLocations = async (query) => {
           const response = await fetch(`/api/weather-locations?search=${encodeURIComponent(query)}&limit=10`);
-          
+
           if (!response.ok) {
             throw new Error(`Search error: ${response.status}`);
           }
@@ -376,21 +376,21 @@ describe('React Hooks Source Coverage', () => {
       };
 
       const searchLogic = createWeatherSearchLogic();
-      
+
       // Test debounced search
       const mockCallback = jest.fn();
-      
+
       searchLogic.debouncedSearch('minneapolis', mockCallback, 100);
       searchLogic.debouncedSearch('minneapolis park', mockCallback, 100); // This should cancel the first
-      
+
       // Should not call immediately
       expect(mockCallback).toHaveBeenCalledTimes(0);
-      
+
       // Wait for debounce
       await new Promise(resolve => setTimeout(resolve, 150));
       expect(mockCallback).toHaveBeenCalledTimes(1);
       expect(mockCallback).toHaveBeenCalledWith('minneapolis park');
-      
+
       // Test search API call
       global.fetch.mockResolvedValue({
         ok: true,
@@ -400,7 +400,7 @@ describe('React Hooks Source Coverage', () => {
       });
 
       const searchResult = await searchLogic.searchLocations('minneapolis');
-      
+
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/weather-locations?search=minneapolis')
       );
@@ -440,24 +440,24 @@ describe('React Hooks Source Coverage', () => {
 
         const retryWithBackoff = async (apiCall, maxRetries = 3, baseDelay = 1000) => {
           let lastError;
-          
+
           for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
               return await apiCall();
             } catch (error) {
               lastError = error;
-              
+
               const errorInfo = handleApiError(error);
               if (!errorInfo.shouldRetry || attempt === maxRetries - 1) {
                 throw error;
               }
-              
+
               // Exponential backoff
               const delay = baseDelay * Math.pow(2, attempt);
               await new Promise(resolve => setTimeout(resolve, delay));
             }
           }
-          
+
           throw lastError;
         };
 
@@ -465,7 +465,7 @@ describe('React Hooks Source Coverage', () => {
       };
 
       const errorLogic = createErrorBoundaryLogic();
-      
+
       // Test error categorization
       const networkError = new TypeError('fetch failed');
       const serverError = new Error('Server error');

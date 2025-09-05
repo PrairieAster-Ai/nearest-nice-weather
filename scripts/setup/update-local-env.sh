@@ -25,36 +25,36 @@ case $choice in
         echo "Enter your new GitHub Personal Access Token:"
         echo "(It will not be displayed on screen)"
         read -s NEW_TOKEN
-        
+
         if [ -z "$NEW_TOKEN" ]; then
             echo "❌ No token entered"
             exit 1
         fi
-        
+
         # Write to .env file
         echo "GITHUB_PERSONAL_ACCESS_TOKEN=$NEW_TOKEN" > .env
         chmod 600 .env
         echo ""
         echo "✅ Token updated in .env file"
         ;;
-        
+
     2)
         echo ""
         echo "Paste your token and press Enter:"
         echo "(It will be hidden after entry)"
         read -s NEW_TOKEN
-        
+
         if [ -z "$NEW_TOKEN" ]; then
             echo "❌ No token pasted"
             exit 1
         fi
-        
+
         echo "GITHUB_PERSONAL_ACCESS_TOKEN=$NEW_TOKEN" > .env
         chmod 600 .env
         echo ""
         echo "✅ Token updated in .env file"
         ;;
-        
+
     3)
         echo ""
         echo "Opening .env file for manual edit..."
@@ -63,7 +63,7 @@ case $choice in
         chmod 600 .env
         echo "✅ Manual edit complete"
         ;;
-        
+
     *)
         echo "Invalid choice"
         exit 1

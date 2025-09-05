@@ -74,7 +74,7 @@ if ! curl -s http://localhost:3002 > /dev/null; then
     DEV_PID=$!
     echo "Development server PID: $DEV_PID"
     cd ../..
-    
+
     # Wait for server to start
     echo "⏳ Waiting for development server..."
     for i in {1..30}; do
@@ -96,7 +96,7 @@ $DESCRIPTION
 
 This experiment branch enables rapid iteration on:
 - Feature development
-- User testing  
+- User testing
 - Performance validation
 
 Branch: $BRANCH_NAME

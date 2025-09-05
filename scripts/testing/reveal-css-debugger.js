@@ -8,7 +8,7 @@ const path = require('path');
 async function debugRevealCSS() {
   console.log('🔍 Reveal.js CSS Debugger - Real DOM Analysis');
   console.log('=' . repeat(60));
-  
+
   // Create HTML page that loads reveal.js and extracts computed styles
   const debugHTML = `
 <!DOCTYPE html>
@@ -17,14 +17,14 @@ async function debugRevealCSS() {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>CSS Debug</title>
-    
+
     <!-- Load reveal.js CSS first -->
     <link rel="stylesheet" href="reveal.js-dist/css/reveal.css">
     <link rel="stylesheet" href="reveal.js-dist/theme/white.css">
-    
+
     <!-- Load our custom theme -->
     <link rel="stylesheet" href="theme/prairieaster-reveal.css">
-    
+
     <style>
         /* Force higher specificity override */
         .reveal .slides section.debug-override {
@@ -44,7 +44,7 @@ async function debugRevealCSS() {
             </section>
         </div>
     </div>
-    
+
     <script src="reveal.js-dist/dist/reveal.js"></script>
     <script>
         // Initialize reveal.js with our settings
@@ -56,13 +56,13 @@ async function debugRevealCSS() {
             touch: false,
             keyboard: true
         });
-        
+
         // After initialization, log computed styles
         setTimeout(() => {
             const section = document.querySelector('.reveal .slides section');
             if (section) {
                 const computed = window.getComputedStyle(section);
-                
+
                 const debugInfo = {
                     timestamp: new Date().toISOString(),
                     viewport: {
@@ -89,14 +89,14 @@ async function debugRevealCSS() {
                         version: typeof Reveal !== 'undefined' ? Reveal.VERSION : 'unknown'
                     }
                 };
-                
+
                 // Write debug info to console and also to a data structure
                 console.log('=== COMPUTED STYLES DEBUG ===');
                 console.log(JSON.stringify(debugInfo, null, 2));
-                
+
                 // Also write to window for extraction
                 window.debugInfo = debugInfo;
-                
+
                 // Add a visible marker
                 document.title = 'DEBUG-READY';
             }
@@ -108,17 +108,17 @@ async function debugRevealCSS() {
   // Write debug HTML
   const debugPath = path.join(__dirname, 'apps/web/public/presentation/debug-reveal.html');
   fs.writeFileSync(debugPath, debugHTML);
-  
+
   console.log('📝 Created debug page: debug-reveal.html');
-  
+
   // Take screenshot of debug page
   const screenshotPath = path.join(__dirname, 'debug-reveal-screenshot.png');
   const debugUrl = 'http://localhost:3001/presentation/debug-reveal.html';
-  
+
   console.log('📸 Taking debug screenshot...');
-  
+
   const command = `flatpak run org.chromium.Chromium --headless --disable-gpu --no-sandbox --window-size=375,812 --virtual-time-budget=3000 --screenshot="${screenshotPath}" "${debugUrl}"`;
-  
+
   return new Promise((resolve, reject) => {
     exec(command, { timeout: 30000 }, (error, stdout, stderr) => {
       if (error) {
@@ -126,14 +126,14 @@ async function debugRevealCSS() {
         reject(error);
         return;
       }
-      
+
       if (fs.existsSync(screenshotPath)) {
         const stats = fs.statSync(screenshotPath);
         console.log(`✅ Debug screenshot saved: ${stats.size} bytes`);
-        
+
         // Try to extract console output
         const extractCommand = `flatpak run org.chromium.Chromium --headless --disable-gpu --no-sandbox --window-size=375,812 --virtual-time-budget=3000 --dump-dom "${debugUrl}" 2>/dev/null | grep "COMPUTED STYLES" || echo "No debug output found"`;
-        
+
         exec(extractCommand, (extractError, extractStdout) => {
           if (extractStdout && extractStdout.includes('COMPUTED STYLES')) {
             console.log('🎯 Debug output captured:');
@@ -141,7 +141,7 @@ async function debugRevealCSS() {
           } else {
             console.log('⚠️ No debug console output captured - check screenshot for red tint');
           }
-          
+
           resolve({
             screenshotPath,
             debugHtmlPath: debugPath,

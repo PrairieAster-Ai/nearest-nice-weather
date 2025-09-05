@@ -48,7 +48,7 @@ global.AbortController = jest.fn().mockImplementation(() => ({
 }));
 
 // Import the service after setting up mocks
-import { 
+import {
   UserLocationEstimator,
   LocationEstimate,
   LocationMethod,
@@ -76,16 +76,16 @@ describe('UserLocationEstimator Service', () => {
     mockConsoleLog.mockClear();
     mockConsoleError.mockClear();
     mockConsoleWarn.mockClear();
-    
+
     // Reset localStorage mocks
     mockLocalStorage.getItem.mockReturnValue(null);
     mockLocalStorage.setItem.mockClear();
-    
+
     // Reset geolocation mocks
     mockGeolocation.getCurrentPosition.mockClear();
     mockGeolocation.watchPosition.mockClear();
     mockGeolocation.clearWatch.mockClear();
-    
+
     // Reset fetch mock
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
@@ -470,7 +470,7 @@ describe('UserLocationEstimator Service', () => {
 
       // First request starts estimation
       const promise1 = estimator.estimateLocation();
-      
+
       // Second request should throw error about estimation in progress
       await expect(estimator.estimateLocation()).rejects.toThrow('Location estimation already in progress');
 
@@ -484,8 +484,8 @@ describe('UserLocationEstimator Service', () => {
         error({ code: 1, message: 'Permission denied' });
       });
 
-      (global.fetch as jest.Mock).mockImplementation(() => 
-        new Promise((_, reject) => 
+      (global.fetch as jest.Mock).mockImplementation(() =>
+        new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Timeout')), 100)
         )
       );
@@ -514,7 +514,7 @@ describe('UserLocationEstimator Service', () => {
       // GPS and network should succeed
       expect(results.gps).toHaveProperty('coordinates');
       expect(results.network).toHaveProperty('coordinates');
-      
+
       // Fallback should always work
       expect(results.fallback).toHaveProperty('coordinates');
       expect((results.fallback as LocationEstimate).method).toBe('fallback');
@@ -564,7 +564,7 @@ describe('UserLocationEstimator Service', () => {
   describe('Configuration Options', () => {
     test('should handle timeout configuration', async () => {
       const shortTimeout = 1000;
-      
+
       mockGeolocation.getCurrentPosition.mockImplementation((success, error, options) => {
         expect(options?.timeout).toBe(shortTimeout);
         success(mockPosition);
@@ -584,7 +584,7 @@ describe('UserLocationEstimator Service', () => {
 
     test('should handle custom fallback coordinates', async () => {
       const customFallback: [number, number] = [47.0, -94.0];
-      
+
       mockGeolocation.getCurrentPosition.mockImplementation((success, error) => {
         error({ code: 1, message: 'Permission denied' });
       });

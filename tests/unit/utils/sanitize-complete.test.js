@@ -1,7 +1,7 @@
 /**
- * Complete Sanitize Utils Coverage Test  
+ * Complete Sanitize Utils Coverage Test
  * Comprehensive edge case testing to achieve 95%+ coverage
- * 
+ *
  * @COVERAGE_TARGET: sanitize.ts (80% → 95%+)
  * @DUAL_API_CONTEXT: Tests sanitization used by both Express and Vercel APIs
  */
@@ -24,15 +24,15 @@ global.window = {
 global.URL = jest.fn().mockImplementation((url, base) => {
   // Simulate real URL constructor behavior
   const urlStr = String(url).toLowerCase();
-  
+
   if (urlStr.startsWith('javascript:')) {
     throw new TypeError('Invalid URL: javascript protocol not allowed');
   }
-  
+
   if (urlStr.startsWith('data:')) {
-    throw new TypeError('Invalid URL: data protocol not allowed');  
+    throw new TypeError('Invalid URL: data protocol not allowed');
   }
-  
+
   if (urlStr.includes('://')) {
     const protocol = urlStr.split('://')[0] + ':';
     return {
@@ -41,7 +41,7 @@ global.URL = jest.fn().mockImplementation((url, base) => {
       href: url
     };
   }
-  
+
   // Relative URL with base
   return {
     protocol: 'https:',
@@ -58,7 +58,7 @@ describe('Complete Sanitize Utils Coverage', () => {
   describe('escapeHtml - Complete Edge Cases', () => {
     test('should import and test all escapeHtml branches', async () => {
       const { escapeHtml } = await import('../../../apps/web/src/utils/sanitize.ts');
-      
+
       // Mock DOM element behavior for different test cases
       const createMockElement = (textContent, innerHTML) => ({
         set textContent(value) { this._textContent = value; },
@@ -69,19 +69,19 @@ describe('Complete Sanitize Utils Coverage', () => {
       // Test number input (should convert to string)
       const numberResult = escapeHtml(42);
       expect(numberResult).toBe('42');
-      
+
       const floatResult = escapeHtml(3.14159);
       expect(floatResult).toBe('3.14159');
-      
+
       const zeroResult = escapeHtml(0);
       expect(zeroResult).toBe('0');
-      
+
       const negativeResult = escapeHtml(-100);
       expect(negativeResult).toBe('-100');
 
       // Test string input with DOM manipulation
       document.createElement.mockReturnValue(createMockElement('', 'escaped_string_content'));
-      
+
       const stringResult = escapeHtml('<script>alert("test")</script>');
       expect(document.createElement).toHaveBeenCalledWith('div');
       expect(stringResult).toBe('escaped_string_content');
@@ -98,7 +98,7 @@ describe('Complete Sanitize Utils Coverage', () => {
         '   ', // Whitespace only
         '\n\t\r', // Special characters
         '""', // Quotes
-        "''", // Single quotes  
+        "''", // Single quotes
         '&', // HTML entities
         '<>', // Empty tags
         '<!--comment-->', // HTML comments
@@ -128,7 +128,7 @@ describe('Complete Sanitize Utils Coverage', () => {
         'javascript:alert("xss")',
         'JAVASCRIPT:ALERT("XSS")', // Case insensitive
         'data:text/html,<script>alert("xss")</script>',
-        'DATA:IMAGE/PNG;BASE64,...', // Case insensitive  
+        'DATA:IMAGE/PNG;BASE64,...', // Case insensitive
         '  javascript:alert("padded")  ', // With padding
         '\tdata:text/html,evil\n', // With whitespace
       ];
@@ -151,7 +151,7 @@ describe('Complete Sanitize Utils Coverage', () => {
       // Mock successful URL construction
       global.URL.mockImplementation((url, base) => ({
         protocol: url.toLowerCase().startsWith('https:') ? 'https:' :
-                 url.toLowerCase().startsWith('http:') ? 'http:' : 
+                 url.toLowerCase().startsWith('http:') ? 'http:' :
                  url.toLowerCase().startsWith('mailto:') ? 'mailto:' : 'unknown:',
         toString: () => url,
         href: url
@@ -163,7 +163,7 @@ describe('Complete Sanitize Utils Coverage', () => {
         expect(global.URL).toHaveBeenCalled();
       });
 
-      // Test URL constructor error handling  
+      // Test URL constructor error handling
       global.URL.mockImplementation(() => {
         throw new Error('Invalid URL');
       });
@@ -204,7 +204,7 @@ describe('Complete Sanitize Utils Coverage', () => {
 
       const relativeUrl = '/api/endpoint';
       const result = sanitizeUrl(relativeUrl);
-      
+
       expect(global.URL).toHaveBeenCalledWith(relativeUrl, window.location.origin);
       // The function should handle relative URLs with the base
       expect(typeof result).toBe('string');
@@ -217,7 +217,7 @@ describe('Complete Sanitize Utils Coverage', () => {
 
       // Mock escapeHtml for controlled testing
       const mockEscapeHtml = jest.fn((value) => `escaped_${value}`);
-      
+
       // Test comprehensive object sanitization
       const complexObject = {
         // String properties (should be escaped)
@@ -225,7 +225,7 @@ describe('Complete Sanitize Utils Coverage', () => {
         description: 'Description with <b>HTML</b>',
         emptyString: '',
         whitespaceString: '   spaces   ',
-        
+
         // Non-string properties (should be preserved)
         id: 12345,
         active: true,
@@ -233,19 +233,19 @@ describe('Complete Sanitize Utils Coverage', () => {
         nullValue: null,
         undefinedValue: undefined,
         zeroValue: 0,
-        
+
         // Array (should be preserved as-is)
         tags: ['tag1', 'tag2', 'tag3'],
-        
-        // Nested object (should be preserved as-is)  
+
+        // Nested object (should be preserved as-is)
         metadata: {
           created: '2023-01-01',
           author: 'test user'
         },
-        
+
         // Function (should be preserved)
         handler: () => console.log('test'),
-        
+
         // Date object
         createdAt: new Date('2023-01-01'),
       };
@@ -298,7 +298,7 @@ describe('Complete Sanitize Utils Coverage', () => {
         str2: 'value2',
         str3: ''
       };
-      
+
       const stringResult = sanitizeObject(stringOnlyObject);
       expect(Object.keys(stringResult)).toHaveLength(3);
 
@@ -307,10 +307,10 @@ describe('Complete Sanitize Utils Coverage', () => {
         this.ownProp = 'own value';
       }
       TestClass.prototype.prototypeProp = 'prototype value';
-      
+
       const instanceObject = new TestClass();
       const instanceResult = sanitizeObject(instanceObject);
-      
+
       expect(instanceResult.hasOwnProperty('ownProp')).toBe(true);
       expect(instanceResult.hasOwnProperty('prototypeProp')).toBe(false);
     });
@@ -384,7 +384,7 @@ describe('Complete Sanitize Utils Coverage', () => {
 
       // Test large string input
       const largeString = 'x'.repeat(10000) + '<script>alert("xss")</script>' + 'y'.repeat(10000);
-      
+
       document.createElement.mockReturnValue({
         textContent: '',
         innerHTML: 'large_sanitized_content'

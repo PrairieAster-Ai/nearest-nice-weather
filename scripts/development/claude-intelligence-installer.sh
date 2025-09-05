@@ -71,24 +71,24 @@ show_help() {
 # Check prerequisites
 check_prerequisites() {
     print_status "Checking prerequisites..."
-    
+
     # Check Node.js
     if ! command -v node &> /dev/null; then
         print_error "Node.js is required but not installed"
         echo "Please install Node.js from https://nodejs.org/"
         exit 1
     fi
-    
+
     NODE_VERSION=$(node --version | cut -d'v' -f2)
     MAJOR_VERSION=$(echo $NODE_VERSION | cut -d'.' -f1)
-    
+
     if [ "$MAJOR_VERSION" -lt 14 ]; then
         print_error "Node.js version 14 or higher is required (current: $NODE_VERSION)"
         exit 1
     fi
-    
+
     print_success "Node.js $NODE_VERSION found"
-    
+
     # Check npm for global install
     if [ "$GLOBAL_INSTALL" = true ]; then
         if ! command -v npm &> /dev/null; then
@@ -97,7 +97,7 @@ check_prerequisites() {
         fi
         print_success "NPM found"
     fi
-    
+
     # Check curl for direct download
     if [ "$GLOBAL_INSTALL" = false ]; then
         if ! command -v curl &> /dev/null; then
@@ -111,7 +111,7 @@ check_prerequisites() {
 # Detect project information
 detect_project() {
     print_status "Detecting project information..."
-    
+
     # Detect project name if not provided
     if [ -z "$PROJECT_NAME" ]; then
         if [ -f "package.json" ]; then
@@ -124,13 +124,13 @@ detect_project() {
                 print_status "Detected project name from git: $PROJECT_NAME"
             fi
         fi
-        
+
         if [ -z "$PROJECT_NAME" ]; then
             PROJECT_NAME=$(basename "$(pwd)")
             print_status "Using directory name as project: $PROJECT_NAME"
         fi
     fi
-    
+
     # Detect project type
     PROJECT_TYPE="Generic"
     if [ -f "package.json" ]; then
@@ -156,14 +156,14 @@ detect_project() {
     elif [ -f "pom.xml" ]; then
         PROJECT_TYPE="Java"
     fi
-    
+
     print_success "Project type detected: $PROJECT_TYPE"
 }
 
 # Check port availability
 check_ports() {
     print_status "Checking port availability..."
-    
+
     PORTS_NEEDED=10
     for i in $(seq 0 $((PORTS_NEEDED - 1))); do
         PORT=$((BASE_PORT + i))
@@ -171,14 +171,14 @@ check_ports() {
             print_warning "Port $PORT is in use"
         fi
     done
-    
+
     print_status "Base port: $BASE_PORT (will use ports $BASE_PORT-$((BASE_PORT + PORTS_NEEDED - 1)))"
 }
 
 # Install via NPM
 install_npm() {
     print_status "Installing Claude Intelligence Suite via NPM..."
-    
+
     if [ "$GLOBAL_INSTALL" = true ]; then
         print_status "Installing globally..."
         npm install -g @claude-ai/intelligence-suite
@@ -200,17 +200,17 @@ install_npm() {
 # Install via direct download
 install_direct() {
     print_status "Downloading Claude Intelligence Suite..."
-    
+
     # Create install directory
     if [ "$INSTALL_DIR" != "." ]; then
         mkdir -p "$INSTALL_DIR"
     fi
-    
+
     # Download main script
     SCRIPT_PATH="$INSTALL_DIR/claude-intelligence-suite.js"
     curl -fsSL "$BASE_URL/claude-intelligence-suite-portable.js" -o "$SCRIPT_PATH"
     chmod +x "$SCRIPT_PATH"
-    
+
     # Download configuration template
     CONFIG_PATH="$INSTALL_DIR/claude-intelligence-config.js"
     cat > "$CONFIG_PATH" << EOF
@@ -223,15 +223,15 @@ module.exports = {
   enabledTools: ['system', 'git', 'context'],
   logLevel: 'info',
   autoDetectServices: true,
-  
+
   // Uncomment to customize data directory
   // dataDir: '/custom/data/path',
-  
+
   // Uncomment to disable specific tools
   // enabledTools: ['system', 'context'], // Skip git, database
 };
 EOF
-    
+
     # Create startup script
     STARTUP_PATH="$INSTALL_DIR/start-claude-intelligence.sh"
     cat > "$STARTUP_PATH" << EOF
@@ -253,7 +253,7 @@ echo ""
 node claude-intelligence-suite.js
 EOF
     chmod +x "$STARTUP_PATH"
-    
+
     print_success "Direct installation complete"
     echo ""
     echo "Files installed:"
@@ -271,10 +271,10 @@ EOF
 create_systemd_service() {
     if [ "$(uname)" = "Linux" ] && command -v systemctl &> /dev/null; then
         print_status "Creating systemd service..."
-        
+
         SERVICE_PATH="/etc/systemd/system/claude-intelligence.service"
         WORKING_DIR="$(pwd)"
-        
+
         sudo tee "$SERVICE_PATH" > /dev/null << EOF
 [Unit]
 Description=Claude Intelligence Suite
@@ -292,7 +292,7 @@ Environment=BASE_PORT=$BASE_PORT
 [Install]
 WantedBy=multi-user.target
 EOF
-        
+
         sudo systemctl daemon-reload
         print_success "Systemd service created: $SERVICE_PATH"
         echo ""
@@ -338,7 +338,7 @@ show_post_install() {
 # Main installation logic
 main() {
     print_banner
-    
+
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -377,7 +377,7 @@ main() {
                 ;;
         esac
     done
-    
+
     # Set default install method
     if [ -z "$INSTALL_METHOD" ]; then
         if [ "$GLOBAL_INSTALL" = true ]; then
@@ -386,12 +386,12 @@ main() {
             INSTALL_METHOD="direct"
         fi
     fi
-    
+
     # Run installation steps
     check_prerequisites
     detect_project
     check_ports
-    
+
     case $INSTALL_METHOD in
         npm)
             install_npm
@@ -405,7 +405,7 @@ main() {
             exit 1
             ;;
     esac
-    
+
     show_post_install
 }
 

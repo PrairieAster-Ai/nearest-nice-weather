@@ -3,7 +3,7 @@
  * ========================================================================
  * POI TEST IMPORT - Small Batch for Testing
  * ========================================================================
- * 
+ *
  * Quick test with a small set of known good POIs to validate the pipeline
  * before running the full 1000+ import
  */
@@ -36,7 +36,7 @@ const testPOIs = [
     name: "Split Rock Lighthouse State Park",
     lat: 47.2005,
     lng: -91.4690,
-    park_type: "State Park", 
+    park_type: "State Park",
     park_level: "state",
     ownership: "Minnesota DNR",
     operator: "Minnesota DNR",
@@ -51,7 +51,7 @@ const testPOIs = [
     lat: 47.2064,
     lng: -95.2111,
     park_type: "State Park",
-    park_level: "state", 
+    park_level: "state",
     ownership: "Minnesota DNR",
     operator: "Minnesota DNR",
     description: "Headwaters of the Mississippi River, Minnesota's oldest state park",
@@ -67,7 +67,7 @@ const testPOIs = [
     park_type: "National Park",
     park_level: "national",
     ownership: "National Park Service",
-    operator: "National Park Service", 
+    operator: "National Park Service",
     description: "Water-based national park in the Boundary Waters region",
     data_source: "manual_test",
     source_id: "test_004",
@@ -83,7 +83,7 @@ const testPOIs = [
     ownership: "Minneapolis Park Board",
     operator: "Minneapolis Park Board",
     description: "Famous waterfall park in Minneapolis with 53-foot waterfall",
-    data_source: "manual_test", 
+    data_source: "manual_test",
     source_id: "test_005",
     place_rank: 15,
     website: "https://www.minneapolisparks.org/parks__destinations/parks__lakes/minnehaha_regional_park/"
@@ -93,7 +93,7 @@ const testPOIs = [
 async function testImport() {
   console.log('🧪 Testing POI Import Pipeline')
   console.log('==============================')
-  
+
   try {
     // Create expanded table
     console.log('🏗️ Creating expanded POI table...')
@@ -103,35 +103,35 @@ async function testImport() {
         name VARCHAR(255) NOT NULL,
         lat DECIMAL(10, 8) NOT NULL,
         lng DECIMAL(11, 8) NOT NULL,
-        
+
         -- Classification
         park_type VARCHAR(100),
         park_level VARCHAR(50),
         ownership VARCHAR(100),
         operator VARCHAR(255),
-        
+
         -- Metadata
         description TEXT,
         data_source VARCHAR(50),
         source_id VARCHAR(100),
         place_rank INTEGER DEFAULT 50,
-        
+
         -- Additional fields
         phone VARCHAR(20),
         website VARCHAR(255),
         amenities TEXT[],
         activities TEXT[],
-        
+
         -- Standard fields
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
+
         -- Create unique constraint on source + source_id
         UNIQUE(data_source, source_id)
       )
     `
     console.log('✅ Expanded POI table created')
-    
+
     // Insert test POIs
     console.log(`📝 Inserting ${testPOIs.length} test POIs...`)
     for (const poi of testPOIs) {
@@ -165,7 +165,7 @@ async function testImport() {
         console.error(`❌ Error inserting ${poi.name}:`, error.message)
       }
     }
-    
+
     // Verify results
     console.log('\n🔍 Verifying imported data...')
     const result = await sql`
@@ -174,18 +174,18 @@ async function testImport() {
       WHERE data_source = 'manual_test'
       ORDER BY place_rank ASC, name ASC
     `
-    
+
     console.log(`✅ Successfully imported ${result.length} test POIs:`)
     result.forEach(poi => {
       console.log(`   ${poi.name} (${poi.park_type}) - Rank: ${poi.place_rank}`)
     })
-    
+
     console.log('\n🎉 Test Import Complete!')
     console.log('\n📋 Next Steps:')
     console.log('1. Test API endpoint: /api/poi-locations?limit=10')
     console.log('2. Check localhost frontend map display')
     console.log('3. Run full import if test looks good')
-    
+
   } catch (error) {
     console.error('💥 Test Import Failed:', error)
     process.exit(1)

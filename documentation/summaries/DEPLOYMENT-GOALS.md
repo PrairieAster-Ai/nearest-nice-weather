@@ -5,7 +5,7 @@
 ### 1. Preview Environment (`p.nearestniceweather.com`)
 - **Purpose**: Test changes before production deployment
 - **Trigger**: Commits to `preview` branch
-- **Requirements**: 
+- **Requirements**:
   - Deploy React app with Material-UI components
   - Serve API endpoints from `/api/*` routes
   - Connect to Neon PostgreSQL database

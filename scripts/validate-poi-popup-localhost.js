@@ -4,9 +4,9 @@
  * ========================================================================
  * LOCALHOST POI POPUP VALIDATION
  * ========================================================================
- * 
+ *
  * Quick validation script to test POI popup refactor on localhost
- * 
+ *
  * ========================================================================
  */
 
@@ -17,7 +17,7 @@ console.log('🔍 Validating POI Popup Refactor on Localhost:3005\n');
 // Test 1: Check if server is running
 http.get('http://localhost:3005', (res) => {
   console.log(`✅ Localhost server responding (Status: ${res.statusCode})`);
-  
+
   let data = '';
   res.on('data', chunk => data += chunk);
   res.on('end', () => {
@@ -39,11 +39,11 @@ http.get('http://localhost:3005/src/components/MapContainer.tsx', (res) => {
     // Verify DNR link removed
     const hasDNR = data.includes('MN DNR') || data.includes('dnr.state.mn.us');
     console.log(hasDNR ? '❌ MN DNR link still present' : '✅ MN DNR link removed from MapContainer');
-    
+
     // Verify map emoji implementation
     const hasMapEmoji = data.includes('🗺️') && data.includes('Map emoji');
     console.log(hasMapEmoji ? '✅ Map emoji for driving directions implemented' : '❌ Map emoji not found');
-    
+
     // Verify ad integration
     const hasAdIntegration = data.includes('generatePOIAdHTML') && data.includes('Contextual Ad Container');
     console.log(hasAdIntegration ? '✅ Contextual ad container integrated' : '❌ Ad container not found');
@@ -57,7 +57,7 @@ http.get('http://localhost:3005/src/components/ads/POIContextualAd.tsx', (res) =
   res.on('end', () => {
     const hasContextualLogic = data.includes('Cold Weather Gear') && data.includes('Park Activities');
     console.log(hasContextualLogic ? '✅ POI contextual ad logic implemented' : '❌ Contextual ad logic not found');
-    
+
     console.log('\n📊 Summary:');
     console.log('- Server: Running on localhost:3005');
     console.log('- Homepage: Banner ad removed');

@@ -44,7 +44,7 @@ npm start
 
 # This automatically:
 # ✅ Starts API server (port 4000)
-# ✅ Starts frontend (port 3003) 
+# ✅ Starts frontend (port 3003)
 # ✅ Runs health checks
 # ✅ Provides real-time monitoring
 ```
@@ -202,12 +202,12 @@ import { useState, useEffect } from 'react';
 
 export function useNewHook(initialValue: string) {
   const [value, setValue] = useState(initialValue);
-  
+
   useEffect(() => {
     // Side effects here
     console.log('Value changed:', value);
   }, [value]);
-  
+
   return { value, setValue };
 }
 EOF
@@ -233,10 +233,10 @@ EOF
 // Development (pg pool in dev-api-server.js)
 const result = await pool.query(`
   SELECT id, name, lat, lng, park_type, description,
-         (3959 * acos(cos(radians($1)) * cos(radians(lat)) * 
-          cos(radians(lng) - radians($2)) + sin(radians($1)) * 
+         (3959 * acos(cos(radians($1)) * cos(radians(lat)) *
+          cos(radians(lng) - radians($2)) + sin(radians($1)) *
           sin(radians(lat)))) as distance_miles
-  FROM poi_locations 
+  FROM poi_locations
   WHERE park_type IS NOT NULL
   ORDER BY distance_miles ASC
   LIMIT $3
@@ -245,10 +245,10 @@ const result = await pool.query(`
 // Production (Neon serverless in apps/web/api/*.js)
 const locations = await sql`
   SELECT id, name, lat, lng, park_type, description,
-         (3959 * acos(cos(radians(${userLat})) * cos(radians(lat)) * 
-          cos(radians(lng) - radians(${userLng})) + sin(radians(${userLat})) * 
+         (3959 * acos(cos(radians(${userLat})) * cos(radians(lat)) *
+          cos(radians(lng) - radians(${userLng})) + sin(radians(${userLat})) *
           sin(radians(lat)))) as distance_miles
-  FROM poi_locations 
+  FROM poi_locations
   WHERE park_type IS NOT NULL
   ORDER BY distance_miles ASC
   LIMIT ${limit}
@@ -297,7 +297,7 @@ const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } }
   });
-  
+
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       {children}
@@ -308,9 +308,9 @@ const createWrapper = () => {
 describe('MyComponent', () => {
   it('should handle user interaction', async () => {
     render(<MyComponent />, { wrapper: createWrapper() });
-    
+
     fireEvent.click(screen.getByText('Click Me'));
-    
+
     expect(await screen.findByText('Clicked!')).toBeInTheDocument();
   });
 });

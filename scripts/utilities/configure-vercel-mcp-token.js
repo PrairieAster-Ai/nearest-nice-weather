@@ -4,17 +4,17 @@
  * ========================================================================
  * VERCEL MCP TOKEN CONFIGURATION SCRIPT
  * ========================================================================
- * 
+ *
  * @PURPOSE: Configure VercelMCP with proper access token for full functionality
  * @SCOPE: Extract Vercel authentication, configure MCP, validate integration
- * 
+ *
  * Steps:
  * 1. Verify Vercel CLI authentication
  * 2. Check project access and permissions
  * 3. Update MCP configuration with proper token placeholder note
  * 4. Validate VercelMCP configuration
  * 5. Test basic VercelMCP functionality
- * 
+ *
  * ========================================================================
  */
 
@@ -64,7 +64,7 @@ try {
     whoami && whoami !== 'Not authenticated',
     `Authenticated as: ${whoami}`
   );
-  
+
   // Check project access
   const projectList = execSync('vercel project ls', { encoding: 'utf8' });
   const hasProject = projectList.includes('nearest-nice-weather');
@@ -73,7 +73,7 @@ try {
     hasProject,
     'nearest-nice-weather project accessible'
   );
-  
+
 } catch (error) {
   configCheck('Vercel CLI authentication', false, error.message);
 }
@@ -85,7 +85,7 @@ const mcpConfigPath = resolve(PROJECT_ROOT, '.mcp/claude-desktop-config.json');
 if (existsSync(mcpConfigPath)) {
   try {
     const mcpConfig = JSON.parse(readFileSync(mcpConfigPath, 'utf8'));
-    
+
     if (mcpConfig.mcpServers?.vercel) {
       // Update the configuration with better token instruction
       if (mcpConfig.mcpServers.vercel.env.VERCEL_ACCESS_TOKEN === 'VERCEL_TOKEN_PLACEHOLDER') {
@@ -94,7 +94,7 @@ if (existsSync(mcpConfigPath)) {
           'Vercel access token requires configuration',
           'Manual token configuration needed for full VercelMCP functionality'
         );
-        
+
         console.log(`\n${BLUE}📋 TOKEN CONFIGURATION INSTRUCTIONS${RESET}`);
         console.log(`${BLUE}===================================${RESET}`);
         console.log('1. Visit: https://vercel.com/account/tokens');
@@ -102,11 +102,11 @@ if (existsSync(mcpConfigPath)) {
         console.log('3. Copy the generated token');
         console.log('4. Replace VERCEL_TOKEN_PLACEHOLDER in .mcp/claude-desktop-config.json');
         console.log('5. Restart Claude to activate VercelMCP');
-        
+
         // Update configuration with better metadata
         mcpConfig.mcpServers.vercel.env.VERCEL_ACCESS_TOKEN_INSTRUCTIONS = 'Get token from https://vercel.com/account/tokens';
         mcpConfig.mcpServers.vercel.env.VERCEL_INTEGRATION_STATUS = '75% - Awaiting token configuration';
-        
+
         writeFileSync(mcpConfigPath, JSON.stringify(mcpConfig, null, 2));
         configCheck(
           'MCP configuration updated with instructions',
@@ -120,22 +120,22 @@ if (existsSync(mcpConfigPath)) {
           'Token appears to be configured'
         );
       }
-      
+
       // Verify other configuration
       configCheck(
         'Project name configured',
         mcpConfig.mcpServers.vercel.env.VERCEL_PROJECT_NAME === 'nearest-nice-weather'
       );
-      
+
       configCheck(
         'Organization configured',
         mcpConfig.mcpServers.vercel.env.VERCEL_ORG_ID === 'PrairieAster-Ai'
       );
-      
+
     } else {
       configCheck('VercelMCP server configuration', false, 'Vercel MCP server not found in configuration');
     }
-    
+
   } catch (error) {
     configCheck('MCP configuration parsing', false, error.message);
   }
@@ -153,7 +153,7 @@ try {
     vercelStatus.includes('nearest-nice-weather'),
     'Project accessible via CLI'
   );
-  
+
   // Check deployment history
   const deployments = execSync('vercel ls nearest-nice-weather | head -5', { encoding: 'utf8' });
   configCheck(
@@ -161,7 +161,7 @@ try {
     deployments.includes('https://'),
     'Deployment history accessible'
   );
-  
+
 } catch (error) {
   configWarning('Integration status check', error.message);
 }

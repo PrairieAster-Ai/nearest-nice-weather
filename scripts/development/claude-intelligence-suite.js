@@ -2,13 +2,13 @@
 
 /**
  * Claude Intelligence Suite - Unified MCP Management System
- * 
+ *
  * PURPOSE: Deploy and manage all Claude AI intelligence tools
  * GOAL: Maximum contextual data access to minimize productivity degradation
- * 
+ *
  * INTELLIGENCE TOOLS INTEGRATED:
  * - SystemMonitorMCP (ports 3026-3027)
- * - DatabaseIntelligenceMCP (ports 3028-3029) 
+ * - DatabaseIntelligenceMCP (ports 3028-3029)
  * - GitIntelligenceMCP (ports 3030-3031)
  * - BrowserToolsMCP (port 3025)
  * - Claude Context API (port 3025)
@@ -27,7 +27,7 @@ class ClaudeIntelligenceSuite {
     this.server = null;
     this.wsServer = null;
     this.clients = new Set();
-    
+
     // Intelligence tools registry
     this.intelligenceTools = new Map([
       ['system-monitor', {
@@ -81,11 +81,11 @@ class ClaudeIntelligenceSuite {
         dataTypes: ['intelligence', 'metrics', 'patterns', 'predictions']
       }]
     ]);
-    
+
     // Monitoring intervals
     this.healthCheckInterval = 10000; // 10 seconds
     this.aggregationInterval = 30000; // 30 seconds
-    
+
     this.init();
   }
 
@@ -94,22 +94,22 @@ class ClaudeIntelligenceSuite {
     console.log('🎯 PURPOSE: Unified Claude AI intelligence system');
     console.log('📊 GOAL: Maximum contextual data access');
     console.log('');
-    
+
     // Start master control server
     this.startMasterServer();
-    
+
     // Start master WebSocket server
     this.startMasterWebSocket();
-    
+
     // Start all intelligence tools
     await this.startAllIntelligenceTools();
-    
+
     // Start health monitoring
     this.startHealthMonitoring();
-    
+
     // Start data aggregation
     this.startDataAggregation();
-    
+
     console.log('✅ Claude Intelligence Suite Active');
     console.log(`🎛️ Master Control: http://localhost:${this.port}`);
     console.log(`📡 Master Stream: ws://localhost:${this.wsPort}`);
@@ -130,26 +130,26 @@ class ClaudeIntelligenceSuite {
       '/aggregated-data': this.handleAggregatedData.bind(this),
       '/recommendations': this.handleRecommendations.bind(this)
     };
-    
+
     this.server = http.createServer(async (req, res) => {
       // Enable CORS
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      
+
       if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
         return;
       }
-      
+
       const url = new URL(req.url, `http://localhost:${this.port}`);
       const endpoint = url.pathname;
-      
+
       if (endpoints[endpoint]) {
         try {
           const data = await endpoints[endpoint](url.searchParams);
-          
+
           if (endpoint === '/') {
             // Serve HTML dashboard
             res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -165,14 +165,14 @@ class ClaudeIntelligenceSuite {
         }
       } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ 
-          error: 'Endpoint not found', 
+        res.end(JSON.stringify({
+          error: 'Endpoint not found',
           availableEndpoints: Object.keys(endpoints),
           description: 'Claude Intelligence Suite - Master control system'
         }));
       }
     });
-    
+
     this.server.listen(this.port, () => {
       console.log(`🚀 Master control server listening on port ${this.port}`);
     });
@@ -180,14 +180,14 @@ class ClaudeIntelligenceSuite {
 
   startMasterWebSocket() {
     this.wsServer = new WebSocket.Server({ port: this.wsPort });
-    
+
     this.wsServer.on('connection', (ws) => {
       console.log('📡 Claude AI client connected to Intelligence Suite');
       this.clients.add(ws);
-      
+
       // Send initial intelligence state
       this.sendIntelligenceState(ws);
-      
+
       ws.on('message', async (message) => {
         try {
           const request = JSON.parse(message);
@@ -196,7 +196,7 @@ class ClaudeIntelligenceSuite {
           ws.send(JSON.stringify({ error: error.message }));
         }
       });
-      
+
       ws.on('close', () => {
         console.log('📡 Claude AI client disconnected from Intelligence Suite');
         this.clients.delete(ws);
@@ -219,13 +219,13 @@ class ClaudeIntelligenceSuite {
         dataFlowStatus: await this.getDataFlowStatus()
       }
     };
-    
+
     ws.send(JSON.stringify(state));
   }
 
   async handleWebSocketRequest(ws, request) {
     const { type, params } = request;
-    
+
     switch (type) {
       case 'start_tool':
         await this.startTool(params.tool);
@@ -249,7 +249,7 @@ class ClaudeIntelligenceSuite {
       timestamp: new Date().toISOString(),
       ...message
     });
-    
+
     this.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(payload);
@@ -259,7 +259,7 @@ class ClaudeIntelligenceSuite {
 
   async startAllIntelligenceTools() {
     console.log('🚀 Starting all intelligence tools...');
-    
+
     for (const [key, tool] of this.intelligenceTools) {
       await this.startTool(key);
       // Wait a bit between starts to avoid port conflicts
@@ -273,42 +273,42 @@ class ClaudeIntelligenceSuite {
       console.error(`❌ Tool not found: ${toolKey}`);
       return false;
     }
-    
+
     if (tool.status === 'running') {
       console.log(`✅ ${tool.name} already running`);
       return true;
     }
-    
+
     try {
       console.log(`🚀 Starting ${tool.name}...`);
-      
+
       // Check if script exists
       if (!fs.existsSync(tool.script)) {
         console.error(`❌ Script not found: ${tool.script}`);
         tool.status = 'error';
         return false;
       }
-      
+
       // Start the process
       tool.process = spawn('node', [tool.script], {
         detached: false,
         stdio: ['ignore', 'pipe', 'pipe']
       });
-      
+
       // Handle process events
       tool.process.on('error', (error) => {
         console.error(`❌ ${tool.name} error:`, error.message);
         tool.status = 'error';
         this.broadcastToClients({ type: 'tool_status', tool: toolKey, status: 'error' });
       });
-      
+
       tool.process.on('exit', (code) => {
         console.log(`📄 ${tool.name} exited with code ${code}`);
         tool.status = 'stopped';
         tool.process = null;
         this.broadcastToClients({ type: 'tool_status', tool: toolKey, status: 'stopped' });
       });
-      
+
       // Capture output for monitoring
       tool.process.stdout.on('data', (data) => {
         const output = data.toString();
@@ -318,20 +318,20 @@ class ClaudeIntelligenceSuite {
           this.broadcastToClients({ type: 'tool_status', tool: toolKey, status: 'running' });
         }
       });
-      
+
       tool.process.stderr.on('data', (data) => {
         const error = data.toString();
         if (!error.includes('warning')) {
           console.error(`❌ ${tool.name} stderr:`, error);
         }
       });
-      
+
       // Set initial status
       tool.status = 'starting';
-      
+
       // Wait for startup
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       // Verify the tool is responding
       if (tool.httpPort) {
         const isResponding = await this.checkToolHealth(tool);
@@ -342,9 +342,9 @@ class ClaudeIntelligenceSuite {
           console.log(`⚠️ ${tool.name} started but not responding to health checks`);
         }
       }
-      
+
       return true;
-      
+
     } catch (error) {
       console.error(`❌ Failed to start ${tool.name}:`, error.message);
       tool.status = 'error';
@@ -357,28 +357,28 @@ class ClaudeIntelligenceSuite {
     if (!tool || !tool.process) {
       return true;
     }
-    
+
     console.log(`🛑 Stopping ${tool.name}...`);
-    
+
     try {
       tool.process.kill('SIGTERM');
       tool.status = 'stopping';
-      
+
       // Wait for graceful shutdown
       await new Promise(resolve => setTimeout(resolve, 5000));
-      
+
       // Force kill if still running
       if (tool.process && !tool.process.killed) {
         tool.process.kill('SIGKILL');
       }
-      
+
       tool.process = null;
       tool.status = 'stopped';
       console.log(`✅ ${tool.name} stopped`);
-      
+
       this.broadcastToClients({ type: 'tool_status', tool: toolKey, status: 'stopped' });
       return true;
-      
+
     } catch (error) {
       console.error(`❌ Error stopping ${tool.name}:`, error.message);
       return false;
@@ -393,7 +393,7 @@ class ClaudeIntelligenceSuite {
 
   async checkToolHealth(tool) {
     if (!tool.httpPort) return true;
-    
+
     return new Promise((resolve) => {
       const { exec } = require('child_process');
       exec(`curl -s -o /dev/null -w "%{http_code}" "http://localhost:${tool.httpPort}/health"`, (error, stdout) => {
@@ -405,7 +405,7 @@ class ClaudeIntelligenceSuite {
 
   startHealthMonitoring() {
     console.log('🔍 Starting health monitoring...');
-    
+
     setInterval(async () => {
       for (const [key, tool] of this.intelligenceTools) {
         if (tool.status === 'running' && tool.process) {
@@ -422,7 +422,7 @@ class ClaudeIntelligenceSuite {
 
   startDataAggregation() {
     console.log('📊 Starting data aggregation...');
-    
+
     setInterval(async () => {
       const aggregatedData = await this.collectAggregatedData();
       this.broadcastToClients({ type: 'aggregated_data', data: aggregatedData });
@@ -434,7 +434,7 @@ class ClaudeIntelligenceSuite {
       timestamp: new Date().toISOString(),
       sources: {}
     };
-    
+
     for (const [key, tool] of this.intelligenceTools) {
       if (tool.status === 'running' && tool.httpPort) {
         try {
@@ -446,7 +446,7 @@ class ClaudeIntelligenceSuite {
         }
       }
     }
-    
+
     return data;
   }
 
@@ -471,7 +471,7 @@ class ClaudeIntelligenceSuite {
     const tools = Array.from(this.intelligenceTools.values());
     const runningTools = tools.filter(tool => tool.status === 'running').length;
     const totalTools = tools.length;
-    
+
     if (runningTools === totalTools) return 'excellent';
     if (runningTools >= totalTools * 0.8) return 'good';
     if (runningTools >= totalTools * 0.5) return 'fair';
@@ -486,19 +486,19 @@ class ClaudeIntelligenceSuite {
       contextAPI: false,
       dataIntelligence: false
     };
-    
+
     for (const [key, tool] of this.intelligenceTools) {
       flowStatus[key.replace('-', '')] = tool.status === 'running';
     }
-    
+
     return flowStatus;
   }
 
   displayIntelligenceStatus() {
     console.log('📊 Intelligence Tools Status:');
     for (const [key, tool] of this.intelligenceTools) {
-      const statusIcon = tool.status === 'running' ? '✅' : 
-                        tool.status === 'starting' ? '🔄' : 
+      const statusIcon = tool.status === 'running' ? '✅' :
+                        tool.status === 'starting' ? '🔄' :
                         tool.status === 'error' ? '❌' : '⭕';
       const ports = tool.httpPort ? ` (HTTP:${tool.httpPort}${tool.wsPort ? `, WS:${tool.wsPort}` : ''})` : '';
       console.log(`   ${statusIcon} ${tool.name}${ports} - ${tool.status}`);
@@ -540,9 +540,9 @@ class ClaudeIntelligenceSuite {
         <p>Unified contextual data system for Claude AI collaboration</p>
         <p><strong>Goal:</strong> Minimize productivity degradation through maximum context access</p>
     </div>
-    
+
     <button class="refresh" onclick="refreshStatus()">🔄 Refresh Status</button>
-    
+
     <div class="tools-grid">
         ${Array.from(this.intelligenceTools.entries()).map(([key, tool]) => `
             <div class="tool-card">
@@ -560,7 +560,7 @@ class ClaudeIntelligenceSuite {
             </div>
         `).join('')}
     </div>
-    
+
     <div style="margin-top: 40px; padding: 20px; background: white; border-radius: 8px;">
         <h3>🔗 Quick Access</h3>
         <ul>
@@ -610,14 +610,14 @@ class ClaudeIntelligenceSuite {
       overall: this.calculateOverallHealth(),
       details: {}
     };
-    
+
     for (const [key, tool] of this.intelligenceTools) {
       healthData.details[key] = {
         status: tool.status,
         healthy: tool.status === 'running' ? await this.checkToolHealth(tool) : false
       };
     }
-    
+
     return healthData;
   }
 
@@ -626,9 +626,9 @@ class ClaudeIntelligenceSuite {
     if (!tool) {
       return { error: 'Tool parameter required' };
     }
-    
+
     const success = await this.startTool(tool);
-    return { 
+    return {
       action: 'start',
       tool,
       success,
@@ -641,9 +641,9 @@ class ClaudeIntelligenceSuite {
     if (!tool) {
       return { error: 'Tool parameter required' };
     }
-    
+
     const success = await this.stopTool(tool);
-    return { 
+    return {
       action: 'stop',
       tool,
       success,
@@ -656,9 +656,9 @@ class ClaudeIntelligenceSuite {
     if (!tool) {
       return { error: 'Tool parameter required' };
     }
-    
+
     const success = await this.restartTool(tool);
-    return { 
+    return {
       action: 'restart',
       tool,
       success,
@@ -703,7 +703,7 @@ class ClaudeIntelligenceSuite {
   generateSuiteRecommendations() {
     const recommendations = [];
     const overallHealth = this.calculateOverallHealth();
-    
+
     if (overallHealth === 'excellent') {
       recommendations.push('All intelligence tools operational - maximum context available');
     } else if (overallHealth === 'good') {
@@ -711,14 +711,14 @@ class ClaudeIntelligenceSuite {
     } else {
       recommendations.push('Multiple tools offline - restart suite for full intelligence');
     }
-    
+
     const stoppedTools = Array.from(this.intelligenceTools.values())
       .filter(tool => tool.status !== 'running');
-    
+
     if (stoppedTools.length > 0) {
       recommendations.push(`Restart stopped tools: ${stoppedTools.map(t => t.name).join(', ')}`);
     }
-    
+
     return recommendations;
   }
 
@@ -746,33 +746,33 @@ const intelligenceSuite = new ClaudeIntelligenceSuite();
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('🧠 Claude Intelligence Suite Shutting Down...');
-  
+
   // Stop all intelligence tools
   for (const [key, tool] of intelligenceSuite.intelligenceTools) {
     if (tool.process) {
       await intelligenceSuite.stopTool(key);
     }
   }
-  
+
   if (intelligenceSuite.server) intelligenceSuite.server.close();
   if (intelligenceSuite.wsServer) intelligenceSuite.wsServer.close();
-  
+
   console.log('✅ Claude Intelligence Suite Shutdown Complete');
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   console.log('🧠 Claude Intelligence Suite Terminated');
-  
+
   // Stop all intelligence tools
   for (const [key, tool] of intelligenceSuite.intelligenceTools) {
     if (tool.process) {
       await intelligenceSuite.stopTool(key);
     }
   }
-  
+
   if (intelligenceSuite.server) intelligenceSuite.server.close();
   if (intelligenceSuite.wsServer) intelligenceSuite.wsServer.close();
-  
+
   process.exit(0);
 });

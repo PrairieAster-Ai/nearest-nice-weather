@@ -12,32 +12,32 @@ jobs:
     strategy:
       matrix:
         test-group: [backend, frontend, integration]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Install web dependencies
       run: npm ci --workspace=@nearest-nice-weather/web
-    
+
     - name: Run linting
       run: npm run lint
-    
+
     - name: Run type checking
       run: npm run type-check
-    
+
     - name: Build application
       run: npm run build
-    
+
     - name: Run parallel tests
       run: |
         case "${{ matrix.test-group }}" in
@@ -57,7 +57,7 @@ jobs:
         NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
         NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
         GITHUB_RUN_ID: ${{ github.run_id }}-${{ matrix.test-group }}
-    
+
     - name: Archive build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -71,23 +71,23 @@ jobs:
     needs: quality-checks
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/preview'
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Install web dependencies
       run: npm ci --workspace=@nearest-nice-weather/web
-    
+
     - name: Deploy to preview
       run: npm run deploy:preview --workspace=@nearest-nice-weather/web
       env:
@@ -99,23 +99,23 @@ jobs:
     needs: quality-checks
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Install web dependencies
       run: npm ci --workspace=@nearest-nice-weather/web
-    
+
     - name: Deploy to production
       run: npm run deploy:prod --workspace=@nearest-nice-weather/web -- --confirm
       env:

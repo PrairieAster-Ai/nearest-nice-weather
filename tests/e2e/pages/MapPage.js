@@ -2,16 +2,16 @@
  * ========================================================================
  * MAP PAGE OBJECT MODEL
  * ========================================================================
- * 
+ *
  * @PURPOSE: Encapsulates all map-related interactions and assertions
  * @FOLLOWS: Playwright Page Object Model best practices
- * 
+ *
  * Key Benefits:
  * - User-facing locators instead of CSS selectors
  * - Reusable methods across tests
  * - Centralized element definitions
  * - Better test maintenance
- * 
+ *
  * ========================================================================
  */
 
@@ -20,13 +20,13 @@ import { expect } from '@playwright/test'
 export class MapPage {
   constructor(page) {
     this.page = page
-    
+
     // USER-FACING LOCATORS (Best Practice)
     this.mapContainer = page.getByTestId('map-container') // Will add to component
     this.poiMarkers = page.getByRole('button', { name: /park|trail|forest|nature/i })
     this.mapAttribution = page.getByText('OpenStreetMap')
     this.userLocationMarker = page.getByTestId('user-location-marker')
-    
+
     // POPUPS AND OVERLAYS
     this.poiPopup = page.getByRole('dialog', { name: /point of interest/i })
     this.poiPopupContent = page.getByTestId('poi-popup-content')
@@ -44,10 +44,10 @@ export class MapPage {
   async waitForMapReady() {
     // Wait for map container to be visible
     await expect(this.mapContainer).toBeVisible()
-    
+
     // Wait for at least one POI marker to load
     await expect(this.poiMarkers.first()).toBeVisible({ timeout: 10000 })
-    
+
     return this
   }
 
@@ -62,7 +62,7 @@ export class MapPage {
     const firstMarker = this.poiMarkers.first()
     await firstMarker.click()
     await expect(this.poiPopup).toBeVisible()
-    
+
     return {
       popup: this.poiPopup,
       content: this.poiPopupContent
@@ -73,7 +73,7 @@ export class MapPage {
     const marker = this.page.getByRole('button', { name: new RegExp(poiName, 'i') })
     await marker.click()
     await expect(this.poiPopup).toBeVisible()
-    
+
     return {
       popup: this.poiPopup,
       content: this.poiPopupContent
@@ -127,12 +127,12 @@ export class MapPage {
   async getVisiblePOINames() {
     const markers = await this.poiMarkers.all()
     const names = []
-    
+
     for (const marker of markers) {
       const name = await marker.getAttribute('aria-label')
       if (name) names.push(name)
     }
-    
+
     return names
   }
 
@@ -146,13 +146,13 @@ export class MapPage {
     const mapRect = await this.mapContainer.boundingBox()
     const centerX = mapRect.x + mapRect.width / 2
     const centerY = mapRect.y + mapRect.height / 2
-    
+
     // Drag map
     await this.page.mouse.move(centerX, centerY)
     await this.page.mouse.down()
     await this.page.mouse.move(centerX + deltaX, centerY + deltaY)
     await this.page.mouse.up()
-    
+
     return this
   }
 
@@ -173,11 +173,11 @@ export class MapPage {
     const mapRect = await this.mapContainer.boundingBox()
     const centerX = mapRect.x + mapRect.width / 2
     const centerY = mapRect.y + mapRect.height / 2
-    
+
     // Simulate pinch gesture
     await this.page.touchscreen.tap(centerX - 50, centerY)
     await this.page.touchscreen.tap(centerX + 50, centerY)
-    
+
     return this
   }
 
@@ -192,12 +192,12 @@ export class MapPage {
 
     // Check map visibility
     checks.mapVisible = await this.mapContainer.isVisible()
-    
+
     // Check POI markers
     const poiCount = await this.poiMarkers.count()
     checks.poiCount = poiCount
     checks.poisLoaded = poiCount > 0
-    
+
     // Check tiles loaded
     checks.tilesLoaded = await this.mapAttribution.isVisible()
 
@@ -209,7 +209,7 @@ export class MapPage {
     const startTime = Date.now()
     await this.waitForMapReady()
     const endTime = Date.now()
-    
+
     return endTime - startTime
   }
 

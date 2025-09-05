@@ -37,21 +37,21 @@ import {
 describe('Analytics Utility', () => {
   // Mock window object and Umami
   const mockUmamiTrack = jest.fn();
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockConsoleLog.mockClear();
     mockConsoleWarn.mockClear();
-    
+
     // Setup window.umami properly
     if (typeof global.window === 'undefined') {
       (global as any).window = {};
     }
-    
+
     (global as any).window.umami = {
       track: mockUmamiTrack
     };
-    
+
     // Mock location without triggering JSDOM navigation
     (global as any).window.location = {
       pathname: '/test'
@@ -70,16 +70,16 @@ describe('Analytics Utility', () => {
   describe('initializeAnalytics', () => {
     test('should return true when Umami is loaded', () => {
       const result = initializeAnalytics();
-      
+
       expect(result).toBe(true);
       expect(mockConsoleLog).toHaveBeenCalledWith('📊 Umami Analytics initialized');
     });
 
     test('should return false when Umami is not loaded', () => {
       delete (global as any).window.umami;
-      
+
       const result = initializeAnalytics();
-      
+
       expect(result).toBe(false);
       expect(mockConsoleWarn).toHaveBeenCalledWith('📊 Umami Analytics not loaded - check environment variables');
     });
@@ -87,11 +87,11 @@ describe('Analytics Utility', () => {
     test('should handle missing window object', () => {
       const originalWindow = global.window;
       delete (global as any).window;
-      
+
       const result = initializeAnalytics();
-      
+
       expect(result).toBe(false);
-      
+
       // Restore window
       (global as any).window = originalWindow;
     });
@@ -100,12 +100,12 @@ describe('Analytics Utility', () => {
       // Temporarily mock DEV environment
       (global as any).importMeta.env.DEV = true;
       delete (global as any).window.umami;
-      
+
       const result = initializeAnalytics();
-      
+
       expect(result).toBe(false);
       expect(mockConsoleLog).toHaveBeenCalledWith('📊 Analytics in development mode - events will be logged only');
-      
+
       // Reset DEV flag
       (global as any).importMeta.env.DEV = false;
     });
@@ -114,35 +114,35 @@ describe('Analytics Utility', () => {
   describe('isAnalyticsEnabled', () => {
     test('should return true when Umami is available and functional', () => {
       const result = isAnalyticsEnabled();
-      
+
       expect(result).toBe(true);
     });
 
     test('should return false when window is undefined', () => {
       const originalWindow = global.window;
       delete (global as any).window;
-      
+
       const result = isAnalyticsEnabled();
-      
+
       expect(result).toBe(false);
-      
+
       // Restore window
       (global as any).window = originalWindow;
     });
 
     test('should return false when umami is undefined', () => {
       delete (global as any).window.umami;
-      
+
       const result = isAnalyticsEnabled();
-      
+
       expect(result).toBe(false);
     });
 
     test('should return false when umami.track is not a function', () => {
       (global as any).window.umami = { track: 'not-a-function' };
-      
+
       const result = isAnalyticsEnabled();
-      
+
       expect(result).toBe(false);
     });
   });
@@ -230,7 +230,7 @@ describe('Analytics Utility', () => {
 
     test('should log in development mode when Umami not available', () => {
       delete (global as any).window.umami;
-      
+
       // Mock development environment
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
@@ -408,7 +408,7 @@ describe('Analytics Utility', () => {
 
     test('should handle various navigation actions', () => {
       const actions = ['closer', 'farther', 'expand', 'reset'];
-      
+
       actions.forEach(action => {
         trackNavigation(action);
         expect(mockUmamiTrack).toHaveBeenCalledWith('navigation', {
@@ -444,7 +444,7 @@ describe('Analytics Utility', () => {
 
     test('should handle various features', () => {
       const features = ['directions', 'feedback', 'filter', 'location-drag'];
-      
+
       features.forEach(feature => {
         trackFeatureUsage(feature);
         expect(mockUmamiTrack).toHaveBeenCalledWith('feature-usage', {
@@ -480,7 +480,7 @@ describe('Analytics Utility', () => {
 
     test('should handle various error types', () => {
       const errorTypes = ['api_error', 'validation_error', 'render_error', 'location_error'];
-      
+
       errorTypes.forEach(errorType => {
         trackError(errorType);
         expect(mockUmamiTrack).toHaveBeenCalledWith('error', {
@@ -521,7 +521,7 @@ describe('Analytics Utility', () => {
 
       expect(() => trackPageView()).not.toThrow();
       expect(mockUmamiTrack).not.toHaveBeenCalled();
-      
+
       // Restore window
       (global as any).window = originalWindow;
     });
@@ -569,7 +569,7 @@ describe('Analytics Utility', () => {
         trackFeatureUsage('test');
         trackError('test');
       }).not.toThrow();
-      
+
       // Restore window
       (global as any).window = originalWindow;
     });
@@ -604,7 +604,7 @@ describe('Analytics Utility', () => {
         trackPOIInteraction('test', largePOI);
       }).not.toThrow();
 
-      expect(mockUmamiTrack).toHaveBeenCalledWith('poi-interaction', 
+      expect(mockUmamiTrack).toHaveBeenCalledWith('poi-interaction',
         expect.objectContaining({
           distance_miles: 1000000
         })
@@ -644,8 +644,8 @@ describe('Analytics Utility', () => {
 
       locations.forEach(({ lat, lng, expected_lat, expected_lng }) => {
         trackLocationUpdate({ lat, lng, source: 'gps' });
-        
-        expect(mockUmamiTrack).toHaveBeenCalledWith('location-update', 
+
+        expect(mockUmamiTrack).toHaveBeenCalledWith('location-update',
           expect.objectContaining({
             lat_zone: expected_lat,
             lng_zone: expected_lng

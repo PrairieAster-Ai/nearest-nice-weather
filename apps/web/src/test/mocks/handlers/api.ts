@@ -2,41 +2,41 @@
  * ========================================================================
  * MSW API HANDLERS - MOCK API ENDPOINTS FOR TESTING
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Mock Service Worker handlers for API integration testing
  * 🔗 ENDPOINTS: /api/health, /api/poi-locations-with-weather, /api/feedback
  * 📊 COVERAGE: API mocking for unit and integration testing
  * ⚙️ FUNCTIONALITY: Realistic API responses for isolated testing
  * 🎯 TESTING_SUPPORT: Enables testing without external dependencies
- * 
+ *
  * BUSINESS CONTEXT: API testing infrastructure for reliable development
  * - Provides consistent API responses for testing
  * - Enables offline development and testing
  * - Supports integration testing without live database
  * - Maintains API contract compliance in tests
- * 
+ *
  * TECHNICAL IMPLEMENTATION: MSW request handlers with mock data
  * - HTTP request interception and response mocking
  * - Realistic data generation for POI and weather endpoints
  * - Error simulation for testing error handling
  * - CORS headers for browser compatibility
- * 
+ *
  * 🏗️ HANDLER ARCHITECTURE:
  * - RESTful API pattern compliance
  * - Request validation and error responses
  * - Mock data generation with realistic values
  * - Performance simulation with appropriate delays
- * 
+ *
  * @CLAUDE_CONTEXT: Essential testing infrastructure for API reliability
  * @BUSINESS_RULE: P1 MUST provide realistic test data for Minnesota POIs
  * @INTEGRATION_POINT: Supports frontend-backend integration testing
  * @TESTING_CRITICAL: Enables comprehensive API testing without external dependencies
- * 
+ *
  * 📚 BUSINESS CONTEXT BREADCRUMBS:
  * Test execution → API request → MSW handler → mock response → test validation
  * TESTING_CHAIN: Unit tests → integration tests → API contract validation
  * VALUE_CHAIN: Reliable testing → quality assurance → production deployment
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -56,7 +56,7 @@ const mockPOIData = [
     windSpeed: 5
   },
   {
-    id: '2', 
+    id: '2',
     name: 'Gooseberry Falls State Park',
     lat: 47.1403,
     lng: -91.4692,
@@ -130,7 +130,7 @@ export const apiHandlers = [
     return HttpResponse.json({
       success: false,
       error: 'Method not allowed for health check. Use GET.'
-    }, { 
+    }, {
       status: 405
     });
   }),
@@ -206,7 +206,7 @@ export const apiHandlers = [
     return HttpResponse.json({
       success: false,
       error: 'Method not allowed. Use GET to retrieve POI locations.'
-    }, { 
+    }, {
       status: 405
     });
   }),
@@ -215,13 +215,13 @@ export const apiHandlers = [
   http.post('http://localhost:4000/api/feedback', async ({ request }) => {
     try {
       const body = await request.json() as any;
-      
+
       // Validate required fields
       if (!body.feedback || typeof body.feedback !== 'string' || body.feedback.trim().length === 0) {
         return HttpResponse.json({
           success: false,
           error: 'Feedback text is required and cannot be empty'
-        }, { 
+        }, {
           status: 400,
           headers: {
             'Access-Control-Allow-Origin': '*',
@@ -246,12 +246,12 @@ export const apiHandlers = [
           'Access-Control-Allow-Headers': 'Content-Type'
         }
       });
-      
+
     } catch (error) {
       return HttpResponse.json({
         success: false,
         error: 'Invalid JSON in request body'
-      }, { 
+      }, {
         status: 400,
         headers: {
           'Access-Control-Allow-Origin': '*'
@@ -277,7 +277,7 @@ export const apiHandlers = [
     return HttpResponse.json({
       success: false,
       error: 'Method not allowed. Use POST to submit feedback.'
-    }, { 
+    }, {
       status: 405,
       headers: {
         'Access-Control-Allow-Origin': '*'
@@ -289,7 +289,7 @@ export const apiHandlers = [
     return HttpResponse.json({
       success: false,
       error: 'Method not allowed. Use POST to submit feedback.'
-    }, { 
+    }, {
       status: 405,
       headers: {
         'Access-Control-Allow-Origin': '*'
@@ -301,7 +301,7 @@ export const apiHandlers = [
     return HttpResponse.json({
       success: false,
       error: 'Method not allowed. Use POST to submit feedback.'
-    }, { 
+    }, {
       status: 405,
       headers: {
         'Access-Control-Allow-Origin': '*'
@@ -318,13 +318,13 @@ export const apiHandlers = [
  * ✅ CORS preflight and method validation
  * ✅ Error simulation for testing error handling
  * ✅ Realistic Minnesota POI data for testing
- * 
+ *
  * 🎯 TESTING SUPPORT:
  * ✅ Unit test isolation with consistent responses
  * ✅ Integration test support with realistic data
  * ✅ Error handling validation capabilities
  * ✅ Performance testing with simulated delays
- * 
+ *
  * 🔧 TECHNICAL FEATURES:
  * ✅ Request parameter processing and validation
  * ✅ Realistic data filtering and pagination

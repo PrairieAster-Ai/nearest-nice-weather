@@ -2,51 +2,51 @@
  * ========================================================================
  * LOCATION MANAGER - INTELLIGENT USER POSITIONING SYSTEM
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Manages user location detection, storage, and state synchronization
  * 🔗 CONNECTS TO: App.tsx (main container), useLocalStorageState (persistence)
  * 📊 DATA FLOW: IP detection → geolocation → localStorage → React state → map center
  * ⚙️ STATE: userLocation, locationMethod, showLocationPrompt
  * 🎯 USER IMPACT: Seamless location discovery for personalized POI recommendations
- * 
+ *
  * BUSINESS CONTEXT: Critical for Minnesota outdoor recreation personalization
  * - Intelligent fallback chain: geolocation → IP → default Minneapolis
  * - Persistent user preferences prevent repeated location requests
  * - Supports manual positioning via map marker drag for precision
- * 
+ *
  * TECHNICAL IMPLEMENTATION: Multi-strategy location detection with persistence
  * - IP geolocation via ipapi.co for automatic positioning without permissions
  * - Browser geolocation available for high-precision "Find My Location" features
  * - localStorage synchronization maintains location across sessions
  * - React state bridge connects location logic to UI components
- * 
+ *
  * 🏗️ ARCHITECTURAL DECISIONS:
  * - IP-first strategy avoids permission prompts for better UX
  * - Logic-only component pattern for reusable location management
  * - Callback-based communication prevents tight coupling with parent
  * - Initialization guard prevents multiple location requests
- * 
+ *
  * @CLAUDE_CONTEXT: Core location intelligence for personalized outdoor discovery
  * @BUSINESS_RULE: P0 MUST provide fallback location (Minneapolis) for all users within 10 seconds
  * @INTEGRATION_POINT: localStorage hooks for cross-session persistence
  * @PERFORMANCE_CRITICAL: See /src/config/PERFORMANCE-REQUIREMENTS.json for testable thresholds
  * @PRIVACY_AWARE: IP detection used before requesting geolocation permissions
- * 
+ *
  * 📚 BUSINESS CONTEXT BREADCRUMBS:
  * User arrives → location detection → personalized POI distance calculations → weather matching
  * USER JOURNEY: App load → location discovery → map centering → distance-based recommendations
  * VALUE CHAIN: Location context → proximity calculations → personalized outdoor suggestions
  * FALLBACK STRATEGY: Geolocation → IP detection → Minneapolis default → manual positioning
- * 
+ *
  * LAST UPDATED: 2025-08-08
  */
 
 import React, { useCallback, useEffect, useRef } from 'react';
-import { 
-  useUserLocationStorage, 
-  useLocationMethodStorage, 
+import {
+  useUserLocationStorage,
+  useLocationMethodStorage,
   useShowLocationPromptStorage,
-  LocationMethod 
+  LocationMethod
 } from '../hooks/useLocalStorageState';
 
 // 🔗 INTEGRATION: Provides location context for FabFilterSystem.tsx weather filtering
@@ -70,7 +70,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
   const [userLocation, setUserLocation] = useUserLocationStorage();
   const [locationMethod, setLocationMethod] = useLocationMethodStorage();
   const [showLocationPrompt, setShowLocationPrompt] = useShowLocationPromptStorage();
-  
+
   // Track initialization to prevent multiple runs
   const locationInitialized = useRef(false);
 
@@ -102,7 +102,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
       onMapCenterChange(userLocation)
       return
     }
-    
+
     // Otherwise, try to get location automatically
     // Start with IP location (no user gesture required) to avoid geolocation violation
     // Geolocation will be triggered by user interaction (e.g., "Find My Location" button)

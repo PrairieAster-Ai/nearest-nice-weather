@@ -98,10 +98,10 @@ Once you add your API key, try these commands in Claude Desktop:
 
 ## 🎯 **Current Status:**
 
-✅ **Ready**: Basic MCP server with GitHub operations  
-⚠️ **Pending**: Add Anthropic API key for AI features  
-✅ **Working**: All GitHub management via npm commands  
-✅ **Configured**: Claude Desktop and VS Code integration files ready  
+✅ **Ready**: Basic MCP server with GitHub operations
+⚠️ **Pending**: Add Anthropic API key for AI features
+✅ **Working**: All GitHub management via npm commands
+✅ **Configured**: Claude Desktop and VS Code integration files ready
 
 ## 🔧 **Quick Enable AI:**
 

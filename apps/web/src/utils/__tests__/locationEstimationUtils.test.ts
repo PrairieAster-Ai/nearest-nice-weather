@@ -2,25 +2,25 @@
  * ========================================================================
  * LOCATION ESTIMATION UTILITIES TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for location estimation algorithms
  * 🔗 UTILITIES: locationEstimationUtils.ts - Core geolocation intelligence
  * 📊 COVERAGE: Location scoring, confidence calculation, accuracy estimation
  * ⚙️ FUNCTIONALITY: Geographic algorithms for location quality assessment
  * 🎯 BUSINESS_IMPACT: Ensures accurate location estimation for outdoor enthusiasts
- * 
+ *
  * BUSINESS CONTEXT: Location intelligence for Minnesota outdoor recreation
  * - Validates accurate location confidence and quality scoring
  * - Tests Minnesota-specific IP geolocation optimizations
  * - Ensures intelligent fallback strategies for location estimation
  * - Verifies privacy-aware location handling and validation
- * 
+ *
  * TECHNICAL COVERAGE: Pure function testing for geolocation algorithms
  * - Location confidence scoring based on accuracy and age
  * - IP geolocation accuracy estimation with regional optimization
  * - Location estimate quality comparison and selection
  * - Coordinate validation and regional bounds checking
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -89,7 +89,7 @@ describe('Location Estimation Utilities', () => {
       expect(CONFIDENCE_SCORES.medium).toBe(75)
       expect(CONFIDENCE_SCORES.low).toBe(50)
       expect(CONFIDENCE_SCORES.unknown).toBe(25)
-      
+
       expect(METHOD_SCORES.gps).toBe(100)
       expect(METHOD_SCORES.network).toBe(80)
       expect(METHOD_SCORES.manual).toBe(75)
@@ -104,35 +104,35 @@ describe('Location Estimation Utilities', () => {
     it('should return high confidence for accurate recent locations', () => {
       const recentTime = mockNow - (2 * 60 * 1000) // 2 minutes ago
       const confidence = calculateConfidence(30, recentTime) // 30m accuracy
-      
+
       expect(confidence).toBe('high')
     })
 
     it('should return medium confidence for less accurate recent locations', () => {
       const recentTime = mockNow - (10 * 60 * 1000) // 10 minutes ago
       const confidence = calculateConfidence(500, recentTime) // 500m accuracy
-      
+
       expect(confidence).toBe('medium')
     })
 
     it('should return low confidence for inaccurate but recent locations', () => {
       const recentTime = mockNow - (5 * 60 * 1000) // 5 minutes ago
       const confidence = calculateConfidence(5000, recentTime) // 5km accuracy
-      
+
       expect(confidence).toBe('low')
     })
 
     it('should return unknown confidence for very inaccurate locations', () => {
       const recentTime = mockNow - (5 * 60 * 1000) // 5 minutes ago
       const confidence = calculateConfidence(50000, recentTime) // 50km accuracy
-      
+
       expect(confidence).toBe('unknown')
     })
 
     it('should downgrade confidence for old locations', () => {
       const oldTime = mockNow - (60 * 60 * 1000) // 1 hour ago
       const confidence = calculateConfidence(30, oldTime) // 30m accuracy but old
-      
+
       expect(confidence).toBe('low') // Downgraded due to age (still < 10km threshold)
     })
 
@@ -141,10 +141,10 @@ describe('Location Estimation Utilities', () => {
       const justOver5Minutes = mockNow - (5 * 60 * 1000 + 1000)  // 5 min 1 sec ago
       const justUnder30Minutes = mockNow - (30 * 60 * 1000 - 1000) // 29 min 59 sec ago
       const justOver30Minutes = mockNow - (30 * 60 * 1000 + 1000)  // 30 min 1 sec ago
-      
+
       expect(calculateConfidence(40, justUnder5Minutes)).toBe('high') // 40m accuracy, just under 5 minutes = high
       expect(calculateConfidence(40, justOver5Minutes)).toBe('medium') // 40m accuracy, just over 5 minutes = medium
-      
+
       expect(calculateConfidence(800, justUnder30Minutes)).toBe('medium') // 800m accuracy, just under 30 minutes = medium
       expect(calculateConfidence(800, justOver30Minutes)).toBe('low') // 800m accuracy, just over 30 minutes = low
     })
@@ -155,7 +155,7 @@ describe('Location Estimation Utilities', () => {
       const minneapolisAccuracy = estimateIPAccuracy('Minneapolis', 'Minnesota')
       const stPaulAccuracy = estimateIPAccuracy('Saint Paul', 'MN')
       const duluthAccuracy = estimateIPAccuracy('Duluth', 'Minnesota')
-      
+
       expect(minneapolisAccuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.URBAN_METERS)
       expect(stPaulAccuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.URBAN_METERS)
       expect(duluthAccuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.URBAN_METERS)
@@ -164,7 +164,7 @@ describe('Location Estimation Utilities', () => {
     it('should provide moderate accuracy for Minnesota rural areas', () => {
       const ruralAccuracy = estimateIPAccuracy('Bemidji', 'Minnesota')
       const smallTownAccuracy = estimateIPAccuracy('Ely', 'MN')
-      
+
       expect(ruralAccuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.RURAL_METERS)
       expect(smallTownAccuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.RURAL_METERS)
     })
@@ -172,7 +172,7 @@ describe('Location Estimation Utilities', () => {
     it('should handle general urban areas outside Minnesota', () => {
       const chicagoAccuracy = estimateIPAccuracy('Chicago', 'Illinois')
       const denverAccuracy = estimateIPAccuracy('Denver', 'Colorado')
-      
+
       // Chicago should default to general rural since it's not in the Minnesota urban cities list
       expect(chicagoAccuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.GENERAL_RURAL_METERS)
       expect(denverAccuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.GENERAL_RURAL_METERS)
@@ -184,7 +184,7 @@ describe('Location Estimation Utilities', () => {
         estimateIPAccuracy('saint paul', 'mn'),
         estimateIPAccuracy('St Paul', 'Minnesota')
       ]
-      
+
       stPaulVariations.forEach(accuracy => {
         expect(accuracy).toBe(MINNESOTA_ACCURACY_ESTIMATES.URBAN_METERS)
       })
@@ -200,7 +200,7 @@ describe('Location Estimation Utilities', () => {
       const upperCase = estimateIPAccuracy('MINNEAPOLIS', 'MINNESOTA')
       const lowerCase = estimateIPAccuracy('minneapolis', 'minnesota')
       const mixedCase = estimateIPAccuracy('Minneapolis', 'Minnesota')
-      
+
       expect(upperCase).toBe(lowerCase)
       expect(lowerCase).toBe(mixedCase)
       expect(mixedCase).toBe(MINNESOTA_ACCURACY_ESTIMATES.URBAN_METERS)
@@ -231,7 +231,7 @@ describe('Location Estimation Utilities', () => {
     it('should handle Minnesota abbreviations', () => {
       const mnConfidence = calculateIPConfidence('Duluth', 'MN', 'US')
       const minnesotaConfidence = calculateIPConfidence('Duluth', 'Minnesota', 'US')
-      
+
       expect(mnConfidence).toBe('medium')
       expect(minnesotaConfidence).toBe('medium')
     })
@@ -239,7 +239,7 @@ describe('Location Estimation Utilities', () => {
     it('should handle various US country formats', () => {
       const usConfidence = calculateIPConfidence('Denver', 'Colorado', 'US')
       const unitedStatesConfidence = calculateIPConfidence('Denver', 'Colorado', 'United States')
-      
+
       expect(usConfidence).toBe('low')
       expect(unitedStatesConfidence).toBe('low')
     })
@@ -254,7 +254,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 60000, // 1 minute ago
         confidence: 'high'
       }
-      
+
       const lowQuality: LocationEstimate = {
         coordinates: MINNEAPOLIS_COORDS,
         accuracy: 10000,
@@ -262,10 +262,10 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 3600000, // 1 hour ago
         confidence: 'unknown'
       }
-      
+
       const highScore = scoreEstimate(highQuality)
       const lowScore = scoreEstimate(lowQuality)
-      
+
       expect(highScore).toBeGreaterThan(lowScore)
       expect(highScore).toBeGreaterThan(80) // Should be quite high
       expect(lowScore).toBeLessThan(40) // Should be quite low
@@ -279,9 +279,9 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 30000, // 30 seconds ago
         confidence: 'high'
       }
-      
+
       const score = scoreEstimate(gpsEstimate)
-      
+
       // Should be very high score (near 100)
       expect(score).toBeGreaterThan(90)
     })
@@ -294,12 +294,12 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 300000, // 5 minutes ago
         confidence: 'medium'
       })
-      
+
       const gpsScore = scoreEstimate(createEstimate('gps'))
       const networkScore = scoreEstimate(createEstimate('network'))
       const ipScore = scoreEstimate(createEstimate('ip'))
       const fallbackScore = scoreEstimate(createEstimate('fallback'))
-      
+
       expect(gpsScore).toBeGreaterThan(networkScore)
       expect(networkScore).toBeGreaterThan(ipScore)
       expect(ipScore).toBeGreaterThan(fallbackScore)
@@ -313,7 +313,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow,
         confidence: 'high'
       }
-      
+
       const veryInaccurate: LocationEstimate = {
         coordinates: MINNEAPOLIS_COORDS,
         accuracy: 100000, // 100km
@@ -321,10 +321,10 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow,
         confidence: 'unknown'
       }
-      
+
       const accurateScore = scoreEstimate(veryAccurate)
       const inaccurateScore = scoreEstimate(veryInaccurate)
-      
+
       expect(accurateScore).toBeGreaterThan(inaccurateScore)
     })
   })
@@ -341,27 +341,27 @@ describe('Location Estimation Utilities', () => {
     it('should validate recent cache as valid', () => {
       const recentLocation = { ...sampleLocation, timestamp: mockNow - 300000 } // 5 minutes ago
       const maxAge = 600000 // 10 minutes
-      
+
       expect(isCacheValid(recentLocation, maxAge)).toBe(true)
     })
 
     it('should invalidate old cache', () => {
       const oldLocation = { ...sampleLocation, timestamp: mockNow - 1200000 } // 20 minutes ago
       const maxAge = 600000 // 10 minutes
-      
+
       expect(isCacheValid(oldLocation, maxAge)).toBe(false)
     })
 
     it('should handle edge case at exact max age', () => {
       const exactAgeLocation = { ...sampleLocation, timestamp: mockNow - 600000 } // Exactly 10 minutes ago
       const maxAge = 600000 // 10 minutes
-      
+
       expect(isCacheValid(exactAgeLocation, maxAge)).toBe(false) // Should be false (not strictly less than)
     })
 
     it('should handle zero max age', () => {
       const anyLocation = { ...sampleLocation, timestamp: mockNow - 1000 } // 1 second ago
-      
+
       expect(isCacheValid(anyLocation, 0)).toBe(false)
     })
   })
@@ -375,9 +375,9 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 30000, // 30 seconds ago
         confidence: 'high'
       }
-      
+
       const summary = getLocationSummary(accurateLocation)
-      
+
       expect(summary).toContain('GPS')
       expect(summary).toContain('±10m')
       expect(summary).toContain('just now')
@@ -391,9 +391,9 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 1800000, // 30 minutes ago
         confidence: 'low'
       }
-      
+
       const summary = getLocationSummary(inaccurateLocation)
-      
+
       expect(summary).toContain('IP Location')
       expect(summary).toContain('±5km')
       expect(summary).toContain('30min ago')
@@ -406,7 +406,7 @@ describe('Location Estimation Utilities', () => {
         { timestamp: mockNow - 3600000, expectedAge: '1h ago' },           // 1 hour
         { timestamp: mockNow - 7200000, expectedAge: '2h ago' }            // 2 hours
       ]
-      
+
       locations.forEach(({ timestamp, expectedAge }) => {
         const location: LocationEstimate = {
           coordinates: MINNEAPOLIS_COORDS,
@@ -415,7 +415,7 @@ describe('Location Estimation Utilities', () => {
           timestamp,
           confidence: 'medium'
         }
-        
+
         const summary = getLocationSummary(location)
         expect(summary).toContain(expectedAge)
       })
@@ -431,7 +431,7 @@ describe('Location Estimation Utilities', () => {
         { method: 'fallback', expectedText: 'Default' },
         { method: 'none', expectedText: 'Unknown' }
       ]
-      
+
       methods.forEach(({ method, expectedText }) => {
         const location: LocationEstimate = {
           coordinates: MINNEAPOLIS_COORDS,
@@ -440,7 +440,7 @@ describe('Location Estimation Utilities', () => {
           timestamp: mockNow,
           confidence: 'medium'
         }
-        
+
         const summary = getLocationSummary(location)
         expect(summary).toContain(expectedText)
       })
@@ -450,7 +450,7 @@ describe('Location Estimation Utilities', () => {
   describe('✅ Privacy Summary', () => {
     it('should handle no cached location', () => {
       const summary = getPrivacySummary(null)
-      
+
       expect(summary.hasStoredData).toBe(false)
       expect(summary.lastUpdate).toBe(null)
       expect(summary.dataAge).toBe('No stored location data')
@@ -464,9 +464,9 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 1800000, // 30 minutes ago
         confidence: 'high'
       }
-      
+
       const summary = getPrivacySummary(cachedLocation)
-      
+
       expect(summary.hasStoredData).toBe(true)
       expect(summary.lastUpdate).toBe(cachedLocation.timestamp)
       expect(summary.dataAge).toContain('30 minutes ago')
@@ -478,7 +478,7 @@ describe('Location Estimation Utilities', () => {
         { timestamp: mockNow - 7200000, expected: 'hours ago' },      // 2 hours
         { timestamp: mockNow - 172800000, expected: 'days ago' }      // 2 days
       ]
-      
+
       ages.forEach(({ timestamp, expected }) => {
         const location: LocationEstimate = {
           coordinates: MINNEAPOLIS_COORDS,
@@ -487,7 +487,7 @@ describe('Location Estimation Utilities', () => {
           timestamp,
           confidence: 'high'
         }
-        
+
         const summary = getPrivacySummary(location)
         expect(summary.dataAge).toContain(expected)
       })
@@ -524,10 +524,10 @@ describe('Location Estimation Utilities', () => {
       expect(isWithinExpectedRegion(MINNEAPOLIS_COORDS)).toBe(true)
       expect(isWithinExpectedRegion(DULUTH_COORDS)).toBe(true)
       expect(isWithinExpectedRegion(ROCHESTER_COORDS)).toBe(true)
-      
+
       // Chicago (within region)
       expect(isWithinExpectedRegion([41.8781, -87.6298])).toBe(true)
-      
+
       // Milwaukee (within region)
       expect(isWithinExpectedRegion([43.0389, -87.9065])).toBe(true)
     })
@@ -535,13 +535,13 @@ describe('Location Estimation Utilities', () => {
     it('should reject coordinates outside Upper Midwest', () => {
       // Los Angeles (too far west and south)
       expect(isWithinExpectedRegion([34.0522, -118.2437])).toBe(false)
-      
+
       // New York (too far east)
       expect(isWithinExpectedRegion([40.7128, -74.0060])).toBe(false)
-      
+
       // Miami (too far south)
       expect(isWithinExpectedRegion([25.7617, -80.1918])).toBe(false)
-      
+
       // Vancouver (too far north)
       expect(isWithinExpectedRegion([49.2827, -123.1207])).toBe(false)
     })
@@ -555,7 +555,7 @@ describe('Location Estimation Utilities', () => {
   describe('✅ Fallback Location Creation', () => {
     it('should create default Minneapolis fallback', () => {
       const fallback = createFallbackLocation()
-      
+
       expect(fallback.coordinates).toEqual([44.9537, -93.0900])
       expect(fallback.method).toBe('fallback')
       expect(fallback.accuracy).toBe(50000)
@@ -567,7 +567,7 @@ describe('Location Estimation Utilities', () => {
     it('should create fallback with custom coordinates', () => {
       const customCoords: [number, number] = [46.7867, -92.1005] // Duluth
       const fallback = createFallbackLocation(customCoords, 'manual')
-      
+
       expect(fallback.coordinates).toEqual(customCoords)
       expect(fallback.method).toBe('manual')
     })
@@ -582,7 +582,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 300000, // 5 minutes ago
         confidence: 'high'
       }
-      
+
       expect(getLocationAge(location)).toBe(300000) // 5 minutes in milliseconds
     })
 
@@ -604,7 +604,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow,
         confidence: 'high'
       }
-      
+
       const poorEstimate: LocationEstimate = {
         coordinates: MINNEAPOLIS_COORDS,
         accuracy: 10000,
@@ -612,7 +612,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow - 3600000,
         confidence: 'unknown'
       }
-      
+
       const selected = selectBestEstimate(goodEstimate, poorEstimate)
       expect(selected).toBe(goodEstimate)
     })
@@ -682,9 +682,9 @@ describe('Location Estimation Utilities', () => {
         },
         timestamp: mockNow - 60000 // 1 minute ago
       }
-      
+
       const location = createLocationFromGeolocation(mockPosition)
-      
+
       expect(location.coordinates).toEqual([44.9537, -93.0900])
       expect(location.accuracy).toBe(15)
       expect(location.method).toBe('gps')
@@ -706,9 +706,9 @@ describe('Location Estimation Utilities', () => {
         },
         timestamp: undefined as any
       }
-      
+
       const location = createLocationFromGeolocation(mockPosition)
-      
+
       expect(location.accuracy).toBe(10000) // Default 10km
       expect(location.timestamp).toBe(mockNow) // Default to current time
     })
@@ -723,7 +723,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow + 3600000, // 1 hour in future
         confidence: 'high'
       }
-      
+
       const age = getLocationAge(futureLocation)
       expect(age).toBe(-3600000) // Negative age for future timestamps
     })
@@ -736,7 +736,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow,
         confidence: 'high'
       }
-      
+
       const score = scoreEstimate(zeroAccuracy)
       expect(score).toBeGreaterThan(0) // Should not crash
       expect(isFinite(score)).toBe(true)
@@ -750,7 +750,7 @@ describe('Location Estimation Utilities', () => {
         timestamp: mockNow,
         confidence: 'unknown'
       }
-      
+
       const score = scoreEstimate(largeAccuracy)
       expect(isFinite(score)).toBe(true)
       expect(score).toBeGreaterThanOrEqual(0)
@@ -764,10 +764,10 @@ describe('Location Estimation Utilities', () => {
         [89.999, 179.999], // Near boundaries
         [-89.999, -179.999]
       ]
-      
+
       boundaryCoords.forEach(coords => {
         expect(isValidLocationCoordinates(coords)).toBe(true)
-        
+
         const location = createFallbackLocation(coords)
         expect(location.coordinates).toEqual(coords)
       })
@@ -787,13 +787,13 @@ describe('Location Estimation Utilities', () => {
  * ✅ Confidence filtering and estimate selection
  * ✅ Browser geolocation integration
  * ✅ Edge cases and error handling scenarios
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Location intelligence for outdoor recreation discovery
  * ✅ Minnesota-specific accuracy optimizations
  * ✅ Privacy-aware location handling and transparency
  * ✅ Intelligent fallback strategies for reliable positioning
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ Pure function testing for reliable algorithms
  * ✅ Geographic calculation accuracy validation

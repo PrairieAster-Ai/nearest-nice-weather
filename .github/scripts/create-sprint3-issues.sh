@@ -12,7 +12,7 @@ echo ""
 if ! command -v gh &> /dev/null; then
     echo "❌ GitHub CLI not found. Install it with:"
     echo "  brew install gh  # macOS"
-    echo "  sudo apt install gh  # Ubuntu/Debian" 
+    echo "  sudo apt install gh  # Ubuntu/Debian"
     echo "  winget install GitHub.cli  # Windows"
     exit 1
 fi
@@ -51,7 +51,7 @@ DATABASE_ISSUE=$(gh issue create \
 DATABASE_NUMBER=$(echo $DATABASE_ISSUE | grep -o '#[0-9]*' | tr -d '#')
 echo "✅ Created Database Epic issue #$DATABASE_NUMBER"
 
-# Create Weather API Epic  
+# Create Weather API Epic
 echo "📝 Creating Epic: Weather API Integration..."
 WEATHER_ISSUE=$(gh issue create \
     --title "Epic: Weather API Integration - Real-Time Data Pipeline" \
@@ -70,7 +70,7 @@ echo "🔗 Updating parent-child relationships..."
 # Update Database Epic to reference Feature
 gh issue edit $DATABASE_NUMBER --body "$(sed "s/#TBD (Live Weather Data Integration)/#$FEATURE_NUMBER/g" .github/issues/database-schema-epic.md)"
 
-# Update Weather API Epic to reference Feature  
+# Update Weather API Epic to reference Feature
 gh issue edit $WEATHER_NUMBER --body "$(sed "s/#TBD (Live Weather Data Integration)/#$FEATURE_NUMBER/g" .github/issues/weather-api-epic.md)"
 
 # Update Feature to reference Epics
@@ -84,7 +84,7 @@ echo ""
 # Add issues to project (if project exists)
 echo "📋 Adding issues to project..."
 gh project item-add "https://github.com/orgs/PrairieAster-Ai/projects/2" --url "https://github.com/$(gh repo view --json owner,name --jq '.owner.login + "/" + .name')/issues/$FEATURE_NUMBER" 2>/dev/null || echo "⚠️  Project add failed - add manually"
-gh project item-add "https://github.com/orgs/PrairieAster-Ai/projects/2" --url "https://github.com/$(gh repo view --json owner,name --jq '.owner.login + "/" + .name')/issues/$DATABASE_NUMBER" 2>/dev/null || echo "⚠️  Project add failed - add manually"  
+gh project item-add "https://github.com/orgs/PrairieAster-Ai/projects/2" --url "https://github.com/$(gh repo view --json owner,name --jq '.owner.login + "/" + .name')/issues/$DATABASE_NUMBER" 2>/dev/null || echo "⚠️  Project add failed - add manually"
 gh project item-add "https://github.com/orgs/PrairieAster-Ai/projects/2" --url "https://github.com/$(gh repo view --json owner,name --jq '.owner.login + "/" + .name')/issues/$WEATHER_NUMBER" 2>/dev/null || echo "⚠️  Project add failed - add manually"
 
 echo ""
@@ -92,7 +92,7 @@ echo "🎉 Sprint 3 issues created successfully!"
 echo ""
 echo "📋 Created Issues:"
 echo "  Feature: #$FEATURE_NUMBER - Live Weather Data Integration"
-echo "  Epic: #$DATABASE_NUMBER - Database Schema"  
+echo "  Epic: #$DATABASE_NUMBER - Database Schema"
 echo "  Epic: #$WEATHER_NUMBER - Weather API Integration"
 echo ""
 echo "🔗 Next Steps:"

@@ -3,18 +3,18 @@
  * ========================================================================
  * POI DATA PIPELINE - 1000+ Minnesota Parks Import System
  * ========================================================================
- * 
+ *
  * @CLAUDE_CONTEXT: Automated import system for comprehensive Minnesota parks data
  * @BUSINESS_PURPOSE: Scale from 20 POIs to 1000+ comprehensive statewide coverage
  * @TECHNICAL_APPROACH: Multi-tier API integration with schema standardization
- * 
+ *
  * Data Sources (in priority order):
  * 1. Minnesota DNR Gazetteer API - 125 high-quality state facilities
  * 2. National Park Service API - 20 federal parks/monuments
  * 3. Recreation.gov RIDB API - 50 federal recreation facilities
  * 4. Minnesota GIS Commons - 200 metro area parks
  * 5. OpenStreetMap Overpass - 500+ municipal/local parks
- * 
+ *
  * Total Target: 1000+ POIs across all park levels
  * ========================================================================
  */
@@ -126,21 +126,21 @@ class POIDataNormalizer {
 
   static normalizeOSMData(data, schema) {
     const parkLevel = this.inferParkLevel(data.tags || {})
-    
+
     // Handle different OSM data structures (node vs way/relation)
     const lat = data.lat || data.center?.lat
     const lng = data.lon || data.lng || data.center?.lon
-    
+
     // Skip if no valid coordinates
     if (!lat || !lng || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
       return null
     }
-    
+
     // Skip if no name
     if (!data.tags?.name) {
       return null
     }
-    
+
     return {
       ...schema,
       name: data.tags.name,
@@ -186,7 +186,7 @@ class DNRConnector {
         'http://services.dnr.state.mn.us/api/gazetteer/v1/places?format=json&limit=200&feature_type=State%20Park',
         'https://www.dnr.state.mn.us/api/gazetteer/v1/places?format=json&limit=200'
       ]
-      
+
       for (const endpoint of endpoints) {
         try {
           console.log(`Trying DNR endpoint: ${endpoint}`)
@@ -197,12 +197,12 @@ class DNRConnector {
             },
             timeout: 10000
           })
-          
+
           if (!response.ok) {
             console.log(`DNR endpoint failed with status: ${response.status}`)
             continue
           }
-          
+
           const data = await response.json()
           if (Array.isArray(data) && data.length > 0) {
             console.log(`✅ DNR API: Found ${data.length} state facilities`)
@@ -213,7 +213,7 @@ class DNRConnector {
           continue
         }
       }
-      
+
       console.warn('⚠️ All DNR API endpoints failed, skipping DNR data')
       return []
     } catch (error) {
@@ -236,7 +236,7 @@ class NPSConnector {
 
       const response = await fetch(`https://developer.nps.gov/api/v1/parks?stateCode=MN&api_key=${apiKey}`)
       const data = await response.json()
-      
+
       console.log(`✅ NPS API: Found ${data.data.length} national parks`)
       return data.data.map(item => POIDataNormalizer.normalizeToSchema(item, 'nps_api'))
     } catch (error) {
@@ -258,7 +258,7 @@ class RIDBConnector {
 
       const response = await fetch(`https://ridb.recreation.gov/api/v1/facilities?state=MN&apikey=${apiKey}&limit=50`)
       const data = await response.json()
-      
+
       console.log(`✅ RIDB API: Found ${data.RECDATA.length} federal recreation facilities`)
       return data.RECDATA.map(item => POIDataNormalizer.normalizeToSchema(item, 'ridb_api'))
     } catch (error) {
@@ -290,10 +290,10 @@ class OSMConnector {
         body: overpassQuery,
         headers: { 'Content-Type': 'text/plain' }
       })
-      
+
       const data = await response.json()
       console.log(`✅ OSM API: Found ${data.elements.length} parks`)
-      
+
       return data.elements
         .filter(element => element.tags?.name) // Only include named parks
         .map(item => POIDataNormalizer.normalizeToSchema(item, 'osm_overpass'))
@@ -309,47 +309,47 @@ class OSMConnector {
 class MultiEnvironmentSync {
   static async createExpandedPOITable(sql) {
     console.log('🏗️ Creating expanded POI table...')
-    
+
     await sql`
       CREATE TABLE IF NOT EXISTS poi_locations_expanded (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         lat DECIMAL(10, 8) NOT NULL,
         lng DECIMAL(11, 8) NOT NULL,
-        
+
         -- Classification
         park_type VARCHAR(100),
         park_level VARCHAR(50),
         ownership VARCHAR(100),
         operator VARCHAR(255),
-        
+
         -- Metadata
         description TEXT,
         data_source VARCHAR(50),
         source_id VARCHAR(100),
         place_rank INTEGER DEFAULT 50,
-        
+
         -- Additional fields
         phone VARCHAR(20),
         website VARCHAR(255),
         amenities TEXT[],
         activities TEXT[],
-        
+
         -- Standard fields
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
+
         -- Create unique constraint on source + source_id
         UNIQUE(data_source, source_id)
       )
     `
-    
+
     console.log('✅ Expanded POI table created')
   }
 
   static async insertPOIData(sql, poiData) {
     console.log(`📝 Inserting ${poiData.length} POIs...`)
-    
+
     for (const poi of poiData) {
       try {
         await sql`
@@ -383,21 +383,21 @@ class MultiEnvironmentSync {
         console.error(`❌ Error inserting POI: ${poi.name}`, error.message)
       }
     }
-    
+
     console.log(`✅ POI data insertion completed`)
   }
 
   static async syncToAllBranches(poiData) {
     const environments = ['development', 'preview', 'production']
-    
+
     for (const env of environments) {
       try {
         console.log(`🔄 Syncing to ${env} environment...`)
         const sql = getDatabaseConnection(env)
-        
+
         await this.createExpandedPOITable(sql)
         await this.insertPOIData(sql, poiData)
-        
+
         console.log(`✅ ${env} environment sync completed`)
       } catch (error) {
         console.error(`❌ Error syncing to ${env}:`, error.message)
@@ -410,37 +410,37 @@ class MultiEnvironmentSync {
 async function main() {
   console.log('🚀 Starting POI Data Pipeline - 1000+ Minnesota Parks')
   console.log('=' .repeat(60))
-  
+
   const allPOIs = []
-  
+
   // Phase 1: High-Quality Government Sources
   console.log('\n📋 PHASE 1: Government APIs')
   const dnrData = await DNRConnector.fetchStateParks()
   const npsData = await NPSConnector.fetchNationalParks()
   const ridbData = await RIDBConnector.fetchFederalRecreation()
-  
+
   allPOIs.push(...dnrData, ...npsData, ...ridbData)
   console.log(`Phase 1 Total: ${dnrData.length + npsData.length + ridbData.length} POIs`)
-  
+
   // Phase 2: OpenStreetMap Comprehensive Coverage
   console.log('\n📋 PHASE 2: OpenStreetMap Data')
   const osmData = await OSMConnector.fetchMinnesotaParks()
   allPOIs.push(...osmData)
   console.log(`Phase 2 Total: ${osmData.length} POIs`)
-  
+
   // Final Statistics
   console.log('\n📊 FINAL DATASET STATISTICS')
   console.log(`Total POIs Collected: ${allPOIs.length}`)
   console.log('Breakdown by Source:')
   console.log(`  - Minnesota DNR: ${dnrData.length}`)
-  console.log(`  - National Parks: ${npsData.length}`) 
+  console.log(`  - National Parks: ${npsData.length}`)
   console.log(`  - Recreation.gov: ${ridbData.length}`)
   console.log(`  - OpenStreetMap: ${osmData.length}`)
-  
+
   // Sync to all database environments
   console.log('\n🔄 SYNCING TO ALL ENVIRONMENTS')
   await MultiEnvironmentSync.syncToAllBranches(allPOIs)
-  
+
   console.log('\n🎉 POI Data Pipeline Complete!')
   console.log(`Successfully imported ${allPOIs.length} Minnesota parks to all database branches`)
 }
@@ -457,7 +457,7 @@ if (isMainModule) {
 export {
   POIDataNormalizer,
   DNRConnector,
-  NPSConnector, 
+  NPSConnector,
   RIDBConnector,
   OSMConnector,
   MultiEnvironmentSync

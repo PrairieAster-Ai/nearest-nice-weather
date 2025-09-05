@@ -3,11 +3,11 @@
 # ========================================================================
 # DATABASE SCHEMA COMPARISON TOOL
 # ========================================================================
-# 
+#
 # @CLAUDE_CONTEXT: Compares database schemas between localhost and preview
 # @BUSINESS_PURPOSE: Detect schema drift before it causes deployment issues
 # @TECHNICAL_APPROACH: Query information_schema and compare table structures
-# 
+#
 # Prevents database inconsistency issues by early detection
 # Alerts about missing tables, columns, or constraint differences
 # ========================================================================
@@ -28,19 +28,19 @@ NC='\033[0m' # No Color
 get_table_info() {
     local api_url="$1"
     local temp_file="$2"
-    
+
     # Note: This is a simplified schema check
     # In a real implementation, we'd query information_schema directly
     # For now, we'll compare API responses and infer schema differences
-    
+
     echo "Fetching table information from $api_url..."
-    
+
     # Get POI locations structure
     curl -s "$api_url/api/poi-locations?limit=1" | jq '.data[0] // {}' > "${temp_file}_poi.json"
-    
-    # Get weather locations structure  
+
+    # Get weather locations structure
     curl -s "$api_url/api/weather-locations?limit=1" | jq '.data[0] // {}' > "${temp_file}_weather.json"
-    
+
     # Get health check (includes environment info)
     curl -s "$api_url/api/health" | jq '.' > "${temp_file}_health.json" 2>/dev/null || echo '{}' > "${temp_file}_health.json"
 }
@@ -74,26 +74,26 @@ if ! diff -q "$TEMP_DIR/localhost_poi.json" "$TEMP_DIR/preview_poi.json" > /dev/
     jq -r 'keys[]' "$TEMP_DIR/localhost_poi.json" | sed 's/^/      - /'
     echo "   Preview POI fields:"
     jq -r 'keys[]' "$TEMP_DIR/preview_poi.json" | sed 's/^/      - /'
-    
+
     # Show specific differences
     echo "   Field differences:"
     LOCALHOST_FIELDS=$(jq -r 'keys | sort | join(",")' "$TEMP_DIR/localhost_poi.json")
     PREVIEW_FIELDS=$(jq -r 'keys | sort | join(",")' "$TEMP_DIR/preview_poi.json")
-    
+
     if [ "$LOCALHOST_FIELDS" != "$PREVIEW_FIELDS" ]; then
         echo -e "      ${YELLOW}Field lists don't match${NC}"
-        
+
         # Check for missing fields in preview
         jq -r 'keys[]' "$TEMP_DIR/localhost_poi.json" | while read field; do
             if ! jq -e "has(\"$field\")" "$TEMP_DIR/preview_poi.json" > /dev/null; then
                 echo -e "      ${RED}Missing in preview: $field${NC}"
             fi
         done
-        
+
         # Check for extra fields in preview
         jq -r 'keys[]' "$TEMP_DIR/preview_poi.json" | while read field; do
             if ! jq -e "has(\"$field\")" "$TEMP_DIR/localhost_poi.json" > /dev/null; then
-                echo -e "      ${YELLOW}Extra in preview: $field${NC}" 
+                echo -e "      ${YELLOW}Extra in preview: $field${NC}"
             fi
         done
     fi

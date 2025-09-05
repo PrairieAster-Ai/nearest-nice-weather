@@ -97,7 +97,7 @@ gh issue edit 123 --title "New Title" --body "New body content"
 # Add labels
 gh issue edit 123 --add-label "bug,priority-high"
 
-# Remove labels  
+# Remove labels
 gh issue edit 123 --remove-label "sprint-2"
 
 # Add assignee
@@ -155,7 +155,7 @@ gh issue create \
 # Note: Custom field setting via CLI is limited
 # You may need to use the web interface for:
 # - Story Points
-# - Sprint Status  
+# - Sprint Status
 # - WBS Owner
 # - Business Value
 # - File Reference
@@ -182,7 +182,7 @@ ls .github/ISSUE_TEMPLATE/
 
 # Create issue from specific template
 gh issue create --template epic-feature
-gh issue create --template user-story  
+gh issue create --template user-story
 gh issue create --template sprint-planning
 ```
 
@@ -226,7 +226,7 @@ git commit -m "feat: Add weather API integration
 
 Implements Epic: Weather API Integration (#123)
 - Add OpenWeather API connection
-- Implement caching strategy  
+- Implement caching strategy
 - Handle rate limiting
 
 Closes #124, #125"

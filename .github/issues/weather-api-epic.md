@@ -2,11 +2,11 @@
 
 ## Epic Information
 **Parent Feature**: #TBD (Live Weather Data Integration)
-**Epic Owner**: Claude  
-**Story Points**: 7  
-**Sprint**: Sprint 3  
-**Status**: 🔄 IN PROGRESS  
-**Priority**: HIGH - Replaces mock data with live weather  
+**Epic Owner**: Claude
+**Story Points**: 7
+**Sprint**: Sprint 3
+**Status**: 🔄 IN PROGRESS
+**Priority**: HIGH - Replaces mock data with live weather
 
 ## Epic Scope
 Replace mock weather data with real-time weather information from OpenWeather API, implementing caching and rate limiting for production scalability.
@@ -16,7 +16,7 @@ Replace mock weather data with real-time weather information from OpenWeather AP
   - Integrate OpenWeather API for real-time weather data
   - Replace mock data in weather-locations endpoint
   - Handle API authentication and error responses
-  
+
 - [ ] **Story: Rate Limiting and Caching Strategy** (3 points)
   - Implement API call rate limiting (1000 calls/day free tier)
   - Add caching layer to reduce API costs

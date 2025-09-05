@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Query all feedback, ordered by most recent first
     const query = `
-      SELECT 
+      SELECT
         id,
         email,
         feedback,
@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         session_id,
         page_url,
         created_at
-      FROM feedback 
+      FROM feedback
       ORDER BY created_at DESC
       LIMIT 100
     `

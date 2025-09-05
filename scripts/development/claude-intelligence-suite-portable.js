@@ -2,10 +2,10 @@
 
 /**
  * Claude Intelligence Suite - Portable Edition
- * 
+ *
  * PURPOSE: Universal Claude AI intelligence system for any project
  * GOAL: Minimize productivity degradation through contextual data access
- * 
+ *
  * FEATURES:
  * - Project-agnostic configuration
  * - Automatic environment detection
@@ -33,7 +33,7 @@ class ClaudeIntelligenceSuitePortable {
       autoDetectServices: options.autoDetectServices !== false,
       ...options
     };
-    
+
     // Port allocation
     this.ports = {
       master: this.config.basePort,
@@ -46,13 +46,13 @@ class ClaudeIntelligenceSuitePortable {
       gitWS: this.config.basePort + 7,
       contextHTTP: this.config.basePort + 8
     };
-    
+
     this.server = null;
     this.wsServer = null;
     this.clients = new Set();
     this.intelligenceTools = new Map();
     this.environmentContext = {};
-    
+
     this.init();
   }
 
@@ -64,7 +64,7 @@ class ClaudeIntelligenceSuitePortable {
         const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
         return pkg.name || 'unknown-project';
       }
-      
+
       // Try git repository name
       const gitConfigPath = path.join(process.cwd(), '.git', 'config');
       if (fs.existsSync(gitConfigPath)) {
@@ -72,7 +72,7 @@ class ClaudeIntelligenceSuitePortable {
         const match = gitConfig.match(/url = .*\/([^\/]+)\.git/);
         if (match) return match[1];
       }
-      
+
       // Fall back to directory name
       return path.basename(process.cwd());
     } catch (error) {
@@ -85,30 +85,30 @@ class ClaudeIntelligenceSuitePortable {
     this.log('info', `📋 Project: ${this.config.projectName}`);
     this.log('info', `🔧 Base Port: ${this.config.basePort}`);
     this.log('info', `🛠️ Enabled Tools: ${this.config.enabledTools.join(', ')}`);
-    
+
     // Create data directory
     this.ensureDataDirectory();
-    
+
     // Detect project environment
     await this.detectEnvironment();
-    
+
     // Initialize intelligence tools
     this.initializeIntelligenceTools();
-    
+
     // Start master control
     this.startMasterServer();
     this.startMasterWebSocket();
-    
+
     // Start enabled tools
     await this.startEnabledTools();
-    
+
     // Start monitoring
     this.startHealthMonitoring();
-    
+
     this.log('info', '✅ Claude Intelligence Suite (Portable) Active');
     this.log('info', `🎛️ Master Control: http://localhost:${this.ports.master}`);
     this.log('info', `📡 Master Stream: ws://localhost:${this.ports.masterWS}`);
-    
+
     this.displayQuickStart();
   }
 
@@ -132,7 +132,7 @@ class ClaudeIntelligenceSuitePortable {
       projectType: this.detectProjectType(),
       timestamp: new Date().toISOString()
     };
-    
+
     this.log('info', `🔍 Environment detected: ${this.environmentContext.projectType} on ${this.environmentContext.platform}`);
   }
 
@@ -147,14 +147,14 @@ class ClaudeIntelligenceSuitePortable {
 
   async detectRunningServices() {
     const services = {};
-    
+
     // Check common development ports
     const commonPorts = [3000, 3001, 3002, 4000, 5000, 8000, 8080, 9000];
-    
+
     for (const port of commonPorts) {
       services[`port_${port}`] = await this.checkPort(port);
     }
-    
+
     return services;
   }
 
@@ -162,51 +162,51 @@ class ClaudeIntelligenceSuitePortable {
     return new Promise((resolve) => {
       const net = require('net');
       const socket = new net.Socket();
-      
+
       socket.setTimeout(1000);
       socket.on('connect', () => {
         socket.destroy();
         resolve(true);
       });
-      
+
       socket.on('timeout', () => {
         socket.destroy();
         resolve(false);
       });
-      
+
       socket.on('error', () => {
         resolve(false);
       });
-      
+
       socket.connect(port, 'localhost');
     });
   }
 
   detectProjectType() {
     const cwd = process.cwd();
-    
+
     if (fs.existsSync(path.join(cwd, 'package.json'))) {
       const pkg = JSON.parse(fs.readFileSync(path.join(cwd, 'package.json'), 'utf8'));
-      
+
       if (pkg.dependencies?.react || pkg.devDependencies?.react) return 'React';
       if (pkg.dependencies?.vue || pkg.devDependencies?.vue) return 'Vue';
       if (pkg.dependencies?.angular || pkg.devDependencies?.angular) return 'Angular';
       if (pkg.dependencies?.next || pkg.devDependencies?.next) return 'Next.js';
       if (pkg.dependencies?.express) return 'Express';
       if (pkg.dependencies?.fastify) return 'Fastify';
-      
+
       return 'Node.js';
     }
-    
+
     if (fs.existsSync(path.join(cwd, 'requirements.txt')) || fs.existsSync(path.join(cwd, 'setup.py'))) {
       return 'Python';
     }
-    
+
     if (fs.existsSync(path.join(cwd, 'Cargo.toml'))) return 'Rust';
     if (fs.existsSync(path.join(cwd, 'go.mod'))) return 'Go';
     if (fs.existsSync(path.join(cwd, 'pom.xml'))) return 'Java';
     if (fs.existsSync(path.join(cwd, 'Dockerfile'))) return 'Docker';
-    
+
     return 'Generic';
   }
 
@@ -222,7 +222,7 @@ class ClaudeIntelligenceSuitePortable {
         implementation: this.createSystemMonitor.bind(this)
       });
     }
-    
+
     // Git Intelligence (if git repository detected)
     if (this.config.enabledTools.includes('git') && this.environmentContext.hasGit) {
       this.intelligenceTools.set('git', {
@@ -234,7 +234,7 @@ class ClaudeIntelligenceSuitePortable {
         implementation: this.createGitIntelligence.bind(this)
       });
     }
-    
+
     // Database Intelligence (if database detected)
     if (this.config.enabledTools.includes('database') && this.config.autoDetectServices) {
       const dbDetected = this.detectDatabaseServices();
@@ -249,7 +249,7 @@ class ClaudeIntelligenceSuitePortable {
         });
       }
     }
-    
+
     // Context API (always available)
     if (this.config.enabledTools.includes('context')) {
       this.intelligenceTools.set('context', {
@@ -272,8 +272,8 @@ class ClaudeIntelligenceSuitePortable {
       'sequelize.config.js',
       'mongoose.config.js'
     ];
-    
-    return dbIndicators.some(indicator => 
+
+    return dbIndicators.some(indicator =>
       fs.existsSync(path.join(process.cwd(), indicator))
     );
   }
@@ -291,26 +291,26 @@ class ClaudeIntelligenceSuitePortable {
       '/restart': this.handleRestart.bind(this),
       '/install': this.handleInstall.bind(this)
     };
-    
+
     this.server = http.createServer(async (req, res) => {
       // Enable CORS
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      
+
       if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
         return;
       }
-      
+
       const url = new URL(req.url, `http://localhost:${this.ports.master}`);
       const endpoint = url.pathname;
-      
+
       if (endpoints[endpoint]) {
         try {
           const data = await endpoints[endpoint](url.searchParams);
-          
+
           if (endpoint === '/' || endpoint === '/install') {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end(data);
@@ -325,13 +325,13 @@ class ClaudeIntelligenceSuitePortable {
         }
       } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ 
+        res.end(JSON.stringify({
           error: 'Endpoint not found',
           availableEndpoints: Object.keys(endpoints)
         }));
       }
     });
-    
+
     this.server.listen(this.ports.master, () => {
       this.log('info', `🚀 Master server listening on port ${this.ports.master}`);
     });
@@ -339,14 +339,14 @@ class ClaudeIntelligenceSuitePortable {
 
   startMasterWebSocket() {
     this.wsServer = new WebSocket.Server({ port: this.ports.masterWS });
-    
+
     this.wsServer.on('connection', (ws) => {
       this.log('info', '📡 Claude AI client connected');
       this.clients.add(ws);
-      
+
       // Send initial state
       this.sendState(ws);
-      
+
       ws.on('close', () => {
         this.log('info', '📡 Claude AI client disconnected');
         this.clients.delete(ws);
@@ -370,13 +370,13 @@ class ClaudeIntelligenceSuitePortable {
       })),
       config: this.config
     };
-    
+
     ws.send(JSON.stringify(state));
   }
 
   async startEnabledTools() {
     this.log('info', '🚀 Starting enabled intelligence tools...');
-    
+
     for (const [key, tool] of this.intelligenceTools) {
       try {
         await tool.implementation();
@@ -401,7 +401,7 @@ class ClaudeIntelligenceSuitePortable {
 
   async checkToolHealth(tool) {
     if (!tool.httpPort) return true;
-    
+
     try {
       const response = await this.makeRequest(`http://localhost:${tool.httpPort}/health`);
       return response.status === 200;
@@ -422,7 +422,7 @@ class ClaudeIntelligenceSuitePortable {
       uptime: os.uptime(),
       loadavg: os.loadavg()
     };
-    
+
     this.startMicroService(this.ports.systemHTTP, 'system', systemData);
   }
 
@@ -434,7 +434,7 @@ class ClaudeIntelligenceSuitePortable {
         authorStats: await this.getAuthorStats(),
         projectAge: await this.getProjectAge()
       };
-      
+
       this.startMicroService(this.ports.gitHTTP, 'git', gitData);
     } catch (error) {
       throw new Error(`Git intelligence failed: ${error.message}`);
@@ -447,7 +447,7 @@ class ClaudeIntelligenceSuitePortable {
       queryMetrics: { avgTime: 45, slowQueries: 2 },
       connections: { active: 5, idle: 15 }
     };
-    
+
     this.startMicroService(this.ports.databaseHTTP, 'database', dbData);
   }
 
@@ -458,7 +458,7 @@ class ClaudeIntelligenceSuitePortable {
       tools: Array.from(this.intelligenceTools.keys()),
       recommendations: this.generateRecommendations()
     };
-    
+
     this.startMicroService(this.ports.contextHTTP, 'context', contextData);
   }
 
@@ -466,11 +466,11 @@ class ClaudeIntelligenceSuitePortable {
     const microServer = http.createServer((req, res) => {
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Content-Type', 'application/json');
-      
+
       const url = new URL(req.url, `http://localhost:${port}`);
-      
+
       let responseData = { status: 'ok', type, timestamp: new Date().toISOString() };
-      
+
       switch (url.pathname) {
         case '/health':
           responseData = { ...responseData, health: 'healthy' };
@@ -481,10 +481,10 @@ class ClaudeIntelligenceSuitePortable {
         default:
           responseData = { ...responseData, ...data };
       }
-      
+
       res.end(JSON.stringify(responseData, null, 2));
     });
-    
+
     microServer.listen(port);
   }
 
@@ -503,7 +503,7 @@ class ClaudeIntelligenceSuitePortable {
       const request = http.get(url, (res) => {
         resolve({ status: res.statusCode });
       });
-      
+
       request.on('error', reject);
       request.setTimeout(5000, () => {
         request.destroy();
@@ -588,18 +588,18 @@ class ClaudeIntelligenceSuitePortable {
 
   generateRecommendations() {
     const recommendations = [];
-    
+
     if (this.environmentContext.projectType === 'Node.js') {
       recommendations.push('Monitor npm dependencies for security updates');
     }
-    
+
     if (this.environmentContext.hasGit) {
       recommendations.push('Use consistent commit message format for better collaboration');
     }
-    
+
     recommendations.push('Regular system resource monitoring');
     recommendations.push('Maintain development environment documentation');
-    
+
     return recommendations;
   }
 
@@ -647,7 +647,7 @@ class ClaudeIntelligenceSuitePortable {
         <h2>Project: ${this.config.projectName}</h2>
         <p>Portable intelligence system for Claude AI collaboration</p>
     </div>
-    
+
     <div class="project-info">
         <h3>📋 Project Environment</h3>
         <p><strong>Type:</strong> ${this.environmentContext.projectType}</p>
@@ -655,7 +655,7 @@ class ClaudeIntelligenceSuitePortable {
         <p><strong>Node:</strong> ${this.environmentContext.nodeVersion}</p>
         <p><strong>Directory:</strong> ${this.environmentContext.workingDirectory}</p>
     </div>
-    
+
     <div class="tools-grid">
         ${Array.from(this.intelligenceTools.entries()).map(([key, tool]) => `
             <div class="tool-card">
@@ -666,7 +666,7 @@ class ClaudeIntelligenceSuitePortable {
             </div>
         `).join('')}
     </div>
-    
+
     <div style="margin-top: 40px; padding: 20px; background: white; border-radius: 8px;">
         <h3>🔗 API Endpoints</h3>
         <ul>
@@ -734,14 +734,14 @@ class ClaudeIntelligenceSuitePortable {
       overall: 'healthy',
       tools: {}
     };
-    
+
     for (const [key, tool] of this.intelligenceTools) {
       health.tools[key] = {
         status: tool.status,
         healthy: tool.status === 'running'
       };
     }
-    
+
     return health;
   }
 
@@ -750,13 +750,13 @@ class ClaudeIntelligenceSuitePortable {
     if (!tool || !this.intelligenceTools.has(tool)) {
       return { error: 'Invalid tool specified' };
     }
-    
+
     // Restart tool implementation
     try {
       const toolConfig = this.intelligenceTools.get(tool);
       await toolConfig.implementation();
       toolConfig.status = 'running';
-      
+
       return { success: true, tool, status: 'running' };
     } catch (error) {
       return { success: false, tool, error: error.message };
@@ -768,10 +768,10 @@ class ClaudeIntelligenceSuitePortable {
     if (!tool || !this.intelligenceTools.has(tool)) {
       return { error: 'Invalid tool specified' };
     }
-    
+
     const toolConfig = this.intelligenceTools.get(tool);
     toolConfig.status = 'stopped';
-    
+
     return { success: true, tool, status: 'stopped' };
   }
 
@@ -797,7 +797,7 @@ class ClaudeIntelligenceSuitePortable {
 </head>
 <body>
     <h1>🚀 Claude Intelligence Suite - Installation Guide</h1>
-    
+
     <div class="step">
         <h3>📥 Step 1: Download</h3>
         <p>Copy the portable script to your project directory:</p>
@@ -806,7 +806,7 @@ curl -O https://example.com/claude-intelligence-suite-portable.js
 chmod +x claude-intelligence-suite-portable.js
         </div>
     </div>
-    
+
     <div class="step">
         <h3>🚀 Step 2: Run</h3>
         <p>Start the intelligence suite in your project:</p>
@@ -814,7 +814,7 @@ chmod +x claude-intelligence-suite-portable.js
 node claude-intelligence-suite-portable.js
         </div>
     </div>
-    
+
     <div class="step">
         <h3>⚙️ Step 3: Configure (Optional)</h3>
         <p>Customize for your project:</p>
@@ -830,7 +830,7 @@ const options = {
 new ClaudeIntelligenceSuitePortable(options);
         </div>
     </div>
-    
+
     <div class="step">
         <h3>📊 Step 4: Access Dashboard</h3>
         <p>Open your browser to:</p>
@@ -838,7 +838,7 @@ new ClaudeIntelligenceSuitePortable(options);
 http://localhost:${this.config.basePort}
         </div>
     </div>
-    
+
     <h2>🔧 Configuration Options</h2>
     <ul>
         <li><strong>basePort:</strong> Starting port number (default: 3050)</li>
@@ -847,7 +847,7 @@ http://localhost:${this.config.basePort}
         <li><strong>dataDir:</strong> Data storage directory</li>
         <li><strong>logLevel:</strong> Logging verbosity (info, debug, error)</li>
     </ul>
-    
+
     <h2>🛠️ Available Tools</h2>
     <ul>
         <li><strong>system:</strong> System resource monitoring</li>
@@ -868,9 +868,9 @@ if (require.main === module) {
     enabledTools: process.env.ENABLED_TOOLS ? process.env.ENABLED_TOOLS.split(',') : ['system', 'git', 'context'],
     logLevel: process.env.LOG_LEVEL || 'info'
   };
-  
+
   const suite = new ClaudeIntelligenceSuitePortable(options);
-  
+
   // Graceful shutdown
   process.on('SIGINT', () => {
     console.log('\n🧠 Claude Intelligence Suite (Portable) Shutting Down...');

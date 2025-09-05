@@ -61,7 +61,7 @@ echo "--------------------------------"
 
 if systemctl is-active --quiet docker; then
     print_status 0 "Docker service is running"
-    
+
     # Docker version
     DOCKER_VERSION=$(docker --version 2>/dev/null | cut -d' ' -f3 | sed 's/,//')
     print_status 0 "Docker version: $DOCKER_VERSION"
@@ -77,7 +77,7 @@ echo "-------------------------------"
 
 if [ -f "/etc/docker/daemon.json" ]; then
     print_status 0 "Docker daemon.json exists"
-    
+
     # Check if our custom configuration is applied
     if grep -q "172.31.0.1" /etc/docker/daemon.json 2>/dev/null; then
         print_status 0 "Custom Docker networking configuration applied"
@@ -140,7 +140,7 @@ if [ -f "package.json" ]; then
         print_status 1 "Root dependencies missing"
         print_info "Fix: npm install"
     fi
-    
+
     # Check web app dependencies
     if [ -f "apps/web/package.json" ]; then
         if [ -d "apps/web/node_modules" ]; then
@@ -161,7 +161,7 @@ echo "------------------------------------"
 
 if [ -f "apps/web/.env" ]; then
     print_status 0 "Environment file exists"
-    
+
     # Check for basic environment variables
     if grep -q "DATABASE_URL" apps/web/.env 2>/dev/null; then
         print_status 0 "Database URL configured"
@@ -181,7 +181,7 @@ echo "----------------------------------"
 print_info "Testing development server startup..."
 
 # Change to web app directory for testing
-cd apps/web 2>/dev/null || { 
+cd apps/web 2>/dev/null || {
     print_status 1 "Cannot access apps/web directory"
     exit 1
 }
@@ -196,7 +196,7 @@ sleep 5
 # Test if server is responding
 if curl -f http://localhost:3001/ >/dev/null 2>&1; then
     print_status 0 "Development server starts and responds"
-    
+
     # Test health endpoint
     if curl -f http://localhost:3001/health.json >/dev/null 2>&1; then
         print_status 0 "Health endpoint accessible"
@@ -225,11 +225,11 @@ cd apps/web 2>/dev/null
 print_info "Testing build process..."
 if timeout 30 npm run build >/dev/null 2>&1; then
     print_status 0 "Build process completes successfully"
-    
+
     # Check if build output exists
     if [ -d "dist" ]; then
         print_status 0 "Build output directory created"
-        
+
         # Check for key files
         if [ -f "dist/index.html" ]; then
             print_status 0 "Built HTML file exists"

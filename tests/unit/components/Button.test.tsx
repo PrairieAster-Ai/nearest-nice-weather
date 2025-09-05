@@ -8,8 +8,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 // Mock Material-UI components
 jest.mock('@mui/material', () => ({
   Button: ({ children, disabled, startIcon, ...props }: any) => (
-    <button 
-      disabled={disabled} 
+    <button
+      disabled={disabled}
       {...props}
       className={[
         'MuiButton-root',
@@ -40,17 +40,17 @@ describe('Button Component', () => {
     test('handles click events', () => {
       const handleClick = jest.fn();
       render(<Button onClick={handleClick}>Click me</Button>);
-      
+
       const button = screen.getByRole('button', { name: /click me/i });
       fireEvent.click(button);
-      
+
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
 
     test('can be disabled', () => {
       render(<Button disabled>Disabled</Button>);
       const button = screen.getByRole('button', { name: /disabled/i });
-      
+
       expect(button).toBeDisabled();
     });
   });
@@ -58,7 +58,7 @@ describe('Button Component', () => {
   describe('Loading state', () => {
     test('shows loading spinner when loading prop is true', () => {
       render(<Button loading>Loading</Button>);
-      
+
       // Check for CircularProgress component
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
@@ -66,7 +66,7 @@ describe('Button Component', () => {
     test('disables button when loading', () => {
       render(<Button loading>Loading</Button>);
       const button = screen.getByRole('button');
-      
+
       expect(button).toBeDisabled();
     });
 
@@ -76,7 +76,7 @@ describe('Button Component', () => {
           Submit
         </Button>
       );
-      
+
       expect(screen.getByText('Processing...')).toBeInTheDocument();
       expect(screen.queryByText('Submit')).not.toBeInTheDocument();
     });
@@ -87,7 +87,7 @@ describe('Button Component', () => {
           Submit
         </Button>
       );
-      
+
       expect(screen.getByText('Submit')).toBeInTheDocument();
     });
   });
@@ -96,28 +96,28 @@ describe('Button Component', () => {
     test('forwards variant prop to MUI Button', () => {
       render(<Button variant="contained">Contained</Button>);
       const button = screen.getByRole('button', { name: /contained/i });
-      
+
       expect(button).toHaveClass('MuiButton-contained');
     });
 
     test('forwards color prop to MUI Button', () => {
       render(<Button color="primary">Primary</Button>);
       const button = screen.getByRole('button', { name: /primary/i });
-      
+
       expect(button).toHaveClass('MuiButton-colorPrimary');
     });
 
     test('forwards size prop to MUI Button', () => {
       render(<Button size="large">Large</Button>);
       const button = screen.getByRole('button', { name: /large/i });
-      
+
       expect(button).toHaveClass('MuiButton-sizeLarge');
     });
 
     test('forwards fullWidth prop to MUI Button', () => {
       render(<Button fullWidth>Full Width</Button>);
       const button = screen.getByRole('button', { name: /full width/i });
-      
+
       expect(button).toHaveClass('MuiButton-fullWidth');
     });
 
@@ -128,7 +128,7 @@ describe('Button Component', () => {
           With Icon
         </Button>
       );
-      
+
       expect(screen.getByTestId('test-icon')).toBeInTheDocument();
     });
 
@@ -139,7 +139,7 @@ describe('Button Component', () => {
           With Icon
         </Button>
       );
-      
+
       expect(screen.queryByTestId('test-icon')).not.toBeInTheDocument();
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
@@ -152,7 +152,7 @@ describe('Button Component', () => {
           Submit
         </Button>
       );
-      
+
       expect(screen.getByLabelText('Submit form')).toBeInTheDocument();
     });
 
@@ -163,7 +163,7 @@ describe('Button Component', () => {
           <Button aria-describedby="button-description">Submit</Button>
         </>
       );
-      
+
       const button = screen.getByRole('button', { name: /submit/i });
       expect(button).toHaveAttribute('aria-describedby', 'button-description');
     });
@@ -171,13 +171,13 @@ describe('Button Component', () => {
     test('maintains focus when loading state changes', () => {
       const { rerender } = render(<Button>Submit</Button>);
       const button = screen.getByRole('button', { name: /submit/i });
-      
+
       button.focus();
       expect(button).toHaveFocus();
-      
+
       // Change to loading state
       rerender(<Button loading>Submit</Button>);
-      
+
       // Button should still be in the document (though disabled)
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
@@ -190,7 +190,7 @@ describe('Button Component', () => {
           Button
         </Button>
       );
-      
+
       const button = screen.getByRole('button');
       expect(button).toBeDisabled();
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -208,7 +208,7 @@ describe('Button Component', () => {
           <strong>Children</strong>
         </Button>
       );
-      
+
       expect(screen.getByText('Complex')).toBeInTheDocument();
       expect(screen.getByText('Children')).toBeInTheDocument();
     });
@@ -219,7 +219,7 @@ describe('Button Component', () => {
           Submit
         </Button>
       );
-      
+
       expect(screen.getByText('Submit')).toBeInTheDocument();
     });
   });

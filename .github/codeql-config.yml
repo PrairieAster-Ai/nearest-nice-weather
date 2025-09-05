@@ -1,0 +1,31 @@
+name: "CodeQL Security Analysis"
+
+# Disable built-in queries and focus on security
+disable-default-queries: false
+
+# Custom query suites for security focus
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# Paths to analyze (focus on source code, exclude tests for performance)
+paths:
+  - "apps/web/src"
+  - "scripts"
+  - "*.js"
+  - "*.ts"
+
+# Paths to ignore (reduce noise)
+paths-ignore:
+  - "apps/web/src/**/__tests__"
+  - "apps/web/src/**/*.test.*"
+  - "apps/web/src/**/*.spec.*"
+  - "tests/**"
+  - "node_modules/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/*.md"
+
+# Specific security configurations
+packs:
+  - security-extended

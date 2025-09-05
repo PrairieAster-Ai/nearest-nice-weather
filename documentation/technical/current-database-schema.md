@@ -1,13 +1,13 @@
 # Current Database Schema (Production Reality)
 
-**Last Updated**: July 25, 2025  
+**Last Updated**: July 25, 2025
 **Purpose**: Document the actual working database structure for MVP development
 
 ## Overview and Context
 
-**@CLAUDE_CONTEXT**: This document describes the ACTUAL database schema used in production  
-**@BUSINESS_RULE**: B2C consumer platform focused on Minnesota outdoor recreation market  
-**@ARCHITECTURE_NOTE**: Simple flat table structure chosen over PostGIS for MVP speed  
+**@CLAUDE_CONTEXT**: This document describes the ACTUAL database schema used in production
+**@BUSINESS_RULE**: B2C consumer platform focused on Minnesota outdoor recreation market
+**@ARCHITECTURE_NOTE**: Simple flat table structure chosen over PostGIS for MVP speed
 
 This schema serves the "Nearest Nice Weather" platform, providing weather-location data for outdoor enthusiasts and recreation consumers in Minnesota. The design prioritizes simplicity and rapid development over complex geographic operations.
 
@@ -27,11 +27,11 @@ This schema serves the "Nearest Nice Weather" platform, providing weather-locati
 Based on API analysis and production data, these tables actually exist and work:
 
 ### `locations`
-**@CLAUDE_CONTEXT**: Primary table for Minnesota weather locations (34 records in production)  
-**BUSINESS PURPOSE**: Geographic points where weather data is collected for outdoor recreation  
-**DATA RELATIONSHIPS**: Links to weather_conditions via location_id foreign key  
-**QUERY PATTERNS**: Frequently queried with distance calculations using Haversine formula  
-**PERFORMANCE NOTES**: No spatial indexes needed for current Minnesota-focused dataset (34 comprehensive locations)  
+**@CLAUDE_CONTEXT**: Primary table for Minnesota weather locations (34 records in production)
+**BUSINESS PURPOSE**: Geographic points where weather data is collected for outdoor recreation
+**DATA RELATIONSHIPS**: Links to weather_conditions via location_id foreign key
+**QUERY PATTERNS**: Frequently queried with distance calculations using Haversine formula
+**PERFORMANCE NOTES**: No spatial indexes needed for current Minnesota-focused dataset (34 comprehensive locations)
 
 ```sql
 -- CORE LOCATION DATA: Geographic identifiers for weather stations
@@ -41,12 +41,12 @@ lat         -- Latitude (decimal degrees, WGS84) - DECIMAL precision for mapping
 lng         -- Longitude (decimal degrees, WGS84) - DECIMAL precision for mapping
 ```
 
-### `weather_conditions`  
-**@CLAUDE_CONTEXT**: Current weather data linked to specific locations  
-**BUSINESS PURPOSE**: Real-time weather conditions for outdoor activity planning  
-**DATA RELATIONSHIPS**: References locations table via location_id foreign key  
-**QUERY PATTERNS**: Always joined with locations for complete weather-location data  
-**PERFORMANCE NOTES**: LEFT JOIN used to preserve locations without current weather data  
+### `weather_conditions`
+**@CLAUDE_CONTEXT**: Current weather data linked to specific locations
+**BUSINESS PURPOSE**: Real-time weather conditions for outdoor activity planning
+**DATA RELATIONSHIPS**: References locations table via location_id foreign key
+**QUERY PATTERNS**: Always joined with locations for complete weather-location data
+**PERFORMANCE NOTES**: LEFT JOIN used to preserve locations without current weather data
 
 ```sql
 -- CURRENT WEATHER DATA: Real-time conditions for outdoor recreation planning
@@ -90,7 +90,7 @@ The `documentation/technical/database-schema.sql` shows:
 - Organized schemas: `weather.*`, `tourism.*`, `analytics.*`
 - Complex geographic calculations
 
-### ✅ Actually Working  
+### ✅ Actually Working
 The production system uses:
 - Simple flat table structure
 - Basic SQL queries without PostGIS

@@ -17,7 +17,7 @@ echo "🔄 Starting Git Intelligence tool..."
 timeout 10 curl -X POST http://localhost:3050/start?tool=git >/dev/null 2>&1 &
 sleep 2
 
-# Start Context API 
+# Start Context API
 echo "🔄 Starting Context API tool..."
 timeout 10 curl -X POST http://localhost:3050/start?tool=context >/dev/null 2>&1 &
 sleep 2

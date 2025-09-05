@@ -2,23 +2,23 @@
  * ========================================================================
  * PERFORMANCE REQUIREMENTS - CENTRALIZED TESTING CONFIGURATION
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Single source of truth for all performance requirements
  * 🔗 CONNECTS TO: PlaywrightMCP, automated tests, monitoring tools
  * 📊 DATA FLOW: Requirements → Test assertions → Performance monitoring
  * ⚙️ CONFIGURATION: Target/max thresholds for automated testing
  * 🎯 USER IMPACT: Ensures consistent performance across all features
- * 
+ *
  * BUSINESS CONTEXT: Performance directly impacts user engagement
  * - Sub-100ms interactions create "instant gratification" feeling
  * - 3-second load time prevents user abandonment
  * - Consistent performance builds trust for outdoor planning
- * 
+ *
  * @CLAUDE_CONTEXT: Central performance config for all testing tools
  * @BUSINESS_RULE: MUST maintain <100ms filter feedback for engagement
  * @PERFORMANCE_CRITICAL: All thresholds are testable via automation
  * @TESTING_INTEGRATION: Designed for PlaywrightMCP consumption
- * 
+ *
  * LAST UPDATED: 2025-08-08
  */
 
@@ -76,15 +76,15 @@ export const PERF_THRESHOLDS = {
   // UI Responsiveness
   INSTANT_FEEDBACK: PERFORMANCE_REQUIREMENTS.componentRequirements.FabFilterSystem.uiFeedbackTime.max,
   FILTER_DEBOUNCE: PERFORMANCE_REQUIREMENTS.componentRequirements.FilterManager.debounceDelay.target,
-  
-  // Page Performance  
+
+  // Page Performance
   PAGE_LOAD: PERFORMANCE_REQUIREMENTS.globalRequirements.pageLoadTime.max,
   TIME_TO_INTERACTIVE: PERFORMANCE_REQUIREMENTS.globalRequirements.timeToInteractive.max,
-  
+
   // API Performance
   API_TIMEOUT: PERFORMANCE_REQUIREMENTS.globalRequirements.apiResponseTime.max,
   POI_API_TIMEOUT: PERFORMANCE_REQUIREMENTS.apiEndpoints['/api/poi-locations-with-weather'].responseTime.max,
-  
+
   // Map Performance
   MARKER_RENDER: PERFORMANCE_REQUIREMENTS.componentRequirements.MapComponent.markerRenderTime.max,
   MAP_ANIMATION: PERFORMANCE_REQUIREMENTS.componentRequirements.MapComponent.panAnimationDuration.max,
@@ -112,7 +112,7 @@ export const performanceHelpers = {
   assertPerformance(measured: number, component: string, metric: string): boolean {
     const requirement = PERFORMANCE_REQUIREMENTS.componentRequirements[component]?.[metric];
     if (!requirement) return true; // Pass if no requirement defined
-    
+
     return measured <= requirement.max;
   },
 
@@ -122,11 +122,11 @@ export const performanceHelpers = {
   getPerformanceReport(measured: number, component: string, metric: string): string {
     const req = PERFORMANCE_REQUIREMENTS.componentRequirements[component]?.[metric];
     if (!req) return 'No requirement defined';
-    
+
     const status = measured <= req.target ? '✅ EXCELLENT' :
                    measured <= req.max ? '⚠️ ACCEPTABLE' :
                    '❌ FAILED';
-    
+
     return `${status}: ${measured}ms (target: ${req.target}ms, max: ${req.max}ms)`;
   }
 };

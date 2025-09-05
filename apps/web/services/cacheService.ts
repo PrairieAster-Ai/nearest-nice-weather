@@ -2,14 +2,14 @@
  * ========================================================================
  * REDIS CACHE SERVICE - Environment-Aware Caching Implementation
  * ========================================================================
- * 
+ *
  * @PURPOSE: Unified caching service for weather data with environment-specific backends
  * @PRD_REF: PRD-REDIS-CACHING-180.md
- * @ARCHITECTURE: 
+ * @ARCHITECTURE:
  *   - Localhost: In-memory Map cache (development efficiency)
  *   - Vercel: Upstash Redis (serverless-optimized)
  *   - Graceful degradation when cache unavailable
- * 
+ *
  * BUSINESS IMPACT:
  *   - Reduces OpenWeather API costs by >60%
  *   - Improves API response times by >40%
@@ -50,7 +50,7 @@ export class CacheError extends Error {
 
 /**
  * ENVIRONMENT-AWARE CACHE SERVICE
- * 
+ *
  * Provides unified caching interface with automatic backend selection:
  * - Development: Fast in-memory cache for rapid iteration
  * - Production: Persistent Redis cache for cost optimization
@@ -80,7 +80,7 @@ export class CacheService {
   private detectEnvironmentConfig(customConfig?: Partial<CacheConfiguration>): CacheConfiguration {
     const isVercel = !!(process.env.VERCEL || process.env.VERCEL_ENV)
     const isLocalhost = !isVercel && (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV)
-    
+
     const baseConfig: CacheConfiguration = {
       environment: isVercel ? 'vercel' : (isLocalhost ? 'localhost' : 'unknown'),
       backend: 'memory', // Default fallback
@@ -112,12 +112,12 @@ export class CacheService {
       if (this.config.backend === 'redis' && this.config.redisUrl) {
         // Import Redis client dynamically for Vercel serverless compatibility
         const { Redis } = await import('@upstash/redis')
-        
+
         this.redisClient = Redis.fromEnv({
           url: this.config.redisUrl,
           token: process.env.UPSTASH_REDIS_REST_TOKEN
         })
-        
+
         console.log(`✅ Redis cache initialized for ${this.config.environment} environment`)
       } else if (this.config.backend === 'memory') {
         console.log(`✅ Memory cache initialized for ${this.config.environment} environment`)
@@ -138,7 +138,7 @@ export class CacheService {
    */
   private generateCacheKey(baseKey: string, params?: Record<string, any>): string {
     let key = `${this.config.keyPrefix}${baseKey}`
-    
+
     if (params) {
       // Sort parameters for consistent key generation
       const sortedParams = Object.keys(params)
@@ -147,7 +147,7 @@ export class CacheService {
         .join('|')
       key += `:${sortedParams}`
     }
-    
+
     return key
   }
 
@@ -260,7 +260,7 @@ export class CacheService {
    */
   private cleanupMemoryCache(): void {
     const now = Date.now()
-    
+
     // Remove expired entries
     for (const [key, entry] of this.memoryCache.entries()) {
       if (now - entry.timestamp >= entry.ttl) {
@@ -272,7 +272,7 @@ export class CacheService {
     if (this.memoryCache.size > this.config.maxMemoryEntries) {
       const entriesToRemove = this.memoryCache.size - this.config.maxMemoryEntries
       const keys = Array.from(this.memoryCache.keys())
-      
+
       for (let i = 0; i < entriesToRemove; i++) {
         this.memoryCache.delete(keys[i])
       }
@@ -285,25 +285,25 @@ export class CacheService {
    */
   async getBatch<T>(keys: Array<{ key: string; params?: Record<string, any> }>): Promise<Map<string, T | null>> {
     const results = new Map<string, T | null>()
-    
+
     // For now, execute serially (can be optimized with Redis pipeline)
     for (const keySpec of keys) {
       const result = await this.get<T>(keySpec.key, keySpec.params)
       const cacheKey = this.generateCacheKey(keySpec.key, keySpec.params)
       results.set(cacheKey, result)
     }
-    
+
     return results
   }
 
   async setBatch<T>(entries: Array<{ key: string; data: T; params?: Record<string, any>; ttl?: number }>): Promise<boolean[]> {
     const results: boolean[] = []
-    
+
     for (const entry of entries) {
       const result = await this.set(entry.key, entry.data, entry.params, entry.ttl)
       results.push(result)
     }
-    
+
     return results
   }
 
@@ -311,8 +311,8 @@ export class CacheService {
    * CACHE HEALTH & MONITORING
    */
   private updateHitRate(): void {
-    this.stats.hitRate = this.stats.totalRequests > 0 
-      ? (this.stats.hits / this.stats.totalRequests) * 100 
+    this.stats.hitRate = this.stats.totalRequests > 0
+      ? (this.stats.hits / this.stats.totalRequests) * 100
       : 0
   }
 
@@ -352,14 +352,14 @@ export class CacheService {
     // Round coordinates to specified precision for cache efficiency
     const roundedLat = Math.round(lat * Math.pow(10, precision)) / Math.pow(10, precision)
     const roundedLng = Math.round(lng * Math.pow(10, precision)) / Math.pow(10, precision)
-    
+
     return this.get('weather', { lat: roundedLat, lng: roundedLng })
   }
 
   async setWeatherData(lat: number, lng: number, weatherData: any, precision: number = 2): Promise<boolean> {
     const roundedLat = Math.round(lat * Math.pow(10, precision)) / Math.pow(10, precision)
     const roundedLng = Math.round(lng * Math.pow(10, precision)) / Math.pow(10, precision)
-    
+
     return this.set('weather', weatherData, { lat: roundedLat, lng: roundedLng })
   }
 

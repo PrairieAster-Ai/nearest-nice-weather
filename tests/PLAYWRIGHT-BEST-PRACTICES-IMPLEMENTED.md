@@ -167,7 +167,7 @@ test('Complete user journey', async ({ page }) => {
   const mapPage = new MapPage(page)
   const filterPage = new FilterPage(page)
   const feedbackPage = new FeedbackPage(page)
-  
+
   // Clean, readable workflow
   await mapPage.waitForMapReady()
   await filterPage.selectTemperature('hot')

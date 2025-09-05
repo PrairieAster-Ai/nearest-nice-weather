@@ -12,7 +12,7 @@
 # 4. In Claude conversation: "Update p.nearestniceweather.com alias"
 # 5. In Claude conversation: "Deploy to production if validated"
 
-# 🔄 FALLBACK: Traditional Script Workflow  
+# 🔄 FALLBACK: Traditional Script Workflow
 # 1. Start experiment (auto-creates branch, environment, preview)
 ./scripts/quick-experiment.sh weather-icons "Add weather condition icons"
 
@@ -140,7 +140,7 @@ git push origin main
 # Local development (if not running)
 cd apps/web && npm run dev
 
-# Finish experiment  
+# Finish experiment
 ./scripts/finish-experiment.sh my-feature success
 ```
 

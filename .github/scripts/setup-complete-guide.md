@@ -54,7 +54,7 @@ export GITHUB_TOKEN='your_token_here'
 # 2. Create Sprint 3 issues via API
 ./.github/scripts/github-api-integration.sh
 
-# 3. Sync with WBS presentation  
+# 3. Sync with WBS presentation
 ./.github/scripts/sync-wbs-github.sh
 ```
 

@@ -22,7 +22,7 @@ class KeyPerformanceTests {
       weatherQuery: 2000,    // 2 seconds max (core user workflow)
       bundleSize: 1000000,   // 1MB max (mobile data considerations)
       mapInteraction: 500,   // 500ms max (user experience)
-      
+
       // Scalability targets
       concurrentUsers: 50,   // Minimum concurrent capacity
       dataAccuracy: 0.95,    // 95% data integrity
@@ -33,26 +33,26 @@ class KeyPerformanceTests {
   async measureRequest(url, name, options = {}) {
     const isHttps = url.startsWith('https');
     const client = isHttps ? https : http;
-    
+
     return new Promise((resolve, reject) => {
       const start = process.hrtime.bigint();
-      
+
       const req = client.get(url, options, (res) => {
         let data = '';
         let firstByteTime = null;
-        
+
         res.on('data', chunk => {
           if (!firstByteTime) {
             firstByteTime = process.hrtime.bigint();
           }
           data += chunk;
         });
-        
+
         res.on('end', () => {
           const end = process.hrtime.bigint();
           const totalTime = Number(end - start) / 1000000; // Convert to milliseconds
           const ttfb = firstByteTime ? Number(firstByteTime - start) / 1000000 : totalTime;
-          
+
           resolve({
             statusCode: res.statusCode,
             headers: res.headers,
@@ -66,7 +66,7 @@ class KeyPerformanceTests {
           });
         });
       });
-      
+
       req.on('error', reject);
       req.setTimeout(15000, () => {
         req.destroy();
@@ -77,12 +77,12 @@ class KeyPerformanceTests {
 
   async runPerformanceTest(name, testFn, threshold, unit = 'ms') {
     console.log(`⚡ Performance Test: ${name}`);
-    
+
     try {
       const result = await testFn();
       const passed = result.value <= threshold;
       const status = passed ? '✅ PASS' : '❌ FAIL';
-      
+
       this.results[name] = {
         value: result.value,
         threshold,
@@ -90,14 +90,14 @@ class KeyPerformanceTests {
         unit,
         details: result.details || {}
       };
-      
+
       console.log(`   ${status}: ${result.value}${unit} (threshold: ${threshold}${unit})`);
       if (result.details.breakdown) {
         result.details.breakdown.forEach(item => {
           console.log(`     ${item}`);
         });
       }
-      
+
       return result;
     } catch (error) {
       console.log(`   ❌ ERROR: ${error.message}`);
@@ -144,7 +144,7 @@ class KeyPerformanceTests {
       async () => {
         const url = `${this.environments.production}/api/weather-locations?limit=10`;
         const response = await this.measureRequest(url, 'API Response');
-        
+
         let dataPoints = 0;
         try {
           const data = JSON.parse(response.body);
@@ -152,7 +152,7 @@ class KeyPerformanceTests {
         } catch (e) {
           // API might be broken, but we still measure response time
         }
-        
+
         return {
           value: Math.round(response.metrics.totalTime),
           details: {
@@ -176,7 +176,7 @@ class KeyPerformanceTests {
         // Test proximity query (core user workflow)
         const url = `${this.environments.production}/api/weather-locations?lat=44.9778&lng=-93.2650&limit=20`;
         const response = await this.measureRequest(url, 'Weather Query');
-        
+
         return {
           value: Math.round(response.metrics.totalTime),
           details: {
@@ -196,15 +196,15 @@ class KeyPerformanceTests {
       'Bundle Size',
       async () => {
         const response = await this.measureRequest(this.environments.production, 'Bundle Size');
-        
+
         // Extract JS bundle size from HTML
         const jsMatches = response.body.match(/src="([^"]*\.js[^"]*)"/g) || [];
         let totalJSSize = 0;
-        
+
         for (const match of jsMatches.slice(0, 3)) { // Check main bundles only
           const jsPath = match.match(/src="([^"]*)"/)[1];
           const jsUrl = jsPath.startsWith('http') ? jsPath : `${this.environments.production}${jsPath}`;
-          
+
           try {
             const jsResponse = await this.measureRequest(jsUrl, 'JS Bundle');
             totalJSSize += jsResponse.metrics.contentLength;
@@ -212,7 +212,7 @@ class KeyPerformanceTests {
             // Bundle might not be accessible, skip
           }
         }
-        
+
         return {
           value: totalJSSize,
           details: {
@@ -239,7 +239,7 @@ class KeyPerformanceTests {
       async () => {
         const url = `${this.environments.production}/api/test-db`;
         const response = await this.measureRequest(url, 'DB Connection');
-        
+
         return {
           value: Math.round(response.metrics.totalTime),
           details: {
@@ -264,20 +264,20 @@ class KeyPerformanceTests {
       async () => {
         const concurrentRequests = 10; // Scaled down for testing
         const url = `${this.environments.production}/api/weather-locations?limit=5`;
-        
-        const promises = Array(concurrentRequests).fill(null).map((_, i) => 
+
+        const promises = Array(concurrentRequests).fill(null).map((_, i) =>
           this.measureRequest(url, `Concurrent-${i}`)
         );
-        
+
         const start = Date.now();
         const responses = await Promise.allSettled(promises);
         const duration = Date.now() - start;
-        
+
         const successful = responses.filter(r => r.status === 'fulfilled').length;
         const failed = responses.filter(r => r.status === 'rejected').length;
-        
+
         const successRate = successful / concurrentRequests;
-        
+
         return {
           value: Math.round(duration),
           details: {
@@ -304,7 +304,7 @@ class KeyPerformanceTests {
     console.log('');
     console.log('🔄 ENVIRONMENT COMPARISON');
     console.log('══════════════════════════════════════════════════════');
-    
+
     const tests = [
       {
         name: 'API Response',
@@ -312,11 +312,11 @@ class KeyPerformanceTests {
         production: `${this.environments.production}/api/weather-locations?limit=5`
       }
     ];
-    
+
     for (const test of tests) {
       try {
         console.log(`📊 Comparing: ${test.name}`);
-        
+
         // Test local environment
         let localResult = null;
         try {
@@ -326,7 +326,7 @@ class KeyPerformanceTests {
         } catch (e) {
           console.log(`   🏠 Local: ❌ ${e.message}`);
         }
-        
+
         // Test production environment
         let prodResult = null;
         try {
@@ -336,14 +336,14 @@ class KeyPerformanceTests {
         } catch (e) {
           console.log(`   🌐 Production: ❌ ${e.message}`);
         }
-        
+
         // Compare if both successful
         if (localResult && prodResult) {
           const difference = prodResult - localResult;
           const percentage = Math.round((difference / localResult) * 100);
           console.log(`   📈 Difference: +${difference}ms (${percentage > 0 ? '+' : ''}${percentage}%)`);
         }
-        
+
       } catch (error) {
         console.log(`   ❌ Comparison failed: ${error.message}`);
       }
@@ -383,14 +383,14 @@ class KeyPerformanceTests {
     console.log('');
     console.log('📊 PERFORMANCE SUMMARY');
     console.log('══════════════════════════════════════════════════════');
-    
+
     const tests = Object.keys(this.results);
     const passed = tests.filter(test => this.results[test].passed).length;
     const failed = tests.filter(test => !this.results[test].passed).length;
-    
+
     console.log(`✅ Passed: ${passed}/${tests.length}`);
     console.log(`❌ Failed: ${failed}/${tests.length}`);
-    
+
     // Performance Grade
     const passRate = passed / tests.length;
     let grade = 'F';
@@ -398,15 +398,15 @@ class KeyPerformanceTests {
     else if (passRate >= 0.85) grade = 'B';
     else if (passRate >= 0.70) grade = 'C';
     else if (passRate >= 0.50) grade = 'D';
-    
+
     console.log(`📈 Performance Grade: ${grade} (${Math.round(passRate * 100)}%)`);
-    
+
     // Critical Performance Issues
     const criticalTests = ['Site Load Time', 'API Response Time', 'Weather Query Time'];
-    const criticalFailed = criticalTests.filter(test => 
+    const criticalFailed = criticalTests.filter(test =>
       this.results[test] && !this.results[test].passed
     );
-    
+
     if (criticalFailed.length > 0) {
       console.log('');
       console.log('🚨 CRITICAL PERFORMANCE ISSUES:');
@@ -415,25 +415,25 @@ class KeyPerformanceTests {
         console.log(`   ❌ ${test}: ${result.value}${result.unit} (threshold: ${result.threshold}${result.unit})`);
       });
     }
-    
+
     // Performance Recommendations
     console.log('');
     console.log('💡 PERFORMANCE RECOMMENDATIONS:');
-    
+
     if (this.results['Bundle Size'] && !this.results['Bundle Size'].passed) {
       console.log('   • Optimize bundle size with code splitting and tree shaking');
     }
-    
+
     if (this.results['API Response Time'] && !this.results['API Response Time'].passed) {
       console.log('   • Implement API response caching for weather data');
       console.log('   • Optimize database queries with indexes');
     }
-    
+
     if (this.results['Site Load Time'] && !this.results['Site Load Time'].passed) {
       console.log('   • Enable CDN for static assets');
       console.log('   • Optimize images and fonts');
     }
-    
+
     console.log('   • Consider implementing service worker for offline capability');
     console.log('   • Add performance monitoring for continuous optimization');
   }

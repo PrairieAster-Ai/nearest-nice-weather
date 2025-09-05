@@ -31,7 +31,7 @@ chmod +x claude-intelligence-suite-portable.js
 ./claude-intelligence-suite-portable.js
 ```
 
-**✅ Pros:** Zero dependencies, works anywhere, self-contained  
+**✅ Pros:** Zero dependencies, works anywhere, self-contained
 **❌ Cons:** Manual download required
 
 ### 2. NPM Package
@@ -46,7 +46,7 @@ npm install -g @claude-ai/intelligence-suite
 claude-intelligence
 ```
 
-**✅ Pros:** Easy updates, integrated with Node.js workflow  
+**✅ Pros:** Easy updates, integrated with Node.js workflow
 **❌ Cons:** Requires npm, adds to dependencies
 
 ### 3. Docker Container
@@ -61,7 +61,7 @@ docker run -it --rm \
   npx @claude-ai/intelligence-suite
 ```
 
-**✅ Pros:** Isolated environment, consistent deployment  
+**✅ Pros:** Isolated environment, consistent deployment
 **❌ Cons:** Requires Docker, less direct access
 
 ### 4. Universal Installer
@@ -77,7 +77,7 @@ curl -fsSL https://example.com/install.sh | bash -s -- \
   --global
 ```
 
-**✅ Pros:** Handles prerequisites, customizable, service setup  
+**✅ Pros:** Handles prerequisites, customizable, service setup
 **❌ Cons:** Requires internet connection
 
 ## 🛠️ Project-Specific Deployments
@@ -191,7 +191,7 @@ services:
       - "3000:3000"
     depends_on:
       - claude-intelligence
-  
+
   claude-intelligence:
     image: node:16
     working_dir: /workspace
@@ -269,24 +269,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      
+
       - name: Start Claude Intelligence
         run: |
           npx @claude-ai/intelligence-suite &
           CLAUDE_PID=$!
           sleep 10
-          
+
           # Health check
           curl -f http://localhost:3050/health || exit 1
-          
+
           # Run your tests here
           npm test
-          
+
           # Cleanup
           kill $CLAUDE_PID
 ```
@@ -312,27 +312,27 @@ AUTO_DETECT_SERVICES=true
 module.exports = {
   projectName: process.env.PROJECT_NAME || 'auto-detect',
   basePort: parseInt(process.env.BASE_PORT) || 3050,
-  
-  enabledTools: process.env.ENABLED_TOOLS ? 
-    process.env.ENABLED_TOOLS.split(',') : 
+
+  enabledTools: process.env.ENABLED_TOOLS ?
+    process.env.ENABLED_TOOLS.split(',') :
     ['system', 'git', 'context'],
-  
+
   logLevel: process.env.LOG_LEVEL || 'info',
   dataDir: process.env.DATA_DIR || '/tmp/claude-intelligence',
   autoDetectServices: process.env.AUTO_DETECT_SERVICES !== 'false',
-  
+
   // Database configuration
   database: {
     connectionString: process.env.DATABASE_URL,
     maxConnections: 20
   },
-  
-  // Git configuration  
+
+  // Git configuration
   git: {
     mainBranch: 'main',
     analyzeDepth: 100
   },
-  
+
   // System monitoring configuration
   system: {
     monitorInterval: 10000,
@@ -355,13 +355,13 @@ const suite = new ClaudeIntelligence({
   projectName: 'runtime-configured-app',
   basePort: 4000,
   enabledTools: ['system', 'git'],
-  
+
   // Custom tool configurations
   systemConfig: {
     monitorInterval: 5000,
     alertThresholds: { cpu: 80, memory: 75 }
   },
-  
+
   gitConfig: {
     analyzeDepth: 200,
     trackCollaboration: true
@@ -416,13 +416,13 @@ const config = {
   // Encrypt sensitive data
   dataEncryption: true,
   encryptionKey: process.env.CLAUDE_ENCRYPTION_KEY,
-  
+
   // Limit data retention
   dataRetentionDays: 7,
-  
+
   // Disable external access
   allowExternalAccess: false,
-  
+
   // Authentication (if needed)
   authentication: {
     enabled: process.env.NODE_ENV === 'production',
@@ -525,7 +525,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 # Test local connectivity
 curl http://localhost:3050/health
 
-# Test network connectivity  
+# Test network connectivity
 curl http://192.168.1.100:3050/health
 
 # Check firewall

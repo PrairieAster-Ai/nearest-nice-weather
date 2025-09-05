@@ -9,7 +9,7 @@ echo ""
 # Check if GitHub CLI is installed
 if ! command -v gh &> /dev/null; then
     echo "📦 Installing GitHub CLI..."
-    
+
     # Detect OS and install accordingly
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Ubuntu/Debian
@@ -39,7 +39,7 @@ if ! command -v gh &> /dev/null; then
         echo "❌ Unsupported OS. Please install GitHub CLI manually: https://github.com/cli/cli#installation"
         exit 1
     fi
-    
+
     echo "✅ GitHub CLI installed successfully"
 else
     echo "✅ GitHub CLI already installed: $(gh --version | head -n1)"
@@ -62,10 +62,10 @@ else
     echo "- repo (for issue management)"
     echo "- project (for project board integration)"
     echo ""
-    
+
     # Authenticate with required scopes
     gh auth login --scopes "repo,project,read:org"
-    
+
     if gh auth status &> /dev/null; then
         echo "✅ GitHub authentication successful!"
     else

@@ -20,20 +20,20 @@ describe('Feedback API Endpoint Tests', () => {
   beforeEach(() => {
     // Save original environment
     originalEnv = { ...process.env }
-    
+
     // Set up test environment
     process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/test'
     process.env.NODE_ENV = 'test'
-    
+
     // Create mock pool
     mockPool = {
       connect: vi.fn(),
       end: vi.fn(),
       query: vi.fn(),
     }
-    
+
     vi.mocked(Pool).mockImplementation(() => mockPool)
-    
+
     // Clear console mocks
     vi.clearAllMocks()
   })
@@ -134,7 +134,7 @@ describe('Feedback API Endpoint Tests', () => {
         }),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
@@ -161,7 +161,7 @@ describe('Feedback API Endpoint Tests', () => {
       expect(data.feedback_id).toBe(1)
       expect(data.message).toBe('Feedback received successfully')
       expect(data.debug).toHaveProperty('has_database_url', true)
-      
+
       // Verify database query was called with correct parameters
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO user_feedback'),
@@ -185,7 +185,7 @@ describe('Feedback API Endpoint Tests', () => {
         }),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
@@ -200,7 +200,7 @@ describe('Feedback API Endpoint Tests', () => {
       expect(res._getStatusCode()).toBe(200)
       const data = JSON.parse(res._getData())
       expect(data.success).toBe(true)
-      
+
       // Verify database query was called with null values for optional fields
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO user_feedback'),
@@ -222,7 +222,7 @@ describe('Feedback API Endpoint Tests', () => {
     it('should handle database connection failures gracefully', async () => {
       const dbError = new Error('connect ECONNREFUSED')
       dbError.code = 'ECONNREFUSED'
-      
+
       mockPool.connect.mockRejectedValue(dbError)
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
@@ -247,7 +247,7 @@ describe('Feedback API Endpoint Tests', () => {
     it('should handle authentication errors', async () => {
       const authError = new Error('password authentication failed')
       authError.code = '28P01'
-      
+
       mockPool.connect.mockRejectedValue(authError)
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
@@ -269,7 +269,7 @@ describe('Feedback API Endpoint Tests', () => {
     it('should handle SSL connection errors', async () => {
       const sslError = new Error('SSL connection has been closed unexpectedly')
       sslError.code = '08006'
-      
+
       mockPool.connect.mockRejectedValue(sslError)
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
@@ -297,7 +297,7 @@ describe('Feedback API Endpoint Tests', () => {
         }),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
@@ -323,7 +323,7 @@ describe('Feedback API Endpoint Tests', () => {
       expect(res._getStatusCode()).toBe(200)
       const data = JSON.parse(res._getData())
       expect(data.success).toBe(true)
-      
+
       // Verify special characters were preserved
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO user_feedback'),
@@ -349,7 +349,7 @@ describe('Feedback API Endpoint Tests', () => {
         }),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
@@ -365,7 +365,7 @@ describe('Feedback API Endpoint Tests', () => {
       expect(res._getStatusCode()).toBe(200)
       const data = JSON.parse(res._getData())
       expect(data.success).toBe(true)
-      
+
       // Verify exclamation marks were preserved
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO user_feedback'),
@@ -380,7 +380,7 @@ describe('Feedback API Endpoint Tests', () => {
     it('should detect and report environment variable status', async () => {
       process.env.DATABASE_URL = 'postgresql://user:pass@ep-123.neon.tech/db'
       process.env.POSTGRES_URL = 'postgresql://user:pass@localhost:5432/db'
-      
+
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
         method: 'POST',
         body: {
@@ -409,7 +409,7 @@ describe('Feedback API Endpoint Tests', () => {
     it('should handle missing environment variables', async () => {
       delete process.env.DATABASE_URL
       delete process.env.POSTGRES_URL
-      
+
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
         method: 'POST',
         body: {
@@ -505,7 +505,7 @@ describe('Feedback API Endpoint Tests', () => {
       // Mock a catastrophic error that happens before database connection
       const originalHandler = handler
       const errorHandler = vi.fn().mockRejectedValue(new Error('Unexpected server error'))
-      
+
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
         method: 'POST',
         body: { feedback: 'Test feedback' },

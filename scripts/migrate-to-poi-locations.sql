@@ -1,7 +1,7 @@
 -- ========================================================================
 -- MIGRATION: Consolidate poi_locations_expanded back to poi_locations
 -- ========================================================================
--- 
+--
 -- PURPOSE: Refactor poi_locations_expanded table back to poi_locations
 --          with all the enhanced fields from the expanded version
 --
@@ -12,7 +12,7 @@
 -- ========================================================================
 
 -- Step 1: Add missing columns to poi_locations if they don't exist
-ALTER TABLE poi_locations 
+ALTER TABLE poi_locations
 ADD COLUMN IF NOT EXISTS park_level VARCHAR(50),
 ADD COLUMN IF NOT EXISTS ownership VARCHAR(100),
 ADD COLUMN IF NOT EXISTS operator VARCHAR(255),
@@ -25,14 +25,14 @@ ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- Step 2: Create a unique constraint if it doesn't exist
-DO $$ 
+DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint 
+        SELECT 1 FROM pg_constraint
         WHERE conname = 'poi_locations_source_unique'
     ) THEN
-        ALTER TABLE poi_locations 
-        ADD CONSTRAINT poi_locations_source_unique 
+        ALTER TABLE poi_locations
+        ADD CONSTRAINT poi_locations_source_unique
         UNIQUE(data_source, source_id);
     END IF;
 END $$;
@@ -46,33 +46,33 @@ DECLARE
 BEGIN
     -- Check if expanded table exists
     SELECT EXISTS (
-        SELECT FROM information_schema.tables 
+        SELECT FROM information_schema.tables
         WHERE table_name = 'poi_locations_expanded'
     ) INTO expanded_exists;
-    
+
     IF expanded_exists THEN
         -- Count records in both tables
         SELECT COUNT(*) FROM poi_locations_expanded INTO expanded_count;
         SELECT COUNT(*) FROM poi_locations INTO poi_count;
-        
+
         RAISE NOTICE 'poi_locations_expanded exists with % records', expanded_count;
         RAISE NOTICE 'poi_locations has % records', poi_count;
-        
+
         -- If expanded has more data, migrate it
         IF expanded_count > poi_count THEN
             RAISE NOTICE 'Migrating data from poi_locations_expanded to poi_locations...';
-            
+
             -- Clear poi_locations and migrate all data
             TRUNCATE poi_locations RESTART IDENTITY CASCADE;
-            
+
             INSERT INTO poi_locations (
-                name, lat, lng, 
+                name, lat, lng,
                 park_type, park_level, ownership, operator,
                 description, data_source, source_id, place_rank,
                 phone, website, amenities, activities,
                 created_at, updated_at
             )
-            SELECT 
+            SELECT
                 name, lat, lng,
                 park_type, park_level, ownership, operator,
                 description, data_source, source_id, place_rank,
@@ -94,7 +94,7 @@ BEGIN
                 amenities = EXCLUDED.amenities,
                 activities = EXCLUDED.activities,
                 updated_at = CURRENT_TIMESTAMP;
-                
+
             RAISE NOTICE 'Migration complete. Migrated % records', expanded_count;
         ELSE
             RAISE NOTICE 'poi_locations already has sufficient data, skipping migration';
@@ -114,7 +114,7 @@ CREATE INDEX IF NOT EXISTS idx_poi_locations_place_rank ON poi_locations(place_r
 COMMENT ON TABLE poi_locations IS 'Primary POI table with full metadata - consolidated from poi_locations_expanded';
 
 -- Step 6: Display final status
-SELECT 
+SELECT
     'poi_locations' as table_name,
     COUNT(*) as record_count,
     COUNT(DISTINCT park_type) as park_types,

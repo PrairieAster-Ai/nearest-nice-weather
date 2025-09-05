@@ -8,7 +8,7 @@
 
 ### Timeline Summary (Risk-Aware Sprint Planning)
 - **Sprints 1-3**: Foundation & Weekend Warriors Customer Discovery (Weeks 1-6)
-- **Sprints 4-7**: Core Platform Development - Biological UX Optimization (Weeks 7-14)  
+- **Sprints 4-7**: Core Platform Development - Biological UX Optimization (Weeks 7-14)
 - **Sprints 8-11**: Customer Interface Development - <100ms Dopamine Response (Weeks 15-22)
 - **Sprints 12-13**: Launch Preparation & Core Value Validation (Weeks 23-26)
 
@@ -38,7 +38,7 @@
   - Development environment testing and optimization
   - **Deliverable**: Development environment functional
 
-#### Week 2 Tasks  
+#### Week 2 Tasks
 - [ ] **Market Research Database**
   - Compile 200+ Minnesota tourism operator contacts
   - Research Mayo Clinic area hospitality providers

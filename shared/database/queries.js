@@ -2,15 +2,15 @@
  * ========================================================================
  * SHARED DATABASE QUERIES - Unified Logic for Dual API Architecture
  * ========================================================================
- * 
+ *
  * @PURPOSE: Single source of truth for all POI database queries
  * @USAGE: Used by both Express.js (localhost) and Vercel functions (production)
  * @BENEFIT: Eliminates query duplication and sync maintenance overhead
- * 
+ *
  * This module provides consistent POI query logic across environments:
  * - localhost: dev-api-server.js imports these functions
  * - production: apps/web/api/*.js imports these functions
- * 
+ *
  * Handles schema fallbacks, coordinate transformations, and result formatting
  * identically for both database drivers (pg vs @neondatabase/serverless)
  */
@@ -18,22 +18,22 @@
 /**
  * Standard POI query with proximity calculation
  * Uses Haversine formula for distance calculation
- * 
+ *
  * @param {Object} params - Query parameters
  * @param {number|null} params.lat - User latitude for proximity search
- * @param {number|null} params.lng - User longitude for proximity search  
+ * @param {number|null} params.lng - User longitude for proximity search
  * @param {number} params.limit - Maximum results to return
  * @returns {Object} Query object with sql and params
  */
 export function buildPOIQuery({ lat, lng, limit = 200 }) {
   const limitNum = Math.min(parseInt(limit) || 200, 500)
-  
+
   if (lat && lng) {
     // Proximity-based query with Haversine distance calculation
     return {
       // Try expanded table first (production schema)
       primaryQuery: `
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities,
           (
@@ -42,8 +42,8 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
             -- 🧮 Formula: R * acos(cos(lat1) * cos(lat2) * cos(lng2-lng1) + sin(lat1) * sin(lat2))
             -- 📍 Parameters: lng (user), lat (user), lat/lng are POI coordinates
             3959 * acos(
-              cos(radians($2)) * cos(radians(lat)) * 
-              cos(radians(lng) - radians($1)) + 
+              cos(radians($2)) * cos(radians(lat)) *
+              cos(radians(lng) - radians($1)) +
               sin(radians($2)) * sin(radians(lat))
             )
           ) as distance_miles
@@ -53,13 +53,13 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
       `,
       // Fallback to basic table (development schema)
       fallbackQuery: `
-        SELECT id, name, lat, lng, park_type, data_source, 
+        SELECT id, name, lat, lng, park_type, data_source,
                description, place_rank,
                NULL as park_level, NULL as ownership, NULL as operator,
                NULL as phone, NULL as website, NULL as amenities, NULL as activities,
           (3959 * acos(
-            cos(radians($2)) * cos(radians(lat)) * 
-            cos(radians(lng) - radians($1)) + 
+            cos(radians($2)) * cos(radians(lat)) *
+            cos(radians(lng) - radians($1)) +
             sin(radians($2)) * sin(radians(lat))
           )) as distance_miles
         FROM poi_locations
@@ -73,7 +73,7 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
     // Importance-based query (no user location)
     return {
       primaryQuery: `
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities
         FROM poi_locations_expanded
@@ -81,7 +81,7 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
         LIMIT $1
       `,
       fallbackQuery: `
-        SELECT id, name, lat, lng, park_type, data_source, 
+        SELECT id, name, lat, lng, park_type, data_source,
                description, place_rank,
                NULL as park_level, NULL as ownership, NULL as operator,
                NULL as phone, NULL as website, NULL as amenities, NULL as activities
@@ -101,20 +101,20 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
  */
 export function buildNeonPOIQuery({ lat, lng, limit = 200 }) {
   const limitNum = Math.min(parseInt(limit) || 200, 500)
-  
+
   if (lat && lng) {
     const userLat = parseFloat(lat)
     const userLng = parseFloat(lng)
-    
+
     return {
       // Primary query for expanded schema
       primaryQuery: (sql) => sql`
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities,
           (3959 * acos(
-            cos(radians(${userLat})) * cos(radians(lat)) * 
-            cos(radians(lng) - radians(${userLng})) + 
+            cos(radians(${userLat})) * cos(radians(lat)) *
+            cos(radians(lng) - radians(${userLng})) +
             sin(radians(${userLat})) * sin(radians(lat))
           )) as distance_miles
         FROM poi_locations_expanded
@@ -123,13 +123,13 @@ export function buildNeonPOIQuery({ lat, lng, limit = 200 }) {
       `,
       // Fallback for basic schema
       fallbackQuery: (sql) => sql`
-        SELECT id, name, lat, lng, park_type, data_source, 
+        SELECT id, name, lat, lng, park_type, data_source,
                description, place_rank,
                NULL as park_level, NULL as ownership, NULL as operator,
                NULL as phone, NULL as website, NULL as amenities, NULL as activities,
           (3959 * acos(
-            cos(radians(${userLat})) * cos(radians(lat)) * 
-            cos(radians(lng) - radians(${userLng})) + 
+            cos(radians(${userLat})) * cos(radians(lat)) *
+            cos(radians(lng) - radians(${userLng})) +
             sin(radians(${userLat})) * sin(radians(lat))
           )) as distance_miles
         FROM poi_locations
@@ -141,7 +141,7 @@ export function buildNeonPOIQuery({ lat, lng, limit = 200 }) {
   } else {
     return {
       primaryQuery: (sql) => sql`
-        SELECT 
+        SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities
         FROM poi_locations_expanded
@@ -149,7 +149,7 @@ export function buildNeonPOIQuery({ lat, lng, limit = 200 }) {
         LIMIT ${limitNum}
       `,
       fallbackQuery: (sql) => sql`
-        SELECT id, name, lat, lng, park_type, data_source, 
+        SELECT id, name, lat, lng, park_type, data_source,
                description, place_rank,
                NULL as park_level, NULL as ownership, NULL as operator,
                NULL as phone, NULL as website, NULL as amenities, NULL as activities
@@ -165,7 +165,7 @@ export function buildNeonPOIQuery({ lat, lng, limit = 200 }) {
 /**
  * Standardized POI result transformation
  * Ensures consistent response format across all environments
- * 
+ *
  * @param {Array} rows - Raw database rows
  * @returns {Array} Normalized POI objects
  */

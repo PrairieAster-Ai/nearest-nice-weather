@@ -1,6 +1,6 @@
 /**
  * Database Connection Validation Tests
- * 
+ *
  * These tests prevent the database connection issues we encountered:
  * - Malformed DATABASE_URL (psql wrapper problems)
  * - Environment variable conflicts
@@ -11,21 +11,21 @@
 const { Pool } = require('pg');
 
 describe('Database Connection Validation', () => {
-  
+
   test('DATABASE_URL should be properly formatted', () => {
     const databaseUrl = process.env.DATABASE_URL;
-    
+
     if (databaseUrl) {
       // Should start with postgresql:// not psql 'postgresql://
       expect(databaseUrl).toMatch(/^postgresql:\/\//);
       expect(databaseUrl).not.toMatch(/^psql\s+'/);
-      
+
       // Should not have trailing quotes
       expect(databaseUrl).not.toMatch(/'$/);
-      
+
       // Should contain required components
       expect(databaseUrl).toMatch(/@.+\/.+/); // @ for auth, / for database
-      
+
       // Should have SSL mode for Neon
       if (databaseUrl.includes('neon.tech')) {
         expect(databaseUrl).toMatch(/sslmode=require/);
@@ -35,7 +35,7 @@ describe('Database Connection Validation', () => {
 
   test('database connection should work with current configuration', async () => {
     const connectionString = process.env.DATABASE_URL;
-    
+
     if (!connectionString) {
       console.log('DATABASE_URL not set, skipping connection test');
       return;
@@ -52,25 +52,25 @@ describe('Database Connection Validation', () => {
     let client;
     try {
       client = await pool.connect();
-      
+
       // Check if user_feedback table exists
       const tableCheck = await client.query(`
         SELECT EXISTS (
-          SELECT FROM information_schema.tables 
+          SELECT FROM information_schema.tables
           WHERE table_name = 'user_feedback'
         );
       `);
-      
+
       expect(tableCheck.rows[0].exists).toBe(true);
-      
+
       // Test table structure
       const columnCheck = await client.query(`
-        SELECT column_name, data_type 
-        FROM information_schema.columns 
+        SELECT column_name, data_type
+        FROM information_schema.columns
         WHERE table_name = 'user_feedback'
         ORDER BY ordinal_position;
       `);
-      
+
       const columns = columnCheck.rows.map(row => row.column_name);
       expect(columns).toContain('id');
       expect(columns).toContain('feedback_text');
@@ -78,7 +78,7 @@ describe('Database Connection Validation', () => {
       expect(columns).toContain('rating');
       expect(columns).toContain('categories');
       expect(columns).toContain('created_at');
-      
+
     } catch (error) {
       // Expected failure for test database URL - table won't exist but that's OK
       console.log('Expected table validation failure (test environment):', error.message);
@@ -92,7 +92,7 @@ describe('Database Connection Validation', () => {
   test('should not have hardcoded localhost database URLs', () => {
     const fs = require('fs');
     const path = require('path');
-    
+
     // Check for hardcoded localhost URLs in API files
     const apiFiles = [
       path.join(__dirname, '../../api/feedback.ts'),
@@ -111,7 +111,7 @@ describe('Database Connection Validation', () => {
 
   test('environment variables should be validated', () => {
     const requiredEnvVars = ['DATABASE_URL'];
-    
+
     // In production environments, these should be set
     // Skip this check in CI/test environments where DATABASE_URL may not be configured
     if (process.env.NODE_ENV === 'production' && !process.env.CI) {

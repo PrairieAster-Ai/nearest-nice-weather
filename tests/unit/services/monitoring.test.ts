@@ -108,7 +108,7 @@ describe('MonitoringService', () => {
 
     test('should handle error without context', () => {
       const testError = new Error('Simple error');
-      
+
       monitoring.captureError(testError);
 
       expect(mockConsoleError).toHaveBeenCalledWith('🚨 Error captured:', expect.objectContaining({

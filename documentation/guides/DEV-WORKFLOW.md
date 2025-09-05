@@ -21,7 +21,7 @@ npm run dev
 # Start individual services
 npm run dev:infrastructure  # PostgreSQL + Redis
 npm run dev:backend        # FastAPI on :8000
-npm run dev:api            # Vercel functions on :4000  
+npm run dev:api            # Vercel functions on :4000
 npm run dev:web            # Vite React app on :3002
 
 # Build everything
@@ -242,7 +242,7 @@ npm run type-check
 npm run build:web  # Check bundle size
 # Optimize: Code splitting, lazy loading
 
-# Backend slow  
+# Backend slow
 # Check: Database queries, Redis caching
 
 # API slow

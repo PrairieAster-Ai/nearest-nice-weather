@@ -71,21 +71,21 @@ echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🔨 Applying fixes..."
-    
+
     # Fix node_modules permissions
     if [[ -d "node_modules" ]]; then
         echo "   Fixing node_modules permissions..."
         chmod -R u+rwX node_modules/ 2>/dev/null || echo "   ⚠️  Some node_modules fixes failed"
-        
+
         if [[ -d "node_modules/.bin" ]]; then
             chmod +x node_modules/.bin/* 2>/dev/null || echo "   ⚠️  Some .bin fixes failed"
         fi
     fi
-    
+
     # Clear npm cache
     echo "   Clearing npm cache..."
     npm cache clean --force 2>/dev/null || echo "   ⚠️  npm cache clean failed"
-    
+
     echo "   ✅ Quick fixes applied"
     echo ""
     echo "🚀 Test Development Server:"

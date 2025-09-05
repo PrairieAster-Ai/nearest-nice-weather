@@ -2,25 +2,25 @@
  * ========================================================================
  * LOCATION UTILITIES TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for location utility functions
  * 🔗 UTILITIES: locationUtils - Pure location management functions
  * 📊 COVERAGE: Coordinate validation, localStorage, location methods
  * ⚙️ FUNCTIONALITY: Location state management and persistence
  * 🎯 BUSINESS_IMPACT: Ensures reliable location tracking for POI recommendations
- * 
+ *
  * BUSINESS CONTEXT: Location management reliability
  * - Validates coordinate accuracy for map positioning
  * - Ensures localStorage persistence works across sessions
  * - Tests location method prioritization logic
  * - Verifies Minnesota boundary validation
- * 
+ *
  * TECHNICAL COVERAGE: Pure function testing
  * - Coordinate validation edge cases
  * - localStorage error handling
  * - Distance calculation accuracy
  * - Location state transitions
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -284,7 +284,7 @@ describe('Location Utilities', () => {
     it('should return false for small changes within threshold', () => {
       const location1: [number, number] = [44.9537, -93.0900]
       const location2: [number, number] = [44.9538, -93.0901] // Very small change
-      
+
       const result = hasLocationChangedSignificantly(location1, location2, 0.1)
       expect(result).toBe(false)
     })
@@ -292,7 +292,7 @@ describe('Location Utilities', () => {
     it('should return true for large changes exceeding threshold', () => {
       const minneapolis: [number, number] = [44.9537, -93.0900]
       const duluth: [number, number] = [46.7867, -92.1005] // ~135 miles apart
-      
+
       const result = hasLocationChangedSignificantly(minneapolis, duluth, 1)
       expect(result).toBe(true)
     })
@@ -300,7 +300,7 @@ describe('Location Utilities', () => {
     it('should use custom threshold correctly', () => {
       const location1: [number, number] = [44.9537, -93.0900]
       const location2: [number, number] = [44.9637, -93.0900] // ~0.69 miles north
-      
+
       expect(hasLocationChangedSignificantly(location1, location2, 1)).toBe(false) // Within 1 mile
       expect(hasLocationChangedSignificantly(location1, location2, 0.5)).toBe(true) // Exceeds 0.5 miles
     })
@@ -308,7 +308,7 @@ describe('Location Utilities', () => {
     it('should handle invalid coordinates', () => {
       const validLocation: [number, number] = [44.9537, -93.0900]
       const invalidLocation: [number, number] = [91, -93.0900]
-      
+
       expect(hasLocationChangedSignificantly(validLocation, invalidLocation)).toBe(true)
       expect(hasLocationChangedSignificantly(invalidLocation, validLocation)).toBe(true)
     })
@@ -317,7 +317,7 @@ describe('Location Utilities', () => {
   describe('✅ Minnesota bounds validation', () => {
     it('should return correct Minnesota bounds', () => {
       const bounds = getMinnesotaBounds()
-      
+
       expect(bounds.north).toBe(49.4)
       expect(bounds.south).toBe(43.5)
       expect(bounds.east).toBe(-89.5)
@@ -327,7 +327,7 @@ describe('Location Utilities', () => {
     it('should identify Minnesota locations correctly', () => {
       const minneapolisLocation: [number, number] = [44.9537, -93.0900]
       const duluthLocation: [number, number] = [46.7867, -92.1005]
-      
+
       expect(isLocationInMinnesota(minneapolisLocation)).toBe(true)
       expect(isLocationInMinnesota(duluthLocation)).toBe(true)
     })
@@ -335,18 +335,18 @@ describe('Location Utilities', () => {
     it('should identify non-Minnesota locations correctly', () => {
       const chicagoLocation: [number, number] = [41.8781, -87.6298]
       const denverLocation: [number, number] = [39.7392, -104.9903]
-      
+
       expect(isLocationInMinnesota(chicagoLocation)).toBe(false)
       expect(isLocationInMinnesota(denverLocation)).toBe(false)
     })
 
     it('should handle edge cases at Minnesota borders', () => {
       const bounds = getMinnesotaBounds()
-      
+
       // Points just inside borders
       expect(isLocationInMinnesota([bounds.south + 0.1, bounds.west + 0.1])).toBe(true)
       expect(isLocationInMinnesota([bounds.north - 0.1, bounds.east - 0.1])).toBe(true)
-      
+
       // Points just outside borders
       expect(isLocationInMinnesota([bounds.south - 0.1, bounds.west - 0.1])).toBe(false)
       expect(isLocationInMinnesota([bounds.north + 0.1, bounds.east + 0.1])).toBe(false)
@@ -392,7 +392,7 @@ describe('Location Utilities', () => {
     it('should handle full location lifecycle', () => {
       // Create location update
       const update = createLocationUpdate([44.9537, -93.0900], 'gps')
-      
+
       // Save to storage
       const saveSuccess = saveLocationToStorage({
         userLocation: update.position,
@@ -400,17 +400,17 @@ describe('Location Utilities', () => {
         showLocationPrompt: false
       })
       expect(saveSuccess).toBe(true)
-      
+
       // Load from storage
       const loaded = loadLocationFromStorage()
       expect(loaded.userLocation).toEqual(update.position)
       expect(loaded.locationMethod).toBe(update.method)
       expect(loaded.showLocationPrompt).toBe(false)
-      
+
       // Validate coordinates
       expect(isValidCoordinates(loaded.userLocation)).toBe(true)
       expect(isLocationInMinnesota(loaded.userLocation)).toBe(true)
-      
+
       // Format for display
       const formatted = formatCoordinates(loaded.userLocation)
       expect(formatted).toBe('44.9537, -93.0900')
@@ -421,15 +421,15 @@ describe('Location Utilities', () => {
       localStorageMock.setItem.mockImplementationOnce(() => {
         throw new Error('Storage full')
       })
-      
+
       const saveSuccess = saveLocationToStorage({
         userLocation: [44.9537, -93.0900],
         locationMethod: 'gps',
         showLocationPrompt: false
       })
-      
+
       expect(saveSuccess).toBe(false)
-      
+
       // Load should still work with defaults
       const loaded = loadLocationFromStorage()
       expect(loaded).toEqual({
@@ -446,10 +446,10 @@ describe('Location Utilities', () => {
         locationMethod: 'gps',
         showLocationPrompt: false
       })
-      
+
       // Save operation succeeds (doesn't validate)
       expect(result).toBe(true)
-      
+
       // But load operation validates and rejects invalid data
       const loaded = loadLocationFromStorage()
       expect(loaded.userLocation).toBeNull() // Invalid coordinates rejected
@@ -469,13 +469,13 @@ describe('Location Utilities', () => {
  * ✅ Integration testing of full lifecycle
  * ✅ Error handling for storage failures
  * ✅ Data integrity with invalid inputs
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Reliable location tracking for POI recommendations
  * ✅ Location persistence across browser sessions
  * ✅ Geographic boundary validation for Minnesota focus
  * ✅ Location method prioritization for best accuracy
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ Pure function mathematical operations
  * ✅ localStorage integration with error handling

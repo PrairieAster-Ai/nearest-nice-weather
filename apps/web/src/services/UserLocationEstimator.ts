@@ -2,12 +2,12 @@
  * ========================================================================
  * USER LOCATION ESTIMATOR - INTELLIGENT POSITIONING SERVICE
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Encapsulated service for accurate user location estimation
  * 🎯 ACCURACY FOCUS: Multiple strategies with fallback chain for maximum precision
  * 🔒 PRIVACY-AWARE: Respects user permissions and provides transparent fallbacks
  * ⚡ PERFORMANCE: Optimized timeouts and caching for responsive UX
- * 
+ *
  * ESTIMATION STRATEGIES (Priority Order):
  * 1. 📍 Browser Geolocation (HIGH ACCURACY): GPS/WiFi/Cell tower triangulation
  * 2. 🌐 IP Geolocation (MEDIUM ACCURACY): City/region level via IP address
@@ -15,18 +15,18 @@
  * 4. 📱 Network-based Location (MEDIUM ACCURACY): WiFi access point mapping
  * 5. 🎯 Manual Location (HIGH ACCURACY): User-set position via map interaction
  * 6. 🏠 Default Fallback (LOW ACCURACY): Minneapolis center for Minnesota focus
- * 
+ *
  * @CLAUDE_CONTEXT: Centralized location intelligence for personalized outdoor discovery
  * @BUSINESS_RULE: P0 MUST provide location within 10 seconds for all users
  * @PRIVACY_COMPLIANT: Transparent about data collection and storage
  * @PERFORMANCE_CRITICAL: See /src/config/PERFORMANCE-REQUIREMENTS.json
- * 
+ *
  * ACCURACY MEASUREMENTS:
  * - GPS: 1-5 meters (optimal conditions)
  * - WiFi/Cell: 10-100 meters (typical mobile)
  * - IP Geolocation: 1-50 miles (ISP-dependent)
  * - Network Location: 100-1000 meters (urban areas)
- * 
+ *
  * LAST UPDATED: 2025-08-08
  */
 
@@ -39,7 +39,7 @@ export interface LocationEstimate {
   source?: string; // Optional source identifier
 }
 
-export type LocationMethod = 
+export type LocationMethod =
   | 'gps'           // High accuracy GPS
   | 'network'       // Network-based (WiFi/cell towers)
   | 'ip'           // IP geolocation
@@ -48,7 +48,7 @@ export type LocationMethod =
   | 'fallback'     // Default Minneapolis center
   | 'none';        // No location available
 
-export type LocationConfidence = 
+export type LocationConfidence =
   | 'high'         // <50m accuracy, recent timestamp
   | 'medium'       // <1km accuracy, reasonable timestamp
   | 'low'          // City-level accuracy or stale data
@@ -87,7 +87,7 @@ export class UserLocationEstimator {
    */
   async estimateLocation(options: LocationOptions = {}): Promise<LocationEstimate> {
     const opts = { ...this.defaultOptions, ...options };
-    
+
     if (this.isEstimating) {
       // Return cached or wait for current estimation
       if (this.cachedLocation && this.isCacheValid(this.cachedLocation, opts.cacheMaxAge!)) {
@@ -113,7 +113,7 @@ export class UserLocationEstimator {
       // Execute fast methods first
       const fastResults = await Promise.allSettled(fastMethods);
       const fastEstimates = fastResults
-        .filter((result): result is PromiseFulfilledResult<LocationEstimate> => 
+        .filter((result): result is PromiseFulfilledResult<LocationEstimate> =>
           result.status === 'fulfilled' && result.value !== null
         )
         .map(result => result.value);
@@ -130,7 +130,7 @@ export class UserLocationEstimator {
         try {
           const accurateResults = await Promise.allSettled(accurateMethods);
           const accurateEstimates = accurateResults
-            .filter((result): result is PromiseFulfilledResult<LocationEstimate> => 
+            .filter((result): result is PromiseFulfilledResult<LocationEstimate> =>
               result.status === 'fulfilled' && result.value !== null
             )
             .map(result => result.value);
@@ -139,7 +139,7 @@ export class UserLocationEstimator {
           if (accurateEstimates.length > 0) {
             const bestAccurate = accurateEstimates
               .sort((a, b) => this.scoreEstimate(b) - this.scoreEstimate(a))[0];
-            
+
             // Use accurate estimate if it's significantly better or if no fast estimate
             if (!bestFastEstimate || bestAccurate.accuracy < bestFastEstimate.accuracy * 0.5) {
               bestFastEstimate = bestAccurate;
@@ -171,7 +171,7 @@ export class UserLocationEstimator {
    */
   async requestPreciseLocation(options: LocationOptions = {}): Promise<LocationEstimate> {
     const opts = { ...this.defaultOptions, ...options, enableHighAccuracy: true, timeout: 15000 };
-    
+
     return this.getBrowserGeolocation(opts);
   }
 
@@ -289,31 +289,31 @@ export class UserLocationEstimator {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout per provider
-        
-        const response = await fetch(provider.endpoint, { 
+
+        const response = await fetch(provider.endpoint, {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',
             'Cache-Control': 'no-cache'
           }
         });
-        
+
         clearTimeout(timeoutId);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const data = await response.json();
         const estimate = provider.parser(data);
-        
+
         if (estimate) {
           console.log(`📍 IP Location from ${provider.name}: ${estimate.source}, ±${estimate.accuracy}m`);
           return { provider: provider.name, estimate, error: null };
         }
-        
+
         return { provider: provider.name, estimate: null, error: 'Invalid response data' };
-        
+
       } catch (error) {
         console.warn(`IP provider ${provider.name} failed:`, error.message);
         return { provider: provider.name, estimate: null, error: error.message };
@@ -322,10 +322,10 @@ export class UserLocationEstimator {
 
     // Wait for all providers with a race condition to return the first successful result
     const results = await Promise.allSettled(providerPromises);
-    
+
     // Collect all successful estimates
     const successfulEstimates = results
-      .filter((result): result is PromiseFulfilledResult<any> => 
+      .filter((result): result is PromiseFulfilledResult<any> =>
         result.status === 'fulfilled' && result.value.estimate !== null
       )
       .map(result => result.value.estimate);
@@ -334,7 +334,7 @@ export class UserLocationEstimator {
       // Select best estimate based on scoring
       const bestEstimate = successfulEstimates
         .sort((a, b) => this.scoreEstimate(b) - this.scoreEstimate(a))[0];
-      
+
       console.log(`📍 Selected best IP location: ${bestEstimate.source} (${successfulEstimates.length} providers responded)`);
       return bestEstimate;
     }
@@ -344,7 +344,7 @@ export class UserLocationEstimator {
       name: providers[i].name,
       error: result.status === 'fulfilled' ? result.value.error : result.reason.message
     }));
-    
+
     console.warn('All IP geolocation providers failed:', failedProviders);
     throw new Error(`IP geolocation unavailable: ${failedProviders.map(p => `${p.name}: ${p.error}`).join(', ')}`);
   }
@@ -367,7 +367,7 @@ export class UserLocationEstimator {
       if (cached) {
         const parsedCache = JSON.parse(cached);
         const cacheAge = Date.now() - parsedCache.timestamp;
-        
+
         if (cacheAge < this.defaultOptions.cacheMaxAge!) {
           const cachedEstimate: LocationEstimate = {
             coordinates: parsedCache.coordinates,
@@ -377,7 +377,7 @@ export class UserLocationEstimator {
             confidence: parsedCache.confidence,
             source: parsedCache.source
           };
-          
+
           // Update in-memory cache
           this.cachedLocation = cachedEstimate;
           console.log(`📍 Loaded cached location: ${this.getLocationSummary(cachedEstimate)}`);
@@ -413,7 +413,7 @@ export class UserLocationEstimator {
    */
   private calculateConfidence(accuracy: number, timestamp: number): LocationConfidence {
     const age = Date.now() - timestamp;
-    
+
     if (accuracy < 50 && age < 300000) return 'high';      // <50m, <5min
     if (accuracy < 1000 && age < 1800000) return 'medium'; // <1km, <30min
     if (accuracy < 10000) return 'low';                    // <10km
@@ -425,7 +425,7 @@ export class UserLocationEstimator {
     const urbanCities = ['minneapolis', 'saint paul', 'duluth', 'rochester', 'bloomington', 'st. paul'];
     const cityName = city?.toLowerCase() || '';
     const regionName = region?.toLowerCase() || '';
-    
+
     // Minnesota-specific accuracy improvements
     if (regionName.includes('minnesota') || regionName.includes('mn')) {
       if (urbanCities.some(city => cityName.includes(city))) {
@@ -433,7 +433,7 @@ export class UserLocationEstimator {
       }
       return 15000; // ~15km for rural Minnesota
     }
-    
+
     // General urban vs rural classification
     if (urbanCities.includes(cityName) || cityName.includes('minneapolis') || cityName.includes('paul')) {
       return 5000; // ~5km for urban areas
@@ -447,7 +447,7 @@ export class UserLocationEstimator {
     const hasRegion = region && region.toLowerCase() !== 'unknown';
     const isMinnesota = region?.toLowerCase().includes('minnesota') || region?.toLowerCase().includes('mn');
     const isUS = country?.toLowerCase().includes('us') || country?.toLowerCase().includes('united states');
-    
+
     if (isMinnesota && hasCity) {
       return 'medium'; // Good confidence for Minnesota cities
     } else if (isUS && hasCity && hasRegion) {
@@ -479,7 +479,7 @@ export class UserLocationEstimator {
 
   private cacheLocation(estimate: LocationEstimate): void {
     this.cachedLocation = estimate;
-    
+
     // PRIVACY: Only store location locally, never send to external servers
     try {
       localStorage.setItem('location_cache', JSON.stringify({
@@ -499,14 +499,14 @@ export class UserLocationEstimator {
    * UTILITIES
    */
   getLocationSummary(estimate: LocationEstimate): string {
-    const accuracy = estimate.accuracy < 1000 
+    const accuracy = estimate.accuracy < 1000
       ? `±${Math.round(estimate.accuracy)}m`
       : `±${Math.round(estimate.accuracy / 1000)}km`;
-    
+
     const age = Date.now() - estimate.timestamp;
-    const ageStr = age < 60000 
+    const ageStr = age < 60000
       ? 'just now'
-      : age < 3600000 
+      : age < 3600000
         ? `${Math.round(age / 60000)}min ago`
         : `${Math.round(age / 3600000)}hr ago`;
 
@@ -532,12 +532,12 @@ export class UserLocationEstimator {
       if (cached) {
         const parsedCache = JSON.parse(cached);
         const age = Date.now() - parsedCache.timestamp;
-        const ageStr = age < 60000 
+        const ageStr = age < 60000
           ? 'just now'
-          : age < 3600000 
+          : age < 3600000
             ? `${Math.round(age / 60000)}min ago`
             : `${Math.round(age / 3600000)}hr ago`;
-        
+
         return {
           hasStoredData: true,
           lastUpdate: parsedCache.timestamp,

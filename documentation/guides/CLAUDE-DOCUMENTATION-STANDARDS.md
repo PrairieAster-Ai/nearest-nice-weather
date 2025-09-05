@@ -10,34 +10,34 @@ Optimize frontend code documentation for Claude's conversation compression limit
  * ========================================================================
  * [COMPONENT NAME] - [PRIMARY BUSINESS PURPOSE]
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: [One-line business purpose]
  * 🔗 CONNECTS TO: [Parent components, hooks, services]
  * 📊 DATA FLOW: [Input → Processing → Output]
  * ⚙️ STATE: [Key state variables and their purpose]
  * 🎯 USER IMPACT: [Direct user experience effects]
- * 
+ *
  * BUSINESS CONTEXT: [Business value and user impact]
  * - [Key business benefit 1]
  * - [Key business benefit 2]
  * - [Key business benefit 3]
- * 
+ *
  * TECHNICAL IMPLEMENTATION: [Implementation approach and patterns]
  * - [Key technical decision 1]
  * - [Key technical decision 2]
  * - [Key technical decision 3]
- * 
+ *
  * 🏗️ ARCHITECTURAL DECISIONS:
  * - [Why this approach was chosen over alternatives]
  * - [Performance or UX considerations]
  * - [Integration or maintainability factors]
- * 
+ *
  * @CLAUDE_CONTEXT: [Context for Claude compression optimization]
  * @BUSINESS_RULE: [Critical business logic constraints]
  * @INTEGRATION_POINT: [External system connections]
  * @PERFORMANCE_CRITICAL: [Performance-sensitive areas]
  * @UX_CRITICAL: [User experience critical factors]
- * 
+ *
  * LAST UPDATED: [YYYY-MM-DD]
  */
 ```
@@ -125,7 +125,7 @@ Use emoji-prefixed sections for rapid scanning:
 /**
  * 🔄 STATE SYNCHRONIZATION PATTERN:
  * localStorage ↔ React state ↔ UI components ↔ user interactions
- * 
+ *
  * PERSISTENCE STRATEGY:
  * - User preferences saved to localStorage for session continuity
  * - React state provides reactive UI updates

@@ -28,17 +28,17 @@ class LabelVerification {
     console.log('✅ GITHUB LABELS VERIFICATION');
     console.log('=============================\n');
     console.log(`📦 Repository: ${this.owner}/${this.repo}\n`);
-    
+
     try {
       const response = await octokit.rest.issues.listLabelsForRepo({
         owner: this.owner,
         repo: this.repo,
         per_page: 100,
       });
-      
+
       const currentLabels = response.data;
       console.log(`📊 Total labels found: ${currentLabels.length}\n`);
-      
+
       // Group labels by category
       const labelCategories = {
         'Type Labels': [],
@@ -49,7 +49,7 @@ class LabelVerification {
         'Priority Labels': [],
         'Other Labels': []
       };
-      
+
       currentLabels.forEach(label => {
         if (label.name.startsWith('type: ')) {
           labelCategories['Type Labels'].push(label);
@@ -67,7 +67,7 @@ class LabelVerification {
           labelCategories['Other Labels'].push(label);
         }
       });
-      
+
       // Display organized labels
       Object.entries(labelCategories).forEach(([category, labels]) => {
         if (labels.length > 0) {
@@ -78,7 +78,7 @@ class LabelVerification {
           console.log('');
         }
       });
-      
+
       // Verification summary
       const expectedCounts = {
         'Type Labels': 3,
@@ -88,17 +88,17 @@ class LabelVerification {
         'Size Labels': 5,
         'Priority Labels': 4
       };
-      
+
       console.log('🎯 **VERIFICATION SUMMARY**:');
       let allGood = true;
-      
+
       Object.entries(expectedCounts).forEach(([category, expected]) => {
         const actual = labelCategories[category].length;
         const status = actual === expected ? '✅' : '❌';
         if (actual !== expected) allGood = false;
         console.log(`  ${status} ${category}: ${actual}/${expected}`);
       });
-      
+
       if (allGood) {
         console.log('\n🎉 **ALL LABEL CATEGORIES VERIFIED!**');
         console.log('The organized label system is correctly implemented.');
@@ -106,9 +106,9 @@ class LabelVerification {
         console.log('\n⚠️  **SOME LABELS MISSING OR EXTRA**');
         console.log('Review the counts above and check the label configuration.');
       }
-      
+
       console.log(`\n🔗 **View Labels**: https://github.com/${this.owner}/${this.repo}/labels`);
-      
+
     } catch (error) {
       console.error('❌ Error verifying labels:', error.message);
     }

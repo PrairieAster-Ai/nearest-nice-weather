@@ -3,15 +3,15 @@
 /**
  * 🌸 BLOOM MINNESOTA PARKS - ETL Pipeline for POI Data Expansion
  * =============================================================
- * 
+ *
  * Like a prairie aster spreading its seeds, this script helps our
  * POI database bloom from 17 locations to 200+ Minnesota parks!
- * 
+ *
  * Data Sources (Our Garden Variety):
  * - OpenStreetMap: The deep roots of geographic data
- * - National Park Service: Federal petals in our bouquet  
+ * - National Park Service: Federal petals in our bouquet
  * - Minnesota DNR: Local wildflowers unique to our state
- * 
+ *
  * @BUSINESS_PURPOSE: Expand POI coverage for comprehensive outdoor recreation
  * @TECHNICAL_APPROACH: Multi-source ETL with deduplication and quality control
  */
@@ -69,41 +69,41 @@ const PARK_TYPES = {
  */
 async function fetchOSMParks() {
   console.log('🌱 Planting OSM seeds... (fetching OpenStreetMap data)')
-  
+
   const overpassQuery = `
     [out:json][timeout:25];
     (
       // National and State Parks
       way["leisure"="park"]["name"]["park_type"~"national|state"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
       relation["leisure"="park"]["name"]["park_type"~"national|state"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
-      
+
       // State Parks specifically tagged
       way["boundary"="protected_area"]["protect_class"="2"]["name"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
       relation["boundary"="protected_area"]["protect_class"="2"]["name"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
-      
+
       // Nature Reserves and Wildlife Areas
       way["leisure"="nature_reserve"]["name"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
       relation["leisure"="nature_reserve"]["name"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
-      
+
       // Regional Parks
       way["leisure"="park"]["name"]["operator"~"county|regional"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
-      
+
       // State Forests
       way["landuse"="forest"]["operator"~"state|minnesota"]["name"](${MINNESOTA_BOUNDS.south},${MINNESOTA_BOUNDS.west},${MINNESOTA_BOUNDS.north},${MINNESOTA_BOUNDS.east});
     );
     out center;
   `
-  
+
   try {
     const response = await fetch('https://overpass-api.de/api/interpreter', {
       method: 'POST',
       body: `data=${encodeURIComponent(overpassQuery)}`,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
-    
+
     const data = await response.json()
     console.log(`🌿 Sprouted ${data.elements.length} potential parks from OSM`)
-    
+
     return data.elements.map(element => ({
       name: element.tags.name,
       lat: element.center?.lat || element.lat,
@@ -115,7 +115,7 @@ async function fetchOSMParks() {
       data_source: DATA_SOURCES.OSM,
       external_id: `osm_${element.type}_${element.id}`
     })).filter(park => park.name && park.lat && park.lng)
-    
+
   } catch (error) {
     console.error('🥀 OSM fetch wilted:', error.message)
     return []
@@ -127,19 +127,19 @@ async function fetchOSMParks() {
  */
 async function fetchNPSParks() {
   console.log('🌻 Growing NPS flowers... (fetching National Park Service data)')
-  
+
   // Note: You'll need to register for a free API key at https://www.nps.gov/subjects/developer/index.htm
   const NPS_API_KEY = process.env.NPS_API_KEY || 'DEMO_KEY'
-  
+
   try {
     const response = await fetch(
       `https://developer.nps.gov/api/v1/parks?stateCode=MN&api_key=${NPS_API_KEY}`,
       { headers: { 'Accept': 'application/json' } }
     )
-    
+
     const data = await response.json()
     console.log(`🌼 Bloomed ${data.data.length} parks from NPS`)
-    
+
     return data.data.map(park => ({
       name: park.fullName,
       lat: parseFloat(park.latitude),
@@ -151,7 +151,7 @@ async function fetchNPSParks() {
       osm_id: null,
       osm_type: null
     }))
-    
+
   } catch (error) {
     console.error('🥀 NPS fetch failed to bloom:', error.message)
     return []
@@ -164,7 +164,7 @@ async function fetchNPSParks() {
  */
 async function fetchMNDNRParks() {
   console.log('🌹 Cultivating Minnesota DNR wildflowers...')
-  
+
   // Minnesota State Parks from our existing knowledge
   // In production, this would fetch from DNR API or dataset
   const mnStateParks = [
@@ -191,9 +191,9 @@ async function fetchMNDNRParks() {
     { name: "Temperance River State Park", lat: 47.5522, lng: -90.8825 },
     { name: "Tettegouche State Park", lat: 47.3425, lng: -91.1978 }
   ]
-  
+
   console.log(`🌺 Gathered ${mnStateParks.length} Minnesota state park wildflowers`)
-  
+
   return mnStateParks.map(park => ({
     ...park,
     park_type: PARK_TYPES.STATE_PARK,
@@ -235,7 +235,7 @@ function generateDescription(tags) {
   if (tags.sport) features.push(tags.sport)
   if (tags.leisure) features.push(tags.leisure)
   if (tags.natural) features.push(tags.natural)
-  
+
   const featureText = features.length > 0 ? ` featuring ${features.join(', ')}` : ''
   return `Minnesota outdoor recreation area${featureText}`
 }
@@ -245,26 +245,26 @@ function generateDescription(tags) {
  */
 function deduplicateParks(parks) {
   console.log('✂️ Pruning duplicates from our garden...')
-  
+
   const uniqueParks = []
   const seen = new Set()
-  
+
   // Sort by data source priority: NPS > MN_DNR > OSM > MANUAL
   const priorityOrder = [DATA_SOURCES.NPS, DATA_SOURCES.MN_DNR, DATA_SOURCES.OSM, DATA_SOURCES.MANUAL]
   parks.sort((a, b) => priorityOrder.indexOf(a.data_source) - priorityOrder.indexOf(b.data_source))
-  
+
   for (const park of parks) {
     // Create a key based on name similarity and proximity
     const normalizedName = park.name.toLowerCase().replace(/[^a-z0-9]/g, '')
     const gridKey = `${Math.round(park.lat * 100)},${Math.round(park.lng * 100)}`
     const key = `${normalizedName}-${gridKey}`
-    
+
     if (!seen.has(key)) {
       seen.add(key)
       uniqueParks.push(park)
     }
   }
-  
+
   console.log(`🌿 Kept ${uniqueParks.length} unique flowers (removed ${parks.length - uniqueParks.length} duplicates)`)
   return uniqueParks
 }
@@ -274,26 +274,26 @@ function deduplicateParks(parks) {
  */
 async function loadParksIntoDatabase(parks) {
   console.log('🌱 Planting our park garden in the database...')
-  
+
   const client = await pool.connect()
-  
+
   try {
     // Start transaction
     await client.query('BEGIN')
-    
+
     // Clear existing non-manual parks (preserve our hand-picked flowers)
     await client.query(`
-      DELETE FROM poi_locations 
+      DELETE FROM poi_locations
       WHERE data_source != $1
     `, [DATA_SOURCES.MANUAL])
-    
+
     // Plant each park
     let planted = 0
     for (const park of parks) {
       try {
         await client.query(`
           INSERT INTO poi_locations (
-            name, lat, lng, park_type, description, 
+            name, lat, lng, park_type, description,
             data_source, external_id, osm_id, osm_type, place_rank
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         `, [
@@ -313,10 +313,10 @@ async function loadParksIntoDatabase(parks) {
         console.warn(`🥀 Failed to plant ${park.name}:`, error.message)
       }
     }
-    
+
     await client.query('COMMIT')
     console.log(`🌸 Successfully planted ${planted} parks in our database garden!`)
-    
+
   } catch (error) {
     await client.query('ROLLBACK')
     console.error('🥀 Database planting failed:', error)
@@ -346,7 +346,7 @@ function calculatePlaceRank(park) {
 async function bloomMinnesotaParks() {
   console.log('🌸 MINNESOTA PARKS ETL - Time to help our data bloom!')
   console.log('================================================')
-  
+
   try {
     // Gather seeds from all sources
     const [osmParks, npsParks, dnrParks] = await Promise.all([
@@ -354,31 +354,31 @@ async function bloomMinnesotaParks() {
       fetchNPSParks(),
       fetchMNDNRParks()
     ])
-    
+
     // Combine all our flowers
     const allParks = [...osmParks, ...npsParks, ...dnrParks]
     console.log(`\n🌼 Collected ${allParks.length} total park seeds`)
-    
+
     // Prune duplicates
     const uniqueParks = deduplicateParks(allParks)
-    
+
     // Plant in database
     await loadParksIntoDatabase(uniqueParks)
-    
+
     // Show what bloomed
     const stats = uniqueParks.reduce((acc, park) => {
       acc[park.park_type] = (acc[park.park_type] || 0) + 1
       return acc
     }, {})
-    
+
     console.log('\n🌺 Our Minnesota Parks Garden has bloomed!')
     console.log('Garden Statistics:')
     Object.entries(stats).forEach(([type, count]) => {
       console.log(`  🌿 ${type}: ${count} locations`)
     })
-    
+
     console.log('\n✨ Your POI database is now in full bloom!')
-    
+
   } catch (error) {
     console.error('🥀 ETL process failed:', error)
     process.exit(1)

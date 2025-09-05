@@ -2,16 +2,16 @@
  * ========================================================================
  * WEATHER RESULTS WITH ADS - AdSense Revenue Integration
  * ========================================================================
- * 
+ *
  * @BUSINESS_PURPOSE: Strategic ad placement within weather results for revenue optimization
  * @TECHNICAL_APPROACH: Native ad integration between POI weather listings
  * @PRD_REF: PRD-GOOGLE-ADSENSE-181.md
- * 
+ *
  * REVENUE STRATEGY:
  * - Native ads between weather results for optimal engagement
  * - Context-aware outdoor gear and service advertisements
  * - Performance-optimized lazy loading for mobile experience
- * 
+ *
  * ========================================================================
  */
 
@@ -40,7 +40,7 @@ interface WeatherResultsWithAdsProps {
 
 /**
  * WeatherResultsWithAds - POI weather listings with strategic ad placement
- * 
+ *
  * Optimizes revenue through native ad integration while maintaining
  * excellent user experience for outdoor recreation planning
  */
@@ -55,13 +55,13 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
   // Strategic ad placement - every 4th result for optimal engagement
   const renderLocationWithAds = (location: WeatherLocation, index: number) => {
     const shouldShowAd = (index + 1) % 4 === 0 && index < displayLocations.length - 1
-    
+
     return (
       <React.Fragment key={`location-${location.id}`}>
         {/* Weather Location Card */}
-        <Card 
-          sx={{ 
-            mb: 2, 
+        <Card
+          sx={{
+            mb: 2,
             backgroundColor: 'background.paper',
             boxShadow: 1,
             '&:hover': { boxShadow: 2 }
@@ -73,14 +73,14 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
                 {location.name}
               </Typography>
               {location.distance_miles && (
-                <Chip 
-                  label={`${location.distance_miles} mi`} 
-                  size="small" 
+                <Chip
+                  label={`${location.distance_miles} mi`}
+                  size="small"
                   color="secondary"
                 />
               )}
             </Box>
-            
+
             <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
               <Chip
                 label={`${location.temperature}°F`}
@@ -107,15 +107,15 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
                 size="small"
               />
             </Box>
-            
+
             <Typography variant="body2" color="text.secondary">
               {location.description}
             </Typography>
           </CardContent>
         </Card>
 
-        {/* Strategic Ad Placement */}
-        {shouldShowAd && (
+        {/* Strategic Ad Placement - Only show with substantial content */}
+        {shouldShowAd && displayLocations.length >= 4 && (
           <Box key={`ad-${index}`} sx={{ mb: 3 }}>
             <AdUnit
               slot="6059346500" // Weather results inline ad slot (LIVE)
@@ -159,9 +159,9 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
       <Typography variant="h5" gutterBottom color="primary">
         Weather Conditions ({displayLocations.length} locations)
       </Typography>
-      
+
       <Box>
-        {displayLocations.map((location, index) => 
+        {displayLocations.map((location, index) =>
           renderLocationWithAds(location, index)
         )}
       </Box>

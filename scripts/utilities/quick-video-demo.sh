@@ -3,11 +3,11 @@
 # ========================================================================
 # QUICK PLAYWRIGHT VIDEO DEMONSTRATION
 # ========================================================================
-# 
+#
 # PURPOSE: Records a focused demonstration of key Playwright best practices
 # DURATION: ~5-10 minutes of video content
 # FOCUS: Most important test patterns and user workflows
-# 
+#
 # ========================================================================
 
 set -e

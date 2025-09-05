@@ -79,7 +79,7 @@ class GitHubManager {
         labels: labels,
         assignees: assignees,
       };
-      
+
       if (milestone) {
         issueData.milestone = milestone;
       }
@@ -114,12 +114,12 @@ class GitHubManager {
     try {
       console.log(`🎯 Assigning ${issueNumbers.length} issues to milestone ${milestoneNumber}`);
       const results = [];
-      
+
       for (const issueNumber of issueNumbers) {
         const result = await this.updateIssue(issueNumber, { milestone: milestoneNumber });
         if (result) results.push(result);
       }
-      
+
       console.log(`✅ ${results.length} issues assigned to milestone`);
       return results;
     } catch (error) {
@@ -135,7 +135,7 @@ class GitHubManager {
         repo: this.repo,
         state: 'all',
       });
-      
+
       console.log('\n📊 MILESTONES:');
       response.data.forEach(milestone => {
         console.log(`  ${milestone.number}: ${milestone.title}`);
@@ -143,7 +143,7 @@ class GitHubManager {
         console.log(`    📈 Progress: ${milestone.closed_issues}/${milestone.open_issues + milestone.closed_issues} issues`);
         console.log(`    🔗 ${milestone.html_url}\n`);
       });
-      
+
       return response.data;
     } catch (error) {
       console.error(`❌ Error listing milestones: ${error.message}`);
@@ -159,13 +159,13 @@ class GitHubManager {
         state: state,
         per_page: 100,
       };
-      
+
       if (milestone) {
         params.milestone = milestone;
       }
 
       const response = await octokit.rest.issues.listForRepo(params);
-      
+
       console.log(`\n📋 ISSUES (${state.toUpperCase()}):`);
       response.data.forEach(issue => {
         const milestone_info = issue.milestone ? `[M${issue.milestone.number}]` : '[No Milestone]';
@@ -174,7 +174,7 @@ class GitHubManager {
         console.log(`    🏷️  Labels: ${labels || 'None'}`);
         console.log(`    🔗 ${issue.html_url}\n`);
       });
-      
+
       return response.data;
     } catch (error) {
       console.error(`❌ Error listing issues: ${error.message}`);
@@ -184,16 +184,16 @@ class GitHubManager {
 
   async bulkCreateSprint(sprintConfig) {
     console.log(`🚀 Creating complete sprint: ${sprintConfig.name}`);
-    
+
     // Create milestone
     const milestone = await this.createMilestone(
       sprintConfig.name,
       sprintConfig.description,
       sprintConfig.dueDate
     );
-    
+
     if (!milestone) return null;
-    
+
     // Create all issues
     const createdIssues = [];
     for (const issueConfig of sprintConfig.issues) {
@@ -206,7 +206,7 @@ class GitHubManager {
       );
       if (issue) createdIssues.push(issue);
     }
-    
+
     console.log(`✅ Sprint created: ${createdIssues.length} issues in milestone ${milestone.number}`);
     return { milestone, issues: createdIssues };
   }
@@ -214,10 +214,10 @@ class GitHubManager {
   async generateReport() {
     console.log('\n📊 GITHUB PROJECT REPORT');
     console.log('=' * 50);
-    
+
     await this.listMilestones();
     await this.listIssues();
-    
+
     // Save report to file
     const reportFile = path.join(__dirname, '../reports/github-status.md');
     console.log(`💾 Report saved to: ${reportFile}`);
@@ -228,34 +228,34 @@ class GitHubManager {
 async function main() {
   const manager = new GitHubManager();
   const command = process.argv[2];
-  
+
   switch (command) {
     case 'milestones':
       await manager.listMilestones();
       break;
-      
+
     case 'issues':
       const milestone = process.argv[3];
       await manager.listIssues(milestone);
       break;
-      
+
     case 'assign':
       const issueNumbers = process.argv[3].split(',').map(n => parseInt(n));
       const milestoneNumber = parseInt(process.argv[4]);
       await manager.assignToMilestone(issueNumbers, milestoneNumber);
       break;
-      
+
     case 'create-issue':
       const title = process.argv[3];
       const body = process.argv[4] || '';
       const labels = process.argv[5] ? process.argv[5].split(',') : [];
       await manager.createIssue(title, body, labels);
       break;
-      
+
     case 'report':
       await manager.generateReport();
       break;
-      
+
     default:
       console.log(`
 🔧 GitHub Manager - Efficient GitHub API Interface

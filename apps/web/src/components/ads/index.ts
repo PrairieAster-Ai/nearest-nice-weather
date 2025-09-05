@@ -2,10 +2,10 @@
  * ========================================================================
  * ADS MODULE EXPORTS - Google AdSense Integration
  * ========================================================================
- * 
+ *
  * @BUSINESS_PURPOSE: Centralized exports for AdSense revenue components
  * @PRD_REF: PRD-GOOGLE-ADSENSE-181.md
- * 
+ *
  * ========================================================================
  */
 

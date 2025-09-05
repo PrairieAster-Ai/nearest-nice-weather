@@ -60,7 +60,7 @@ services:
     container_name: ${PROJECT_NAME:-weather}_postgres
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
-    
+
   redis:
     image: redis:${REDIS_VERSION:-7-alpine}
     container_name: ${PROJECT_NAME:-weather}_redis

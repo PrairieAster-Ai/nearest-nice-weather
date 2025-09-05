@@ -32,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await client.connect()
 
     const result = await client.query(`
-      SELECT 
+      SELECT
         id,
         created_at,
         email,
@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ip_address,
         session_id,
         page_url
-      FROM feedback 
+      FROM feedback
       ORDER BY created_at DESC
     `)
 

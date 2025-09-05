@@ -53,7 +53,7 @@
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
-        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN=YOUR_TOKEN_HERE", 
+        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN=YOUR_TOKEN_HERE",
         "-e", "GITHUB_TOOLSETS=repos,issues,pull_requests",
         "ghcr.io/github/github-mcp-server",
         "stdio"
@@ -110,7 +110,7 @@ mcp-github-project-manager \
 ✅ **Standard GitHub Operations:**
 - Repository management
 - Issue creation/editing
-- Pull request operations  
+- Pull request operations
 - GitHub Actions integration
 - Official GitHub support
 

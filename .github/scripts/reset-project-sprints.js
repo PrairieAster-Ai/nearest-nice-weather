@@ -28,21 +28,21 @@ class ProjectResetter {
 
   async resetProject() {
     console.log('🗑️  Resetting NearestNiceWeather.com App Development Project...\n');
-    
+
     try {
       // Step 1: Get project ID
       const projectId = await this.getProjectId();
       console.log(`📊 Project ID: ${projectId}`);
-      
+
       // Step 2: Remove all current items from project
       await this.removeAllProjectItems(projectId);
-      
+
       // Step 3: Add only Sprint 3 & 4 issues
       await this.addSprintIssues(projectId);
-      
+
       console.log('\n✅ Project reset complete!');
       console.log('🎯 Ready for Sprint 3 & 4 focused workflow');
-      
+
     } catch (error) {
       console.error('❌ Error resetting project:', error.message);
     }
@@ -59,18 +59,18 @@ class ProjectResetter {
         }
       }
     `;
-    
+
     const response = await octokit.graphql(query, {
       owner: this.owner,
       number: this.projectNumber,
     });
-    
+
     return response.organization.projectV2.id;
   }
 
   async removeAllProjectItems(projectId) {
     console.log('🗑️  Removing all current items from project...');
-    
+
     // Get all current project items
     const query = `
       query($projectId: ID!, $first: Int!) {
@@ -91,20 +91,20 @@ class ProjectResetter {
         }
       }
     `;
-    
+
     const response = await octokit.graphql(query, {
       projectId: projectId,
       first: 100,
     });
-    
+
     const items = response.node.items.nodes;
     console.log(`📋 Found ${items.length} items to remove`);
-    
+
     // Remove each item
     for (const item of items) {
       await this.removeProjectItem(item);
     }
-    
+
     console.log(`✅ Removed ${items.length} items from project`);
   }
 
@@ -120,21 +120,21 @@ class ProjectResetter {
           }
         }
       `;
-      
+
       const issueInfo = item.content ? `#${item.content.number}: ${item.content.title}` : 'Unknown item';
       console.log(`  🗑️  Removing: ${issueInfo}`);
-      
+
       // Note: We need the project ID, but the mutation expects projectId
       // We'll need to get it from the context
       const projectId = await this.getProjectId();
-      
+
       await octokit.graphql(mutation, {
         projectId: projectId,
         itemId: item.id,
       });
-      
+
       console.log(`  ✅ Removed: ${issueInfo}`);
-      
+
     } catch (error) {
       console.error(`  ❌ Failed to remove item:`, error.message);
     }
@@ -142,7 +142,7 @@ class ProjectResetter {
 
   async addSprintIssues(projectId) {
     console.log('\n🔄 Adding Sprint 3 & 4 issues to project...');
-    
+
     // Sprint 3 & 4 issue numbers based on our created issues
     const sprintIssues = [
       // Sprint 3 - Current Iteration
@@ -152,16 +152,16 @@ class ProjectResetter {
       30, // Story: Minnesota POI Database Deployment
       31, // Story: OpenWeather API Connection & Rate Limiting
       32, // Task: Redis Caching Implementation for Weather Data
-      
-      // Sprint 4 - Next Iteration  
+
+      // Sprint 4 - Next Iteration
       22, // Sprint 4: MVP Polish and User Testing 📅 PLANNED
     ];
-    
+
     // Get issue details and add to project
     for (const issueNumber of sprintIssues) {
       await this.addIssueToProject(projectId, issueNumber);
     }
-    
+
     console.log(`✅ Added ${sprintIssues.length} Sprint 3 & 4 issues to project`);
   }
 
@@ -173,9 +173,9 @@ class ProjectResetter {
         repo: this.repo,
         issue_number: issueNumber,
       });
-      
+
       const issue = issueResponse.data;
-      
+
       const mutation = `
         mutation($projectId: ID!, $contentId: ID!) {
           addProjectV2ItemById(input: {
@@ -188,16 +188,16 @@ class ProjectResetter {
           }
         }
       `;
-      
+
       console.log(`  🔗 Adding issue #${issueNumber}: ${issue.title}`);
-      
+
       await octokit.graphql(mutation, {
         projectId: projectId,
         contentId: issue.node_id,
       });
-      
+
       console.log(`  ✅ Issue #${issueNumber} added to project`);
-      
+
     } catch (error) {
       if (error.message.includes('already exists')) {
         console.log(`  ⚠️  Issue #${issueNumber} already in project`);
@@ -210,33 +210,33 @@ class ProjectResetter {
   async generateResetSummary() {
     console.log('\n📊 Project Reset Summary');
     console.log('========================\n');
-    
+
     console.log('🎯 **PROJECT CLEANED & FOCUSED**');
     console.log('Project: NearestNiceWeather.com App Development');
     console.log('URL: https://github.com/orgs/PrairieAster-Ai/projects/2/views/1\n');
-    
+
     console.log('📅 **SPRINT FOCUS ONLY**');
     console.log('Current Iteration: Sprint 3 (Database + Weather API)');
     console.log('  - Issues: #21, #28, #29, #30, #31, #32');
     console.log('  - Goal: 50% → 75% MVP completion');
     console.log('  - Key Work: Database deployment + OpenWeather integration\n');
-    
+
     console.log('Next Iteration: Sprint 4 (Revenue + Launch)');
     console.log('  - Issues: #22');
     console.log('  - Goal: 75% → 100% MVP completion');
     console.log('  - Key Work: Google AdSense + user testing + launch\n');
-    
+
     console.log('🧹 **CLEANED UP**');
     console.log('- Removed all historical issues (Sprint 1 & 2 completed work)');
     console.log('- Removed capability and epic issues not in current sprints');
     console.log('- Project now shows only active and next sprint work');
     console.log('- Focused view for current development priorities\n');
-    
+
     console.log('🎯 **CURRENT DEVELOPMENT FOCUS**');
     console.log('Priority: Complete Sprint 3 for 75% MVP milestone');
     console.log('Active Work: Database schema + weather API + caching');
     console.log('Blocked: Sprint 4 until Sprint 3 completion\n');
-    
+
     console.log('✅ Project ready for sprint-focused development workflow!');
   }
 }
@@ -244,7 +244,7 @@ class ProjectResetter {
 // CLI Interface
 async function main() {
   const resetter = new ProjectResetter();
-  
+
   await resetter.resetProject();
   await resetter.generateResetSummary();
 }

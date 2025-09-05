@@ -4,11 +4,11 @@
  * ========================================================================
  * API SYNC CHECKER - Dual API Architecture Maintenance Tool
  * ========================================================================
- * 
+ *
  * @PURPOSE: Validate API endpoint parity between Express.js and Vercel functions
  * @USAGE: npm run sync-check or node scripts/api-sync-check.js
  * @OUTPUT: Report of missing endpoints and sync status
- * 
+ *
  * Helps maintain the dual API architecture by:
  * 1. Scanning Express.js endpoints in dev-api-server.js
  * 2. Checking for corresponding Vercel functions in apps/web/api/
@@ -48,23 +48,23 @@ const log = {
  */
 function extractExpressEndpoints() {
   const expressFile = path.join(projectRoot, 'dev-api-server.js')
-  
+
   if (!fs.existsSync(expressFile)) {
     log.error('dev-api-server.js not found!')
     return []
   }
-  
+
   const content = fs.readFileSync(expressFile, 'utf-8')
   const endpoints = []
-  
+
   // Match Express.js route definitions: app.get('/api/something', ...)
   const routeRegex = /app\.(get|post|put|delete|patch)\s*\(\s*['"`]([^'"`]+)['"`]/g
   let match
-  
+
   while ((match = routeRegex.exec(content)) !== null) {
     const method = match[1].toUpperCase()
     const route = match[2]
-    
+
     if (route.startsWith('/api/')) {
       endpoints.push({
         method,
@@ -73,7 +73,7 @@ function extractExpressEndpoints() {
       })
     }
   }
-  
+
   return endpoints
 }
 
@@ -82,12 +82,12 @@ function extractExpressEndpoints() {
  */
 function findVercelFunctions() {
   const apiDir = path.join(projectRoot, 'apps/web/api')
-  
+
   if (!fs.existsSync(apiDir)) {
     log.error('apps/web/api directory not found!')
     return []
   }
-  
+
   const files = fs.readdirSync(apiDir).filter(file => file.endsWith('.js'))
   return files
 }
@@ -99,7 +99,7 @@ function checkSharedLogicUsage() {
   const sharedDir = path.join(projectRoot, 'shared')
   const apiDir = path.join(projectRoot, 'apps/web/api')
   const expressFile = path.join(projectRoot, 'dev-api-server.js')
-  
+
   const sharedModules = []
   if (fs.existsSync(sharedDir)) {
     const categories = fs.readdirSync(sharedDir)
@@ -113,19 +113,19 @@ function checkSharedLogicUsage() {
       }
     })
   }
-  
+
   const usage = {
     express: false,
     vercel: [],
     modules: sharedModules
   }
-  
+
   // Check Express.js usage
   if (fs.existsSync(expressFile)) {
     const content = fs.readFileSync(expressFile, 'utf-8')
     usage.express = sharedModules.some(module => content.includes(module))
   }
-  
+
   // Check Vercel function usage
   if (fs.existsSync(apiDir)) {
     const apiFiles = fs.readdirSync(apiDir).filter(f => f.endsWith('.js'))
@@ -138,7 +138,7 @@ function checkSharedLogicUsage() {
       }
     })
   }
-  
+
   return usage
 }
 
@@ -147,35 +147,35 @@ function checkSharedLogicUsage() {
  */
 function runSyncCheck() {
   log.title('\n🔍 API SYNC CHECKER - Dual Architecture Validation\n')
-  
+
   // Extract endpoints from Express.js
   log.info('Scanning Express.js endpoints...')
   const expressEndpoints = extractExpressEndpoints()
-  
+
   if (expressEndpoints.length === 0) {
     log.warning('No Express.js endpoints found')
     return
   }
-  
+
   log.success(`Found ${expressEndpoints.length} Express.js endpoints`)
   expressEndpoints.forEach(endpoint => {
     console.log(`   ${endpoint.method} ${endpoint.route}`)
   })
-  
+
   // Find Vercel functions
   log.info('\nScanning Vercel functions...')
   const vercelFunctions = findVercelFunctions()
-  
+
   log.success(`Found ${vercelFunctions.length} Vercel functions`)
   vercelFunctions.forEach(func => {
     console.log(`   📄 ${func}`)
   })
-  
+
   // Check for missing endpoints
   log.info('\nChecking endpoint parity...')
   const missingEndpoints = []
   const presentEndpoints = []
-  
+
   expressEndpoints.forEach(endpoint => {
     const expectedFile = endpoint.filename
     if (vercelFunctions.includes(expectedFile)) {
@@ -184,7 +184,7 @@ function runSyncCheck() {
       missingEndpoints.push(endpoint)
     }
   })
-  
+
   if (missingEndpoints.length === 0) {
     log.success('✨ All Express.js endpoints have corresponding Vercel functions!')
   } else {
@@ -193,11 +193,11 @@ function runSyncCheck() {
       console.log(`   ❓ Missing: apps/web/api/${endpoint.filename} for ${endpoint.method} ${endpoint.route}`)
     })
   }
-  
+
   // Check shared logic usage
   log.info('\nChecking shared logic usage...')
   const sharedUsage = checkSharedLogicUsage()
-  
+
   if (sharedUsage.modules.length === 0) {
     log.warning('No shared logic modules found')
   } else {
@@ -205,38 +205,38 @@ function runSyncCheck() {
     sharedUsage.modules.forEach(module => {
       console.log(`   📦 ${module}`)
     })
-    
+
     console.log(`\\n   Express.js using shared logic: ${sharedUsage.express ? '✅' : '❌'}`)
     console.log(`   Vercel functions using shared logic: ${sharedUsage.vercel.length}/${vercelFunctions.length}`)
-    
+
     if (sharedUsage.vercel.length > 0) {
       sharedUsage.vercel.forEach(file => {
         console.log(`     ✅ ${file}`)
       })
     }
   }
-  
+
   // Summary and recommendations
   log.title('\\n📋 SYNC STATUS SUMMARY')
-  
+
   const syncScore = ((presentEndpoints.length / expressEndpoints.length) * 100).toFixed(1)
   console.log(`API Endpoint Parity: ${syncScore}% (${presentEndpoints.length}/${expressEndpoints.length})`)
-  
-  const sharedScore = sharedUsage.modules.length > 0 ? 
+
+  const sharedScore = sharedUsage.modules.length > 0 ?
     (((sharedUsage.express ? 1 : 0) + sharedUsage.vercel.length) / (1 + vercelFunctions.length) * 100).toFixed(1) : 0
   console.log(`Shared Logic Usage: ${sharedScore}%`)
-  
+
   if (missingEndpoints.length > 0) {
     log.title('\\n🔧 RECOMMENDED ACTIONS')
     console.log('1. Create missing Vercel functions:')
     missingEndpoints.forEach(endpoint => {
       console.log(`   npx create-vercel-function apps/web/api/${endpoint.filename}`)
     })
-    
+
     console.log('\\n2. Use shared logic modules to reduce duplication')
     console.log('3. Run sync check after creating functions: npm run sync-check')
   }
-  
+
   if (syncScore >= 90) {
     log.success('\\n🎉 Excellent API sync status!')
   } else if (syncScore >= 70) {

@@ -42,11 +42,11 @@ if (typeof global.window === 'undefined') {
 }
 
 // Import the actual modules
-import { 
-  sanitizeString, 
-  sanitizeHtml, 
-  UserInputSchemas, 
-  rateLimiter, 
+import {
+  sanitizeString,
+  sanitizeHtml,
+  UserInputSchemas,
+  rateLimiter,
   CSP_DIRECTIVES,
   generateCSP,
   SECURITY_HEADERS,
@@ -130,7 +130,7 @@ describe('UserInputSchemas', () => {
         precipitation: 'none' as const,
         wind: 'calm' as const
       };
-      
+
       const result = UserInputSchemas.weatherFilter.safeParse(validData);
       expect(result.success).toBe(true);
     });
@@ -141,7 +141,7 @@ describe('UserInputSchemas', () => {
         precipitation: 'none',
         wind: 'calm'
       };
-      
+
       const result = UserInputSchemas.weatherFilter.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -155,7 +155,7 @@ describe('UserInputSchemas', () => {
         precipitation: 'heavy',
         wind: 'calm'
       };
-      
+
       const result = UserInputSchemas.weatherFilter.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
@@ -166,7 +166,7 @@ describe('UserInputSchemas', () => {
         precipitation: 'none',
         wind: 'hurricane'
       };
-      
+
       const result = UserInputSchemas.weatherFilter.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
@@ -180,7 +180,7 @@ describe('UserInputSchemas', () => {
         email: 'test@example.com',
         category: 'general' as const
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
@@ -194,7 +194,7 @@ describe('UserInputSchemas', () => {
         comment: 'Needs improvement',
         category: 'bug' as const
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(validData);
       expect(result.success).toBe(true);
     });
@@ -206,7 +206,7 @@ describe('UserInputSchemas', () => {
         email: '',
         category: 'feature' as const
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(validData);
       expect(result.success).toBe(true);
     });
@@ -217,7 +217,7 @@ describe('UserInputSchemas', () => {
         comment: 'Bad',
         category: 'bug'
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
@@ -228,7 +228,7 @@ describe('UserInputSchemas', () => {
         comment: 'Too good',
         category: 'general'
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -242,7 +242,7 @@ describe('UserInputSchemas', () => {
         comment: 'a'.repeat(1001), // 1001 characters
         category: 'general'
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -257,7 +257,7 @@ describe('UserInputSchemas', () => {
         email: 'not-an-email',
         category: 'general'
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
@@ -269,7 +269,7 @@ describe('UserInputSchemas', () => {
         email: 'a'.repeat(250) + '@example.com', // > 254 characters
         category: 'general'
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
@@ -280,7 +280,7 @@ describe('UserInputSchemas', () => {
         comment: '<script>alert("xss")</script>Great app!',
         category: 'general' as const
       };
-      
+
       const result = UserInputSchemas.feedback.safeParse(maliciousData);
       expect(result.success).toBe(true);
       if (result.success) {
@@ -292,14 +292,14 @@ describe('UserInputSchemas', () => {
   describe('search schema', () => {
     test('should validate correct search query', () => {
       const validData = { query: 'Minneapolis weather' };
-      
+
       const result = UserInputSchemas.search.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
     test('should reject empty search query', () => {
       const invalidData = { query: '' };
-      
+
       const result = UserInputSchemas.search.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -309,7 +309,7 @@ describe('UserInputSchemas', () => {
 
     test('should reject search query that is too long', () => {
       const invalidData = { query: 'a'.repeat(101) }; // 101 characters
-      
+
       const result = UserInputSchemas.search.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -319,7 +319,7 @@ describe('UserInputSchemas', () => {
 
     test('should sanitize malicious search query', () => {
       const maliciousData = { query: '<script>alert("xss")</script>search term' };
-      
+
       const result = UserInputSchemas.search.safeParse(maliciousData);
       expect(result.success).toBe(true);
       if (result.success) {
@@ -367,10 +367,10 @@ describe('RateLimiter', () => {
 
     // First request should be allowed
     expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true);
-    
+
     // Second request should be denied (within window)
     expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(false);
-    
+
     // Wait for window to expire and try again
     await new Promise(resolve => setTimeout(resolve, 110));
     expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true);

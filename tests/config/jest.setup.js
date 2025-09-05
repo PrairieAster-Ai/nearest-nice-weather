@@ -1,5 +1,5 @@
 /**
- * Jest Setup Configuration  
+ * Jest Setup Configuration
  * Global test setup and utilities
  */
 

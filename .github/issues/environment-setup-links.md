@@ -49,7 +49,7 @@ npm run health:visual
 Reference these sections in CLAUDE.md for environment configuration:
 
 - **DATABASE_URL / POSTGRES_URL**: Neon database connections
-- **OPENWEATHER_API_KEY**: Weather API integration  
+- **OPENWEATHER_API_KEY**: Weather API integration
 - **GA4_MEASUREMENT_ID**: Google Analytics tracking
 - **ADSENSE_CLIENT_ID**: AdSense revenue integration
 

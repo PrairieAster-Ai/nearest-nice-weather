@@ -31,13 +31,13 @@ const mockRes = {
 // Test the feedback function
 async function testFeedback() {
   console.log('🧪 Testing feedback API function...');
-  
+
   try {
     // Import the feedback function
     const feedbackHandler = require('./feedback.ts');
-    
+
     console.log('✅ Function imported successfully');
-    
+
     // Call the handler
     try {
       await feedbackHandler.default(mockReq, mockRes);
@@ -45,17 +45,17 @@ async function testFeedback() {
       console.error('Operation failed:', error);
       // TODO: Add proper error handling
     }
-    
+
   } catch (error) {
     console.error('❌ Test failed:', error.message);
-    
+
     // If it's a TypeScript import error, that's expected in Node.js
     if (error.message.includes('require') || error.message.includes('TypeScript')) {
       console.log('📝 Note: This is expected - function uses TypeScript/ES modules');
       console.log('   The function structure looks correct for Vercel deployment');
       return true;
     }
-    
+
     throw error;
   }
 }
@@ -63,36 +63,36 @@ async function testFeedback() {
 // Test database connection setup
 function testDatabaseConfig() {
   console.log('🧪 Testing database configuration...');
-  
+
   // Check environment variables
   if (process.env.POSTGRES_URL) {
     console.log('✅ POSTGRES_URL environment variable is set');
   } else {
     console.log('⚠️  POSTGRES_URL not set (expected in development)');
   }
-  
+
   console.log('✅ Database config test complete');
 }
 
 // Run tests
 async function runTests() {
   console.log('🚀 Starting local API tests...\n');
-  
+
   testDatabaseConfig();
   console.log('');
-  
+
   try {
-  
+
     await testFeedback();
-  
+
   } catch (error) {
-  
+
     console.error('Operation failed:', error);
-  
+
     // TODO: Add proper error handling
-  
+
   }
-  
+
   console.log('\n✅ Local tests complete!');
   console.log('💡 API functions are ready for Vercel deployment');
 }

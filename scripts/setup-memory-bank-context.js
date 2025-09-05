@@ -20,7 +20,7 @@ const businessContext = {
     target: 'Casual mass market consumers in Minneapolis metro area',
     focus: 'Constraint-based weather optimization for free/frugal local activities',
     revenueModel: 'Ad revenue platform targeting 10,000+ active users',
-    
+
     // Anti-patterns (what NOT to build)
     antiPatterns: [
       'B2B tourism operator features',
@@ -30,7 +30,7 @@ const businessContext = {
       'Premium subscription features'
     ]
   },
-  
+
   // Technical Architecture
   technicalStack: {
     backend: 'Vercel Edge Functions (Node.js serverless)',
@@ -39,7 +39,7 @@ const businessContext = {
     deployment: 'Vercel (frontend + serverless functions)',
     primaryTable: 'poi_locations',
     legacyTables: ['locations (deprecated)', 'weather_conditions (supplementary)'],
-    
+
     // Critical architectural knowledge
     dualApiPattern: {
       development: 'Express.js server (dev-api-server.js)',
@@ -48,7 +48,7 @@ const businessContext = {
       maintenanceTime: '2-4 hours/week for synchronization'
     }
   },
-  
+
   // Data Schema Knowledge
   dataModel: {
     primaryEntity: 'Point of Interest (POI)',
@@ -60,7 +60,7 @@ const businessContext = {
         longitude: { min: -97.5, max: -89.0 }
       }
     },
-    
+
     // Common data issues
     commonProblems: [
       'Queries using legacy "locations" table instead of "poi_locations"',
@@ -69,7 +69,7 @@ const businessContext = {
       'Missing park_type classification'
     ]
   },
-  
+
   // User Experience Patterns
   userJourney: {
     primary: 'POI discovery with auto-expanding search radius',
@@ -80,7 +80,7 @@ const businessContext = {
       'Weather data enhances decision-making (secondary)',
       'Mobile-optimized experience across all interactions'
     ],
-    
+
     // Critical UX requirements
     requirements: [
       'Auto-expand search must work for remote users',
@@ -90,7 +90,7 @@ const businessContext = {
       'Responsive design for mobile/desktop/tablet'
     ]
   },
-  
+
   // Development Patterns
   developmentPatterns: {
     // Successful patterns to repeat
@@ -111,7 +111,7 @@ const businessContext = {
         usage: 'Validate all API responses match business model'
       }
     ],
-    
+
     // Anti-patterns to avoid
     antiPatterns: [
       {
@@ -131,7 +131,7 @@ const businessContext = {
       }
     ]
   },
-  
+
   // Common Issues and Solutions
   troubleshooting: {
     blankScreen: {
@@ -143,7 +143,7 @@ const businessContext = {
       diagnosticScript: './scripts/comprehensive-health-check.sh',
       solution: 'Follow blank-screen-troubleshooting.md runbook'
     },
-    
+
     missingPOIs: {
       rootCauses: [
         'API querying wrong table (locations vs poi_locations)',
@@ -156,14 +156,14 @@ const businessContext = {
         'Verify usePOINavigation.ts logic'
       ]
     },
-    
+
     footerNotVisible: {
       rootCause: 'Z-index conflict with map container',
       solution: 'Set footer zIndex to 1004 (above map container 1003)',
       file: 'apps/web/src/components/UnifiedStickyFooter.tsx'
     }
   },
-  
+
   // Quality Assurance Patterns
   qaPatterns: {
     // Must-test scenarios
@@ -174,7 +174,7 @@ const businessContext = {
       'Footer visibility across all screen sizes',
       'API response times < 1 second'
     ],
-    
+
     // Business model validation
     businessValidation: [
       'Results show parks/trails, never cities',
@@ -182,7 +182,7 @@ const businessContext = {
       'No B2B features accidentally exposed',
       'Weather data enhances, doesn\'t dominate experience'
     ],
-    
+
     // Performance benchmarks
     performanceTargets: {
       mapLoadTime: '< 3 seconds',
@@ -221,7 +221,7 @@ const velocityInsights = {
       command: 'npm start'
     }
   ],
-  
+
   // Velocity killers to avoid
   decelerators: [
     {
@@ -261,7 +261,7 @@ const sessionTemplates = {
     techStack: 'Vercel + Neon + React, dual API architecture',
     lastValidation: 'When environment was last health-checked'
   },
-  
+
   issueHandoff: {
     problemDescription: 'Clear description of issue',
     reproductionSteps: 'How to reproduce the problem',
@@ -280,7 +280,7 @@ function setupMemoryBankStructure() {
   if (!fs.existsSync(MEMORY_BANK_DIR)) {
     fs.mkdirSync(MEMORY_BANK_DIR, { recursive: true });
   }
-  
+
   // Create subdirectories
   const subdirs = [
     'business-context',
@@ -290,7 +290,7 @@ function setupMemoryBankStructure() {
     'qa-automation',
     'performance-data'
   ];
-  
+
   subdirs.forEach(dir => {
     const fullPath = path.join(MEMORY_BANK_DIR, dir);
     if (!fs.existsSync(fullPath)) {
@@ -308,19 +308,19 @@ function writeBusinessContext() {
     path.join(MEMORY_BANK_DIR, 'business-context', 'core-business-model.json'),
     JSON.stringify(businessContext, null, 2)
   );
-  
+
   // Velocity insights
   fs.writeFileSync(
     path.join(MEMORY_BANK_DIR, 'technical-patterns', 'velocity-insights.json'),
     JSON.stringify(velocityInsights, null, 2)
   );
-  
+
   // Session templates
   fs.writeFileSync(
     path.join(MEMORY_BANK_DIR, 'session-handoffs', 'handoff-templates.json'),
     JSON.stringify(sessionTemplates, null, 2)
   );
-  
+
   // Quick reference guide
   const quickReference = {
     primaryTable: 'poi_locations',
@@ -328,12 +328,12 @@ function writeBusinessContext() {
     geographicScope: 'Minnesota only',
     userJourney: 'POI discovery with auto-expand',
     techStack: 'Vercel + Neon + React',
-    
+
     // Critical commands
     healthCheck: './scripts/comprehensive-health-check.sh localhost',
     qaAutomation: 'npm run qa:deployment-gate',
     environmentStart: 'npm start',
-    
+
     // Red flags
     redFlags: [
       'Cities appearing instead of parks',
@@ -343,7 +343,7 @@ function writeBusinessContext() {
       'B2B features being developed'
     ]
   };
-  
+
   fs.writeFileSync(
     path.join(MEMORY_BANK_DIR, 'quick-reference.json'),
     JSON.stringify(quickReference, null, 2)
@@ -361,7 +361,7 @@ This directory contains structured business context for Claude Code pair program
 ## Directory Structure
 
 - **business-context/**: Core business model and requirements
-- **technical-patterns/**: Successful patterns and anti-patterns  
+- **technical-patterns/**: Successful patterns and anti-patterns
 - **troubleshooting/**: Common issues and proven solutions
 - **session-handoffs/**: Templates for session continuity
 - **qa-automation/**: QA patterns and test requirements
@@ -390,7 +390,7 @@ npm start
 ## Red Flags (Stop and Fix Immediately)
 
 - ❌ Cities showing instead of parks/trails
-- ❌ Blank screen on any environment  
+- ❌ Blank screen on any environment
 - ❌ API queries using legacy "locations" table
 - ❌ Manual screenshot sharing workflow
 - ❌ B2B tourism features being developed
@@ -407,7 +407,7 @@ npm start
 *Generated by Memory Bank Business Context Setup*
 *Last updated: ${new Date().toISOString()}*
 `;
-  
+
   fs.writeFileSync(path.join(MEMORY_BANK_DIR, 'README.md'), docContent);
 }
 
@@ -416,16 +416,16 @@ npm start
  */
 function setupMemoryBankContext() {
   console.log('🧠 Setting up Memory Bank Business Context...');
-  
+
   try {
     setupMemoryBankStructure();
     writeBusinessContext();
     createDocumentation();
-    
+
     console.log('✅ Memory Bank context setup complete!');
     console.log('📁 Context files created in:', MEMORY_BANK_DIR);
     console.log('📋 Quick reference available at:', path.join(MEMORY_BANK_DIR, 'README.md'));
-    
+
     // Summary of what was created
     console.log('\n📊 Context Data Summary:');
     console.log('   - Business model and anti-patterns');
@@ -436,7 +436,7 @@ function setupMemoryBankContext() {
     console.log('   - Troubleshooting patterns and solutions');
     console.log('   - QA automation requirements');
     console.log('   - Session handoff templates');
-    
+
   } catch (error) {
     console.error('❌ Memory Bank setup failed:', error.message);
     process.exit(1);

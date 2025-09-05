@@ -28,7 +28,7 @@ class CleanMVPImporter {
 
   async initializeProject() {
     console.log('🔧 Initializing GitHub Project connection...\n');
-    
+
     const projectQuery = `
       query($owner: String!, $number: Int!) {
         organization(login: $owner) {
@@ -71,7 +71,7 @@ class CleanMVPImporter {
     });
 
     this.projectId = projectData.organization.projectV2.id;
-    
+
     const fields = projectData.organization.projectV2.fields.nodes;
     for (const field of fields) {
       this.projectFieldIds[field.name] = {
@@ -113,7 +113,7 @@ class CleanMVPImporter {
         if (issue.title.startsWith('Capability:')) workItemType = 'Capability';
         if (issue.title.startsWith('Epic:')) workItemType = 'Epic';
         if (issue.title.startsWith('Story:')) workItemType = 'User Story';
-        
+
         const typeOption = this.projectFieldIds['Work Item Type'].options.find(
           opt => opt.name === workItemType
         );
@@ -134,7 +134,7 @@ class CleanMVPImporter {
         }
       }
 
-      // Set Size field  
+      // Set Size field
       if (this.projectFieldIds['Size'] && workItem.size) {
         const sizeOption = this.projectFieldIds['Size'].options.find(
           opt => opt.name === workItem.size
@@ -167,10 +167,10 @@ class CleanMVPImporter {
   async setProjectField(itemId, fieldName, optionId, isIteration = false) {
     try {
       const fieldId = this.projectFieldIds[fieldName].id;
-      
+
       let updateMutation;
       let variables;
-      
+
       if (isIteration) {
         updateMutation = `
           mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String) {
@@ -186,7 +186,7 @@ class CleanMVPImporter {
             }
           }
         `;
-        
+
         variables = {
           projectId: this.projectId,
           itemId: itemId,
@@ -208,7 +208,7 @@ class CleanMVPImporter {
             }
           }
         `;
-        
+
         variables = {
           projectId: this.projectId,
           itemId: itemId,
@@ -240,7 +240,7 @@ class CleanMVPImporter {
 ### Business Value
 Multi-source weather aggregation for accuracy and reliable weather data platform credibility.
 
-### Description  
+### Description
 This capability enables accurate weather data collection and processing across multiple sources to build platform credibility through reliable, real-time weather intelligence.
 
 ### Child Epics
@@ -257,7 +257,7 @@ This capability enables accurate weather data collection and processing across m
 *Generated from clean MVP import with proper Work Item Type*`
       },
 
-      // Core Epic  
+      // Core Epic
       {
         title: 'Epic: Production Database & POI Infrastructure',
         type: 'epic',
@@ -296,7 +296,7 @@ Production-grade database deployment with 100+ Minnesota POI locations for weath
       // Core Story
       {
         title: 'Story: Minnesota POI Database Deployment',
-        type: 'story',  
+        type: 'story',
         status: 'Ready',
         sprint: 'Database + Weather API',
         size: 'L',
@@ -332,13 +332,13 @@ As a platform user, I want access to comprehensive Minnesota outdoor recreation 
   async importCleanMVP() {
     console.log('🚀 IMPORTING CLEAN MVP WITH PROPER WORK ITEM TYPES');
     console.log('=================================================\n');
-    
+
     await this.initializeProject();
-    
+
     const workItems = this.getCleanMVPWorkItems();
-    
+
     console.log(`📊 **IMPORT PLAN**: ${workItems.length} focused work items\n`);
-    
+
     for (const workItem of workItems) {
       try {
         const issue = await octokit.rest.issues.create({
@@ -348,31 +348,31 @@ As a platform user, I want access to comprehensive Minnesota outdoor recreation 
           body: workItem.body,
           labels: workItem.labels
         });
-        
+
         console.log(`✅ Created: ${workItem.title} (#${issue.data.number})`);
         this.createdIssues.push(issue.data);
-        
+
         // Add to project with proper Work Item Type
         await this.addIssueToProject(issue.data, workItem);
-        
+
         // Rate limiting
         await new Promise(resolve => setTimeout(resolve, 300));
-        
+
       } catch (error) {
         console.log(`❌ Failed to create ${workItem.title}: ${error.message}`);
       }
     }
-    
+
     console.log('\n📊 **IMPORT SUMMARY**');
     console.log('====================');
     console.log(`✅ Successfully created: ${this.createdIssues.length} issues`);
     console.log('✅ All issues have proper Work Item Type assignments');
     console.log('✅ Project board should show Capability/Epic/Story instead of Bug/Feature/Task');
-    
+
     console.log('\n🔗 **VERIFICATION**:');
     console.log(`📋 Project Board: https://github.com/orgs/${this.owner}/projects/${PROJECT_NUMBER}`);
     console.log('👀 Check that issues show correct Work Item Type in project columns');
-    
+
     console.log('\n✅ Clean MVP Import Complete!');
   }
 }

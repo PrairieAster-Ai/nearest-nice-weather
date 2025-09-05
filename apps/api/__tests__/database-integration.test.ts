@@ -17,14 +17,14 @@ describe('Database Integration Tests', () => {
   beforeEach(() => {
     // Save original environment
     originalEnv = { ...process.env }
-    
+
     // Create mock pool
     mockPool = {
       connect: vi.fn(),
       end: vi.fn(),
       query: vi.fn(),
     }
-    
+
     vi.mocked(Pool).mockImplementation(() => mockPool)
   })
 
@@ -38,7 +38,7 @@ describe('Database Integration Tests', () => {
     it('should detect missing DATABASE_URL', () => {
       delete process.env.DATABASE_URL
       delete process.env.POSTGRES_URL
-      
+
       const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL
       expect(connectionString).toBeUndefined()
     })
@@ -46,7 +46,7 @@ describe('Database Integration Tests', () => {
     it('should prioritize DATABASE_URL over POSTGRES_URL', () => {
       process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db1'
       process.env.POSTGRES_URL = 'postgresql://user:pass@localhost:5432/db2'
-      
+
       const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL
       expect(connectionString).toBe('postgresql://user:pass@localhost:5432/db1')
     })
@@ -72,11 +72,11 @@ describe('Database Integration Tests', () => {
     it('should validate Neon.tech connection strings', () => {
       const neonUrl = 'postgresql://user:pass@ep-123.neon.tech/neondb'
       process.env.DATABASE_URL = neonUrl
-      
+
       const connectionString = process.env.DATABASE_URL
       expect(connectionString).toContain('neon.tech')
       expect(connectionString).toContain('postgresql://')
-      
+
       // Should not throw when parsing
       expect(() => new URL(neonUrl)).not.toThrow()
     })
@@ -85,7 +85,7 @@ describe('Database Integration Tests', () => {
       // Test password with special characters that caused issues
       const specialCharUrl = 'postgresql://user:p@ssw!rd@host:5432/db'
       process.env.DATABASE_URL = specialCharUrl
-      
+
       const connectionString = process.env.DATABASE_URL
       expect(connectionString).toBe(specialCharUrl)
     })
@@ -95,12 +95,12 @@ describe('Database Integration Tests', () => {
     it('should enable SSL for Neon connections', () => {
       const neonUrl = 'postgresql://user:pass@ep-123.neon.tech/neondb'
       process.env.DATABASE_URL = neonUrl
-      
+
       const pool = new Pool({
         connectionString: neonUrl,
         ssl: neonUrl.includes('neon.tech') ? { rejectUnauthorized: false } : false,
       })
-      
+
       expect(Pool).toHaveBeenCalledWith({
         connectionString: neonUrl,
         ssl: { rejectUnauthorized: false },
@@ -113,12 +113,12 @@ describe('Database Integration Tests', () => {
     it('should disable SSL for local connections', () => {
       const localUrl = 'postgresql://user:pass@localhost:5432/db'
       process.env.DATABASE_URL = localUrl
-      
+
       const pool = new Pool({
         connectionString: localUrl,
         ssl: localUrl.includes('neon.tech') ? { rejectUnauthorized: false } : false,
       })
-      
+
       expect(Pool).toHaveBeenCalledWith({
         connectionString: localUrl,
         ssl: false,
@@ -132,7 +132,7 @@ describe('Database Integration Tests', () => {
   describe('Connection Pool Configuration', () => {
     it('should configure connection pool with proper settings', () => {
       const connectionString = 'postgresql://user:pass@host:5432/db'
-      
+
       const pool = new Pool({
         connectionString,
         ssl: false,
@@ -140,7 +140,7 @@ describe('Database Integration Tests', () => {
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 2000,
       })
-      
+
       expect(Pool).toHaveBeenCalledWith({
         connectionString,
         ssl: false,
@@ -157,9 +157,9 @@ describe('Database Integration Tests', () => {
         query: vi.fn(),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockRejectedValue(new Error('connect ETIMEDOUT'))
-      
+
       try {
         await mockPool.connect()
         expect.fail('Should have thrown error')
@@ -171,9 +171,9 @@ describe('Database Integration Tests', () => {
     it('should handle authentication errors', async () => {
       const authError = new Error('password authentication failed')
       authError.code = '28P01'
-      
+
       mockPool.connect.mockRejectedValue(authError)
-      
+
       try {
         await mockPool.connect()
         expect.fail('Should have thrown error')
@@ -186,9 +186,9 @@ describe('Database Integration Tests', () => {
     it('should handle database not found errors', async () => {
       const dbError = new Error('database "nonexistent" does not exist')
       dbError.code = '3D000'
-      
+
       mockPool.connect.mockRejectedValue(dbError)
-      
+
       try {
         await mockPool.connect()
         expect.fail('Should have thrown error')
@@ -201,9 +201,9 @@ describe('Database Integration Tests', () => {
     it('should handle SSL connection errors', async () => {
       const sslError = new Error('SSL connection has been closed unexpectedly')
       sslError.code = '08006'
-      
+
       mockPool.connect.mockRejectedValue(sslError)
-      
+
       try {
         await mockPool.connect()
         expect.fail('Should have thrown error')
@@ -223,12 +223,12 @@ describe('Database Integration Tests', () => {
         }),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
-      
+
       const client = await mockPool.connect()
       const result = await client.query('SELECT 1 as id')
-      
+
       expect(result.rows).toHaveLength(1)
       expect(result.rows[0].id).toBe(1)
     })
@@ -238,11 +238,11 @@ describe('Database Integration Tests', () => {
         query: vi.fn().mockRejectedValue(new Error('syntax error at or near "SELEC"')),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
-      
+
       const client = await mockPool.connect()
-      
+
       try {
         await client.query('SELEC 1')
         expect.fail('Should have thrown error')
@@ -256,11 +256,11 @@ describe('Database Integration Tests', () => {
         query: vi.fn().mockRejectedValue(new Error('relation "nonexistent_table" does not exist')),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
-      
+
       const client = await mockPool.connect()
-      
+
       try {
         await client.query('SELECT * FROM nonexistent_table')
         expect.fail('Should have thrown error')
@@ -289,16 +289,16 @@ describe('Database Integration Tests', () => {
         }),
         release: vi.fn(),
       }
-      
+
       mockPool.connect.mockResolvedValue(mockClient)
-      
+
       const client = await mockPool.connect()
       const result = await client.query(`
-        SELECT column_name, data_type 
-        FROM information_schema.columns 
+        SELECT column_name, data_type
+        FROM information_schema.columns
         WHERE table_name = 'user_feedback'
       `)
-      
+
       const columns = result.rows.map(row => row.column_name)
       expect(columns).toContain('id')
       expect(columns).toContain('email')

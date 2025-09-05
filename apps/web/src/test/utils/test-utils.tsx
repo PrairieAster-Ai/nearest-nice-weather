@@ -31,7 +31,7 @@ interface AllTheProvidersProps {
 
 const AllTheProviders: React.FC<AllTheProvidersProps> = ({ children }) => {
   const queryClient = createTestQueryClient()
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>

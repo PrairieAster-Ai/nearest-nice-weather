@@ -2,25 +2,25 @@
  * ========================================================================
  * POI NAVIGATION UTILITIES TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for POI navigation algorithm utilities
  * 🔗 UTILITIES: poiNavigationUtils.ts - Core outdoor recreation discovery logic
  * 📊 COVERAGE: Distance calculations, data processing, filtering, expansion logic
  * ⚙️ FUNCTIONALITY: Geographic algorithms, POI organization, intelligent navigation
  * 🎯 BUSINESS_IMPACT: Ensures reliable outdoor recreation discovery for Minnesota users
- * 
+ *
  * BUSINESS CONTEXT: Outdoor recreation discovery algorithm validation
  * - Validates accurate distance calculations for outdoor destinations
  * - Tests POI organization into 30-mile distance slices
  * - Ensures auto-expanding search works for remote areas
  * - Verifies weather filtering integration
- * 
+ *
  * TECHNICAL COVERAGE: Pure function testing for geographic algorithms
  * - Haversine formula accuracy validation
  * - Distance-based slicing and filtering logic
  * - Data transformation and sorting algorithms
  * - Edge cases and boundary conditions
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -72,7 +72,7 @@ describe('POI Navigation Utilities', () => {
   describe('✅ Distance Calculations (Haversine Formula)', () => {
     it('should calculate distance between Minneapolis and Como Park', () => {
       const distance = calculateDistance(MINNEAPOLIS_COORDS, [44.9778, -93.1453])
-      
+
       // Como Park is approximately 4-5 miles from downtown Minneapolis
       expect(distance).toBeGreaterThan(3)
       expect(distance).toBeLessThan(6)
@@ -80,7 +80,7 @@ describe('POI Navigation Utilities', () => {
 
     it('should calculate distance between Minneapolis and Duluth', () => {
       const distance = calculateDistance(MINNEAPOLIS_COORDS, [46.7867, -92.1005])
-      
+
       // Duluth is approximately 135 miles from Minneapolis (actual calculation: ~135.3)
       expect(distance).toBeGreaterThan(130)
       expect(distance).toBeLessThan(140)
@@ -95,7 +95,7 @@ describe('POI Navigation Utilities', () => {
       const point1: [number, number] = [-45.123, -93.456]
       const point2: [number, number] = [-45.124, -93.457]
       const distance = calculateDistance(point1, point2)
-      
+
       expect(distance).toBeGreaterThan(0)
       expect(distance).toBeLessThan(1) // Very close points
     })
@@ -104,7 +104,7 @@ describe('POI Navigation Utilities', () => {
       const london: [number, number] = [51.5074, -0.1278]
       const paris: [number, number] = [48.8566, 2.3522]
       const distance = calculateDistance(london, paris)
-      
+
       // London to Paris is approximately 214 miles
       expect(distance).toBeGreaterThan(200)
       expect(distance).toBeLessThan(230)
@@ -113,10 +113,10 @@ describe('POI Navigation Utilities', () => {
     it('should be symmetric (A to B = B to A)', () => {
       const pointA: [number, number] = [44.9537, -93.0900]
       const pointB: [number, number] = [46.7867, -92.1005]
-      
+
       const distanceAB = calculateDistance(pointA, pointB)
       const distanceBA = calculateDistance(pointB, pointA)
-      
+
       expect(distanceAB).toBeCloseTo(distanceBA, 10)
     })
   })
@@ -143,12 +143,12 @@ describe('POI Navigation Utilities', () => {
   describe('✅ API Data Processing', () => {
     it('should process valid API data correctly', () => {
       const result = processAPIData(mockMNLocations, MINNEAPOLIS_COORDS)
-      
+
       expect(result.processedPOIs).toHaveLength(4)
       expect(result.totalCount).toBe(4)
       expect(result.closestDistance).toBeGreaterThan(0)
       expect(result.farthestDistance).toBeGreaterThan(result.closestDistance)
-      
+
       // Verify all required fields are present
       result.processedPOIs.forEach(poi => {
         expect(poi).toHaveProperty('id')
@@ -163,7 +163,7 @@ describe('POI Navigation Utilities', () => {
     it('should sort POIs by distance (closest first)', () => {
       const result = processAPIData(mockMNLocations, MINNEAPOLIS_COORDS)
       const distances = result.processedPOIs.map(poi => poi.distance)
-      
+
       // Verify ascending order
       for (let i = 1; i < distances.length; i++) {
         expect(distances[i]).toBeGreaterThanOrEqual(distances[i - 1])
@@ -175,16 +175,16 @@ describe('POI Navigation Utilities', () => {
         { id: '1', name: 'Zebra Park', lat: 44.9537, lng: -93.0901, temperature: 70, precipitation: 0, windSpeed: '5', condition: 'sunny', description: 'Park' },
         { id: '2', name: 'Alpha Park', lat: 44.9537, lng: -93.0901, temperature: 70, precipitation: 0, windSpeed: '5', condition: 'sunny', description: 'Park' }
       ]
-      
+
       const result = processAPIData(sameDistanceLocations, MINNEAPOLIS_COORDS)
-      
+
       expect(result.processedPOIs[0].name).toBe('Alpha Park')
       expect(result.processedPOIs[1].name).toBe('Zebra Park')
     })
 
     it('should handle empty API data', () => {
       const result = processAPIData([], MINNEAPOLIS_COORDS)
-      
+
       expect(result.processedPOIs).toEqual([])
       expect(result.totalCount).toBe(0)
       expect(result.closestDistance).toBe(0)
@@ -193,14 +193,14 @@ describe('POI Navigation Utilities', () => {
 
     it('should handle null/undefined API data', () => {
       const result = processAPIData(null as any, MINNEAPOLIS_COORDS)
-      
+
       expect(result.processedPOIs).toEqual([])
       expect(result.totalCount).toBe(0)
     })
 
     it('should calculate slice indices correctly', () => {
       const result = processAPIData(mockMNLocations, MINNEAPOLIS_COORDS)
-      
+
       result.processedPOIs.forEach(poi => {
         const expectedSliceIndex = Math.floor(poi.distance / DISTANCE_SLICE_SIZE)
         expect(poi.sliceIndex).toBe(expectedSliceIndex)
@@ -218,7 +218,7 @@ describe('POI Navigation Utilities', () => {
 
     it('should filter POIs by maximum distance', () => {
       const visiblePOIs = getVisiblePOIs(testPOIs, 30)
-      
+
       // All returned POIs should be within 30 miles
       visiblePOIs.forEach(poi => {
         expect(poi.distance).toBeLessThanOrEqual(30)
@@ -279,10 +279,10 @@ describe('POI Navigation Utilities', () => {
         { id: '2', name: 'Medium Park', lat: 45.5, lng: -93.5, temperature: 70, precipitation: 0, windSpeed: '5', condition: 'sunny', description: 'Medium distance park' },
         { id: '3', name: 'Far Park', lat: 47.0, lng: -94.0, temperature: 70, precipitation: 0, windSpeed: '5', condition: 'sunny', description: 'Far park' }
       ]
-      
+
       const result = processAPIData(testData, MINNEAPOLIS_COORDS)
       const optimalDistance = findOptimalStartingSlice(result.processedPOIs, 1)
-      
+
       expect(optimalDistance).toBeGreaterThanOrEqual(DISTANCE_SLICE_SIZE)
     })
 
@@ -296,10 +296,10 @@ describe('POI Navigation Utilities', () => {
       const distantData = [
         { id: '1', name: 'Distant Park', lat: 47.5, lng: -95.0, temperature: 70, precipitation: 0, windSpeed: '5', condition: 'sunny', description: 'Distant park' }
       ]
-      
+
       const result = processAPIData(distantData, MINNEAPOLIS_COORDS)
       const optimalDistance = findOptimalStartingSlice(result.processedPOIs, 1)
-      
+
       // Should expand beyond first slice to include the distant POI
       expect(optimalDistance).toBeGreaterThan(DISTANCE_SLICE_SIZE)
     })
@@ -321,7 +321,7 @@ describe('POI Navigation Utilities', () => {
 
     it('should calculate distribution statistics correctly', () => {
       const stats = calculatePOIDistributionStats(testPOIs)
-      
+
       expect(stats.totalSlices).toBeGreaterThan(0)
       expect(stats.averageDistance).toBeGreaterThan(0)
       expect(stats.medianDistance).toBeGreaterThan(0)
@@ -330,7 +330,7 @@ describe('POI Navigation Utilities', () => {
 
     it('should handle empty POI array', () => {
       const stats = calculatePOIDistributionStats([])
-      
+
       expect(stats.totalSlices).toBe(0)
       expect(stats.averageDistance).toBe(0)
       expect(stats.medianDistance).toBe(0)
@@ -340,7 +340,7 @@ describe('POI Navigation Utilities', () => {
     it('should calculate median correctly for odd number of POIs', () => {
       const oddPOIs = testPOIs.slice(0, 3) // Take first 3 POIs
       const stats = calculatePOIDistributionStats(oddPOIs)
-      
+
       const sortedDistances = oddPOIs.map(poi => poi.distance).sort((a, b) => a - b)
       expect(stats.medianDistance).toBe(sortedDistances[1]) // Middle value
     })
@@ -348,7 +348,7 @@ describe('POI Navigation Utilities', () => {
     it('should calculate median correctly for even number of POIs', () => {
       const evenPOIs = testPOIs.slice(0, 4) // Take first 4 POIs
       const stats = calculatePOIDistributionStats(evenPOIs)
-      
+
       const sortedDistances = evenPOIs.map(poi => poi.distance).sort((a, b) => a - b)
       const expectedMedian = (sortedDistances[1] + sortedDistances[2]) / 2
       expect(stats.medianDistance).toBeCloseTo(expectedMedian, 5)
@@ -369,9 +369,9 @@ describe('POI Navigation Utilities', () => {
         temp_max: 75,
         conditions: []
       }
-      
+
       const filtered = applyWeatherFilters(testPOIs, filters)
-      
+
       filtered.forEach(poi => {
         expect(poi.temperature).toBeGreaterThanOrEqual(70)
         expect(poi.temperature).toBeLessThanOrEqual(75)
@@ -384,9 +384,9 @@ describe('POI Navigation Utilities', () => {
         temp_max: 100,
         conditions: ['sunny']
       }
-      
+
       const filtered = applyWeatherFilters(testPOIs, filters)
-      
+
       filtered.forEach(poi => {
         expect(poi.condition).toBe('sunny')
       })
@@ -398,9 +398,9 @@ describe('POI Navigation Utilities', () => {
         temp_max: 100,
         conditions: ['sunny', 'partly_cloudy']
       }
-      
+
       const filtered = applyWeatherFilters(testPOIs, filters)
-      
+
       filtered.forEach(poi => {
         expect(['sunny', 'partly_cloudy']).toContain(poi.condition)
       })
@@ -412,9 +412,9 @@ describe('POI Navigation Utilities', () => {
         temp_max: 75,
         conditions: ['sunny']
       }
-      
+
       const filtered = applyWeatherFilters(testPOIs, filters)
-      
+
       filtered.forEach(poi => {
         expect(poi.temperature).toBeGreaterThanOrEqual(70)
         expect(poi.temperature).toBeLessThanOrEqual(75)
@@ -428,7 +428,7 @@ describe('POI Navigation Utilities', () => {
         temp_max: 100,
         conditions: []
       }
-      
+
       const filtered = applyWeatherFilters(testPOIs, filters)
       expect(filtered).toHaveLength(testPOIs.length)
     })
@@ -439,7 +439,7 @@ describe('POI Navigation Utilities', () => {
         temp_max: 80,
         conditions: ['sunny']
       }
-      
+
       const filtered = applyWeatherFilters([], filters)
       expect(filtered).toEqual([])
     })
@@ -475,10 +475,10 @@ describe('POI Navigation Utilities', () => {
     it('should validate coordinates within Minnesota', () => {
       // Minneapolis
       expect(isWithinMinnesotaBounds([44.9537, -93.0900])).toBe(true)
-      
+
       // Duluth
       expect(isWithinMinnesotaBounds([46.7867, -92.1005])).toBe(true)
-      
+
       // Boundary Waters (northern Minnesota)
       expect(isWithinMinnesotaBounds([48.0, -91.5])).toBe(true)
     })
@@ -486,10 +486,10 @@ describe('POI Navigation Utilities', () => {
     it('should reject coordinates outside Minnesota', () => {
       // Chicago (too far south and east)
       expect(isWithinMinnesotaBounds([41.8781, -87.6298])).toBe(false)
-      
+
       // Denver (too far south and west)
       expect(isWithinMinnesotaBounds([39.7392, -104.9903])).toBe(false)
-      
+
       // Winnipeg (too far north)
       expect(isWithinMinnesotaBounds([49.8951, -97.1384])).toBe(false)
     })
@@ -510,7 +510,7 @@ describe('POI Navigation Utilities', () => {
     it('should handle very small distances correctly', () => {
       const point1: [number, number] = [44.9537, -93.0900]
       const point2: [number, number] = [44.9537, -93.0901] // Very close
-      
+
       const distance = calculateDistance(point1, point2)
       expect(distance).toBeGreaterThan(0)
       expect(distance).toBeLessThan(0.1)
@@ -520,7 +520,7 @@ describe('POI Navigation Utilities', () => {
       // Antipodal points (maximum distance on Earth)
       const north: [number, number] = [45, 0]
       const south: [number, number] = [-45, 180]
-      
+
       const distance = calculateDistance(north, south)
       // Maximum distance should be reasonable (approximately half Earth circumference)
       expect(distance).toBeGreaterThan(12000) // At least 12,000 miles
@@ -531,9 +531,9 @@ describe('POI Navigation Utilities', () => {
       const invalidData = [
         { id: '1', name: 'Invalid Location', lat: NaN, lng: -93.0900, temperature: 70, precipitation: 0, windSpeed: '5', condition: 'sunny', description: 'Invalid' }
       ]
-      
+
       const result = processAPIData(invalidData, MINNEAPOLIS_COORDS)
-      
+
       // Should handle gracefully - NaN distance should be handled
       expect(result.processedPOIs).toHaveLength(1)
       expect(isNaN(result.processedPOIs[0].distance)).toBe(true)
@@ -544,10 +544,10 @@ describe('POI Navigation Utilities', () => {
       const extremeData = [
         { id: '1', name: 'Very Far Park', lat: 20, lng: -120, temperature: 70, precipitation: 0, windSpeed: '5', condition: 'sunny', description: 'Very far' }
       ]
-      
+
       const result = processAPIData(extremeData, MINNEAPOLIS_COORDS)
       const optimalDistance = findOptimalStartingSlice(result.processedPOIs, 1)
-      
+
       // Should still work but respect safety limits
       expect(optimalDistance).toBeLessThanOrEqual(300)
     })
@@ -565,14 +565,14 @@ describe('POI Navigation Utilities', () => {
  * ✅ POI distribution statistics for analytics
  * ✅ Coordinate validation and Minnesota bounds checking
  * ✅ Edge cases and error handling scenarios
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Outdoor recreation discovery algorithm validation
  * ✅ Distance-based POI navigation for user experience
  * ✅ Auto-expanding search for remote area coverage
  * ✅ Weather filtering integration for activity planning
  * ✅ Geographic validation for Minnesota focus
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ Pure function testing for reliable algorithms
  * ✅ Geographic calculation accuracy validation

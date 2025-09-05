@@ -43,7 +43,7 @@ npm run deploy:preview --workspace=@nearest-nice-weather/web
 # https://your-preview-deployment.vercel.app/claude-code-auth
 ```
 
-### **3. Test Authentication** 
+### **3. Test Authentication**
 
 ```bash
 # Set your access token locally
@@ -98,7 +98,7 @@ Claude Code → /claude-code-auth → Validate Token → Grant Access
 ### **2. Available Features After Authentication**
 - ✅ **Screenshot Capture**: Visual validation of preview deployments
 - ✅ **Console Log Monitoring**: Real-time error detection
-- ✅ **Health Checks**: Deployment status validation  
+- ✅ **Health Checks**: Deployment status validation
 - ✅ **Performance Monitoring**: Core Web Vitals tracking
 
 ### **3. Integration with BrowserToolsMCP**
@@ -126,7 +126,7 @@ curl -X POST http://localhost:3025/mcp/screenshot \
 ```json
 {
   "status": "authenticated",
-  "environment": "preview", 
+  "environment": "preview",
   "deployment": "https://preview-abc123.vercel.app",
   "timestamp": "2025-07-15T23:39:46.784Z",
   "features": ["screenshot_access", "console_monitoring"]
@@ -205,7 +205,7 @@ npm run preview:screenshot https://preview-after.vercel.app
 ## 📋 **Next Steps**
 
 1. **Set Environment Variable**: Add `CLAUDE_CODE_ACCESS_TOKEN` to Vercel preview environments
-2. **Test Authentication**: Use `npm run preview:auth` with your next preview deployment  
+2. **Test Authentication**: Use `npm run preview:auth` with your next preview deployment
 3. **Integrate with CI/CD**: Add preview validation to GitHub Actions workflow
 4. **Monitor Usage**: Review authentication logs and adjust as needed
 

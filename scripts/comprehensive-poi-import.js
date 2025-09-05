@@ -3,7 +3,7 @@
  * ========================================================================
  * COMPREHENSIVE POI IMPORT - Reliable Minnesota Parks Dataset
  * ========================================================================
- * 
+ *
  * Since external APIs are unreliable, we'll create a comprehensive dataset
  * of 50+ high-quality Minnesota parks with complete metadata
  */
@@ -42,7 +42,7 @@ const comprehensivePOIs = [
   {
     name: "Grand Portage National Monument",
     lat: 47.9953, lng: -89.6842,
-    park_type: "National Monument", park_level: "national", 
+    park_type: "National Monument", park_level: "national",
     ownership: "National Park Service", operator: "National Park Service",
     description: "Historic fur trade depot and Ojibwe heritage site on Lake Superior",
     data_source: "comprehensive_import", source_id: "nat_002", place_rank: 5,
@@ -53,7 +53,7 @@ const comprehensivePOIs = [
     name: "Mississippi National River and Recreation Area",
     lat: 44.9537, lng: -93.0900,
     park_type: "National River", park_level: "national",
-    ownership: "National Park Service", operator: "National Park Service", 
+    ownership: "National Park Service", operator: "National Park Service",
     description: "72-mile river corridor through Minneapolis-St. Paul metropolitan area",
     data_source: "comprehensive_import", source_id: "nat_003", place_rank: 8,
     website: "https://www.nps.gov/miss/",
@@ -72,7 +72,7 @@ const comprehensivePOIs = [
     amenities: ["camping", "cabins", "visitor center", "trails", "beach"], activities: ["hiking", "biking", "swimming", "wildlife viewing"]
   },
   {
-    name: "Gooseberry Falls State Park", 
+    name: "Gooseberry Falls State Park",
     lat: 47.1389, lng: -91.4706,
     park_type: "State Park", park_level: "state",
     ownership: "Minnesota DNR", operator: "Minnesota DNR",
@@ -95,7 +95,7 @@ const comprehensivePOIs = [
     name: "Temperance River State Park",
     lat: 47.5689, lng: -90.8742,
     park_type: "State Park", park_level: "state",
-    ownership: "Minnesota DNR", operator: "Minnesota DNR", 
+    ownership: "Minnesota DNR", operator: "Minnesota DNR",
     description: "Deep river gorge and cascading waterfalls with challenging hiking trails",
     data_source: "comprehensive_import", source_id: "state_004", place_rank: 10,
     phone: "(218) 663-7476", website: "https://www.dnr.state.mn.us/state_parks/park.html?id=spk00294",
@@ -144,7 +144,7 @@ const comprehensivePOIs = [
   {
     name: "Minneopa State Park",
     lat: 44.1456, lng: -94.1025,
-    park_type: "State Park", park_level: "state", 
+    park_type: "State Park", park_level: "state",
     ownership: "Minnesota DNR", operator: "Minnesota DNR",
     description: "Twin waterfalls and American bison herd in southern Minnesota prairie",
     data_source: "comprehensive_import", source_id: "state_009", place_rank: 15,
@@ -155,7 +155,7 @@ const comprehensivePOIs = [
     name: "Blue Mounds State Park",
     lat: 43.6547, lng: -96.1742,
     park_type: "State Park", park_level: "state",
-    ownership: "Minnesota DNR", operator: "Minnesota DNR", 
+    ownership: "Minnesota DNR", operator: "Minnesota DNR",
     description: "Native prairie and quartzite cliff with bison herd in southwestern Minnesota",
     data_source: "comprehensive_import", source_id: "state_010", place_rank: 15,
     phone: "(507) 283-6050", website: "https://www.dnr.state.mn.us/state_parks/park.html?id=spk00117",
@@ -174,7 +174,7 @@ const comprehensivePOIs = [
     amenities: ["trails", "picnic areas", "gardens", "visitor center"], activities: ["hiking", "photography", "picnicking", "waterfall viewing"]
   },
   {
-    name: "Fort Snelling State Park", 
+    name: "Fort Snelling State Park",
     lat: 44.8906, lng: -93.1814,
     park_type: "State Park", park_level: "state",
     ownership: "Minnesota DNR", operator: "Minnesota DNR",
@@ -206,7 +206,7 @@ const comprehensivePOIs = [
   {
     name: "Afton State Park",
     lat: 44.8456, lng: -92.7892,
-    park_type: "State Park", park_level: "state", 
+    park_type: "State Park", park_level: "state",
     ownership: "Minnesota DNR", operator: "Minnesota DNR",
     description: "Rolling prairie and hardwood forest overlooking the St. Croix River",
     data_source: "comprehensive_import", source_id: "regional_005", place_rank: 15,
@@ -230,7 +230,7 @@ const comprehensivePOIs = [
     lat: 47.7319, lng: -94.3789,
     park_type: "National Forest", park_level: "national",
     ownership: "US Forest Service", operator: "US Forest Service",
-    description: "Vast forest with pristine lakes, home to bald eagles and diverse wildlife", 
+    description: "Vast forest with pristine lakes, home to bald eagles and diverse wildlife",
     data_source: "comprehensive_import", source_id: "wilderness_002", place_rank: 8,
     phone: "(218) 335-8600", website: "https://www.fs.usda.gov/chippewa",
     amenities: ["camping", "boat launches", "trails", "visitor centers"], activities: ["fishing", "hunting", "hiking", "bald eagle viewing"]
@@ -259,7 +259,7 @@ const comprehensivePOIs = [
   // Southern Minnesota Parks
   {
     name: "Flandrau State Park",
-    lat: 44.2789, lng: -94.4567, 
+    lat: 44.2789, lng: -94.4567,
     park_type: "State Park", park_level: "state",
     ownership: "Minnesota DNR", operator: "Minnesota DNR",
     description: "Cottonwood River valley with swimming pool and diverse prairie/woodland",
@@ -270,7 +270,7 @@ const comprehensivePOIs = [
   {
     name: "Myre-Big Island State Park",
     lat: 43.6789, lng: -93.4123,
-    park_type: "State Park", park_level: "state", 
+    park_type: "State Park", park_level: "state",
     ownership: "Minnesota DNR", operator: "Minnesota DNR",
     description: "Prairie pothole lakes and oak savanna ecosystem in south-central Minnesota",
     data_source: "comprehensive_import", source_id: "south_002", place_rank: 20,
@@ -293,14 +293,14 @@ const comprehensivePOIs = [
     name: "Lake Bronson State Park",
     lat: 48.7234, lng: -96.6543,
     park_type: "State Park", park_level: "state",
-    ownership: "Minnesota DNR", operator: "Minnesota DNR", 
+    ownership: "Minnesota DNR", operator: "Minnesota DNR",
     description: "Prairie lake park in northwestern Minnesota with diverse wildlife",
     data_source: "comprehensive_import", source_id: "prairie_001", place_rank: 25,
     phone: "(218) 754-2200", website: "https://www.dnr.state.mn.us/state_parks/park.html?id=spk00195",
     amenities: ["camping", "swimming beach", "trails", "boat launch"], activities: ["swimming", "fishing", "hiking", "wildlife viewing"]
   },
   {
-    name: "Glacial Lakes State Park", 
+    name: "Glacial Lakes State Park",
     lat: 45.5234, lng: -95.8567,
     park_type: "State Park", park_level: "state",
     ownership: "Minnesota DNR", operator: "Minnesota DNR",
@@ -313,49 +313,49 @@ const comprehensivePOIs = [
 
 async function createExpandedTable(sql) {
   console.log('🏗️ Creating/updating expanded POI table...')
-  
+
   await sql`
     CREATE TABLE IF NOT EXISTS poi_locations_expanded (
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       lat DECIMAL(10, 8) NOT NULL,
       lng DECIMAL(11, 8) NOT NULL,
-      
+
       -- Classification
       park_type VARCHAR(100),
       park_level VARCHAR(50),
       ownership VARCHAR(100),
       operator VARCHAR(255),
-      
+
       -- Metadata
       description TEXT,
       data_source VARCHAR(50),
       source_id VARCHAR(100),
       place_rank INTEGER DEFAULT 50,
-      
+
       -- Contact & Info
       phone VARCHAR(20),
       website VARCHAR(255),
       amenities TEXT[],
       activities TEXT[],
-      
+
       -- Standard fields
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      
+
       -- Create unique constraint on source + source_id
       UNIQUE(data_source, source_id)
     )
   `
-  
+
   console.log('✅ Expanded POI table ready')
 }
 
 async function insertPOIData(sql, poiData, environmentName) {
   console.log(`📝 Inserting ${poiData.length} POIs to ${environmentName}...`)
-  
+
   let inserted = 0, updated = 0, errors = 0
-  
+
   for (const poi of poiData) {
     try {
       const result = await sql`
@@ -386,7 +386,7 @@ async function insertPOIData(sql, poiData, environmentName) {
           updated_at = CURRENT_TIMESTAMP
         RETURNING (xmax = 0) as inserted
       `
-      
+
       if (result[0].inserted) {
         inserted++
         console.log(`  ✅ Inserted: ${poi.name}`)
@@ -399,23 +399,23 @@ async function insertPOIData(sql, poiData, environmentName) {
       console.error(`  ❌ Error with ${poi.name}: ${error.message}`)
     }
   }
-  
+
   console.log(`📊 ${environmentName} Results: ${inserted} inserted, ${updated} updated, ${errors} errors`)
   return { inserted, updated, errors }
 }
 
 async function syncToEnvironment(environmentName, poiData) {
   console.log(`\n🔄 Syncing to ${environmentName} environment...`)
-  
+
   try {
     const sql = getDatabaseConnection(environmentName)
     await createExpandedTable(sql)
     const results = await insertPOIData(sql, poiData, environmentName)
-    
+
     // Verify results
     const count = await sql`SELECT COUNT(*) as total FROM poi_locations_expanded WHERE data_source = 'comprehensive_import'`
     console.log(`✅ ${environmentName} sync completed - Total comprehensive POIs: ${count[0].total}`)
-    
+
     return results
   } catch (error) {
     console.error(`❌ Error syncing to ${environmentName}:`, error.message)
@@ -429,29 +429,29 @@ async function main() {
   console.log(`📊 Dataset: ${comprehensivePOIs.length} premium Minnesota outdoor destinations`)
   console.log('🎯 Coverage: National parks, state parks, regional parks, wilderness areas')
   console.log('🌍 Target: All database environments with identical data')
-  
+
   const environments = ['development', 'preview', 'production']
   const environmentResults = {}
-  
+
   for (const env of environments) {
     environmentResults[env] = await syncToEnvironment(env, comprehensivePOIs)
   }
-  
+
   console.log('\n📊 FINAL IMPORT SUMMARY')
   console.log('=' .repeat(50))
   console.log(`Total POIs Processed: ${comprehensivePOIs.length}`)
-  
+
   let totalInserted = 0, totalUpdated = 0, totalErrors = 0
-  
+
   for (const [env, results] of Object.entries(environmentResults)) {
     console.log(`${env}: ${results.inserted} new, ${results.updated} updated, ${results.errors} errors`)
     totalInserted += results.inserted
     totalUpdated += results.updated
     totalErrors += results.errors
   }
-  
+
   console.log(`\nGrand Total: ${totalInserted} inserted, ${totalUpdated} updated, ${totalErrors} errors`)
-  
+
   if (totalErrors === 0) {
     console.log('\n🎉 All database branches synchronized successfully!')
     console.log('📍 POI Coverage:')

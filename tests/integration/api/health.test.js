@@ -12,7 +12,7 @@ describe('API Health Tests', () => {
     test('should respond with 200 and health status', async () => {
       const response = await fetch(`${API_BASE_URL}/api/health`);
       expect(response.status).toBe(200);
-      
+
       const data = await response.json();
       expect(data).toHaveProperty('status');
       expect(data).toHaveProperty('timestamp');
@@ -22,7 +22,7 @@ describe('API Health Tests', () => {
     test('should include database connectivity status', async () => {
       const response = await fetch(`${API_BASE_URL}/api/health`);
       const data = await response.json();
-      
+
       expect(data).toHaveProperty('database');
       expect(data.database).toHaveProperty('status');
       expect(['connected', 'disconnected']).toContain(data.database.status);
@@ -33,10 +33,10 @@ describe('API Health Tests', () => {
     test('should return POI list with proper structure', async () => {
       const response = await fetch(`${API_BASE_URL}/api/weather-locations?limit=5`);
       expect(response.status).toBe(200);
-      
+
       const data = await response.json();
       expect(Array.isArray(data)).toBe(true);
-      
+
       if (data.length > 0) {
         const poi = data[0];
         expect(poi).toHaveProperty('id');
@@ -50,7 +50,7 @@ describe('API Health Tests', () => {
       const limit = 3;
       const response = await fetch(`${API_BASE_URL}/api/weather-locations?limit=${limit}`);
       const data = await response.json();
-      
+
       expect(data.length).toBeLessThanOrEqual(limit);
     });
 

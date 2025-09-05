@@ -18,7 +18,7 @@ node -e "const http = require('http'); const server = http.createServer((req, re
 **Frequency**: After system restart or Docker updates
 
 ### Symptom: Development server starts but unreachable
-**Root Cause**: Docker iptables rules blocking localhost traffic  
+**Root Cause**: Docker iptables rules blocking localhost traffic
 **Fix Time**: 30 seconds
 **Frequency**: Sporadic after container operations
 
@@ -57,7 +57,7 @@ docker network ls
 # Check bridge interfaces
 ip addr show docker0 2>/dev/null || echo "No docker0 interface"
 
-# Check routing conflicts  
+# Check routing conflicts
 ip route | grep docker
 
 # Check iptables Docker rules
@@ -156,7 +156,7 @@ alias docker-health="docker network ls && ip route | grep docker"
 ```bash
 # Include in setup checklist
 - [ ] Docker installed and configured
-- [ ] Custom daemon.json applied  
+- [ ] Custom daemon.json applied
 - [ ] Localhost binding tested
 - [ ] Development server working
 ```
@@ -200,7 +200,7 @@ diff /etc/docker/daemon.json docker-daemon-config.json
 
 ### Issue: VPN Interference
 **Problem**: Corporate VPN can conflict with Docker networking
-**Workaround**: Disconnect VPN during development  
+**Workaround**: Disconnect VPN during development
 **Permanent Fix**: Configure VPN to exclude Docker subnets
 
 ### Issue: Windows WSL2 Networking
@@ -212,7 +212,7 @@ diff /etc/docker/daemon.json docker-daemon-config.json
 
 **Target Recovery Times:**
 - Level 1 diagnostics: <30 seconds
-- Standard fix application: <2 minutes  
+- Standard fix application: <2 minutes
 - Complete environment rebuild: <5 minutes
 
 **Reliability Targets:**

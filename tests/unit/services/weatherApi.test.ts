@@ -55,7 +55,7 @@ if (typeof global.navigator === 'undefined') {
 describe('WeatherApiError', () => {
   test('should create error with message only', () => {
     const error = new WeatherApiError('Test error');
-    
+
     expect(error.message).toBe('Test error');
     expect(error.name).toBe('WeatherApiError');
     expect(error.status).toBeUndefined();
@@ -64,7 +64,7 @@ describe('WeatherApiError', () => {
 
   test('should create error with message and status', () => {
     const error = new WeatherApiError('API Error', 500);
-    
+
     expect(error.message).toBe('API Error');
     expect(error.name).toBe('WeatherApiError');
     expect(error.status).toBe(500);
@@ -138,7 +138,7 @@ describe('weatherApi.getLocations', () => {
 
     await expect(weatherApi.getLocations()).rejects.toThrow(WeatherApiError);
     await expect(weatherApi.getLocations()).rejects.toThrow('Failed to fetch locations: Internal Server Error');
-    
+
     try {
       await weatherApi.getLocations();
     } catch (error) {
@@ -168,7 +168,7 @@ describe('weatherApi.getLocations', () => {
     (global.fetch as jest.Mock).mockRejectedValue(customError);
 
     await expect(weatherApi.getLocations()).rejects.toThrow('Custom API error');
-    
+
     try {
       await weatherApi.getLocations();
     } catch (error) {
@@ -259,7 +259,7 @@ describe('weatherApi.submitFeedback', () => {
     // Verify the request body doesn't include email field when not provided
     const [, requestOptions] = (global.fetch as jest.Mock).mock.calls[0];
     const requestBody = JSON.parse(requestOptions.body);
-    
+
     expect(requestBody.email).toBeUndefined();
     expect(requestBody.feedback).toBe('Anonymous feedback');
     expect(requestBody.rating).toBe(4);
@@ -363,7 +363,7 @@ describe('weatherApi.submitFeedback', () => {
     (global.fetch as jest.Mock).mockRejectedValue(customError);
 
     await expect(weatherApi.submitFeedback(feedbackData)).rejects.toThrow('Custom feedback error');
-    
+
     try {
       await weatherApi.submitFeedback(feedbackData);
     } catch (error) {
@@ -449,7 +449,7 @@ describe('weatherApi.submitFeedback', () => {
     } catch (error) {
       // Expected to throw
     }
-    
+
     expect(global.clearTimeout).toHaveBeenCalled();
   });
 });

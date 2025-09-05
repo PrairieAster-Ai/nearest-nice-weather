@@ -2,25 +2,25 @@
  * ========================================================================
  * USE LOCAL STORAGE STATE HOOK TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for localStorage state management hook
  * 🔗 HOOK: useLocalStorageState - Persistent user preferences across sessions
  * 📊 COVERAGE: State persistence, JSON serialization, error handling, typed hooks
  * ⚙️ FUNCTIONALITY: Cross-session state management for weather preferences
  * 🎯 BUSINESS_IMPACT: Ensures user preferences persist for better UX retention
- * 
+ *
  * BUSINESS CONTEXT: User retention through preference persistence
  * - Tests weather filter preference storage
  * - Validates location data persistence
  * - Ensures map view settings are remembered
  * - Verifies UI state consistency across sessions
- * 
+ *
  * TECHNICAL COVERAGE: React hook testing with localStorage
  * - localStorage read/write operations
  * - JSON serialization/deserialization
  * - Error handling for storage failures
  * - Type safety for specialized hooks
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -76,7 +76,7 @@ describe('useLocalStorageState Hook', () => {
 
   describe('✅ Basic Functionality', () => {
     it('should initialize with default value when localStorage is empty', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('testKey', 'defaultValue')
       )
 
@@ -86,7 +86,7 @@ describe('useLocalStorageState Hook', () => {
     it('should initialize with stored value when localStorage has data', () => {
       localStorageMock.store['testKey'] = JSON.stringify('storedValue')
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('testKey', 'defaultValue')
       )
 
@@ -94,7 +94,7 @@ describe('useLocalStorageState Hook', () => {
     })
 
     it('should update state and localStorage when value changes', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('testKey', 'initial')
       )
 
@@ -104,13 +104,13 @@ describe('useLocalStorageState Hook', () => {
 
       expect(result.current[0]).toBe('updated')
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'testKey', 
+        'testKey',
         JSON.stringify('updated')
       )
     })
 
     it('should handle functional updates', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('counter', 0)
       )
 
@@ -120,7 +120,7 @@ describe('useLocalStorageState Hook', () => {
 
       expect(result.current[0]).toBe(1)
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'counter', 
+        'counter',
         JSON.stringify(1)
       )
     })
@@ -128,7 +128,7 @@ describe('useLocalStorageState Hook', () => {
 
   describe('✅ Data Type Handling', () => {
     it('should handle string values', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('stringKey', 'hello')
       )
 
@@ -140,7 +140,7 @@ describe('useLocalStorageState Hook', () => {
     })
 
     it('should handle number values', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('numberKey', 42)
       )
 
@@ -152,7 +152,7 @@ describe('useLocalStorageState Hook', () => {
     })
 
     it('should handle boolean values', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('boolKey', false)
       )
 
@@ -167,7 +167,7 @@ describe('useLocalStorageState Hook', () => {
       const initialObj = { name: 'test', count: 1 }
       const updatedObj = { name: 'updated', count: 2 }
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('objKey', initialObj)
       )
 
@@ -182,7 +182,7 @@ describe('useLocalStorageState Hook', () => {
       const initialArray = [1, 2, 3]
       const updatedArray = [4, 5, 6]
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('arrayKey', initialArray)
       )
 
@@ -194,7 +194,7 @@ describe('useLocalStorageState Hook', () => {
     })
 
     it('should handle null values', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState<string | null>('nullKey', null)
       )
 
@@ -218,7 +218,7 @@ describe('useLocalStorageState Hook', () => {
         throw new Error('Storage not available')
       })
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('errorKey', 'default')
       )
 
@@ -228,7 +228,7 @@ describe('useLocalStorageState Hook', () => {
     it('should handle invalid JSON gracefully', () => {
       localStorageMock.store['invalidKey'] = 'invalid-json'
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('invalidKey', 'default')
       )
 
@@ -240,7 +240,7 @@ describe('useLocalStorageState Hook', () => {
         throw new Error('Storage full')
       })
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('writeErrorKey', 'initial')
       )
 
@@ -257,7 +257,7 @@ describe('useLocalStorageState Hook', () => {
       // @ts-ignore
       global.window = undefined
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('ssrKey', 'default')
       )
 
@@ -269,7 +269,7 @@ describe('useLocalStorageState Hook', () => {
 
   describe('✅ Performance Optimization', () => {
     it('should not update state for identical values', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('perfKey', { count: 1 })
       )
 
@@ -284,7 +284,7 @@ describe('useLocalStorageState Hook', () => {
     })
 
     it('should maintain stable setState function reference', () => {
-      const { result, rerender } = renderHook(() => 
+      const { result, rerender } = renderHook(() =>
         useLocalStorageState('stableKey', 'value')
       )
 
@@ -308,7 +308,7 @@ describe('useLocalStorageState Hook', () => {
 
     it('should have consistent naming pattern', () => {
       const keys = Object.values(STORAGE_KEYS)
-      
+
       keys.forEach(key => {
         expect(key).toMatch(/^nearestNiceWeather_/)
       })
@@ -482,10 +482,10 @@ describe('useLocalStorageState Hook', () => {
 
   describe('🔧 Integration and Lifecycle', () => {
     it('should handle multiple hooks with different keys', () => {
-      const { result: result1 } = renderHook(() => 
+      const { result: result1 } = renderHook(() =>
         useLocalStorageState('key1', 'value1')
       )
-      const { result: result2 } = renderHook(() => 
+      const { result: result2 } = renderHook(() =>
         useLocalStorageState('key2', 'value2')
       )
 
@@ -499,7 +499,7 @@ describe('useLocalStorageState Hook', () => {
     })
 
     it('should maintain consistency across re-renders', () => {
-      const { result, rerender } = renderHook(() => 
+      const { result, rerender } = renderHook(() =>
         useLocalStorageState('consistentKey', 'initial')
       )
 
@@ -513,7 +513,7 @@ describe('useLocalStorageState Hook', () => {
     })
 
     it('should handle rapid successive updates', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useLocalStorageState('rapidKey', 0)
       )
 
@@ -539,13 +539,13 @@ describe('useLocalStorageState Hook', () => {
  * ✅ Integration testing with multiple hooks
  * ✅ Server-side rendering compatibility
  * ✅ Rapid update handling
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ User preference persistence for retention
  * ✅ Weather filter memory across sessions
  * ✅ Location data consistency
  * ✅ Map view settings preservation
- * 
+ *
  * 🔧 TECHNICAL COVERAGE:
  * ✅ React hook lifecycle management
  * ✅ localStorage integration with error handling

@@ -2,10 +2,10 @@
  * ========================================================================
  * FILTER PAGE OBJECT MODEL
  * ========================================================================
- * 
+ *
  * @PURPOSE: Encapsulates weather filter interactions using semantic locators
  * @FOLLOWS: Playwright best practices for user-facing element selection
- * 
+ *
  * ========================================================================
  */
 
@@ -14,27 +14,27 @@ import { expect } from '@playwright/test'
 export class FilterPage {
   constructor(page) {
     this.page = page
-    
+
     // USER-FACING LOCATORS using new test IDs and ARIA labels
     this.temperatureFilter = page.getByTestId('filter-temperature')
-    this.precipitationFilter = page.getByTestId('filter-precipitation')  
+    this.precipitationFilter = page.getByTestId('filter-precipitation')
     this.windFilter = page.getByTestId('filter-wind')
-    
+
     // TEMPERATURE OPTIONS
     this.temperatureCold = page.getByTestId('temperature-cold')
     this.temperatureMild = page.getByTestId('temperature-mild')
     this.temperatureHot = page.getByTestId('temperature-hot')
-    
+
     // PRECIPITATION OPTIONS
     this.precipitationNone = page.getByTestId('precipitation-none')
     this.precipitationLight = page.getByTestId('precipitation-light')
     this.precipitationHeavy = page.getByTestId('precipitation-heavy')
-    
-    // WIND OPTIONS  
+
+    // WIND OPTIONS
     this.windCalm = page.getByTestId('wind-calm')
     this.windBreezy = page.getByTestId('wind-breezy')
     this.windWindy = page.getByTestId('wind-windy')
-    
+
     // LOADING STATES
     this.loadingIndicator = page.getByTestId('filters-loading')
   }
@@ -42,55 +42,55 @@ export class FilterPage {
   // FILTER INTERACTION METHODS
   async selectTemperature(preference = 'mild') {
     await this.temperatureFilter.click() // Open options
-    
+
     const optionMap = {
       'cold': this.temperatureCold,
       'mild': this.temperatureMild,
       'hot': this.temperatureHot
     }
-    
+
     const option = optionMap[preference]
     if (!option) throw new Error(`Invalid temperature preference: ${preference}`)
-    
+
     await option.click()
     await this.waitForFilterUpdate()
-    
+
     return this
   }
 
   async selectPrecipitation(preference = 'none') {
     await this.precipitationFilter.click()
-    
+
     const optionMap = {
       'none': this.precipitationNone,
-      'light': this.precipitationLight, 
+      'light': this.precipitationLight,
       'heavy': this.precipitationHeavy
     }
-    
+
     const option = optionMap[preference]
     if (!option) throw new Error(`Invalid precipitation preference: ${preference}`)
-    
+
     await option.click()
     await this.waitForFilterUpdate()
-    
+
     return this
   }
 
   async selectWind(preference = 'calm') {
     await this.windFilter.click()
-    
+
     const optionMap = {
       'calm': this.windCalm,
       'breezy': this.windBreezy,
       'windy': this.windWindy
     }
-    
+
     const option = optionMap[preference]
     if (!option) throw new Error(`Invalid wind preference: ${preference}`)
-    
+
     await option.click()
     await this.waitForFilterUpdate()
-    
+
     return this
   }
 
@@ -104,15 +104,15 @@ export class FilterPage {
       // Loading indicator might not appear for very fast updates
       await this.page.waitForTimeout(500) // Brief pause for state to settle
     }
-    
+
     return this
   }
 
   async waitForFiltersVisible() {
     await expect(this.temperatureFilter).toBeVisible()
-    await expect(this.precipitationFilter).toBeVisible()  
+    await expect(this.precipitationFilter).toBeVisible()
     await expect(this.windFilter).toBeVisible()
-    
+
     return this
   }
 
@@ -121,7 +121,7 @@ export class FilterPage {
     await expect(this.temperatureFilter).toBeVisible()
     await expect(this.precipitationFilter).toBeVisible()
     await expect(this.windFilter).toBeVisible()
-    
+
     return this
   }
 
@@ -131,10 +131,10 @@ export class FilterPage {
       'mild': this.temperatureMild,
       'hot': this.temperatureHot
     }
-    
+
     const option = optionMap[preference]
     await expect(option).toHaveAttribute('aria-pressed', 'true')
-    
+
     return this
   }
 
@@ -144,10 +144,10 @@ export class FilterPage {
       'light': this.precipitationLight,
       'heavy': this.precipitationHeavy
     }
-    
+
     const option = optionMap[preference]
     await expect(option).toHaveAttribute('aria-pressed', 'true')
-    
+
     return this
   }
 
@@ -157,10 +157,10 @@ export class FilterPage {
       'breezy': this.windBreezy,
       'windy': this.windWindy
     }
-    
+
     const option = optionMap[preference]
     await expect(option).toHaveAttribute('aria-pressed', 'true')
-    
+
     return this
   }
 
@@ -168,43 +168,43 @@ export class FilterPage {
   async getCurrentTemperature() {
     const preferences = ['cold', 'mild', 'hot']
     const options = [this.temperatureCold, this.temperatureMild, this.temperatureHot]
-    
+
     for (let i = 0; i < preferences.length; i++) {
       const pressed = await options[i].getAttribute('aria-pressed')
       if (pressed === 'true') return preferences[i]
     }
-    
+
     return null
   }
 
   async getCurrentPrecipitation() {
     const preferences = ['none', 'light', 'heavy']
     const options = [this.precipitationNone, this.precipitationLight, this.precipitationHeavy]
-    
+
     for (let i = 0; i < preferences.length; i++) {
       const pressed = await options[i].getAttribute('aria-pressed')
       if (pressed === 'true') return preferences[i]
     }
-    
+
     return null
   }
 
   async getCurrentWind() {
     const preferences = ['calm', 'breezy', 'windy']
     const options = [this.windCalm, this.windBreezy, this.windWindy]
-    
+
     for (let i = 0; i < preferences.length; i++) {
       const pressed = await options[i].getAttribute('aria-pressed')
       if (pressed === 'true') return preferences[i]
     }
-    
+
     return null
   }
 
   async getAllCurrentFilters() {
     return {
       temperature: await this.getCurrentTemperature(),
-      precipitation: await this.getCurrentPrecipitation(), 
+      precipitation: await this.getCurrentPrecipitation(),
       wind: await this.getCurrentWind()
     }
   }
@@ -215,17 +215,17 @@ export class FilterPage {
     await this.selectTemperature('mild')
     await this.selectPrecipitation('none')
     await this.selectWind('calm')
-    
+
     return this
   }
 
   async setWeatherPreferences(preferences = {}) {
     const { temperature = 'mild', precipitation = 'none', wind = 'calm' } = preferences
-    
+
     if (temperature) await this.selectTemperature(temperature)
-    if (precipitation) await this.selectPrecipitation(precipitation)  
+    if (precipitation) await this.selectPrecipitation(precipitation)
     if (wind) await this.selectWind(wind)
-    
+
     return this
   }
 
@@ -236,17 +236,17 @@ export class FilterPage {
       precipitation: ['none', 'light', 'heavy'],
       wind: ['calm', 'breezy', 'windy']
     }
-    
+
     for (let i = 0; i < count; i++) {
       const tempIndex = i % 3
       const precipIndex = (i + 1) % 3
       const windIndex = (i + 2) % 3
-      
+
       await this.selectTemperature(preferences.temperature[tempIndex])
       await this.selectPrecipitation(preferences.precipitation[precipIndex])
       await this.selectWind(preferences.wind[windIndex])
     }
-    
+
     return this
   }
 
@@ -269,7 +269,7 @@ export class FilterPage {
   // PERFORMANCE METHODS
   async measureFilterResponseTime(filterType = 'temperature') {
     const startTime = Date.now()
-    
+
     switch (filterType) {
       case 'temperature':
         await this.selectTemperature('hot')
@@ -281,7 +281,7 @@ export class FilterPage {
         await this.selectWind('windy')
         break
     }
-    
+
     const endTime = Date.now()
     return endTime - startTime
   }
@@ -301,7 +301,7 @@ export class FilterPage {
 
     // Get current filters
     state.currentFilters = await this.getAllCurrentFilters()
-    
+
     // Check loading state
     state.loadingState = await this.loadingIndicator.isVisible()
 

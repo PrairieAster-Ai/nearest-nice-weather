@@ -4,11 +4,11 @@
  * ========================================================================
  * REDIS CACHE PERFORMANCE TEST SCRIPT
  * ========================================================================
- * 
+ *
  * @PURPOSE: Standalone script to evaluate cache performance improvement
  * @PRD_REF: PRD-REDIS-CACHING-180.md
  * @USAGE: node scripts/test-cache-performance.js [environment_url]
- * 
+ *
  * SUCCESS CRITERIA:
  * - >40% improvement in API response times with cache
  * - >70% cache hit rate within test period
@@ -36,18 +36,18 @@ class CachePerformanceTester {
       const startTime = Date.now()
       const url = new URL(endpoint, this.baseUrl)
       const client = url.protocol === 'https:' ? https : http
-      
+
       const req = client.get(url, (res) => {
         let data = ''
-        
+
         res.on('data', (chunk) => {
           data += chunk
         })
-        
+
         res.on('end', () => {
           const endTime = Date.now()
           const responseTime = endTime - startTime
-          
+
           try {
             const jsonData = JSON.parse(data)
             resolve({
@@ -61,11 +61,11 @@ class CachePerformanceTester {
           }
         })
       })
-      
+
       req.on('error', (error) => {
         reject(new Error(`Request error: ${error.message}`))
       })
-      
+
       req.setTimeout(30000, () => {
         req.destroy()
         reject(new Error('Request timeout'))
@@ -94,7 +94,7 @@ class CachePerformanceTester {
     for (let i = 0; i < iterations; i++) {
       try {
         const result = await this.makeRequest(testEndpoint)
-        
+
         if (result.success) {
           this.results.beforeCache.push(result.responseTime)
           console.log(`   Request ${i + 1}: ${result.responseTime}ms (${result.data.data?.length || 0} POIs)`)
@@ -106,7 +106,7 @@ class CachePerformanceTester {
         console.log(`   Request ${i + 1}: ERROR - ${error.message}`)
         this.results.errors++
       }
-      
+
       await this.wait(500) // Small delay between requests
     }
 
@@ -121,7 +121,7 @@ class CachePerformanceTester {
       } catch (error) {
         console.log(`   Warmup ${i + 1}: ERROR - ${error.message}`)
       }
-      
+
       await this.wait(300)
     }
 
@@ -132,10 +132,10 @@ class CachePerformanceTester {
     for (let i = 0; i < iterations; i++) {
       try {
         const result = await this.makeRequest(testEndpoint)
-        
+
         if (result.success) {
           this.results.afterCache.push(result.responseTime)
-          
+
           // Analyze cache status
           let cacheStatus = 'Unknown'
           if (result.data.debug && result.data.debug.cache_strategy) {
@@ -147,7 +147,7 @@ class CachePerformanceTester {
               cacheStatus = 'MISS'
             }
           }
-          
+
           console.log(`   Request ${i + 1}: ${result.responseTime}ms [${cacheStatus}] (${result.data.data?.length || 0} POIs)`)
         } else {
           console.log(`   Request ${i + 1}: ERROR - ${result.status}`)
@@ -157,7 +157,7 @@ class CachePerformanceTester {
         console.log(`   Request ${i + 1}: ERROR - ${error.message}`)
         this.results.errors++
       }
-      
+
       await this.wait(200) // Shorter delay for cached requests
     }
 
@@ -177,22 +177,22 @@ class CachePerformanceTester {
     // Calculate statistics
     const beforeAvg = this.results.beforeCache.reduce((sum, time) => sum + time, 0) / this.results.beforeCache.length
     const afterAvg = this.results.afterCache.reduce((sum, time) => sum + time, 0) / this.results.afterCache.length
-    
+
     const beforeMedian = this.getMedian(this.results.beforeCache)
     const afterMedian = this.getMedian(this.results.afterCache)
-    
+
     const improvement = ((beforeAvg - afterAvg) / beforeAvg) * 100
     const targetImprovement = 40 // 40% improvement target
-    
+
     console.log('📈 Response Time Analysis:')
     console.log(`   Before Cache - Average: ${beforeAvg.toFixed(0)}ms, Median: ${beforeMedian}ms`)
     console.log(`   After Cache  - Average: ${afterAvg.toFixed(0)}ms, Median: ${afterMedian}ms`)
     console.log(`   Improvement: ${improvement.toFixed(1)}% (Target: >${targetImprovement}%)`)
-    
+
     // Cache hit analysis
     const totalCacheRequests = this.results.cacheHits + this.results.cacheMisses
     const hitRate = totalCacheRequests > 0 ? (this.results.cacheHits / totalCacheRequests) * 100 : 0
-    
+
     if (totalCacheRequests > 0) {
       console.log('')
       console.log('💾 Cache Hit Analysis:')
@@ -200,7 +200,7 @@ class CachePerformanceTester {
       console.log(`   Cache Misses: ${this.results.cacheMisses}`)
       console.log(`   Hit Rate: ${hitRate.toFixed(1)}% (Target: >70%)`)
     }
-    
+
     // Error analysis
     if (this.results.errors > 0) {
       console.log('')
@@ -210,14 +210,14 @@ class CachePerformanceTester {
     console.log('')
     console.log('🎯 SUCCESS CRITERIA EVALUATION')
     console.log('━'.repeat(50))
-    
+
     // Performance improvement check
     if (improvement >= targetImprovement) {
       console.log(`✅ PERFORMANCE: ${improvement.toFixed(1)}% improvement meets >40% target`)
     } else {
       console.log(`❌ PERFORMANCE: ${improvement.toFixed(1)}% improvement below 40% target`)
     }
-    
+
     // Cache hit rate check
     if (totalCacheRequests > 0) {
       if (hitRate >= 70) {
@@ -228,12 +228,12 @@ class CachePerformanceTester {
     } else {
       console.log(`⚠️  CACHE TRACKING: Unable to measure cache hit rate (no debug info)`)
     }
-    
+
     // Overall success
     const performanceSuccess = improvement >= targetImprovement
     const cacheSuccess = totalCacheRequests === 0 || hitRate >= 70
     const errorSuccess = this.results.errors < 3
-    
+
     if (performanceSuccess && cacheSuccess && errorSuccess) {
       console.log('')
       console.log('🎉 OVERALL RESULT: CACHE IMPLEMENTATION SUCCESSFUL')
@@ -243,7 +243,7 @@ class CachePerformanceTester {
       console.log('⚠️  OVERALL RESULT: CACHE IMPLEMENTATION NEEDS REVIEW')
       console.log('   Some success criteria not met - see analysis above')
     }
-    
+
     console.log('')
     console.log('📋 Next Steps:')
     if (!performanceSuccess) {
@@ -270,12 +270,12 @@ class CachePerformanceTester {
 // Main execution
 async function main() {
   const targetUrl = process.argv[2] || 'http://localhost:3001'
-  
+
   console.log('Redis Cache Performance Evaluation Tool')
   console.log('======================================')
-  
+
   const tester = new CachePerformanceTester(targetUrl)
-  
+
   try {
     await tester.testCachePerformance()
   } catch (error) {

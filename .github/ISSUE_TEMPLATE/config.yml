@@ -6,7 +6,7 @@ contact_links:
   - name: 🌟 Capability Discussion
     url: https://github.com/PrairieAster-Ai/nearest-nice-weather/discussions
     about: Discuss cross-sprint platform capabilities and architecture decisions
-  - name: 📋 Project Documentation  
+  - name: 📋 Project Documentation
     url: https://github.com/PrairieAster-Ai/nearest-nice-weather/blob/main/GITHUB-PROJECT-REFERENCE.md
     about: View GitHub Project configuration and workflow documentation
   - name: 🎯 MVP Work Breakdown Structure

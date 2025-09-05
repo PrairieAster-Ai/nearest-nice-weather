@@ -4,12 +4,12 @@ test.describe('WebSocket Console Log Capture', () => {
   test('should capture WebSocket errors and Vite configuration', async ({ page }) => {
     // Capture ALL console messages
     const allLogs = [];
-    
+
     page.on('console', msg => {
       const text = msg.text();
       const type = msg.type();
       allLogs.push({ type, text });
-      
+
       // Log important messages
       if (text.includes('vite') || text.includes('WebSocket') || text.includes('ws://') || text.includes('3001') || text.includes('3003')) {
         console.log(`[${type.toUpperCase()}]`, text);
@@ -22,11 +22,11 @@ test.describe('WebSocket Console Log Capture', () => {
     });
 
     console.log('\n=== NAVIGATING TO PORT 3003 ===');
-    await page.goto('http://localhost:3003/', { 
+    await page.goto('http://localhost:3003/', {
       waitUntil: 'domcontentloaded',
-      timeout: 30000 
+      timeout: 30000
     });
-    
+
     // Wait for the app to load and try to connect WebSocket
     await page.waitForTimeout(5000);
 
@@ -34,7 +34,7 @@ test.describe('WebSocket Console Log Capture', () => {
     const viteClientDetails = await page.evaluate(() => {
       // Find the Vite client script
       const viteScript = document.querySelector('script[src*="@vite/client"]');
-      
+
       // Check all script tags for any port references
       const allScripts = Array.from(document.querySelectorAll('script'));
       const scriptInfo = allScripts.map(script => ({
@@ -68,8 +68,8 @@ test.describe('WebSocket Console Log Capture', () => {
     console.log('WebSocket references in DOM:', viteClientDetails.wsReferencesInDOM);
 
     // Check if there are any WebSocket connection attempts in the logs
-    const webSocketLogs = allLogs.filter(log => 
-      log.text.includes('WebSocket') || 
+    const webSocketLogs = allLogs.filter(log =>
+      log.text.includes('WebSocket') ||
       log.text.includes('ws://') ||
       log.text.includes('3001')
     );
@@ -80,8 +80,8 @@ test.describe('WebSocket Console Log Capture', () => {
     });
 
     // Check for auto-expand logs
-    const autoExpandLogs = allLogs.filter(log => 
-      log.text.includes('Auto-expanding') || 
+    const autoExpandLogs = allLogs.filter(log =>
+      log.text.includes('Auto-expanding') ||
       log.text.includes('Auto-expanded')
     );
 
@@ -99,9 +99,9 @@ test.describe('WebSocket Console Log Capture', () => {
         // Try to fetch from both ports to see which responds
         const port3001Check = fetch('http://localhost:3001/').then(r => r.ok).catch(() => false);
         const port3003Check = fetch('http://localhost:3003/').then(r => r.ok).catch(() => false);
-        
+
         const [port3001OK, port3003OK] = await Promise.all([port3001Check, port3003Check]);
-        
+
         return {
           port3001Responsive: port3001OK,
           port3003Responsive: port3003OK

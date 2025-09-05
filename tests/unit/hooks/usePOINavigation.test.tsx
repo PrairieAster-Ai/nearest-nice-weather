@@ -47,7 +47,7 @@ describe('usePOINavigation', () => {
       description: 'Beautiful waterfall in Minneapolis'
     },
     {
-      id: '2', 
+      id: '2',
       name: 'Lake Harriet',
       lat: 44.9217,
       lng: -93.3072,
@@ -75,7 +75,7 @@ describe('usePOINavigation', () => {
     mockConsoleLog.mockClear();
     mockConsoleError.mockClear();
     mockLocalStorage.getItem.mockReturnValue(null);
-    
+
     // Setup successful fetch mock
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
@@ -90,7 +90,7 @@ describe('usePOINavigation', () => {
 
   describe('Hook Initialization', () => {
     test('should initialize with default state', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -106,7 +106,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should handle null user location', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(null, mockFilters)
       );
 
@@ -115,7 +115,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should provide navigation functions', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -128,7 +128,7 @@ describe('usePOINavigation', () => {
 
   describe('Data Loading and Processing', () => {
     test('should load POI data when user location provided', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -146,7 +146,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should process API data with distance calculations', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -164,7 +164,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should sort POIs by distance', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -182,7 +182,7 @@ describe('usePOINavigation', () => {
     test('should handle API errors gracefully', async () => {
       (global.fetch as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -200,7 +200,7 @@ describe('usePOINavigation', () => {
         statusText: 'Internal Server Error'
       });
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -214,7 +214,7 @@ describe('usePOINavigation', () => {
 
   describe('Distance-Based Slicing', () => {
     test('should implement 30-mile distance slices', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -227,7 +227,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should filter visible POIs by current slice', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -263,7 +263,7 @@ describe('usePOINavigation', () => {
         json: () => Promise.resolve({ data: distantPOIData })
       });
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -281,7 +281,7 @@ describe('usePOINavigation', () => {
 
   describe('Navigation Functions', () => {
     test('should navigate to closer POI', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -306,7 +306,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should navigate to farther POI', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -326,7 +326,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should handle boundary conditions for navigation', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -350,7 +350,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should expand search radius', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -368,7 +368,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should return current POI', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -377,7 +377,7 @@ describe('usePOINavigation', () => {
       });
 
       const currentPOI = result.current.getCurrentPOI();
-      
+
       if (result.current.visiblePOIs.length > 0) {
         expect(currentPOI).toBeDefined();
         expect(currentPOI).toEqual(result.current.visiblePOIs[result.current.currentPOIIndex]);
@@ -389,7 +389,7 @@ describe('usePOINavigation', () => {
 
   describe('Click Throttling', () => {
     test('should throttle rapid navigation clicks', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -412,7 +412,7 @@ describe('usePOINavigation', () => {
     });
 
     test('should allow navigation after throttle period', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -442,7 +442,7 @@ describe('usePOINavigation', () => {
 
   describe('Cache Management', () => {
     test('should cache API responses in localStorage', async () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -464,7 +464,7 @@ describe('usePOINavigation', () => {
 
       mockLocalStorage.getItem.mockReturnValue(cachedData);
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -486,7 +486,7 @@ describe('usePOINavigation', () => {
 
       mockLocalStorage.getItem.mockReturnValue(expiredCache);
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -564,7 +564,7 @@ describe('usePOINavigation', () => {
         json: () => Promise.resolve({ data: [] })
       });
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -583,7 +583,7 @@ describe('usePOINavigation', () => {
         json: () => Promise.resolve({ data: [{ invalid: 'data' }] })
       });
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 
@@ -597,12 +597,12 @@ describe('usePOINavigation', () => {
 
     test('should handle network timeouts', async () => {
       (global.fetch as jest.Mock).mockImplementation(
-        () => new Promise((_, reject) => 
+        () => new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Network timeout')), 100)
         )
       );
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         usePOINavigation(mockUserLocation, mockFilters)
       );
 

@@ -34,7 +34,7 @@ check_required_env() {
     local var_name="$1"
     local description="$2"
     local value="${!var_name}"
-    
+
     if [ -z "$value" ]; then
         print_error "Required environment variable $var_name is not set ($description)"
         return 1
@@ -49,7 +49,7 @@ check_optional_env() {
     local var_name="$1"
     local description="$2"
     local value="${!var_name}"
-    
+
     if [ -z "$value" ]; then
         print_warning "Optional environment variable $var_name is not set ($description)"
         return 1
@@ -63,7 +63,7 @@ check_optional_env() {
 validate_port() {
     local var_name="$1"
     local port_value="${!var_name}"
-    
+
     if [ -n "$port_value" ]; then
         if [[ "$port_value" =~ ^[0-9]+$ ]] && [ "$port_value" -ge 1 ] && [ "$port_value" -le 65535 ]; then
             print_success "$var_name ($port_value) is a valid port"
@@ -83,7 +83,7 @@ validate_url() {
     local var_name="$1"
     local url_value="${!var_name}"
     local allow_relative="${2:-false}"
-    
+
     if [ -n "$url_value" ]; then
         if [[ "$url_value" =~ ^https?:// ]] || [[ "$allow_relative" == "true" && "$url_value" =~ ^/ ]]; then
             print_success "$var_name is a valid URL"
@@ -106,7 +106,7 @@ validate_url() {
 validate_boolean() {
     local var_name="$1"
     local bool_value="${!var_name}"
-    
+
     if [ -n "$bool_value" ]; then
         if [[ "$bool_value" =~ ^(true|false)$ ]]; then
             print_success "$var_name ($bool_value) is a valid boolean"
@@ -125,96 +125,96 @@ validate_boolean() {
 validate_environment() {
     local errors=0
     local warnings=0
-    
+
     echo ""
     echo "🌤️  Environment Variable Validation"
     echo "===================================="
     echo ""
-    
+
     print_status "Validating required environment variables..."
     echo ""
-    
+
     # Critical Required Variables
     check_required_env "DATABASE_URL" "PostgreSQL connection string" || ((errors++))
     check_required_env "REDIS_URL" "Redis connection string" || ((errors++))
     check_required_env "CORS_ALLOWED_ORIGINS" "CORS allowed origins" || ((errors++))
-    
+
     echo ""
     print_status "Validating database configuration..."
     echo ""
-    
+
     # Database Configuration
     check_optional_env "DB_POOL_MAX" "Database connection pool size" || ((warnings++))
     check_optional_env "DB_POOL_IDLE_TIMEOUT" "Database idle timeout" || ((warnings++))
     check_optional_env "DB_POOL_CONNECTION_TIMEOUT" "Database connection timeout" || ((warnings++))
-    
+
     echo ""
     print_status "Validating port configurations..."
     echo ""
-    
+
     # Port Validation
     validate_port "VITE_DEV_PORT" || ((warnings++))
     validate_port "FASTAPI_PORT" || ((warnings++))
     validate_port "VERCEL_API_PORT" || ((warnings++))
-    
+
     echo ""
     print_status "Validating URL configurations..."
     echo ""
-    
+
     # URL Validation
     validate_url "VITE_API_BASE_URL" "true" || ((warnings++))  # Allow relative URLs
     validate_url "NEXTAUTH_URL" "false" || ((warnings++))     # Require absolute URLs
-    
+
     echo ""
     print_status "Validating API configuration..."
     echo ""
-    
+
     # API Configuration
     check_optional_env "VITE_API_TIMEOUT" "API request timeout" || ((warnings++))
     check_optional_env "VITE_MAP_CENTER_LAT" "Map center latitude" || ((warnings++))
     check_optional_env "VITE_MAP_CENTER_LNG" "Map center longitude" || ((warnings++))
-    
+
     echo ""
     print_status "Validating security configuration..."
     echo ""
-    
+
     # Security Configuration
     check_optional_env "JWT_SECRET" "JWT secret key" || ((warnings++))
     check_optional_env "NEXTAUTH_SECRET" "NextAuth secret key" || ((warnings++))
-    
+
     # Environment-specific validation
     if [ "$NODE_ENV" = "production" ]; then
         echo ""
         print_status "Validating production-specific configuration..."
         echo ""
-        
+
         # Production-specific checks
         if [ "$DEBUG" = "true" ]; then
             print_warning "DEBUG is enabled in production environment"
             ((warnings++))
         fi
-        
+
         if [ "$LOG_LEVEL" = "debug" ]; then
             print_warning "LOG_LEVEL is set to debug in production environment"
             ((warnings++))
         fi
-        
+
         # Check for development secrets in production
         if [[ "$JWT_SECRET" == *"dev"* ]] || [[ "$JWT_SECRET" == *"development"* ]]; then
             print_error "Development JWT_SECRET detected in production environment"
             ((errors++))
         fi
-        
+
         if [[ "$NEXTAUTH_SECRET" == *"dev"* ]] || [[ "$NEXTAUTH_SECRET" == *"development"* ]]; then
             print_error "Development NEXTAUTH_SECRET detected in production environment"
             ((errors++))
         fi
     fi
-    
+
     echo ""
     print_status "Validation Summary"
     echo "=================="
-    
+
     if [ $errors -eq 0 ] && [ $warnings -eq 0 ]; then
         print_success "✅ All environment variables are properly configured!"
         echo ""
@@ -231,7 +231,7 @@ validate_environment() {
         echo ""
         print_error "Environment validation failed - please fix errors before deployment"
         echo ""
-        
+
         # Provide helpful guidance
         echo "Common fixes:"
         echo "  1. Copy .env.example to .env.local and configure values"
@@ -239,7 +239,7 @@ validate_environment() {
         echo "  3. Configure CORS_ALLOWED_ORIGINS for your domain"
         echo "  4. Generate secure JWT_SECRET and NEXTAUTH_SECRET for production"
         echo ""
-        
+
         exit 1
     fi
 }

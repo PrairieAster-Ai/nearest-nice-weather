@@ -7,9 +7,9 @@ body:
     attributes:
       value: |
         ## User Story Template
-        
+
         Use this template for individual features or functionality requirements that can be completed in a sprint.
-        
+
   - type: textarea
     id: user-story
     attributes:
@@ -18,7 +18,7 @@ body:
       placeholder: "As a Minnesota outdoor enthusiast, I want to see weather conditions on a map so that I can find the best locations for my activities."
     validations:
       required: true
-      
+
   - type: textarea
     id: acceptance-criteria
     attributes:
@@ -30,7 +30,7 @@ body:
         - [ ] Criterion 3
     validations:
       required: true
-      
+
   - type: dropdown
     id: size
     attributes:
@@ -44,14 +44,14 @@ body:
         - XL (2-3 days)
     validations:
       required: true
-      
+
   - type: textarea
     id: technical-notes
     attributes:
       label: Technical Notes
       description: Implementation details, dependencies, or constraints
       placeholder: "Any technical considerations, API dependencies, or architectural notes"
-      
+
   - type: textarea
     id: definition-of-done
     attributes:

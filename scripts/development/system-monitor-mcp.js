@@ -2,10 +2,10 @@
 
 /**
  * SystemMonitorMCP - Real-time System Intelligence for Claude AI
- * 
+ *
  * PURPOSE: Provide Claude with previously inaccessible system data
  * GOAL: Minimize productivity degradation through proactive system monitoring
- * 
+ *
  * INSPIRED BY: BrowserToolsMCP's approach to exposing browser data
  * EXTENDS: PM2's process monitoring to full system intelligence
  */
@@ -26,7 +26,7 @@ class SystemMonitorMCP {
     this.server = null;
     this.wsServer = null;
     this.clients = new Set();
-    
+
     // Data collection intervals
     this.intervals = {
       system: 5000,    // 5 seconds
@@ -35,7 +35,7 @@ class SystemMonitorMCP {
       disk: 30000,     // 30 seconds
       performance: 2000 // 2 seconds
     };
-    
+
     // Previously inaccessible data sources
     this.dataSources = {
       systemResources: this.getSystemResources.bind(this),
@@ -49,7 +49,7 @@ class SystemMonitorMCP {
       kernelMessages: this.getKernelMessages.bind(this),
       systemEvents: this.getSystemEvents.bind(this)
     };
-    
+
     this.init();
   }
 
@@ -57,21 +57,21 @@ class SystemMonitorMCP {
     console.log('🖥️ SystemMonitorMCP Starting...');
     console.log('🎯 PURPOSE: Expose previously inaccessible system data to Claude AI');
     console.log('📊 GOAL: Minimize productivity degradation through system intelligence');
-    
+
     // Create data directory
     if (!fs.existsSync(this.dataDir)) {
       fs.mkdirSync(this.dataDir, { recursive: true });
     }
-    
+
     // Start HTTP server for data access
     this.startHTTPServer();
-    
+
     // Start WebSocket server for real-time streaming
     this.startWebSocketServer();
-    
+
     // Start data collection
     this.startDataCollection();
-    
+
     console.log('✅ SystemMonitorMCP Active');
     console.log(`📊 HTTP API: http://localhost:${this.port}`);
     console.log(`🔄 WebSocket Stream: ws://localhost:${this.wsPort}`);
@@ -90,22 +90,22 @@ class SystemMonitorMCP {
       '/system/intelligence': this.handleIntelligence.bind(this),
       '/system/recommendations': this.handleRecommendations.bind(this)
     };
-    
+
     this.server = http.createServer(async (req, res) => {
       // Enable CORS
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      
+
       if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
         return;
       }
-      
+
       const url = new URL(req.url, `http://localhost:${this.port}`);
       const endpoint = url.pathname;
-      
+
       if (endpoints[endpoint]) {
         try {
           const data = await endpoints[endpoint](url.searchParams);
@@ -118,14 +118,14 @@ class SystemMonitorMCP {
         }
       } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ 
-          error: 'Endpoint not found', 
+        res.end(JSON.stringify({
+          error: 'Endpoint not found',
           availableEndpoints: Object.keys(endpoints),
           description: 'SystemMonitorMCP - Real-time system intelligence for Claude AI'
         }));
       }
     });
-    
+
     this.server.listen(this.port, () => {
       console.log(`🚀 SystemMonitorMCP HTTP server listening on port ${this.port}`);
     });
@@ -133,14 +133,14 @@ class SystemMonitorMCP {
 
   startWebSocketServer() {
     this.wsServer = new WebSocket.Server({ port: this.wsPort });
-    
+
     this.wsServer.on('connection', (ws) => {
       console.log('📡 Claude AI client connected to SystemMonitorMCP stream');
       this.clients.add(ws);
-      
+
       // Send initial system state
       this.sendSystemState(ws);
-      
+
       ws.on('message', async (message) => {
         try {
           const request = JSON.parse(message);
@@ -149,7 +149,7 @@ class SystemMonitorMCP {
           ws.send(JSON.stringify({ error: error.message }));
         }
       });
-      
+
       ws.on('close', () => {
         console.log('📡 Claude AI client disconnected from SystemMonitorMCP');
         this.clients.delete(ws);
@@ -169,13 +169,13 @@ class SystemMonitorMCP {
         health: await this.getSystemHealth()
       }
     };
-    
+
     ws.send(JSON.stringify(systemState));
   }
 
   async handleWebSocketRequest(ws, request) {
     const { type, params } = request;
-    
+
     switch (type) {
       case 'monitor_process':
         await this.monitorSpecificProcess(ws, params.pid);
@@ -196,28 +196,28 @@ class SystemMonitorMCP {
 
   startDataCollection() {
     console.log('🔄 Starting continuous data collection...');
-    
+
     // System resources monitoring
     setInterval(async () => {
       const resources = await this.getSystemResources();
       this.broadcastToClients({ type: 'system_resources', data: resources });
       this.saveData('system_resources', resources);
     }, this.intervals.system);
-    
+
     // Process monitoring
     setInterval(async () => {
       const processes = await this.getProcessTree();
       this.broadcastToClients({ type: 'process_tree', data: processes });
       this.saveData('process_tree', processes);
     }, this.intervals.processes);
-    
+
     // Network monitoring
     setInterval(async () => {
       const network = await this.getNetworkConnections();
       this.broadcastToClients({ type: 'network_connections', data: network });
       this.saveData('network_connections', network);
     }, this.intervals.network);
-    
+
     // Performance monitoring
     setInterval(async () => {
       const performance = await this.getPerformanceCounters();
@@ -231,7 +231,7 @@ class SystemMonitorMCP {
       timestamp: new Date().toISOString(),
       ...message
     });
-    
+
     this.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(payload);
@@ -242,7 +242,7 @@ class SystemMonitorMCP {
   saveData(type, data) {
     const filename = path.join(this.dataDir, `${type}-${Date.now()}.json`);
     fs.writeFileSync(filename, JSON.stringify(data, null, 2));
-    
+
     // Keep only last 100 files per type
     this.cleanupOldData(type);
   }
@@ -252,7 +252,7 @@ class SystemMonitorMCP {
       const files = fs.readdirSync(this.dataDir)
         .filter(file => file.startsWith(type))
         .sort();
-      
+
       if (files.length > 100) {
         const filesToDelete = files.slice(0, files.length - 100);
         filesToDelete.forEach(file => {
@@ -272,14 +272,14 @@ class SystemMonitorMCP {
         execAsync('cat /proc/meminfo'),
         execAsync('cat /proc/loadavg')
       ]);
-      
+
       const memLines = memInfo.stdout.split('\n');
       const memTotal = parseInt(memLines.find(line => line.startsWith('MemTotal')).split(/\s+/)[1]);
       const memFree = parseInt(memLines.find(line => line.startsWith('MemFree')).split(/\s+/)[1]);
       const memAvailable = parseInt(memLines.find(line => line.startsWith('MemAvailable')).split(/\s+/)[1]);
-      
+
       const [load1, load5, load15] = loadAvg.stdout.trim().split(' ').map(parseFloat);
-      
+
       return {
         timestamp: new Date().toISOString(),
         cpu: {
@@ -324,7 +324,7 @@ class SystemMonitorMCP {
           command: parts.slice(10).join(' ')
         };
       });
-      
+
       return {
         timestamp: new Date().toISOString(),
         topProcesses: processes,
@@ -343,7 +343,7 @@ class SystemMonitorMCP {
         execAsync('netstat -tuln').catch(() => ({ stdout: '' })),
         execAsync('ss -tuln').catch(() => ({ stdout: '' }))
       ]);
-      
+
       const connections = (netstat.stdout || ss.stdout).split('\n')
         .filter(line => line.includes(':'))
         .map(line => {
@@ -354,7 +354,7 @@ class SystemMonitorMCP {
             state: parts[5] || parts[1]
           };
         });
-      
+
       return {
         timestamp: new Date().toISOString(),
         connections: connections,
@@ -373,7 +373,7 @@ class SystemMonitorMCP {
       const lines = dfOutput.stdout.split('\n');
       const rootLine = lines.find(line => line.includes('/'));
       const parts = rootLine.trim().split(/\s+/);
-      
+
       return {
         filesystem: parts[0],
         size: parts[1],
@@ -429,7 +429,7 @@ class SystemMonitorMCP {
         execAsync('vmstat 1 2 | tail -1').catch(() => ({ stdout: '' })),
         execAsync('iostat -x 1 2 | tail -10').catch(() => ({ stdout: '' }))
       ]);
-      
+
       return {
         timestamp: new Date().toISOString(),
         vmstat: vmstat.stdout.trim(),
@@ -499,7 +499,7 @@ class SystemMonitorMCP {
       this.getProcessTree(),
       this.getNetworkConnections()
     ]);
-    
+
     return {
       timestamp: new Date().toISOString(),
       overall: this.calculateOverallHealth(resources, processes, network),
@@ -525,7 +525,7 @@ class SystemMonitorMCP {
       this.getNetworkConnections(),
       this.getPerformanceCounters()
     ]);
-    
+
     return {
       timestamp: new Date().toISOString(),
       intelligence: {
@@ -543,7 +543,7 @@ class SystemMonitorMCP {
   async handleRecommendations(params) {
     const resources = await this.getSystemResources();
     const processes = await this.getProcessTree();
-    
+
     return {
       timestamp: new Date().toISOString(),
       recommendations: this.generateSystemRecommendations(resources, processes)
@@ -643,7 +643,7 @@ class SystemMonitorMCP {
     const cpuUsage = parseFloat(resources.cpu?.usage || 0);
     const memUsage = parseFloat(resources.memory?.usagePercent || 0);
     const diskUsage = parseFloat(resources.disk?.usePercent?.replace('%', '') || 0);
-    
+
     if (cpuUsage > 90 || memUsage > 90 || diskUsage > 90) return 'critical';
     if (cpuUsage > 70 || memUsage > 70 || diskUsage > 70) return 'warning';
     return 'healthy';
@@ -651,22 +651,22 @@ class SystemMonitorMCP {
 
   generateSystemAlerts(resources, processes, network) {
     const alerts = [];
-    
+
     if (resources.cpu?.usage > 80) {
       alerts.push({ type: 'cpu', severity: 'high', message: `CPU usage at ${resources.cpu.usage}%` });
     }
-    
+
     if (resources.memory?.usagePercent > 80) {
       alerts.push({ type: 'memory', severity: 'high', message: `Memory usage at ${resources.memory.usagePercent}%` });
     }
-    
+
     if (resources.disk?.usePercent) {
       const diskUsage = parseFloat(resources.disk.usePercent.replace('%', ''));
       if (diskUsage > 80) {
         alerts.push({ type: 'disk', severity: 'high', message: `Disk usage at ${diskUsage}%` });
       }
     }
-    
+
     return alerts;
   }
 
@@ -712,23 +712,23 @@ class SystemMonitorMCP {
 
   generateSystemRecommendations(resources, processes, network) {
     const recommendations = [];
-    
+
     if (resources.cpu?.usage > 70) {
       recommendations.push('Consider optimizing CPU-intensive processes');
     }
-    
+
     if (resources.memory?.usagePercent > 70) {
       recommendations.push('Monitor memory usage and consider cleanup');
     }
-    
+
     if (processes.zombieProcesses > 0) {
       recommendations.push(`Clean up ${processes.zombieProcesses} zombie processes`);
     }
-    
+
     if (recommendations.length === 0) {
       recommendations.push('System operating within normal parameters');
     }
-    
+
     return recommendations;
   }
 }

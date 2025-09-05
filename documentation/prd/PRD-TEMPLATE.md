@@ -1,9 +1,9 @@
 # PRD Template - [Work Item Name]
 
-**PRD ID**: PRD-[YYYY-MM-DD]-[sequential-number]  
-**Created**: [Date]  
-**Owner**: [Name]  
-**Status**: [Draft/Active/Completed/Cancelled]  
+**PRD ID**: PRD-[YYYY-MM-DD]-[sequential-number]
+**Created**: [Date]
+**Owner**: [Name]
+**Status**: [Draft/Active/Completed/Cancelled]
 
 ## **Problem Statement**
 [Clear description of the problem to be solved]
@@ -139,6 +139,6 @@
 ---
 
 ## **Meta-Information**
-**Template Version**: 1.0  
-**Last Updated**: [Date]  
+**Template Version**: 1.0
+**Last Updated**: [Date]
 **Next Review**: [Date + 1 month]

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Reports Index</title>
     <style>
-        body { 
+        body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -19,16 +19,16 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
-        h1 { 
-            color: #2d3436; 
-            margin-bottom: 30px; 
+        h1 {
+            color: #2d3436;
+            margin-bottom: 30px;
             text-align: center;
             border-bottom: 3px solid #4facfe;
             padding-bottom: 15px;
         }
-        .link-grid { 
-            display: grid; 
-            gap: 20px; 
+        .link-grid {
+            display: grid;
+            gap: 20px;
         }
         .link-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -77,33 +77,33 @@
         <p style="text-align: center; margin-bottom: 30px; color: #6c757d;">
             All reports are <strong>localhost-only</strong> for security
         </p>
-        
+
         <div class="link-grid">
             <a href="http://localhost:8082/comprehensive-test-dashboard.html" class="link-card">
                 <h3>📊 Main Test Dashboard</h3>
                 <p>Complete testing infrastructure overview with live status indicators and metrics</p>
                 <span class="status working">✅ Working</span>
             </a>
-            
+
             <a href="http://127.0.0.1:9325" target="_blank" class="link-card">
                 <h3>🎭 Playwright Test Report</h3>
                 <p>Interactive E2E test results with screenshots, traces, and debugging tools</p>
                 <span class="status working">✅ Working - 3 Passed, 1 Failed</span>
             </a>
-            
+
             <a href="http://127.0.0.1:3001" target="_blank" class="link-card">
                 <h3>🌐 Live Application</h3>
                 <p>The application under test - POI discovery with weather filtering</p>
                 <span class="status working">✅ Working - Localhost Only</span>
             </a>
-            
+
             <a href="http://localhost:8082" target="_blank" class="link-card">
                 <h3>📁 Project Files</h3>
                 <p>Browse all project files, test artifacts, and documentation</p>
                 <span class="status working">✅ Working</span>
             </a>
         </div>
-        
+
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
             <h4 style="color: #2d3436; margin-bottom: 15px;">🔧 Troubleshooting</h4>
             <p style="color: #6c757d; line-height: 1.5;">
@@ -113,15 +113,15 @@
                 <br>• All services are running on localhost only for security
             </p>
         </div>
-        
+
         <div class="timestamp">
             Generated: <span id="timestamp"></span> | Status: All services localhost-only ✅
         </div>
     </div>
-    
+
     <script>
         document.getElementById('timestamp').textContent = new Date().toLocaleString();
-        
+
         // Test links and update status
         setTimeout(() => {
             const links = document.querySelectorAll('.link-card');

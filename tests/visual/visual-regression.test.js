@@ -15,13 +15,13 @@ test.describe('Visual Regression Testing', () => {
   test('should match homepage layout', async ({ page }) => {
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     // Wait for map to fully load
     await page.waitForFunction(() => {
       const mapContainer = document.querySelector('[data-testid="map-container"]');
       return mapContainer && mapContainer.querySelector('.leaflet-container');
     }, { timeout: 10000 });
-    
+
     // Hide dynamic elements that change between runs
     await page.addStyleTag({
       content: `
@@ -32,7 +32,7 @@ test.describe('Visual Regression Testing', () => {
         }
       `
     });
-    
+
     await expect(page).toHaveScreenshot('homepage-layout.png', {
       fullPage: true,
       animations: 'disabled'
@@ -42,14 +42,14 @@ test.describe('Visual Regression Testing', () => {
   test('should match filter panel appearance', async ({ page }) => {
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid*="filter"]');
-    
+
     // Open first filter
     const firstFilter = page.locator('[data-testid*="filter"]').first();
     await firstFilter.click();
-    
+
     // Wait for filter panel to appear
     await page.waitForTimeout(500);
-    
+
     await expect(page).toHaveScreenshot('filter-panel-open.png', {
       animations: 'disabled'
     });
@@ -59,10 +59,10 @@ test.describe('Visual Regression Testing', () => {
     await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE dimensions
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     // Wait for responsive layout to settle
     await page.waitForTimeout(1000);
-    
+
     await expect(page).toHaveScreenshot('mobile-layout.png', {
       fullPage: true,
       animations: 'disabled'
@@ -73,9 +73,9 @@ test.describe('Visual Regression Testing', () => {
     await page.setViewportSize({ width: 768, height: 1024 }); // iPad dimensions
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     await page.waitForTimeout(1000);
-    
+
     await expect(page).toHaveScreenshot('tablet-layout.png', {
       fullPage: true,
       animations: 'disabled'
@@ -86,9 +86,9 @@ test.describe('Visual Regression Testing', () => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     await page.waitForTimeout(1000);
-    
+
     await expect(page).toHaveScreenshot('dark-mode-layout.png', {
       fullPage: true,
       animations: 'disabled'
@@ -101,9 +101,9 @@ test.describe('Visual Regression Testing', () => {
       // Delay response to capture loading state
       setTimeout(() => route.continue(), 2000);
     });
-    
+
     await page.goto('http://localhost:3001');
-    
+
     // Capture loading state
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot('loading-state.png', {
@@ -120,10 +120,10 @@ test.describe('Visual Regression Testing', () => {
         body: JSON.stringify({ error: 'Server error' })
       });
     });
-    
+
     await page.goto('http://localhost:3001');
     await page.waitForTimeout(2000);
-    
+
     await expect(page).toHaveScreenshot('error-state.png', {
       animations: 'disabled'
     });
@@ -132,13 +132,13 @@ test.describe('Visual Regression Testing', () => {
   test('should match map with markers', async ({ page }) => {
     await page.goto('http://localhost:3001?lat=44.9537&lng=-93.0900');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     // Wait for markers to load
     await page.waitForFunction(() => {
       const markers = document.querySelectorAll('.leaflet-marker-icon');
       return markers.length > 0;
     }, { timeout: 10000 });
-    
+
     // Focus on map area
     const mapBounds = await page.locator('[data-testid="map-container"]').boundingBox();
     if (mapBounds) {
@@ -152,23 +152,23 @@ test.describe('Visual Regression Testing', () => {
   test('should match filter combinations', async ({ page }) => {
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid*="filter"]');
-    
+
     // Apply multiple filters
     const temperatureFilter = page.locator('[data-testid="filter-temperature"]');
     const precipitationFilter = page.locator('[data-testid="filter-precipitation"]');
-    
+
     if (await temperatureFilter.count() > 0) {
       await temperatureFilter.click();
       await page.locator('text=Mild').click();
       await page.waitForTimeout(500);
     }
-    
+
     if (await precipitationFilter.count() > 0) {
       await precipitationFilter.click();
       await page.locator('text=None').click();
       await page.waitForTimeout(500);
     }
-    
+
     await expect(page).toHaveScreenshot('filters-applied.png', {
       fullPage: true,
       animations: 'disabled'
@@ -177,7 +177,7 @@ test.describe('Visual Regression Testing', () => {
 
   test('should match high contrast mode', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
-    
+
     // Simulate high contrast preferences
     await page.addStyleTag({
       content: `
@@ -188,10 +188,10 @@ test.describe('Visual Regression Testing', () => {
         }
       `
     });
-    
+
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     await expect(page).toHaveScreenshot('high-contrast-mode.png', {
       fullPage: true,
       animations: 'disabled'
@@ -201,10 +201,10 @@ test.describe('Visual Regression Testing', () => {
   test('should match print styles', async ({ page }) => {
     await page.goto('http://localhost:3001');
     await page.waitForSelector('[data-testid="map-container"]');
-    
+
     // Emulate print media
     await page.emulateMedia({ media: 'print' });
-    
+
     await expect(page).toHaveScreenshot('print-layout.png', {
       fullPage: true,
       animations: 'disabled'

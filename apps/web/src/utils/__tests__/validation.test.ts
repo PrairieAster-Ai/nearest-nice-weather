@@ -2,13 +2,13 @@
  * ========================================================================
  * VALIDATION UTILITY TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for validation and security utilities
  * 🔗 MODULE: validation.ts - Input sanitization, validation schemas, rate limiting
  * 📊 COVERAGE: String sanitization, HTML escaping, schema validation, CSP generation
  * ⚙️ FUNCTIONALITY: Security validation, rate limiting, environment checks
  * 🎯 BUSINESS_IMPACT: Ensures application security and data integrity
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -92,13 +92,13 @@ describe('Validation Utilities', () => {
         textContent: '',
         innerHTML: ''
       }
-      
+
       const createElementSpy = vi.fn(() => mockDiv)
       global.document.createElement = createElementSpy
-      
+
       const input = '<div>Test</div>'
       sanitizeHtml(input)
-      
+
       expect(createElementSpy).toHaveBeenCalledWith('div')
       expect(mockDiv.textContent).toBe(input)
     })
@@ -108,9 +108,9 @@ describe('Validation Utilities', () => {
         textContent: '',
         innerHTML: '&lt;script&gt;alert(1)&lt;/script&gt;'
       }
-      
+
       global.document.createElement = vi.fn(() => mockDiv)
-      
+
       const result = sanitizeHtml('<script>alert(1)</script>')
       expect(result).toBe('&lt;script&gt;alert(1)&lt;/script&gt;')
     })
@@ -125,7 +125,7 @@ describe('Validation Utilities', () => {
         precipitation: 'none',
         wind: 'calm'
       }
-      
+
       const result = weatherFilter.parse(validInput)
       expect(result).toEqual(validInput)
     })
@@ -136,7 +136,7 @@ describe('Validation Utilities', () => {
         precipitation: 'none',
         wind: 'calm'
       }
-      
+
       expect(() => weatherFilter.parse(invalidInput)).toThrow()
     })
 
@@ -146,7 +146,7 @@ describe('Validation Utilities', () => {
         precipitation: 'heavy',
         wind: 'calm'
       }
-      
+
       expect(() => weatherFilter.parse(invalidInput)).toThrow()
     })
 
@@ -156,7 +156,7 @@ describe('Validation Utilities', () => {
         precipitation: 'none',
         wind: 'hurricane'
       }
-      
+
       expect(() => weatherFilter.parse(invalidInput)).toThrow()
     })
 
@@ -164,7 +164,7 @@ describe('Validation Utilities', () => {
       const temperatures = ['warm', 'mild', 'cool']
       const precipitations = ['none', 'light', 'any']
       const winds = ['calm', 'light', 'windy']
-      
+
       temperatures.forEach(temp => {
         precipitations.forEach(precip => {
           winds.forEach(wind => {
@@ -190,7 +190,7 @@ describe('Validation Utilities', () => {
         email: 'user@example.com',
         category: 'general'
       }
-      
+
       const result = feedback.parse(validInput)
       expect(result.comment).toBe('Great app!')
       expect(result.rating).toBe(5)
@@ -202,7 +202,7 @@ describe('Validation Utilities', () => {
         comment: '  Good app <script>alert(1)</script>  ',
         category: 'feature'
       }
-      
+
       const result = feedback.parse(input)
       // The script tags are removed but leave a space
       expect(result.comment).toBe('Good app ')
@@ -215,7 +215,7 @@ describe('Validation Utilities', () => {
         email: '',
         category: 'bug'
       }
-      
+
       const result = feedback.parse(input)
       expect(result.email).toBe('')
     })
@@ -227,7 +227,7 @@ describe('Validation Utilities', () => {
         email: 'not-an-email',
         category: 'bug'
       }
-      
+
       expect(() => feedback.parse(invalidInput)).toThrow('Invalid email format')
     })
 
@@ -237,7 +237,7 @@ describe('Validation Utilities', () => {
         comment: 'Test',
         category: 'general'
       })).toThrow()
-      
+
       expect(() => feedback.parse({
         rating: 6,
         comment: 'Test',
@@ -252,13 +252,13 @@ describe('Validation Utilities', () => {
         comment: longComment,
         category: 'general'
       }
-      
+
       expect(() => feedback.parse(input)).toThrow('Comment must be less than 1000 characters')
     })
 
     it('should validate feedback categories', () => {
       const validCategories = ['bug', 'feature', 'general']
-      
+
       validCategories.forEach(category => {
         const input = {
           rating: 3,
@@ -267,7 +267,7 @@ describe('Validation Utilities', () => {
         }
         expect(() => feedback.parse(input)).not.toThrow()
       })
-      
+
       const invalidInput = {
         rating: 3,
         comment: 'Test',
@@ -325,7 +325,7 @@ describe('Validation Utilities', () => {
       const key = 'test-key'
       const limit = 3
       const windowMs = 1000
-      
+
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
@@ -335,7 +335,7 @@ describe('Validation Utilities', () => {
       const key = 'test-key'
       const limit = 2
       const windowMs = 1000
-      
+
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(false)
@@ -345,20 +345,20 @@ describe('Validation Utilities', () => {
       const key = 'test-key'
       const limit = 1
       const windowMs = 100
-      
+
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(false)
-      
+
       // Wait for window to pass
       await new Promise(resolve => setTimeout(resolve, 150))
-      
+
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
     })
 
     it('should track different keys separately', () => {
       const limit = 1
       const windowMs = 1000
-      
+
       expect(rateLimiter.isAllowed('key1', limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed('key2', limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed('key1', limit, windowMs)).toBe(false)
@@ -369,12 +369,12 @@ describe('Validation Utilities', () => {
       const key = 'test-key'
       const limit = 1
       const windowMs = 1000
-      
+
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(false)
-      
+
       rateLimiter.reset(key)
-      
+
       expect(rateLimiter.isAllowed(key, limit, windowMs)).toBe(true)
     })
   })
@@ -382,7 +382,7 @@ describe('Validation Utilities', () => {
   describe('🔐 CSP Generation', () => {
     it('should generate valid CSP string', () => {
       const csp = generateCSP()
-      
+
       expect(csp).toContain("default-src 'self'")
       expect(csp).toContain("script-src 'self'")
       expect(csp).toContain("style-src 'self'")
@@ -391,7 +391,7 @@ describe('Validation Utilities', () => {
 
     it('should include all directives', () => {
       const csp = generateCSP()
-      
+
       Object.keys(CSP_DIRECTIVES).forEach(directive => {
         expect(csp).toContain(directive)
       })
@@ -399,11 +399,11 @@ describe('Validation Utilities', () => {
 
     it('should format directives correctly', () => {
       const csp = generateCSP()
-      
+
       // Check semicolon separation
       const directives = csp.split('; ')
       expect(directives.length).toBeGreaterThan(0)
-      
+
       // Check each directive format
       directives.forEach(directive => {
         expect(directive).toMatch(/^[\w-]+ /)
@@ -412,7 +412,7 @@ describe('Validation Utilities', () => {
 
     it('should include required sources', () => {
       const csp = generateCSP()
-      
+
       expect(csp).toContain('https://cdn.jsdelivr.net')
       expect(csp).toContain('https://cdnjs.cloudflare.com')
       expect(csp).toContain('https://fonts.googleapis.com')
@@ -503,7 +503,7 @@ describe('Validation Utilities', () => {
  * ✅ Security headers configuration
  * ✅ Environment variable validation
  * ✅ External URL validation
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ Input security and XSS prevention
  * ✅ Form validation for user inputs

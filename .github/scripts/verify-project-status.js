@@ -19,7 +19,7 @@ const octokit = new Octokit({
 async function verifyProjectStatus() {
   console.log('🔍 VERIFYING PROJECT STATUS AFTER WBS ADDITION');
   console.log('===============================================\n');
-  
+
   try {
     // Get current project items
     const projectQuery = `
@@ -52,7 +52,7 @@ async function verifyProjectStatus() {
 
     const project = projectData.organization.projectV2;
     const items = project.items.nodes;
-    
+
     console.log(`✅ Project: ${project.title}`);
     console.log(`📊 Total Items in Project: ${project.items.totalCount}\n`);
 
@@ -98,14 +98,14 @@ async function verifyProjectStatus() {
 
     console.log('📈 **RECENT ADDITIONS** (by issue number):');
     const recentItems = sortedItems.filter(item => item.number >= 37 && item.number <= 107);
-    
+
     if (recentItems.length > 0) {
       console.log(`✅ Found ${recentItems.length} items from WBS range (#37-#107):`);
       recentItems.slice(0, 10).forEach(item => {
         const stateIcon = item.state === 'open' ? '🔓' : '🔒';
         console.log(`  ${stateIcon} #${item.number}: ${item.title}`);
       });
-      
+
       if (recentItems.length > 10) {
         console.log(`  ... and ${recentItems.length - 10} more`);
       }

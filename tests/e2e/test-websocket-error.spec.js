@@ -5,7 +5,7 @@ test.describe('WebSocket Connection Investigation', () => {
     // Capture all console errors and logs
     const consoleLogs = [];
     const consoleErrors = [];
-    
+
     page.on('console', msg => {
       const text = msg.text();
       if (msg.type() === 'error') {
@@ -45,11 +45,11 @@ test.describe('WebSocket Connection Investigation', () => {
       const viteScripts = scripts
         .map(s => s.innerHTML || s.src)
         .filter(content => content.includes('vite') || content.includes('ws://'));
-      
+
       // Check for any hardcoded ports in the page
       const pageContent = document.documentElement.innerHTML;
       const portMatches = pageContent.match(/localhost:(\d{4})/g) || [];
-      
+
       return {
         viteScripts: viteScripts.slice(0, 3), // First 3 matches
         portMatches: [...new Set(portMatches)], // Unique port references
@@ -57,7 +57,7 @@ test.describe('WebSocket Connection Investigation', () => {
         currentPort: window.location.port
       };
     });
-    
+
     console.log('\nVite Configuration found:');
     console.log('Current port:', viteConfig.currentPort);
     console.log('Base URI:', viteConfig.baseURI);
@@ -73,7 +73,7 @@ test.describe('WebSocket Connection Investigation', () => {
         viteBase: 'N/A'
       };
     });
-    
+
     console.log('\nEnvironment check:', envCheck);
 
     // Try port 3002
@@ -86,7 +86,7 @@ test.describe('WebSocket Connection Investigation', () => {
         console.log('❌ Port 3002 ERROR:', msg.text());
       }
     });
-    
+
     await page.goto('http://localhost:3002/', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
@@ -99,7 +99,7 @@ test.describe('WebSocket Connection Investigation', () => {
         attributes: viteClientScript ? Object.fromEntries([...viteClientScript.attributes].map(a => [a.name, a.value])) : null
       };
     });
-    
+
     console.log('\nVite Client Script:', viteClientInfo);
 
     // Summary
@@ -107,7 +107,7 @@ test.describe('WebSocket Connection Investigation', () => {
     console.log('WebSocket errors on port 3003:', consoleErrors.filter(e => e.includes('WebSocket')).length);
     console.log('WebSocket errors on port 3002:', errors3002.length);
     console.log('WebSocket requests captured:', webSocketRequests.length);
-    
+
     if (webSocketRequests.length > 0) {
       console.log('\nWebSocket URLs attempted:');
       webSocketRequests.forEach(req => console.log(' -', req.url));

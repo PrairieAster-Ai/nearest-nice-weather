@@ -19,7 +19,7 @@
 ### 2. Dual API Architecture (60% code duplication)
 **Major duplications:**
 - Weather locations endpoint: 95% identical
-- POI locations endpoint: 90% identical  
+- POI locations endpoint: 90% identical
 - Feedback endpoint: 85% identical
 
 **Files:**

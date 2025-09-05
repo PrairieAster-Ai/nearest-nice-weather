@@ -2,13 +2,13 @@
  * ========================================================================
  * USE FEEDBACK SUBMISSION HOOK TESTS
  * ========================================================================
- * 
+ *
  * 📋 PURPOSE: Comprehensive testing for useFeedbackSubmission hook functionality
  * 🔗 HOOK: useFeedbackSubmission - React Query mutation for feedback submission
  * 📊 COVERAGE: Mutation logic, error handling, monitoring integration, retry logic
  * ⚙️ FUNCTIONALITY: Feedback submission with monitoring, error tracking, retry
  * 🎯 BUSINESS_IMPACT: Ensures reliable user feedback collection and analytics
- * 
+ *
  * LAST UPDATED: 2025-08-13
  */
 
@@ -590,7 +590,7 @@ describe('useFeedbackSubmission Hook', () => {
  * ✅ Data tracking across categories and ratings
  * ✅ React Query integration
  * ✅ Query client invalidation
- * 
+ *
  * 🎯 BUSINESS COVERAGE:
  * ✅ User feedback collection workflow
  * ✅ Analytics and monitoring integration

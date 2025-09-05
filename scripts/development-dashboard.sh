@@ -131,7 +131,7 @@ echo "-----------------"
 # Check if development server is running
 if curl -f http://localhost:3001/ >/dev/null 2>&1; then
     echo -e "$(status_icon 0) Dev server: Running (http://localhost:3001)"
-    
+
     # Check health endpoint
     if curl -f http://localhost:3001/health.json >/dev/null 2>&1; then
         echo -e "$(status_icon 0) Health endpoint: OK"

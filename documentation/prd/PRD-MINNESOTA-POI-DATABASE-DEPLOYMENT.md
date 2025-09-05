@@ -1,10 +1,10 @@
 # PRD: Minnesota POI Database Deployment
 ## Feature Branch: minnesota-poi-database-deployment
 
-**Created**: 2025-01-30  
-**Epic**: Sprint 3 - Database + Weather API (#155)  
-**Status**: Active Development  
-**Priority**: P0 - Critical Path  
+**Created**: 2025-01-30
+**Epic**: Sprint 3 - Database + Weather API (#155)
+**Status**: Active Development
+**Priority**: P0 - Critical Path
 
 ---
 
@@ -41,7 +41,7 @@ Deploy a comprehensive Minnesota POI (Point of Interest) database with 200+ publ
 GET /api/weather-locations  // 50 cities with weather
 GET /api/poi-locations      // 17 parks without weather
 
-// Required: Unified POI-weather API  
+// Required: Unified POI-weather API
 GET /api/poi-locations-with-weather
 // Returns: POI locations with current weather at POI coordinates
 ```
@@ -68,31 +68,31 @@ GET /api/poi-locations-with-weather
 -- Hybrid schema combining OSM tracking + AllTrails segmentation patterns
 CREATE TABLE poi_locations (
   id SERIAL PRIMARY KEY,
-  
+
   -- Core location data
   name VARCHAR(255) NOT NULL,
   lat DECIMAL(10, 8) NOT NULL,
   lng DECIMAL(11, 8) NOT NULL,
-  
+
   -- OSM tracking (Nominatim pattern for updates)
   osm_id BIGINT,                    -- Track source for incremental updates
   osm_type VARCHAR(10),             -- way, node, relation
-  
+
   -- Classification (AllTrails pattern)
   park_type VARCHAR(100),           -- State Park, National Park, etc.
   difficulty VARCHAR(50),           -- Easy, Moderate, Difficult
   surface_type VARCHAR(50),         -- Paved, Natural, Mixed
-  
+
   -- Search optimization (Nominatim pattern)
   search_name JSONB,                -- Name variants for search
   place_rank INTEGER DEFAULT 30,   -- Importance ranking (1-30)
-  
+
   -- Data management (OSS best practices)
   description TEXT,
   data_source VARCHAR(50),          -- osm, nps, dnr, google
   external_id VARCHAR(100),         -- Source system ID for re-sync
   last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  
+
   -- Geographic constraint (Minnesota bounds validation)
   CONSTRAINT poi_minnesota_bounds CHECK (
     lat BETWEEN 43.499356 AND 49.384472 AND
@@ -133,7 +133,7 @@ OSM+NPS    Dedupe   Atomic   API Test  Incremental
 
 **Update Strategy (OSM-proven):**
 - **Daily**: OSM Overpass incremental updates
-- **Weekly**: NPS/DNR authoritative refresh  
+- **Weekly**: NPS/DNR authoritative refresh
 - **Monthly**: Full validation and cleanup
 - **Real-time**: User-reported corrections (future)
 
@@ -162,7 +162,7 @@ OSM+NPS    Dedupe   Atomic   API Test  Incremental
 - [ ] Set up logging for ETL operations
 - [ ] Create data validation utilities
 
-### **Phase 2: Data Loading Infrastructure (Storage)**  
+### **Phase 2: Data Loading Infrastructure (Storage)**
 **Estimated Time**: 1 day
 
 #### **Task 2.1: Bulk Insert Optimization**
@@ -173,7 +173,7 @@ OSM+NPS    Dedupe   Atomic   API Test  Incremental
 
 #### **Task 2.2: Data Management Scripts**
 - [ ] Create truncate/reload functionality
-- [ ] Add data backup/restore capabilities  
+- [ ] Add data backup/restore capabilities
 - [ ] Implement incremental update support
 - [ ] Add data quality reporting
 
@@ -311,7 +311,7 @@ npm run etl:validate
 ### **MVP Design Philosophy**
 All technical decisions optimized for **speed to market** with **fast follower** approach for advanced features. Priority: validate core concept with minimal viable feature set, then iterate based on user feedback.
 
-### **Q&A History** 
+### **Q&A History**
 *This section prevents duplicate discussions and provides context for future decisions*
 
 #### **API & Data Strategy**
@@ -377,11 +377,11 @@ All technical decisions optimized for **speed to market** with **fast follower**
 #### **1. Geographic Proximity Query Performance**
 ```sql
 -- Expected query pattern from weather-locations API
-SELECT 
+SELECT
   poi_id, name, lat, lng, park_type,
   ST_Distance(ST_Point(lng, lat), ST_Point(-93.4439, 45.2197)) * 69 as distance_miles
-FROM poi_locations 
-WHERE 
+FROM poi_locations
+WHERE
   -- Minnesota bounds constraint (automatic validation)
   ST_DWithin(ST_Point(lng, lat), ST_Point(-93.4439, 45.2197), 0.72)  -- ~50 mile radius
 ORDER BY distance_miles
@@ -390,7 +390,7 @@ LIMIT 20;
 
 **Expected Results for Nowthen, MN**:
 - **Carlos Avery WMA** (12 miles) - State wildlife area, hiking trails
-- **Bunker Hills Regional Park** (8 miles) - County park, multi-use trails  
+- **Bunker Hills Regional Park** (8 miles) - County park, multi-use trails
 - **Rum River Central Regional Park** (15 miles) - River activities, trails
 - **Sand Dunes State Forest** (18 miles) - Hiking, nature photography
 - **Sherburne National Wildlife Refuge** (25 miles) - Wildlife viewing, trails
@@ -410,7 +410,7 @@ const weatherActivityMatch = {
       reasoning: "Perfect temperature, light wind, good visibility"
     },
     {
-      activity: "photography", 
+      activity: "photography",
       weather_score: 90,
       reasoning: "Partly cloudy provides good lighting contrast"
     },
@@ -439,13 +439,13 @@ const weatherActivityMatch = {
 **Real-time Weather Integration**:
 ```sql
 -- Combined POI + weather query (existing weather-locations API pattern)
-SELECT 
+SELECT
   p.poi_id, p.name, p.lat, p.lng, p.park_type, p.activities,
   w.temperature, w.condition, w.precipitation, w.wind_speed,
   (
     3959 * acos(
-      cos(radians(45.2197)) * cos(radians(p.lat)) * 
-      cos(radians(p.lng) - radians(-93.4439)) + 
+      cos(radians(45.2197)) * cos(radians(p.lat)) *
+      cos(radians(p.lng) - radians(-93.4439)) +
       sin(radians(45.2197)) * sin(radians(p.lat))
     )
   ) as distance_miles
@@ -480,7 +480,7 @@ LIMIT 10;
 
 **Weather Station Coverage**:
 - **Primary**: Anoka County weather station (8 miles from Nowthen)
-- **Secondary**: Minneapolis-St. Paul International (25 miles) 
+- **Secondary**: Minneapolis-St. Paul International (25 miles)
 - **Backup**: St. Cloud Regional (35 miles)
 - **Interpolation**: Weather conditions interpolated for POIs between stations
 
@@ -495,7 +495,7 @@ LIMIT 10;
 
 **OSS Pattern Integration Success**:
 - ✅ **Nominatim Geography**: Proven spatial indexing patterns adopted
-- ✅ **AllTrails Classification**: Activity categorization system implemented  
+- ✅ **AllTrails Classification**: Activity categorization system implemented
 - ✅ **OSM Data Tracking**: Incremental update capability built-in
 - ✅ **Scalability Proven**: Architecture supports thousands of concurrent users
 
@@ -735,19 +735,19 @@ LIMIT 10;
 
 ---
 
-**Total Estimated Time**: 8-12 days  
-**Critical Path**: Database refactoring → ETL implementation → Data loading  
+**Total Estimated Time**: 8-12 days
+**Critical Path**: Database refactoring → ETL implementation → Data loading
 **Milestone**: 200+ Minnesota parks available via weather-locations API with maintained performance
 
 ### **✅ Phase 1: Database Foundation (COMPLETED 2025-07-31)**
 **Status**: Complete - 17 POI locations with API endpoints working
 - [x] POI database schema created with geographic indexing
-- [x] 17 Minnesota parks manually curated and loaded  
+- [x] 17 Minnesota parks manually curated and loaded
 - [x] `/api/poi-locations` endpoint with proximity queries
 - [x] Neon cloud database integration (eliminated local PostgreSQL confusion)
 - [x] Performance validated: ~100ms response times
 
-### **🚧 Phase 2: POI-Weather Integration Architecture (IN PROGRESS)**  
+### **🚧 Phase 2: POI-Weather Integration Architecture (IN PROGRESS)**
 **Estimated Time**: 2-3 days
 **Current Status**: Architectural planning complete, implementation ready
 
@@ -768,5 +768,3 @@ LIMIT 10;
 - [ ] Add environment-specific caching strategies
 - [ ] Design weather grid system hooks for future 10K+ expansion
 - [ ] Add POI filtering schema hooks for post-MVP features
-
-

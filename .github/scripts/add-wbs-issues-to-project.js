@@ -31,7 +31,7 @@ class WBSIssueAdder {
 
   async initialize() {
     console.log('🔧 Initializing GitHub Project integration...\n');
-    
+
     try {
       const projectQuery = `
         query($owner: String!, $number: Int!) {
@@ -62,7 +62,7 @@ class WBSIssueAdder {
       });
 
       this.projectId = projectData.organization.projectV2.id;
-      
+
       // Map project fields
       const fields = projectData.organization.projectV2.fields.nodes;
       this.workItemTypeField = fields.find(f => f.name === 'Work Item Type');
@@ -86,10 +86,10 @@ class WBSIssueAdder {
     return [
       // Capabilities (Issues #37-41, #65-69, #93-97)
       37, 38, 39, 40, 41, 65, 66, 67, 68, 69, 93, 94, 95, 96, 97,
-      
-      // Epics (Issues #42-46, #70-74, #98-102)  
+
+      // Epics (Issues #42-46, #70-74, #98-102)
       42, 43, 44, 45, 46, 70, 71, 72, 73, 74, 98, 99, 100, 101, 102,
-      
+
       // Stories (Issues #47-64, #75-92, #103-107)
       47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62,
       63, 64, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
@@ -108,12 +108,12 @@ class WBSIssueAdder {
   determineStatus(issue) {
     // Based on WBS analysis - most of these should be "Ready" or "Done"
     const title = issue.title.toLowerCase();
-    
+
     // Sprint 1 & 2 completed work
     if (title.includes('feedback') || title.includes('map') || title.includes('location')) {
       return 'Done';
     }
-    
+
     // Sprint 3 & 4 work
     return 'Ready';
   }
@@ -178,7 +178,7 @@ class WBSIssueAdder {
 
       console.log(`  ✅ Added: #${issue.number} "${issue.title}"`);
       console.log(`      🎯 Type: ${this.determineWorkItemType(issue)}, Status: ${this.determineStatus(issue)}, Size: ${this.determineSize(issue)}`);
-      
+
       this.addedCount++;
       return true;
 
@@ -226,9 +226,9 @@ class WBSIssueAdder {
   async addWBSIssuesToProject() {
     console.log('🎯 ADDING WBS ISSUES TO GITHUB PROJECT');
     console.log('====================================\n');
-    
+
     await this.initialize();
-    
+
     const issueNumbers = this.getWBSIssuesToAdd();
     console.log(`📊 **PLAN**: Adding ${issueNumbers.length} WBS issues to project\n`);
 

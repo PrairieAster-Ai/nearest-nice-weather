@@ -7,9 +7,9 @@ async function captureConsoleLogs() {
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-    
+
     const page = await browser.newPage();
-    
+
     // Capture console logs
     const consoleLogs = [];
     page.on('console', (msg) => {
@@ -19,7 +19,7 @@ async function captureConsoleLogs() {
             timestamp: new Date().toISOString()
         });
     });
-    
+
     // Capture network errors
     const networkErrors = [];
     page.on('response', (response) => {
@@ -32,7 +32,7 @@ async function captureConsoleLogs() {
             });
         }
     });
-    
+
     // Capture JavaScript errors
     const jsErrors = [];
     page.on('pageerror', (error) => {
@@ -42,23 +42,23 @@ async function captureConsoleLogs() {
             timestamp: new Date().toISOString()
         });
     });
-    
+
     try {
         console.log('🌐 Navigating to localhost:3008...');
         await page.goto('http://localhost:3008/console-test.html', {
             waitUntil: 'networkidle2',
             timeout: 30000
         });
-        
+
         console.log('⏳ Waiting for tests to complete...');
         await page.waitForTimeout(15000); // Wait 15 seconds for tests to run
-        
+
         console.log('\n📊 CONSOLE LOGS:');
         console.log('================');
         consoleLogs.forEach(log => {
             console.log(`[${log.timestamp}] ${log.type.toUpperCase()}: ${log.text}`);
         });
-        
+
         console.log('\n🌐 NETWORK ERRORS:');
         console.log('==================');
         if (networkErrors.length === 0) {
@@ -68,7 +68,7 @@ async function captureConsoleLogs() {
                 console.log(`[${error.timestamp}] ${error.status} ${error.statusText}: ${error.url}`);
             });
         }
-        
+
         console.log('\n❌ JAVASCRIPT ERRORS:');
         console.log('=====================');
         if (jsErrors.length === 0) {
@@ -81,7 +81,7 @@ async function captureConsoleLogs() {
                 }
             });
         }
-        
+
         // Get the current page content to see test results
         console.log('\n📋 TEST RESULTS FROM PAGE:');
         console.log('==========================');
@@ -94,14 +94,14 @@ async function captureConsoleLogs() {
                 statusClass: status ? status.className : 'No status class found'
             };
         });
-        
+
         console.log(`Status: ${results.status} (${results.statusClass})`);
         console.log(`Output:\n${results.output}`);
-        
+
     } catch (error) {
         console.error('❌ Error during page capture:', error.message);
     }
-    
+
     await browser.close();
 }
 
