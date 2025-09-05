@@ -101,7 +101,7 @@ setup-github-token-local.sh
 .secrets/
 config/secrets/
 
-# SSH and certificates  
+# SSH and certificates
 id_rsa*
 id_dsa*
 id_ed25519*
@@ -114,3 +114,6 @@ db.json
 *connection_string*
 *neon*
 *NEON*
+
+# Claude local artifacts and scripts
+.claude-local/
