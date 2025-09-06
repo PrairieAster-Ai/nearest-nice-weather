@@ -92,10 +92,9 @@ import { useFilterManager } from './components/FilterManager'
 import { MapContainer } from './components/MapContainer'
 import { useMapViewManager } from './components/MapViewManager'
 import { usePOINavigation } from './hooks/usePOINavigation'
-import { useLastVisitStorage, useLocationMethodStorage, LocationMethod } from './hooks/useLocalStorageState'
+import { useLastVisitStorage, useLocationMethodStorage } from './hooks/useLocalStorageState'
 import { AdManagerProvider } from './components/ads'
 import { loadUmamiAnalytics, trackPageView, trackLocationUpdate } from './utils/analytics'
-import { weatherFilteringService } from './services/WeatherFilteringService'
 import { mapCalculationService } from './services/MapCalculationService'
 import { useWeatherFiltering } from './hooks/useWeatherFiltering'
 import 'leaflet/dist/leaflet.css'
@@ -116,12 +115,6 @@ const theme = createTheme({
     },
   },
 })
-
-interface WeatherFilters {
-  temperature: string
-  precipitation: string
-  wind: string
-}
 
 interface Location {
   id: string
@@ -334,18 +327,10 @@ export default function App() {
 
     // Update component state
     setUserLocation(newPosition)
-    setLocationMethod('manual')
+    setLocationMethod('manual') // This automatically saves to localStorage via hook
     setShowLocationPrompt(false) // User has moved the marker, so hide the prompt
 
-    // CRITICAL: Also save to localStorage for persistence
-    try {
-      localStorage.setItem('userLocation', JSON.stringify(newPosition));
-      localStorage.setItem('locationMethod', JSON.stringify('manual'));
-      localStorage.setItem('showLocationPrompt', JSON.stringify(false));
-      console.log('📍 Location saved to localStorage:', newPosition);
-    } catch (error) {
-      console.warn('Failed to save location to localStorage:', error);
-    }
+    console.log('📍 Location updated via hooks:', newPosition);
 
     // Distance and expansion now managed by POI hook automatically
     // POI hook will automatically reload with new user location
