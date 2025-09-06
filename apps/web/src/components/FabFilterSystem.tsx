@@ -51,9 +51,7 @@ import {
   Tooltip,
   Slide,
   Fade,
-  CircularProgress,
-  Chip,
-  Typography
+  CircularProgress
 } from '@mui/material'
 
 // 🔗 INTEGRATION: Works with FilterManager.tsx for weather preference state logic

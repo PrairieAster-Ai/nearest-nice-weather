@@ -142,7 +142,7 @@ export default function App() {
 
   // Persistent user preferences with localStorage
   const [lastVisit, setLastVisit] = useLastVisitStorage()
-  const [locationMethod, setLocationMethod] = useLocationMethodStorage()
+  const [_locationMethod, setLocationMethod] = useLocationMethodStorage()
 
   // Location state (managed by LocationManager)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)

@@ -381,7 +381,7 @@ describe('useWeatherSearch Hook', () => {
 
       const { result } = renderHook(() => useWeatherSearch())
 
-      const searchPromise = result.current.searchWeather({
+      const _searchPromise = result.current.searchWeather({
         temperature: 'warm',
         precipitation: 'none',
         wind: 'calm'

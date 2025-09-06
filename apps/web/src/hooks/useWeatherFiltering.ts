@@ -40,7 +40,7 @@
  * LAST UPDATED: 2025-08-13
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   weatherFilteringService,
   WeatherFilters as ServiceWeatherFilters,
@@ -103,7 +103,7 @@ export const useWeatherFiltering = (
 
     // Calculate filter result counts using the service
     return weatherFilteringService.calculateFilterResultCounts(serviceLocations);
-  }, [visiblePOIs.length]); // Only depend on length to reduce recalculations
+  }, [visiblePOIs]); // Include full visiblePOIs as dependency
 
   // 🔧 Weather filtering function with type conversion
   const applyWeatherFilters = useMemo(() => {

@@ -64,7 +64,7 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
   const [locationAccuracy, setLocationAccuracy] = useState<number>(50000); // Default 50km uncertainty
   const [locationConfidence, setLocationConfidence] = useState<LocationConfidence>('unknown');
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
+  const [_permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
 
   // Track initialization and enhancement state
   const locationInitialized = useRef(false);

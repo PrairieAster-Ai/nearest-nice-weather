@@ -81,7 +81,7 @@ export const AdUnit: React.FC<AdUnitProps> = ({
   placement,
   showLabel = true,
   className,
-  lazy = true,
+  lazy: _lazy = true,
   testMode = process.env.NODE_ENV === 'development'
 }) => {
   // AdSense client ID - will be configured via environment variables

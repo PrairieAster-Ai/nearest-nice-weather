@@ -54,7 +54,7 @@ interface AdManagerProviderProps {
 export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
   children,
   enableAds = process.env.NODE_ENV === 'production',
-  testMode = process.env.NODE_ENV === 'development'
+  testMode: _testMode = process.env.NODE_ENV === 'development'
 }) => {
   const [state, setState] = useState<AdManagerState>({
     isAdBlockDetected: false,
@@ -68,12 +68,12 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
     const detectAdBlock = async () => {
       try {
         // Simple ad block detection - try to load a known ad resource
-        const response = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+        const _response = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
           method: 'HEAD',
           mode: 'no-cors'
         })
         setState(prev => ({ ...prev, isAdBlockDetected: false }))
-      } catch (error) {
+      } catch {
         console.log('Ad blocking detected - ads disabled')
         setState(prev => ({ ...prev, isAdBlockDetected: true }))
       }

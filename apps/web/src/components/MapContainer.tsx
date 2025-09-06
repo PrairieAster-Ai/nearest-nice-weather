@@ -308,7 +308,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
     // Store reference to the marker
     userMarkerRef.current = userMarker;
-  }, [onLocationChange]); // Only create once when callback is available
+  }, [onLocationChange, userLocation]); // Dependencies: callback and user location
 
   // Update user marker position without recreating it
   useEffect(() => {
