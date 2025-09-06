@@ -92,7 +92,7 @@ import { useFilterManager } from './components/FilterManager'
 import { MapContainer } from './components/MapContainer'
 import { useMapViewManager } from './components/MapViewManager'
 import { usePOINavigation } from './hooks/usePOINavigation'
-import { useLastVisitStorage, LocationMethod } from './hooks/useLocalStorageState'
+import { useLastVisitStorage, useLocationMethodStorage, LocationMethod } from './hooks/useLocalStorageState'
 import { AdManagerProvider } from './components/ads'
 import { loadUmamiAnalytics, trackPageView, trackLocationUpdate } from './utils/analytics'
 import { weatherFilteringService } from './services/WeatherFilteringService'
@@ -149,6 +149,7 @@ export default function App() {
 
   // Persistent user preferences with localStorage
   const [lastVisit, setLastVisit] = useLastVisitStorage()
+  const [locationMethod, setLocationMethod] = useLocationMethodStorage()
 
   // Location state (managed by LocationManager)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)

@@ -53,7 +53,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import { escapeHtml, sanitizeUrl } from '../utils/sanitize';
-import { generatePOIAdHTML } from './ads';
+import { generateMediaNetPopupAdHTML } from './ads/MediaNetContextualAd';
 import { trackPOIInteraction, trackFeatureUsage } from '../utils/analytics';
 // Import POI popup styles
 import '../styles/poi-popup.css';
@@ -369,8 +369,8 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     // Generate platform-appropriate mapping URL
     const mapsUrl = sanitizeUrl(generateMappingUrl(location));
 
-    // Generate contextual ad content
-    const contextualAdHTML = generatePOIAdHTML(location, process.env.NODE_ENV === 'development');
+    // Generate Media.net contextual ad content for geographic optimization
+    const contextualAdHTML = generateMediaNetPopupAdHTML(location, process.env.NODE_ENV === 'development');
 
     return `
       <div class="poi-popup-container">

@@ -58,7 +58,7 @@ interface AdUnitProps {
   /** Ad format - responsive, rectangle, banner, etc. */
   format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical'
   /** Ad placement context for analytics */
-  placement: 'homepage-banner' | 'weather-results' | 'poi-detail' | 'sidebar' | 'map-overlay'
+  placement: 'homepage-banner' | 'weather-results' | 'sidebar'
   /** Show ad label for transparency */
   showLabel?: boolean
   /** Custom CSS class */
@@ -94,12 +94,8 @@ export const AdUnit: React.FC<AdUnitProps> = ({
         return { width: 'auto', height: '120' }
       case 'weather-results':
         return { width: 'auto', height: '100' }
-      case 'poi-detail':
-        return { width: 'auto', height: '250' }
       case 'sidebar':
         return { width: '300', height: '250' }
-      case 'map-overlay':
-        return { width: 'auto', height: '90' }
       default:
         return { width: 'auto', height: '120' }
     }
