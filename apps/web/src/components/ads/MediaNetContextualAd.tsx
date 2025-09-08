@@ -174,66 +174,7 @@ export const MediaNetContextualAd: React.FC<MediaNetContextualAdProps> = ({
   )
 }
 
-/**
- * Generate Media.net contextual ad HTML for map popup integration
- * Optimized for geographic constraint context and weather awareness
- */
-export const generateMediaNetPopupAdHTML = (location: POILocation, testMode: boolean = false): string => {
-  const contextualKeywords = [
-    'outdoor recreation', 'minnesota parks',
-    location.temperature > 75 ? 'summer activities' : location.temperature < 45 ? 'winter activities' : 'spring activities',
-    location.precipitation > 50 ? 'rain gear' : 'outdoor adventures',
-    location.park_type?.toLowerCase().includes('trail') ? 'hiking gear' : 'park activities'
-  ].join(', ')
-
-  if (testMode) {
-    return `
-      <div class="media-net-popup-ad-test" style="
-        width: 100%;
-        height: 90px;
-        background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
-        border: 1px dashed #007acc;
-        border-radius: 6px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 8px;
-        margin: 8px 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      ">
-        <div style="font-weight: bold; color: #007acc; font-size: 12px; margin-bottom: 4px;">
-          📍 Media.net Contextual Ad (Test)
-        </div>
-        <div style="font-size: 10px; color: #555; text-align: center;">
-          Context: ${location.temperature}°F • ${location.condition}
-        </div>
-        <div style="font-size: 9px; color: #777; text-align: center; margin-top: 2px;">
-          ${location.park_type} • Geographic Optimization
-        </div>
-      </div>
-    `
-  }
-
-  // Production HTML for map popup integration
-  return `
-    <div class="media-net-popup-ad" style="width: 100%; text-align: center; margin: 8px 0;">
-      <div
-        id="medianet-popup-${location.id}"
-        data-cfasync="false"
-        data-keywords="${contextualKeywords}"
-        data-geo-lat="${location.lat}"
-        data-geo-lng="${location.lng}"
-        data-weather-temp="${location.temperature}"
-        data-weather-condition="${location.condition}"
-        data-park-type="${location.park_type || ''}"
-        style="width: 100%; height: 90px;">
-      </div>
-      <div style="font-size: 8px; color: #666; margin-top: 2px; opacity: 0.6;">
-        Contextual Ad
-      </div>
-    </div>
-  `
-}
+// Utility function exported from separate file to maintain React Fast Refresh compatibility
+// See: /src/utils/adUtils.ts
 
 export default MediaNetContextualAd

@@ -58,13 +58,8 @@ import { trackPOIInteraction, trackFeatureUsage } from '../utils/analytics';
 // Import POI popup styles
 import '../styles/poi-popup.css';
 
-// 🔗 INTEGRATION: Import asterIcon from App.tsx for consistent branding
-export const asterIcon = new L.Icon({
-  iconUrl: '/aster-marker.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -20]
-});
+// 🔗 INTEGRATION: Import asterIcon for consistent branding
+import { asterIcon } from '../utils/mapIcons';
 
 // 🔗 INTEGRATION: TypeScript interfaces for POI data structure
 interface POILocation {

@@ -16,7 +16,7 @@
  * ========================================================================
  */
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import React, { createContext, useEffect, useState, ReactNode } from 'react'
 
 interface AdPerformanceMetrics {
   impressions: number
@@ -238,16 +238,8 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
   )
 }
 
-/**
- * Hook to access AdManager functionality
- */
-export const useAdManager = (): AdManagerContextType => {
-  const context = useContext(AdManagerContext)
-  if (!context) {
-    throw new Error('useAdManager must be used within AdManagerProvider')
-  }
-  return context
-}
+// Hook exported from separate file to maintain React Fast Refresh compatibility
+// See: /src/hooks/useAdManager.ts
 
 // Global type extensions for window object
 declare global {
