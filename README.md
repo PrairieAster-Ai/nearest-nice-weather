@@ -94,6 +94,9 @@ node dev-api-server.js       # API only (port 4000)
 # Environment validation
 ./scripts/environment-validation.sh localhost   # Comprehensive validation
 ./scripts/localhost-health-check.sh            # Quick health check
+
+# Data-driven sprint management
+node scripts/velocity-tracker.js calculate "Sprint Name"  # Sprint analytics & recommendations
 ```
 
 ## 🎯 Usage Examples
