@@ -52,6 +52,32 @@ body:
       description: Implementation details, dependencies, or constraints
       placeholder: "Any technical considerations, API dependencies, or architectural notes"
 
+  - type: checkboxes
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Check all that apply for this story
+      options:
+        - label: Requires backend API changes
+        - label: Requires database schema updates
+        - label: Requires frontend UI changes
+        - label: Requires third-party integration
+        - label: No external dependencies
+
+  - type: dropdown
+    id: blocked-reason
+    attributes:
+      label: Blocked Reason (if applicable)
+      description: Select if this story is currently blocked
+      options:
+        - Not blocked
+        - Waiting for API endpoint
+        - Waiting for design approval
+        - Waiting for external dependency
+        - Waiting for technical decision
+        - Waiting for business requirements
+        - Waiting for testing environment
+
   - type: textarea
     id: definition-of-done
     attributes:
