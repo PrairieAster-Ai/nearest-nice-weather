@@ -2,8 +2,7 @@
 // Custom hook for accessing AdManager functionality
 
 import { useContext } from 'react';
-import { AdManagerContext } from '../components/ads/AdManager';
-import type { AdManagerContextType } from '../components/ads/AdManager';
+import { AdManagerContext, type AdManagerContextType } from '../components/ads/AdManagerContext';
 
 /**
  * Hook to access AdManager functionality

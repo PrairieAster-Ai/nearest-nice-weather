@@ -16,34 +16,12 @@
  * ========================================================================
  */
 
-import React, { createContext, useEffect, useState, ReactNode } from 'react'
-
-interface AdPerformanceMetrics {
-  impressions: number
-  clicks: number
-  ctr: number // Click-through rate
-  revenue: number
-  loadTime: number
-}
-
-interface AdManagerState {
-  isAdBlockDetected: boolean
-  adsLoaded: boolean
-  performanceMetrics: Record<string, AdPerformanceMetrics>
-  testGroup: 'A' | 'B' // A/B testing
-}
-
-interface AdManagerContextType extends AdManagerState {
-  trackAdImpression: (placement: string) => void
-  trackAdClick: (placement: string) => void
-  getOptimalAdPlacement: (context: string) => string[]
-  isAdEnabled: (placement: string) => boolean
-}
-
-export const AdManagerContext = createContext<AdManagerContextType | null>(null)
-
-// Export the type for external use
-export type { AdManagerContextType }
+import React, { useEffect, useState, ReactNode } from 'react'
+import {
+  AdManagerContext,
+  type AdManagerContextType,
+  type AdManagerState
+} from './AdManagerContext'
 
 interface AdManagerProviderProps {
   children: ReactNode
