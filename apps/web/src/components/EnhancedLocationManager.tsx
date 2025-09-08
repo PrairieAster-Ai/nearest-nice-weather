@@ -30,13 +30,30 @@ import {
   useUserLocationStorage,
   useLocationMethodStorage,
   useShowLocationPromptStorage,
-  LocationMethod
+  LocationMethod as StorageLocationMethod
 } from '../hooks/useLocalStorageState';
-import { locationEstimator, LocationEstimate, LocationConfidence } from '../services/UserLocationEstimator';
+import { locationEstimator, LocationEstimate, LocationConfidence, LocationMethod } from '../services/UserLocationEstimator';
+
+// Convert UserLocationEstimator LocationMethod to storage LocationMethod
+const mapToStorageLocationMethod = (method: LocationMethod): StorageLocationMethod => {
+  switch (method) {
+    case 'gps':
+    case 'network':
+      return 'geolocation';
+    case 'ip':
+      return 'ip';
+    case 'manual':
+      return 'manual';
+    case 'cached':
+    case 'fallback':
+    default:
+      return 'none';
+  }
+};
 
 interface EnhancedLocationManagerProps {
   onLocationChange: (location: [number, number] | null) => void;
-  onLocationMethodChange: (method: LocationMethod) => void;
+  onLocationMethodChange: (method: StorageLocationMethod) => void;
   onShowPromptChange: (show: boolean) => void;
   onMapCenterChange: (center: [number, number]) => void;
   onLocationAccuracyChange?: (accuracy: number, confidence: LocationConfidence) => void;
@@ -97,7 +114,7 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
 
       // Update all state based on estimate
       setUserLocation(estimate.coordinates);
-      setLocationMethod(estimate.method);
+      setLocationMethod(mapToStorageLocationMethod(estimate.method));
       setLocationAccuracy(estimate.accuracy);
       setLocationConfidence(estimate.confidence);
       onMapCenterChange(estimate.coordinates);
@@ -123,7 +140,7 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
       if (!userLocation) {
         const fallbackLocation: [number, number] = [44.9537, -93.0900]; // Minneapolis
         setUserLocation(fallbackLocation);
-        setLocationMethod('fallback');
+        setLocationMethod(mapToStorageLocationMethod('fallback'));
         setLocationAccuracy(50000);
         setLocationConfidence('unknown');
         onMapCenterChange(fallbackLocation);
@@ -158,7 +175,7 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
       // Update to more accurate location if significantly better
       if (preciseEstimate.accuracy < locationAccuracy * 0.5) { // At least 50% more accurate
         setUserLocation(preciseEstimate.coordinates);
-        setLocationMethod(preciseEstimate.method);
+        setLocationMethod(mapToStorageLocationMethod(preciseEstimate.method));
         setLocationAccuracy(preciseEstimate.accuracy);
         setLocationConfidence(preciseEstimate.confidence);
         onMapCenterChange(preciseEstimate.coordinates);
@@ -209,7 +226,7 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
         onMapCenterChange(userLocation);
 
         // Still try to enhance accuracy in background if enabled
-        if (enableProgressiveAccuracy && locationMethod !== 'gps') {
+        if (enableProgressiveAccuracy && locationMethod !== 'geolocation') {
           setTimeout(() => enhanceLocationAccuracy(), 2000);
         }
         return;
@@ -266,27 +283,17 @@ export const EnhancedLocationManager: React.FC<EnhancedLocationManagerProps> = (
   /**
    * PUBLIC METHODS for external triggers
    */
-  const requestPreciseLocation = useCallback(async () => {
-    return await performLocationEstimation(true);
-  }, [performLocationEstimation]);
+  // These methods could be exposed via forwardRef if needed by parent components
+  // const requestPreciseLocation = useCallback(async () => {
+  //   return await performLocationEstimation(true);
+  // }, [performLocationEstimation]);
 
-  const refreshLocation = useCallback(async () => {
-    return await performLocationEstimation(false);
-  }, [performLocationEstimation]);
+  // const refreshLocation = useCallback(async () => {
+  //   return await performLocationEstimation(false);
+  // }, [performLocationEstimation]);
 
-  // Expose methods via ref if needed
-  React.useImperativeHandle(React.createRef(), () => ({
-    requestPreciseLocation,
-    refreshLocation,
-    enhanceLocationAccuracy,
-    getLocationSummary: () => userLocation ? locationEstimator.getLocationSummary({
-      coordinates: userLocation,
-      accuracy: locationAccuracy,
-      method: locationMethod,
-      timestamp: Date.now(),
-      confidence: locationConfidence
-    }) : 'No location available'
-  }));
+  // Public methods available for external access (if needed)
+  // Note: These methods are available via callback functions if component needs external triggers
 
   // This component doesn't render anything - it's just location management logic
   return null;

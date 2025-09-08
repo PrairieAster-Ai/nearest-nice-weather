@@ -40,7 +40,10 @@ interface AdManagerContextType extends AdManagerState {
   isAdEnabled: (placement: string) => boolean
 }
 
-const AdManagerContext = createContext<AdManagerContextType | null>(null)
+export const AdManagerContext = createContext<AdManagerContextType | null>(null)
+
+// Export the type for external use
+export type { AdManagerContextType }
 
 interface AdManagerProviderProps {
   children: ReactNode
@@ -68,7 +71,7 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
     const detectAdBlock = async () => {
       try {
         // Simple ad block detection - try to load a known ad resource
-        const _response = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+        await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
           method: 'HEAD',
           mode: 'no-cors'
         })
@@ -107,7 +110,7 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
         setState(prev => ({ ...prev, adsLoaded: true }))
 
         // Initialize adsbygoogle if not already done
-        if (typeof window !== 'undefined' && !window.adsbygoogle) {
+        if (typeof window !== 'undefined') {
           ;(window.adsbygoogle = window.adsbygoogle || []).push({})
         }
       }

@@ -18,8 +18,8 @@ export interface POILocation {
 export const generateMediaNetPopupAdHTML = (location: POILocation, testMode: boolean = false): string => {
   const contextualKeywords = [
     'outdoor recreation', 'minnesota parks',
-    location.temperature > 75 ? 'summer activities' : location.temperature < 45 ? 'winter activities' : 'spring activities',
-    location.precipitation > 50 ? 'rain gear' : 'outdoor adventures',
+    (location.temperature ?? 60) > 75 ? 'summer activities' : (location.temperature ?? 60) < 45 ? 'winter activities' : 'spring activities',
+    (location.precipitation ?? 0) > 50 ? 'rain gear' : 'outdoor adventures',
     location.park_type?.toLowerCase().includes('trail') ? 'hiking gear' : 'park activities'
   ].join(', ');
 
@@ -58,8 +58,8 @@ export const generatePOIAdHTML = (location: POILocation, testMode: boolean = fal
   const activityKeywords = [
     'minnesota outdoor recreation',
     location.park_type === 'State Park' ? 'camping gear' : 'hiking equipment',
-    location.temperature > 70 ? 'summer outdoor gear' : 'cold weather gear',
-    location.precipitation < 20 ? 'sunny day activities' : 'indoor alternatives',
+    (location.temperature ?? 60) > 70 ? 'summer outdoor gear' : 'cold weather gear',
+    (location.precipitation ?? 0) < 20 ? 'sunny day activities' : 'indoor alternatives',
     `${location.name} activities`
   ].join(', ');
 

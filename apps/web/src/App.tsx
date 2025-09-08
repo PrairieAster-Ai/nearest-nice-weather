@@ -91,12 +91,12 @@ import { LocationManager } from './components/LocationManager'
 import { useFilterManager } from './components/FilterManager'
 import { MapContainer } from './components/MapContainer'
 import { useMapViewManager } from './components/MapViewManager'
-import { usePOINavigation } from './hooks/usePOINavigation'
+import { usePOINavigation, type POIWithMetadata } from './hooks/usePOINavigation'
 import { useLastVisitStorage, useLocationMethodStorage } from './hooks/useLocalStorageState'
 import { AdManagerProvider } from './components/ads'
 import { loadUmamiAnalytics, trackPageView, trackLocationUpdate } from './utils/analytics'
 import { mapCalculationService } from './services/MapCalculationService'
-import { useWeatherFiltering } from './hooks/useWeatherFiltering'
+// useWeatherFiltering removed - functionality handled by POI navigation hook
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 
@@ -116,17 +116,7 @@ const theme = createTheme({
   },
 })
 
-interface Location {
-  id: string
-  name: string
-  lat: number
-  lng: number
-  temperature: number
-  condition: string
-  description: string
-  precipitation: number // 0-100 scale (0 = clear, 100 = heavy rain/snow)
-  windSpeed: number     // mph
-}
+// Location interface replaced with POIWithMetadata from usePOINavigation
 
 // Weather locations now fetched from database via API
 
@@ -164,8 +154,8 @@ export default function App() {
     setMapCenter,
     setMapZoom
   } = useMapViewManager(userLocation)
-  const currentApiLocationsRef = useRef<Location[]>([])
-  const currentFilteredLocationsRef = useRef<Location[]>([])
+  const currentApiLocationsRef = useRef<POIWithMetadata[]>([])
+  const currentFilteredLocationsRef = useRef<POIWithMetadata[]>([])
 
   // Fetch POI locations with weather from unified API (base search)
   // New POI navigation system - single API call with distance slicing
@@ -197,8 +187,7 @@ export default function App() {
 
   // 🔗 INTEGRATION: Map view persistence now handled by MapViewManager hook
 
-  // Weather filtering operations now handled by useWeatherFiltering hook
-  const { } = useWeatherFiltering(visiblePOIs, userLocation);
+  // Weather filtering operations handled by POI navigation hook
 
   // Use POI data from new navigation hook
   const apiLocations = React.useMemo(() => {

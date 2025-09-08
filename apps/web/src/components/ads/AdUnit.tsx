@@ -158,7 +158,7 @@ export const AdUnit: React.FC<AdUnitProps> = ({
             display: 'block'
           }}
           format={format}
-          responsive={format === 'auto'}
+          responsive={format === 'auto' ? 'true' : 'false'}
           adTest={testMode ? 'on' : 'off'}
           data-ad-placement={placement}
           data-full-width-responsive="true"

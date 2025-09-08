@@ -10,7 +10,12 @@
  */
 
 export { AdUnit } from './AdUnit'
-export { AdManagerProvider, useAdManager } from './AdManager'
-export { POIContextualAd, generatePOIAdHTML } from './POIContextualAd'
-export { MediaNetContextualAd, generateMediaNetPopupAdHTML } from './MediaNetContextualAd'
+export { AdManagerProvider } from './AdManager'
+export { POIContextualAd } from './POIContextualAd'
+export { MediaNetContextualAd } from './MediaNetContextualAd'
+
+// Export utility functions from their new locations
+export { generatePOIAdHTML, generateMediaNetPopupAdHTML } from '../../utils/adUtils'
+export { useAdManager } from '../../hooks/useAdManager'
+
 export type { default as AdUnitProps } from './AdUnit'
