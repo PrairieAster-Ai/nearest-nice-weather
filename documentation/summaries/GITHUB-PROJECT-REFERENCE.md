@@ -418,6 +418,7 @@ label:"type: story" status:"In progress"
 
 ### **Common Claude Actions**
 
+#### **Standard Project Management:**
 ```bash
 # Create new story in Sprint 3
 # - Set status: "Ready"
@@ -434,28 +435,98 @@ label:"type: story" status:"In progress"
 # - Add relevant technical labels
 # - Set Relationships to link to parent Capability
 
-# Create sub-issues for technical implementation
-# - Use GitHub's native sub-issue feature within parent Story
-# - No separate issue creation needed - they appear as checkboxes
-# - Automatic progress tracking on parent Story
-
 # Update issue status
 # - Move Stories/Epics from "Ready" to "In Progress" when starting
 # - Mark sub-issues as complete within parent Story
 # - Move parent from "In Progress" to "Review" when all sub-issues done
 # - Move from "Review" to "Done" when validated
+```
 
-# Query current sprint work
-# - Filter by "Database + Weather API" sprint field (Stories and Epics only)
-# - Check sub-issue completion progress on parent Stories
-# - Identify blockers or dependencies
+#### **Data-Driven Sprint Management:**
+```bash
+# Sprint Planning Workflow
+node scripts/velocity-tracker.js calculate "Previous Sprint"
+# → Review velocity and cycle time before planning new sprint
+# → Use historical data to right-size scope
+
+# Mid-Sprint Monitoring
+node scripts/velocity-tracker.js calculate "Current Sprint"
+# → Check if sprint scope adjustment needed
+# → Identify if stories are too large (>7 day cycle time)
+
+# Sprint Retrospective Analysis
+node scripts/velocity-tracker.js calculate "Completed Sprint"
+# → Generate data-driven retrospective insights
+# → Identify process improvement opportunities
+
+# Query current sprint work with velocity context
+# - Filter by current sprint field + check velocity report recommendations
+# - Prioritize work based on cycle time analysis
+# - Focus on completing in-progress items before starting new (WIP limits)
+```
+
+#### **Automated Health Monitoring:**
+```bash
+# Check WIP Limits (via GitHub Actions)
+# - Automated alerts when Ready(5), In Progress(3), In Review(4) limits exceeded
+# - Use "Blocked Reason" dropdown in issue templates for impediment tracking
+
+# Cycle Time Optimization
+# - Stories >7 days cycle time flagged for breakdown
+# - Epic completion tracked via sub-issue progress percentage
+# - Historical trends available in velocity reports
 ```
 
 ---
 
-## 📊 Project Dashboard
+## 📊 Project Dashboard & Velocity Analytics
 
-### **Key Metrics to Track**
+### **Automated Sprint Analytics** 🚀
+
+**Velocity Tracker Script**: [`scripts/velocity-tracker.js`](https://github.com/PrairieAster-Ai/nearest-nice-weather/blob/main/scripts/velocity-tracker.js)
+
+Transform GitHub issues into actionable business intelligence for data-driven sprint management.
+
+#### **When to Use Velocity Tracker:**
+
+**🎯 Sprint Planning** (Start of sprint):
+```bash
+# Before planning new sprint - check team capacity
+node scripts/velocity-tracker.js calculate "Database + Weather API"
+# Output: Historical velocity to right-size next sprint scope
+```
+
+**📊 Mid-Sprint Health Check** (Week 1-2 of sprint):
+```bash
+# Monitor current sprint progress
+node scripts/velocity-tracker.js calculate "Revenue + Launch"
+# Output: Velocity % and recommendations for scope adjustment
+```
+
+**🔍 Sprint Retrospective** (End of sprint):
+```bash
+# Analyze completed sprint for lessons learned
+node scripts/velocity-tracker.js calculate "Completed Sprint Name"
+# Output: Cycle time analysis and process improvement recommendations
+```
+
+#### **Key Metrics Generated:**
+
+- **Velocity %**: Completed vs planned story points (Target: >80%)
+- **Cycle Time**: Average days from Ready→Done (Target: <7 days)
+- **Issue Distribution**: Stories/Epics/Tasks breakdown
+- **Health Indicators**: ✅/⚠️/❌ status with specific recommendations
+- **Trend Analysis**: Historical velocity patterns for predictive planning
+
+#### **Business Intelligence Output:**
+
+**Automated Reports**: Generated in `documentation/reports/velocity-report-[sprint]-[date].md`
+- Sprint health indicators with color-coded status
+- Actionable recommendations for scope and flow optimization
+- Cycle time breakdown identifying bottlenecks
+- Data-driven insights for next sprint planning
+
+### **Traditional Key Metrics** (Manual Tracking)
 
 - **Current Sprint Progress:** X/Y issues completed
 - **Story Points Burned:** X/Y points completed
@@ -463,12 +534,13 @@ label:"type: story" status:"In progress"
 - **Blocked Items:** Count and resolution time
 - **Current Sprint Goal:** 75% MVP completion progress
 
-### **Daily Standup Questions**
+### **Data-Driven Daily Standup Questions**
 
-1. What did I complete yesterday?
-2. What will I work on today?
-3. What blockers do I have?
-4. Is current sprint on track for completion goals?
+1. What did I complete yesterday? *(Check velocity tracker cycle time)*
+2. What will I work on today? *(Prioritize based on sprint health indicators)*
+3. What blockers do I have? *(Reference automated blocker detection)*
+4. Is current sprint on track for completion goals? *(Review velocity % from latest report)*
+5. **NEW**: Are we within WIP limits and optimal cycle time? *(Data-driven process check)*
 
 ---
 

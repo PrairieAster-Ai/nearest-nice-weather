@@ -16,31 +16,12 @@
  * ========================================================================
  */
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-
-interface AdPerformanceMetrics {
-  impressions: number
-  clicks: number
-  ctr: number // Click-through rate
-  revenue: number
-  loadTime: number
-}
-
-interface AdManagerState {
-  isAdBlockDetected: boolean
-  adsLoaded: boolean
-  performanceMetrics: Record<string, AdPerformanceMetrics>
-  testGroup: 'A' | 'B' // A/B testing
-}
-
-interface AdManagerContextType extends AdManagerState {
-  trackAdImpression: (placement: string) => void
-  trackAdClick: (placement: string) => void
-  getOptimalAdPlacement: (context: string) => string[]
-  isAdEnabled: (placement: string) => boolean
-}
-
-const AdManagerContext = createContext<AdManagerContextType | null>(null)
+import React, { useEffect, useState, ReactNode } from 'react'
+import {
+  AdManagerContext,
+  type AdManagerContextType,
+  type AdManagerState
+} from './AdManagerContext'
 
 interface AdManagerProviderProps {
   children: ReactNode
@@ -68,7 +49,7 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
     const detectAdBlock = async () => {
       try {
         // Simple ad block detection - try to load a known ad resource
-        const _response = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+        await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
           method: 'HEAD',
           mode: 'no-cors'
         })
@@ -107,7 +88,7 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
         setState(prev => ({ ...prev, adsLoaded: true }))
 
         // Initialize adsbygoogle if not already done
-        if (typeof window !== 'undefined' && !window.adsbygoogle) {
+        if (typeof window !== 'undefined') {
           ;(window.adsbygoogle = window.adsbygoogle || []).push({})
         }
       }
@@ -238,16 +219,8 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
   )
 }
 
-/**
- * Hook to access AdManager functionality
- */
-export const useAdManager = (): AdManagerContextType => {
-  const context = useContext(AdManagerContext)
-  if (!context) {
-    throw new Error('useAdManager must be used within AdManagerProvider')
-  }
-  return context
-}
+// Hook exported from separate file to maintain React Fast Refresh compatibility
+// See: /src/hooks/useAdManager.ts
 
 // Global type extensions for window object
 declare global {

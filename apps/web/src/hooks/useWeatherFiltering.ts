@@ -132,7 +132,7 @@ export const useWeatherFiltering = (
       const filtered = weatherFilteringService.applyWeatherFilters(
         serviceLocations,
         serviceFilters,
-        userLocation,
+        userLocation || undefined,
         maxDistance
       );
 
