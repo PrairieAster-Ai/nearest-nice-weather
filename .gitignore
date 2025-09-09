@@ -117,3 +117,17 @@ db.json
 
 # Claude local artifacts and scripts
 .claude-local/
+
+# Generated directories (can be recreated)
+test-results/
+playwright-report/
+.tmp/
+.pids/
+
+# Cache directories
+.mcp-cache/
+
+# Temporary files
+*.swp
+*.swo
+.preview-trigger
