@@ -12,7 +12,7 @@
  * LAST UPDATED: 2025-08-13
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
   sanitizeString,
   sanitizeHtml,
