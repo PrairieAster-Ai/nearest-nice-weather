@@ -1,4 +1,9 @@
 version: 2
+
+# Dependabot Configuration: Optimized Batching Strategy
+# Reduces PR volume from 10+ individual PRs to 2-3 grouped PRs per week
+# Groups related dependencies for easier review and testing
+
 updates:
   # Main package.json dependencies
   - package-ecosystem: "npm"
@@ -7,12 +12,32 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+      timezone: "America/Chicago"  # Central Time for consistent scheduling
+    open-pull-requests-limit: 3  # Reduced due to grouping
     reviewers:
       - "rhspeer"
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      development-dependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+          - "@typescript-eslint/*"
+          - "typescript"
+      security-dependencies:
+        patterns:
+          - "*audit*"
+          - "*security*"
+          - "semver"
+      utility-dependencies:
+        patterns:
+          - "lodash*"
+          - "moment*"
+          - "date-fns*"
+          - "uuid*"
     ignore:
       # Block React 19 until planned LTS upgrade
       - dependency-name: "react"
@@ -27,12 +52,60 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "10:00"
-    open-pull-requests-limit: 5
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 3  # Reduced due to grouping
     reviewers:
       - "rhspeer"
     commit-message:
       prefix: "deps(web)"
       include: "scope"
+    groups:
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@types/react*"
+          - "react-dom*"
+          - "@testing-library/react*"
+        exclude-patterns:
+          - "react-leaflet*"  # Blocked until React 19
+      ui-framework:
+        patterns:
+          - "@mui/*"
+          - "@emotion/*"
+          - "styled-components*"
+          - "@styled-system/*"
+      mapping-libraries:
+        patterns:
+          - "leaflet*"
+          - "react-leaflet*"
+          - "@types/leaflet*"
+          - "geojson*"
+        exclude-patterns:
+          - "react-leaflet@>=5.0.0"  # Blocked until React 19
+      build-tools:
+        patterns:
+          - "vite*"
+          - "rollup*"
+          - "@rollup/*"
+          - "esbuild*"
+          - "@vitejs/*"
+        exclude-patterns:
+          - "vite@>=7.0.0"  # Blocked until compatibility verified
+      testing-tools:
+        patterns:
+          - "vitest*"
+          - "@vitest/*"
+          - "jsdom*"
+          - "happy-dom*"
+          - "playwright*"
+          - "@playwright/*"
+      development-tools:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "@typescript-eslint/*"
+          - "typescript"
+          - "prettier*"
     ignore:
       # Block react-leaflet 5.x until React 19 upgrade
       - dependency-name: "react-leaflet"
@@ -57,12 +130,27 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "11:00"
-    open-pull-requests-limit: 3
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 2  # Reduced due to grouping
     reviewers:
       - "rhspeer"
     commit-message:
       prefix: "deps(tests)"
       include: "scope"
+    groups:
+      testing-framework:
+        patterns:
+          - "jest*"
+          - "@types/jest*"
+          - "supertest*"
+          - "@types/supertest*"
+          - "vitest*"
+      test-utilities:
+        patterns:
+          - "dotenv*"
+          - "@types/*"
+          - "node-*"
+          - "cross-env*"
 
   # GitHub Actions workflow dependencies
   - package-ecosystem: "github-actions"
@@ -71,9 +159,25 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "12:00"
-    open-pull-requests-limit: 3
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 2  # Reduced due to grouping
     reviewers:
       - "rhspeer"
     commit-message:
       prefix: "ci"
       include: "scope"
+    groups:
+      core-actions:
+        patterns:
+          - "actions/*"
+          - "github/*"
+      security-actions:
+        patterns:
+          - "trufflesecurity/*"
+          - "*/codeql-action*"
+          - "*security*"
+      deployment-actions:
+        patterns:
+          - "vercel/*"
+          - "*/upload-artifact*"
+          - "*/github-script*"

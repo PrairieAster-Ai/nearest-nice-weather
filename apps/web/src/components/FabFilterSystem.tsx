@@ -44,16 +44,14 @@
  * LAST UPDATED: 2025-08-08
  */
 
-import React, { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import {
   Fab,
   Box,
   Tooltip,
   Slide,
   Fade,
-  CircularProgress,
-  Chip,
-  Typography
+  CircularProgress
 } from '@mui/material'
 
 // 🔗 INTEGRATION: Works with FilterManager.tsx for weather preference state logic
