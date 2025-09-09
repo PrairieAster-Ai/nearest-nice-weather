@@ -146,7 +146,7 @@ export class UserLocationEstimator {
             }
           }
         } catch (error) {
-          console.log('High accuracy location failed, using fast estimate:', error.message);
+          console.log('High accuracy location failed, using fast estimate:', error instanceof Error ? error.message : String(error));
         }
       }
 
@@ -315,8 +315,9 @@ export class UserLocationEstimator {
         return { provider: provider.name, estimate: null, error: 'Invalid response data' };
 
       } catch (error) {
-        console.warn(`IP provider ${provider.name} failed:`, error.message);
-        return { provider: provider.name, estimate: null, error: error.message };
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.warn(`IP provider ${provider.name} failed:`, errorMessage);
+        return { provider: provider.name, estimate: null, error: errorMessage };
       }
     });
 

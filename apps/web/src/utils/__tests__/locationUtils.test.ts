@@ -36,8 +36,7 @@ import {
   isLocationInMinnesota,
   getLocationMethodPriority,
   selectBestLocationMethod,
-  type LocationMethod,
-  type LocationState
+  type LocationMethod
 } from '../locationUtils'
 
 // Mock localStorage for testing

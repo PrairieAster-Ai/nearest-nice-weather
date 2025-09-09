@@ -153,58 +153,7 @@ export const POIContextualAd: React.FC<POIContextualAdProps> = ({
   )
 }
 
-/**
- * Generate contextual ad HTML for map popup integration
- * Returns HTML string for direct insertion into map popup
- */
-export const generatePOIAdHTML = (location: POILocation, testMode: boolean = true): string => {
-  const isWarm = location.temperature > 65
-  const isCold = location.temperature < 45
-  const isRainy = location.precipitation > 50
-  const isWindy = parseInt(location.windSpeed) > 15
-  const isPark = location.park_type?.toLowerCase().includes('park')
-  const isTrail = location.park_type?.toLowerCase().includes('trail')
-
-  let adCategory = 'Outdoor Recreation'
-  let contextHint = 'General outdoor activities'
-
-  if (isRainy) {
-    adCategory = 'Indoor Alternatives'
-    contextHint = 'Rain gear and indoor activities'
-  } else if (isCold) {
-    adCategory = 'Cold Weather Gear'
-    contextHint = 'Winter jackets and warm equipment'
-  } else if (isWarm && isPark) {
-    adCategory = 'Park Activities'
-    contextHint = 'Picnic supplies and park games'
-  } else if (isTrail) {
-    adCategory = 'Trail Equipment'
-    contextHint = 'Hiking boots and trail snacks'
-  } else if (isWindy) {
-    adCategory = 'Wind Protection'
-    contextHint = 'Wind jackets and shelters'
-  }
-
-  if (testMode) {
-    return `
-      <div style="border: 1px dashed #ccc; border-radius: 4px; padding: 6px; background-color: #f8f9fa; text-align: center; font-size: 9px; color: #666; margin-top: 6px;">
-        <div style="font-size: 8px; margin-bottom: 3px; opacity: 0.7;">Advertisement</div>
-        <div style="font-weight: bold; margin-bottom: 3px; font-size: 10px;">${adCategory}</div>
-        <div style="font-size: 8px; opacity: 0.8;">${location.temperature}°F • ${location.condition}</div>
-        <div style="font-size: 7px; margin-top: 3px; opacity: 0.6;">${contextHint}</div>
-      </div>
-    `
-  }
-
-  // Production version would include real AdSense code
-  return `
-    <div style="margin-top: 6px; text-align: center;">
-      <div style="font-size: 8px; margin-bottom: 3px; opacity: 0.7;">Advertisement</div>
-      <div style="width: 100%; height: 50px; background-color: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #666;">
-        ${adCategory}<br><span style="font-size: 7px;">${contextHint}</span>
-      </div>
-    </div>
-  `
-}
+// Utility function exported from separate file to maintain React Fast Refresh compatibility
+// See: /src/utils/adUtils.ts
 
 export default POIContextualAd
