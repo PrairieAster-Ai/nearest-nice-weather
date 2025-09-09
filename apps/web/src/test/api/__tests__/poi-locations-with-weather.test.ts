@@ -41,7 +41,7 @@
  * LAST UPDATED: 2025-08-13
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // We'll test the API endpoints by making HTTP requests to localhost
 // This tests the actual Express.js dev server endpoints
