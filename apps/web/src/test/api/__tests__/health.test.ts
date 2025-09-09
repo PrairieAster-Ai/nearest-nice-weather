@@ -229,7 +229,7 @@ describe('Health Check API Integration', () => {
 
       const responses = await Promise.all(concurrentRequests);
 
-      responses.forEach((response, index) => {
+      responses.forEach((response, _index) => {
         expect(response.status).toBe(200);
       });
     });

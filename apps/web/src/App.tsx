@@ -91,13 +91,12 @@ import { LocationManager } from './components/LocationManager'
 import { useFilterManager } from './components/FilterManager'
 import { MapContainer } from './components/MapContainer'
 import { useMapViewManager } from './components/MapViewManager'
-import { usePOINavigation } from './hooks/usePOINavigation'
-import { useLastVisitStorage, LocationMethod } from './hooks/useLocalStorageState'
+import { usePOINavigation, type POIWithMetadata } from './hooks/usePOINavigation'
+import { useLastVisitStorage, useLocationMethodStorage } from './hooks/useLocalStorageState'
 import { AdManagerProvider } from './components/ads'
 import { loadUmamiAnalytics, trackPageView, trackLocationUpdate } from './utils/analytics'
-import { weatherFilteringService } from './services/WeatherFilteringService'
 import { mapCalculationService } from './services/MapCalculationService'
-import { useWeatherFiltering } from './hooks/useWeatherFiltering'
+// useWeatherFiltering removed - functionality handled by POI navigation hook
 import 'leaflet/dist/leaflet.css'
 import './popup-styles.css'
 
@@ -117,23 +116,7 @@ const theme = createTheme({
   },
 })
 
-interface WeatherFilters {
-  temperature: string
-  precipitation: string
-  wind: string
-}
-
-interface Location {
-  id: string
-  name: string
-  lat: number
-  lng: number
-  temperature: number
-  condition: string
-  description: string
-  precipitation: number // 0-100 scale (0 = clear, 100 = heavy rain/snow)
-  windSpeed: number     // mph
-}
+// Location interface replaced with POIWithMetadata from usePOINavigation
 
 // Weather locations now fetched from database via API
 
@@ -149,6 +132,7 @@ export default function App() {
 
   // Persistent user preferences with localStorage
   const [lastVisit, setLastVisit] = useLastVisitStorage()
+  const [_locationMethod, setLocationMethod] = useLocationMethodStorage()
 
   // Location state (managed by LocationManager)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
@@ -170,8 +154,8 @@ export default function App() {
     setMapCenter,
     setMapZoom
   } = useMapViewManager(userLocation)
-  const currentApiLocationsRef = useRef<Location[]>([])
-  const currentFilteredLocationsRef = useRef<Location[]>([])
+  const currentApiLocationsRef = useRef<POIWithMetadata[]>([])
+  const currentFilteredLocationsRef = useRef<POIWithMetadata[]>([])
 
   // Fetch POI locations with weather from unified API (base search)
   // New POI navigation system - single API call with distance slicing
@@ -203,8 +187,7 @@ export default function App() {
 
   // 🔗 INTEGRATION: Map view persistence now handled by MapViewManager hook
 
-  // Weather filtering operations now handled by useWeatherFiltering hook
-  const { } = useWeatherFiltering(visiblePOIs, userLocation);
+  // Weather filtering operations handled by POI navigation hook
 
   // Use POI data from new navigation hook
   const apiLocations = React.useMemo(() => {
@@ -333,18 +316,10 @@ export default function App() {
 
     // Update component state
     setUserLocation(newPosition)
-    setLocationMethod('manual')
+    setLocationMethod('manual') // This automatically saves to localStorage via hook
     setShowLocationPrompt(false) // User has moved the marker, so hide the prompt
 
-    // CRITICAL: Also save to localStorage for persistence
-    try {
-      localStorage.setItem('userLocation', JSON.stringify(newPosition));
-      localStorage.setItem('locationMethod', JSON.stringify('manual'));
-      localStorage.setItem('showLocationPrompt', JSON.stringify(false));
-      console.log('📍 Location saved to localStorage:', newPosition);
-    } catch (error) {
-      console.warn('Failed to save location to localStorage:', error);
-    }
+    console.log('📍 Location updated via hooks:', newPosition);
 
     // Distance and expansion now managed by POI hook automatically
     // POI hook will automatically reload with new user location

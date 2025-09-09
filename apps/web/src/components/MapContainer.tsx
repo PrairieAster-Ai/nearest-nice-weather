@@ -53,18 +53,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import { escapeHtml, sanitizeUrl } from '../utils/sanitize';
-import { generatePOIAdHTML } from './ads';
+import { generateMediaNetPopupAdHTML } from '../utils/adUtils';
 import { trackPOIInteraction, trackFeatureUsage } from '../utils/analytics';
 // Import POI popup styles
 import '../styles/poi-popup.css';
 
-// 🔗 INTEGRATION: Import asterIcon from App.tsx for consistent branding
-export const asterIcon = new L.Icon({
-  iconUrl: '/aster-marker.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -20]
-});
+// 🔗 INTEGRATION: Import asterIcon for consistent branding
+import { asterIcon } from '../utils/mapIcons';
 
 // 🔗 INTEGRATION: TypeScript interfaces for POI data structure
 interface POILocation {
@@ -213,7 +208,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           existingMarker.getLatLng().lng !== location.lng) {
 
         // Remove old marker if it exists
-        if (existingMarker) {
+        if (existingMarker && mapRef.current) {
           mapRef.current.removeLayer(existingMarker);
         }
 
@@ -308,7 +303,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
     // Store reference to the marker
     userMarkerRef.current = userMarker;
-  }, [onLocationChange]); // Only create once when callback is available
+  }, [onLocationChange, userLocation]); // Dependencies: callback and user location
 
   // Update user marker position without recreating it
   useEffect(() => {
@@ -369,8 +364,18 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     // Generate platform-appropriate mapping URL
     const mapsUrl = sanitizeUrl(generateMappingUrl(location));
 
-    // Generate contextual ad content
-    const contextualAdHTML = generatePOIAdHTML(location, process.env.NODE_ENV === 'development');
+    // Generate Media.net contextual ad content for geographic optimization
+    // Convert MapContainer POILocation to adUtils POILocation format
+    const adUtilsLocation = {
+      id: location.id,
+      name: location.name,
+      temperature: location.temperature,
+      precipitation: location.precipitation,
+      latitude: location.lat,
+      longitude: location.lng,
+      park_type: (location as any).park_type // Optional field
+    };
+    const contextualAdHTML = generateMediaNetPopupAdHTML(adUtilsLocation, process.env.NODE_ENV === 'development');
 
     return `
       <div class="poi-popup-container">

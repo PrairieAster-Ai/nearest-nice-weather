@@ -247,7 +247,7 @@ export const apiHandlers = [
         }
       });
 
-    } catch (error) {
+    } catch {
       return HttpResponse.json({
         success: false,
         error: 'Invalid JSON in request body'

@@ -44,7 +44,7 @@
  * LAST UPDATED: 2025-08-08
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useWeatherFiltersStorage, WeatherFilters } from '../hooks/useLocalStorageState';
 import { useDebounce, DEBOUNCE_DELAYS } from '../hooks/useDebounce';
 
@@ -68,7 +68,7 @@ export const useFilterManager = () => {
   // Initialize instant filters from persisted filters on mount
   useEffect(() => {
     setInstantFilters(filters);
-  }, []); // Only run on mount
+  }, [filters]); // Add filters as dependency
 
   // Sync debounced filters with actual filters for API calls
   useEffect(() => {

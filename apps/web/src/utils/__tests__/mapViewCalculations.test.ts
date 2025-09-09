@@ -31,8 +31,7 @@ import {
   calculateDistance,
   isLocationWithinRadius,
   findClosestLocation,
-  type LocationPoint,
-  type MapViewBounds
+  type LocationPoint
 } from '../mapViewCalculations'
 
 describe('Map View Calculation Utilities', () => {
