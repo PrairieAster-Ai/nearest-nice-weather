@@ -1,0 +1,195 @@
+name: GitHub Project Automation
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled]
+  pull_request:
+    types: [opened, closed, merged]
+
+permissions:
+  issues: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  auto-assign-project-fields:
+    runs-on: ubuntu-latest
+    name: Auto-assign Project Fields
+
+    steps:
+      - name: Auto-assign Sprint based on Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Sprint assignment based on labels
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+
+            let targetSprint = null;
+
+            // Database work goes to current sprint
+            if (labels.includes('database') || labels.includes('weather-api')) {
+              targetSprint = 'Database + Weather API';
+            }
+            // Revenue work goes to next sprint
+            else if (labels.includes('revenue') || labels.includes('analytics')) {
+              targetSprint = 'Revenue + Launch';
+            }
+            // Technical debt goes to next sprint
+            else if (labels.includes('technical-debt') || labels.includes('refactoring')) {
+              targetSprint = 'Revenue + Launch';
+            }
+
+            if (targetSprint) {
+              console.log(`Auto-assigning issue #${issue.number} to sprint: ${targetSprint}`);
+              // Note: GitHub Project field assignment would be implemented via GraphQL
+              // This is a template for the automation logic
+            }
+
+      - name: Auto-assign Story Size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+
+            let defaultSize = null;
+
+            // Auto-size based on type
+            if (labels.includes('type:story')) {
+              defaultSize = 'M'; // Most stories are medium
+            } else if (labels.includes('type:epic')) {
+              defaultSize = 'L'; // Epics are large
+            } else if (labels.includes('type:task')) {
+              defaultSize = 'S'; // Tasks are small
+            }
+
+            if (defaultSize) {
+              console.log(`Auto-assigning size ${defaultSize} to issue #${issue.number}`);
+              // Project field assignment implementation
+            }
+
+  velocity-calculation:
+    runs-on: ubuntu-latest
+    name: Calculate Sprint Velocity
+    if: github.event.action == 'closed' && github.event.issue.labels[*].name contains 'type:story'
+
+    steps:
+      - name: Update Sprint Metrics
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Calculate completion velocity when stories are closed
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+
+            // Extract story points from labels or issue content
+            let storyPoints = 3; // Default medium story
+            const sizeLabels = labels.filter(label => label.startsWith('size:'));
+            if (sizeLabels.length > 0) {
+              const sizeMap = { 'XS': 1, 'S': 2, 'M': 3, 'L': 5, 'XL': 8 };
+              storyPoints = sizeMap[sizeLabels[0].replace('size:', '')] || 3;
+            }
+
+            console.log(`Story #${issue.number} completed: ${storyPoints} points`);
+            // Update sprint velocity tracking (would integrate with project dashboard)
+
+  wip-limits-monitor:
+    runs-on: ubuntu-latest
+    name: Monitor WIP Limits
+    if: github.event.action == 'labeled' || github.event.action == 'unlabeled'
+
+    steps:
+      - name: Check WIP Limits
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Query current issues in each status
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            // Count by status
+            const statusCounts = {
+              ready: 0,
+              'in-progress': 0,
+              'in-review': 0
+            };
+
+            issues.forEach(issue => {
+              const labels = issue.labels.map(label => label.name);
+              if (labels.includes('status:ready')) statusCounts.ready++;
+              if (labels.includes('status:in-progress')) statusCounts['in-progress']++;
+              if (labels.includes('status:in-review')) statusCounts['in-review']++;
+            });
+
+            // Check limits
+            const limits = { ready: 5, 'in-progress': 3, 'in-review': 4 };
+            const violations = [];
+
+            Object.entries(statusCounts).forEach(([status, count]) => {
+              if (count > limits[status]) {
+                violations.push(`${status}: ${count}/${limits[status]} (OVER LIMIT)`);
+              }
+            });
+
+            if (violations.length > 0) {
+              console.log('🚨 WIP LIMIT VIOLATIONS:');
+              violations.forEach(violation => console.log(`  ${violation}`));
+
+              // Create issue comment about WIP limit violation
+              if (context.payload.issue) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  body: `🚨 **WIP Limit Alert**\n\nMoving this issue may exceed WIP limits:\n${violations.map(v => `- ${v}`).join('\n')}\n\nConsider completing current work before starting new items.`
+                });
+              }
+            } else {
+              console.log('✅ All WIP limits within bounds');
+            }
+
+  cycle-time-tracking:
+    runs-on: ubuntu-latest
+    name: Track Cycle Time
+    if: github.event.action == 'labeled' || github.event.action == 'unlabeled'
+
+    steps:
+      - name: Record Status Transitions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+
+            // Detect status transitions
+            let newStatus = null;
+            if (labels.includes('status:ready')) newStatus = 'ready';
+            if (labels.includes('status:in-progress')) newStatus = 'in-progress';
+            if (labels.includes('status:in-review')) newStatus = 'in-review';
+            if (labels.includes('status:done')) newStatus = 'done';
+
+            if (newStatus) {
+              const timestamp = new Date().toISOString();
+              console.log(`Issue #${issue.number} transitioned to: ${newStatus} at ${timestamp}`);
+
+              // Record transition for cycle time analysis
+              // This would integrate with a metrics dashboard or database
+
+              // Add cycle time comment for major transitions
+              if (newStatus === 'done') {
+                const createdDate = new Date(issue.created_at);
+                const completedDate = new Date(timestamp);
+                const cycleTimeDays = Math.round((completedDate - createdDate) / (1000 * 60 * 60 * 24));
+
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `📊 **Cycle Time**: ${cycleTimeDays} days from creation to completion`
+                });
+              }
+            }

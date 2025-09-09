@@ -61,7 +61,7 @@ export const sanitizeObject = <T extends Record<string, any>>(obj: T): T => {
 
   for (const [key, value] of Object.entries(sanitized)) {
     if (typeof value === 'string') {
-      sanitized[key] = escapeHtml(value);
+      (sanitized as any)[key] = escapeHtml(value);
     }
   }
 

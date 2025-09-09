@@ -178,6 +178,14 @@ npm start
 # - Provides monitoring and auto-restart capabilities
 # - Ready in under 30 seconds with color-coded output
 
+# DATA-DRIVEN SPRINT MANAGEMENT:
+node scripts/velocity-tracker.js calculate "Current Sprint Name"
+# - Provides objective sprint health metrics (velocity %, cycle time)
+# - Identifies scope adjustment recommendations for current sprint
+# - Generates cycle time analysis for bottleneck detection
+# - Enables predictive capacity planning for next sprint
+# - Creates automated reports in documentation/reports/
+
 # STARTUP OPTIONS:
 npm start                  # Standard startup with monitoring
 npm run start:quick        # Fast startup, skip optional features
