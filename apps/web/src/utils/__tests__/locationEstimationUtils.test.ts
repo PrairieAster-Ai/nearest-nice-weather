@@ -46,7 +46,7 @@ import {
   CONFIDENCE_SCORES,
   METHOD_SCORES
 } from '../locationEstimationUtils'
-import type { LocationEstimate, LocationMethod, LocationConfidence } from '../locationEstimationUtils'
+import type { LocationEstimate, LocationMethod } from '../locationEstimationUtils'
 
 // Test data: Minnesota locations and scenarios
 const MINNEAPOLIS_COORDS: [number, number] = [44.9537, -93.0900]
