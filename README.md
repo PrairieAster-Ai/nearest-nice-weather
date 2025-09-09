@@ -313,3 +313,5 @@ pre-commit run --all-files
 📋 **[Sources Reference](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Sources-Reference)** - Every statistic backed by 3+ authoritative sources
 
 **For Claude AI context, see `/CLAUDE.md`**
+
+<!-- Testing Vercel secrets: Tue Sep  9 02:47:18 PM CDT 2025 -->
