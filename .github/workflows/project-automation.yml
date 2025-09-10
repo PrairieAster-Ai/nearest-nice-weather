@@ -9,6 +9,7 @@ permissions:
   issues: write
   contents: read
   pull-requests: read
+  repository-projects: write
 
 jobs:
   auto-assign-project-fields:
@@ -41,8 +42,15 @@ jobs:
 
             if (targetSprint) {
               console.log(`Auto-assigning issue #${issue.number} to sprint: ${targetSprint}`);
-              // Note: GitHub Project field assignment would be implemented via GraphQL
-              // This is a template for the automation logic
+              try {
+                // Note: GitHub Project field assignment would be implemented via GraphQL
+                // For now, log the action and continue without failing
+                console.log(`Sprint assignment logged for future implementation`);
+              } catch (error) {
+                console.log(`Sprint assignment failed (non-blocking): ${error.message}`);
+              }
+            } else {
+              console.log(`No sprint assignment needed for issue #${issue.number}`);
             }
 
       - name: Auto-assign Story Size
@@ -65,7 +73,14 @@ jobs:
 
             if (defaultSize) {
               console.log(`Auto-assigning size ${defaultSize} to issue #${issue.number}`);
-              // Project field assignment implementation
+              try {
+                // Project field assignment implementation would go here
+                console.log(`Size assignment logged for future implementation`);
+              } catch (error) {
+                console.log(`Size assignment failed (non-blocking): ${error.message}`);
+              }
+            } else {
+              console.log(`No size assignment needed for issue #${issue.number}`);
             }
 
   velocity-calculation:
