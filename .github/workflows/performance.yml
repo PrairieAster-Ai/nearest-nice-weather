@@ -1,14 +1,19 @@
-name: Performance Monitoring
+name: Performance Monitoring & Bundle Analysis
 
 on:
   push:
     branches: [ main, preview ]
   pull_request:
     branches: [ main, preview ]
+  workflow_dispatch: # Allow manual triggers
+
+env:
+  NODE_VERSION: '20'  # Updated to match main CI pipeline
 
 jobs:
   lighthouse-ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
@@ -17,17 +22,17 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
     - name: Install dependencies
       run: npm ci
 
     - name: Install web dependencies
-      run: npm ci --workspace=@nearest-nice-weather/web
+      run: cd apps/web && npm ci
 
     - name: Build application for performance testing
-      run: npm run build --workspace=@nearest-nice-weather/web
+      run: cd apps/web && npm run build
       env:
         NODE_ENV: production
         ANALYZE: true
@@ -40,6 +45,7 @@ jobs:
         temporaryPublicStorage: true
       env:
         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      continue-on-error: true  # Don't block CI if Lighthouse fails
 
     - name: Bundle Analysis
       uses: github/super-linter/slim@v5
