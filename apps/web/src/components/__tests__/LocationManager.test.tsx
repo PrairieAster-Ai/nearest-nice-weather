@@ -35,7 +35,7 @@
 
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
+import { vi, beforeEach, afterEach as _afterEach, describe, it, expect } from 'vitest';
 import { LocationManager } from '../LocationManager';
 
 // Mock the localStorage hooks with stable implementations

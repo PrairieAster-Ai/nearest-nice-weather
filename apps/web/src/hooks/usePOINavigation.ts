@@ -43,13 +43,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  calculateDistance,
   processAPIData,
   getVisiblePOIs,
   checkCanExpand,
-  calculateNextExpansionDistance,
-  findOptimalStartingSlice,
-  isValidCoordinates,
   DISTANCE_SLICE_SIZE,
   MAX_RESULTS,
   type POIWithMetadata
@@ -228,7 +224,7 @@ export const usePOINavigation = (
     } finally {
       setLoading(false);
     }
-  }, [userLocation, filters, processAPIData, getVisiblePOIs, checkCanExpand]); // Re-enabled with proper dependencies
+  }, [userLocation, filters]); // Remove function dependencies that aren't stateful
 
   // Navigate to closer POI
   const navigateCloser = useCallback(() => {
@@ -318,7 +314,7 @@ export const usePOINavigation = (
 
     console.log(`🔍 Expanded to ${newSliceMax}mi: ${previousVisibleCount} -> ${newVisiblePOIs.length} POIs`);
     return newVisiblePOIs[newPOIsStartIndex] || null;
-  }, [state, getVisiblePOIs, checkCanExpand]);
+  }, [state]); // Remove function dependencies that aren't stateful
 
   // Load data when location or filters change
   useEffect(() => {
