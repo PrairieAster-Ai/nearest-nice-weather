@@ -21,8 +21,13 @@ jobs:
         with:
           script: |
             // Sprint assignment based on labels
-            const issue = context.payload.issue;
-            const labels = issue.labels.map(label => label.name);
+            // Handle both issue and pull_request events
+            const item = context.payload.issue || context.payload.pull_request;
+            if (!item || !item.labels) {
+              console.log('No labels found or invalid event type');
+              return;
+            }
+            const labels = item.labels.map(label => label.name);
 
             let targetSprint = null;
 
@@ -40,7 +45,7 @@ jobs:
             }
 
             if (targetSprint) {
-              console.log(`Auto-assigning issue #${issue.number} to sprint: ${targetSprint}`);
+              console.log(`Auto-assigning item #${item.number} to sprint: ${targetSprint}`);
               // Note: GitHub Project field assignment would be implemented via GraphQL
               // This is a template for the automation logic
             }
@@ -49,8 +54,13 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            const issue = context.payload.issue;
-            const labels = issue.labels.map(label => label.name);
+            // Handle both issue and pull_request events
+            const item = context.payload.issue || context.payload.pull_request;
+            if (!item || !item.labels) {
+              console.log('No labels found or invalid event type');
+              return;
+            }
+            const labels = item.labels.map(label => label.name);
 
             let defaultSize = null;
 
@@ -64,7 +74,7 @@ jobs:
             }
 
             if (defaultSize) {
-              console.log(`Auto-assigning size ${defaultSize} to issue #${issue.number}`);
+              console.log(`Auto-assigning size ${defaultSize} to item #${item.number}`);
               // Project field assignment implementation
             }
 
