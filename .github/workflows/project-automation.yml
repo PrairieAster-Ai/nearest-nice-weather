@@ -71,7 +71,7 @@ jobs:
   velocity-calculation:
     runs-on: ubuntu-latest
     name: Calculate Sprint Velocity
-    if: github.event.action == 'closed' && github.event.issue.labels[*].name contains 'type:story'
+    if: github.event.action == 'closed' && github.event.issue && github.event.issue.labels
 
     steps:
       - name: Update Sprint Metrics
@@ -81,6 +81,12 @@ jobs:
             // Calculate completion velocity when stories are closed
             const issue = context.payload.issue;
             const labels = issue.labels.map(label => label.name);
+
+            // Only process if this is a story
+            if (!labels.includes('type:story')) {
+              console.log(`Issue #${issue.number} is not a story, skipping velocity calculation`);
+              return;
+            }
 
             // Extract story points from labels or issue content
             let storyPoints = 3; // Default medium story
