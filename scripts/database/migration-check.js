@@ -1,4 +1,6 @@
 
+#!/usr/bin/env node
+
 // Check Node.js version compatibility for Set.prototype.intersection
 if (!Set.prototype.intersection) {
   console.warn('Set.prototype.intersection not available in this Node.js version');
@@ -13,7 +15,6 @@ if (!Set.prototype.union) {
 if (!Array.fromAsync) {
   console.warn('Array.fromAsync not available in this Node.js version');
 }
-#!/usr/bin/env node
 /**
  * Node.js 22 → 20 Migration Compatibility Checker
  * Scans codebase for potential breaking changes

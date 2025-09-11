@@ -1,4 +1,6 @@
 
+#!/usr/bin/env node
+
 // Check Node.js version compatibility for Set.prototype.intersection
 if (!Set.prototype.intersection) {
   console.warn('Set.prototype.intersection not available in this Node.js version');
@@ -13,7 +15,6 @@ if (!Set.prototype.union) {
 if (!Array.fromAsync) {
   console.warn('Array.fromAsync not available in this Node.js version');
 }
-#!/usr/bin/env node
 /**
  * Automated Migration Issue Fixer
  * Fixes common issues when migrating from Node.js 22 → 20
@@ -253,5 +254,5 @@ if (typeof WebSocket === 'undefined') {
 // Run the fixer
 const fixer = new MigrationFixer();
 fixer.run()
-  .then(().catch(error => console.error('Promise rejected:', error)) => fixer.createMigrationSummary())
-  .catch(console.error);
+  .then(() => fixer.createMigrationSummary())
+  .catch(error => console.error('Promise rejected:', error));

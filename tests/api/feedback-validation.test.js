@@ -62,25 +62,20 @@ describe('Feedback API Validation', () => {
     const validRatings = [1, 2, 3, 4, 5];
 
     try {
-
       for (const rating of validRatings) {
-      const response = await request(API_BASE_URL)
-        .post('/api/feedback')
-        .send({
-          feedback: `Test feedback with rating ${rating}`,
-          rating: rating
-        });
+        const response = await request(API_BASE_URL)
+          .post('/api/feedback')
+          .send({
+            feedback: `Test feedback with rating ${rating}`,
+            rating: rating
+          });
 
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+      }
     } catch (error) {
-
       console.error('Operation failed:', error);
-
       // TODO: Add proper error handling
-
-    }
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
     }
   }, 20000);
 
@@ -88,53 +83,48 @@ describe('Feedback API Validation', () => {
     const invalidRatings = [0, 6, -1, 10, 'invalid', null];
 
     try {
-
       for (const rating of invalidRatings) {
-      const response = await request(API_BASE_URL)
-        .post('/api/feedback')
-        .send({
-          feedback: 'Test feedback with invalid rating',
-          rating: rating
-        });
+        const response = await request(API_BASE_URL)
+          .post('/api/feedback')
+          .send({
+            feedback: 'Test feedback with invalid rating',
+            rating: rating
+          });
 
-    } catch (error) {
-
-      console.error('Operation failed:', error);
-
-      // TODO: Add proper error handling
-
-    }
-
-      // Should either reject or accept with null rating
-      if (response.body.success === false) {
-        expect(response.status).toBeGreaterThanOrEqual(400);
+        // Should either reject or accept with null rating
+        if (response.body.success === false) {
+          expect(response.status).toBeGreaterThanOrEqual(400);
+        }
       }
+    } catch (error) {
+      console.error('Operation failed:', error);
+      // TODO: Add proper error handling
     }
   }, 20000);
 
   test('should handle email validation', async () => {
     const validEmails = [
-      try {
-        'test@example.com',
+      'test@example.com',
       'user.name@domain.co.uk',
       'user+tag@example.org',
       'valid@test-domain.com'
     ];
 
-    for (const email of validEmails) {
-      const response = await request(API_BASE_URL)
-        .post('/api/feedback')
-        .send({
-          feedback: 'Test feedback with email',
-          email: email
-        });
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
+    try {
+      for (const email of validEmails) {
+        const response = await request(API_BASE_URL)
+          .post('/api/feedback')
+          .send({
+            feedback: 'Test feedback with email',
+            email: email
+          });
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+      }
+    } catch (error) {
+      console.error('Operation failed:', error);
+      // TODO: Add proper error handling
     }
   }, 20000);
 
