@@ -75,10 +75,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (client) {
       try {
         await client.end()
+      } catch (error) {
+        console.error('Error closing database connection:', error);
+      }
     }
   }
-};
-      } catch (error) {
-        console.error('Operation failed:', error);
-        // TODO: Add proper error handling
-      }
+}
