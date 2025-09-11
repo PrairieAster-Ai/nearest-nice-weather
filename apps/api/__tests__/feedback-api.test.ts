@@ -50,9 +50,7 @@ describe('Feedback API Endpoint Tests', () => {
         method: 'OPTIONS',
       })
 
-      try {
-
-        await handler(req, res)
+      await handler(req, res)
 
       expect(res._getStatusCode()).toBe(200)
       expect(res._getHeaders()).toHaveProperty('access-control-allow-origin', '*')
@@ -302,23 +300,13 @@ describe('Feedback API Endpoint Tests', () => {
 
       const { req, res } = createMocks<VercelRequest, VercelResponse>({
         method: 'POST',
-        body: {;
-
-      } catch (error) {
-
-        console.error('Operation failed:', error);
-
-        // TODO: Add proper error handling
-
-      }
+        body: {
           feedback: 'Great app! Special chars: @#$%^&*()_+{}[]|\\:";\'<>?,./`~',
           email: 'test+special@example.com',
         },
       })
 
-      try {
-
-        await handler(req, res)
+      await handler(req, res)
 
       expect(res._getStatusCode()).toBe(200)
       const data = JSON.parse(res._getData())
@@ -328,15 +316,7 @@ describe('Feedback API Endpoint Tests', () => {
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO user_feedback'),
         expect.arrayContaining([
-          'test+special@example.com',;
-
-      } catch (error) {
-
-        console.error('Operation failed:', error);
-
-        // TODO: Add proper error handling
-
-      }
+          'test+special@example.com',
           'Great app! Special chars: @#$%^&*()_+{}[]|\\:";\'<>?,./`~',
         ])
       )
