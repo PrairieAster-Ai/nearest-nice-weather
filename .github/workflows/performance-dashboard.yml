@@ -524,34 +524,18 @@ jobs:
           performance-data.json
         retention-days: 30
 
-    - name: 'Setup Pages'
-      if: github.ref == 'refs/heads/main'
-      uses: actions/configure-pages@v4
-      with:
-        enablement: true
-
-    - name: 'Deploy to GitHub Pages'
-      if: github.ref == 'refs/heads/main'
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: '.'
+    # GitHub Pages deployment disabled due to repository permissions
+    # Dashboard available via GitHub Actions artifacts instead
 
     - name: 'Performance Dashboard Summary'
       run: |
         echo "📊 Performance Dashboard Generated Successfully"
-        echo "🌐 Dashboard will be available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/performance-dashboard.html"
+        echo "📁 Dashboard available in GitHub Actions artifacts: performance-dashboard"
         echo "📈 Data includes analysis of recent workflow performance"
         echo "🔔 Monitoring alerts configured for performance degradation"
         echo "📋 Recent runs and trends visualized with interactive charts"
-
-  deploy-pages:
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: generate-dashboard
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        echo ""
+        echo "To access the dashboard:"
+        echo "1. Go to: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        echo "2. Download the 'performance-dashboard' artifact"
+        echo "3. Extract and open performance-dashboard.html in a browser"
