@@ -1,0 +1,215 @@
+# Performance Monitoring & Alerting
+# Monitors CI/CD workflow performance and sends alerts for degradation
+
+name: 'Performance Monitoring'
+
+on:
+  workflow_run:
+    workflows: ["Comprehensive CI/CD"]
+    types:
+      - completed
+  schedule:
+    # Daily performance review at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Manual trigger
+
+env:
+  # Performance thresholds (in seconds)
+  WARNING_THRESHOLD: 300   # 5 minutes
+  CRITICAL_THRESHOLD: 420  # 7 minutes
+  TARGET_DURATION: 180     # 3 minutes (goal)
+
+jobs:
+  performance-analysis:
+    name: 'Analyze Workflow Performance'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: 'Checkout Code'
+      uses: actions/checkout@v5
+
+    - name: 'Analyze Recent Workflow Performance'
+      id: analysis
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+
+          // Get recent workflow runs
+          const workflows = await github.rest.actions.listWorkflowRunsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'ci.yml',
+            per_page: 10,
+            status: 'completed'
+          });
+
+          const analysisData = {
+            timestamp: new Date().toISOString(),
+            total_runs_analyzed: workflows.data.workflow_runs.length,
+            performance_summary: {
+              average_duration: 0,
+              fastest_run: null,
+              slowest_run: null,
+              runs_over_target: 0,
+              runs_over_warning: 0,
+              runs_over_critical: 0
+            },
+            recent_runs: []
+          };
+
+          const durations = [];
+
+          for (const run of workflows.data.workflow_runs) {
+            if (run.created_at && run.updated_at) {
+              const duration = Math.round((new Date(run.updated_at) - new Date(run.created_at)) / 1000);
+              durations.push(duration);
+
+              const runData = {
+                run_number: run.run_number,
+                duration_seconds: duration,
+                status: run.conclusion,
+                branch: run.head_branch,
+                commit_sha: run.head_sha.substring(0, 7),
+                trigger: run.event,
+                url: run.html_url,
+                created_at: run.created_at
+              };
+
+              analysisData.recent_runs.push(runData);
+
+              // Count threshold violations
+              if (duration > ${{ env.TARGET_DURATION }}) analysisData.performance_summary.runs_over_target++;
+              if (duration > ${{ env.WARNING_THRESHOLD }}) analysisData.performance_summary.runs_over_warning++;
+              if (duration > ${{ env.CRITICAL_THRESHOLD }}) analysisData.performance_summary.runs_over_critical++;
+            }
+          }
+
+          if (durations.length > 0) {
+            analysisData.performance_summary.average_duration = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+            analysisData.performance_summary.fastest_run = Math.min(...durations);
+            analysisData.performance_summary.slowest_run = Math.max(...durations);
+          }
+
+          // Generate performance report
+          console.log('📊 CI/CD Performance Analysis');
+          console.log('═'.repeat(50));
+          console.log(`📈 Average Duration: ${analysisData.performance_summary.average_duration}s`);
+          console.log(`⚡ Fastest Run: ${analysisData.performance_summary.fastest_run}s`);
+          console.log(`🐌 Slowest Run: ${analysisData.performance_summary.slowest_run}s`);
+          console.log(`🎯 Target: <${${{ env.TARGET_DURATION }}}s`);
+          console.log(`⚠️  Over Warning (${${{ env.WARNING_THRESHOLD }}}s): ${analysisData.performance_summary.runs_over_warning}`);
+          console.log(`🚨 Over Critical (${${{ env.CRITICAL_THRESHOLD }}}s): ${analysisData.performance_summary.runs_over_critical}`);
+
+          // Set outputs for alerting
+          core.setOutput('average_duration', analysisData.performance_summary.average_duration);
+          core.setOutput('slowest_run', analysisData.performance_summary.slowest_run);
+          core.setOutput('runs_over_warning', analysisData.performance_summary.runs_over_warning);
+          core.setOutput('runs_over_critical', analysisData.performance_summary.runs_over_critical);
+          core.setOutput('needs_attention', analysisData.performance_summary.runs_over_warning > 2 || analysisData.performance_summary.runs_over_critical > 0);
+
+          // Save detailed analysis
+          fs.writeFileSync('performance-analysis.json', JSON.stringify(analysisData, null, 2));
+
+          return analysisData;
+
+    - name: 'Performance Alert - Warning'
+      if: steps.analysis.outputs.runs_over_warning > 2
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '⚠️ CI/CD Performance Warning - Workflows Running Slow',
+            body: `## CI/CD Performance Alert
+
+            **Warning**: Multiple recent workflow runs are exceeding performance targets.
+
+            ### 📊 Performance Summary
+            - **Average Duration**: ${{ steps.analysis.outputs.average_duration }}s
+            - **Slowest Recent Run**: ${{ steps.analysis.outputs.slowest_run }}s
+            - **Target Duration**: ${{ env.TARGET_DURATION }}s (3 minutes)
+            - **Runs Over Warning Threshold**: ${{ steps.analysis.outputs.runs_over_warning }}
+
+            ### 🎯 Recommended Actions
+            1. **Review Recent Changes**: Check recent commits for performance-impacting changes
+            2. **Check Dependencies**: Verify dependency caching is working effectively
+            3. **Monitor Resources**: Ensure GitHub Actions runners have adequate resources
+            4. **Consider Optimizations**: Review Phase 3 parallelization implementation
+
+            ### 🔗 Performance Analysis
+            See workflow artifacts for detailed performance analysis data.
+
+            **Monitoring Workflow**: [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ---
+            *Generated by Performance Monitoring workflow*`,
+            labels: ['performance', 'ci-cd', 'monitoring']
+          });
+      continue-on-error: true
+
+    - name: 'Performance Alert - Critical'
+      if: steps.analysis.outputs.runs_over_critical > 0
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 CRITICAL: CI/CD Performance Issue - Immediate Attention Required',
+            body: `## 🚨 CRITICAL CI/CD Performance Alert
+
+            **CRITICAL**: Workflow runs are significantly exceeding acceptable performance thresholds.
+
+            ### 📊 Performance Summary
+            - **Average Duration**: ${{ steps.analysis.outputs.average_duration }}s
+            - **Slowest Recent Run**: ${{ steps.analysis.outputs.slowest_run }}s
+            - **Critical Threshold**: ${{ env.CRITICAL_THRESHOLD }}s (7 minutes)
+            - **Runs Over Critical**: ${{ steps.analysis.outputs.runs_over_critical }}
+
+            ### 🚨 Immediate Actions Required
+            1. **Stop Non-Essential Deployments**: Avoid additional workflow runs until resolved
+            2. **Emergency Analysis**: Review workflow logs for blocking issues
+            3. **Resource Check**: Verify GitHub Actions service status
+            4. **Rollback Option**: Consider reverting recent workflow changes
+
+            ### 🔧 Investigation Steps
+            1. Check for new dependencies causing slow installs
+            2. Verify external service availability (Vercel, security scanners)
+            3. Review recent workflow modifications
+            4. Monitor GitHub Actions status page
+
+            ### 🔗 Performance Analysis
+            See workflow artifacts for detailed performance analysis data.
+
+            **Monitoring Workflow**: [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ---
+            *Generated by Performance Monitoring workflow - CRITICAL ALERT*`,
+            labels: ['critical', 'performance', 'ci-cd', 'urgent']
+          });
+      continue-on-error: true
+
+    - name: 'Upload Performance Analysis'
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-analysis-report
+        path: performance-analysis.json
+        retention-days: 90
+      if: always()
+
+    - name: 'Performance Summary'
+      run: |
+        echo "📊 Performance Analysis Complete"
+        echo "📈 Average Duration: ${{ steps.analysis.outputs.average_duration }}s"
+        echo "🎯 Target: ${{ env.TARGET_DURATION }}s"
+        echo "⚠️  Warning Violations: ${{ steps.analysis.outputs.runs_over_warning }}"
+        echo "🚨 Critical Violations: ${{ steps.analysis.outputs.runs_over_critical }}"
+
+        if [ "${{ steps.analysis.outputs.needs_attention }}" = "true" ]; then
+          echo "🔔 Performance alerts triggered - check issues for details"
+        else
+          echo "✅ Performance within acceptable limits"
+        fi

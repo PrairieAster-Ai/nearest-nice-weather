@@ -257,3 +257,58 @@ jobs:
         echo "✅ Quality gates passed"
         echo "✅ Production deployment successful"
         echo "🎉 Pipeline completed successfully"
+
+    - name: 'Collect Workflow Timing Metrics'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Collect workflow timing data for performance monitoring
+          const workflow = await github.rest.actions.getWorkflowRun({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: context.runId
+          });
+
+          const jobs = await github.rest.actions.listJobsForWorkflowRun({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: context.runId
+          });
+
+          const startTime = new Date(workflow.data.created_at);
+          const endTime = new Date();
+          const totalDuration = Math.round((endTime - startTime) / 1000);
+
+          const metrics = {
+            workflow_name: workflow.data.name,
+            total_duration_seconds: totalDuration,
+            run_number: workflow.data.run_number,
+            trigger_event: workflow.data.event,
+            branch: workflow.data.head_branch,
+            commit_sha: workflow.data.head_sha.substring(0, 7),
+            jobs_count: jobs.data.total_count,
+            timestamp: endTime.toISOString(),
+            jobs: jobs.data.jobs.map(job => ({
+              name: job.name,
+              conclusion: job.conclusion,
+              duration_seconds: job.completed_at && job.started_at ?
+                Math.round((new Date(job.completed_at) - new Date(job.started_at)) / 1000) : null
+            }))
+          };
+
+          console.log('📊 Workflow Performance Metrics:');
+          console.log(`⏱️  Total Duration: ${totalDuration}s`);
+          console.log(`🎯 Target: <180s (3 minutes)`);
+          console.log(`📈 Performance: ${totalDuration <= 180 ? '✅ GOOD' : '⚠️ NEEDS OPTIMIZATION'}`);
+
+          // Save metrics as JSON for potential dashboard integration
+          require('fs').writeFileSync('workflow-metrics.json', JSON.stringify(metrics, null, 2));
+      continue-on-error: true
+
+    - name: 'Upload Performance Metrics'
+      uses: actions/upload-artifact@v4
+      with:
+        name: workflow-performance-metrics
+        path: workflow-metrics.json
+        retention-days: 30
+      if: always()

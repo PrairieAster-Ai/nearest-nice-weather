@@ -1,0 +1,555 @@
+# Performance Dashboard Generation
+# Creates a comprehensive performance dashboard for CI/CD workflows
+
+name: 'Performance Dashboard'
+
+on:
+  schedule:
+    # Generate dashboard daily at 10 AM UTC
+    - cron: '0 10 * * *'
+  workflow_dispatch: # Manual trigger
+  workflow_run:
+    workflows: ["Performance Monitoring"]
+    types: [completed]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  generate-dashboard:
+    name: 'Generate Performance Dashboard'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+
+    steps:
+    - name: 'Checkout Code'
+      uses: actions/checkout@v5
+
+    - name: 'Setup Node.js'
+      uses: actions/setup-node@v5
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 'Collect Performance Data'
+      id: collect-data
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+
+          // Collect workflow performance data
+          const workflows = await github.rest.actions.listWorkflowRunsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'ci.yml',
+            per_page: 50, // Last 50 runs for trend analysis
+            status: 'completed'
+          });
+
+          const performanceData = {
+            metadata: {
+              generated_at: new Date().toISOString(),
+              repository: `${context.repo.owner}/${context.repo.repo}`,
+              workflow_name: 'Comprehensive CI/CD',
+              analysis_period: '50 recent runs',
+              dashboard_version: '1.0'
+            },
+            summary: {
+              total_runs: 0,
+              average_duration: 0,
+              success_rate: 0,
+              fastest_run: null,
+              slowest_run: null,
+              trend_direction: 'stable'
+            },
+            daily_stats: {},
+            performance_trends: [],
+            job_performance: {},
+            recent_runs: []
+          };
+
+          const durations = [];
+          const dailyStats = {};
+          const successCount = workflows.data.workflow_runs.filter(run => run.conclusion === 'success').length;
+
+          for (const run of workflows.data.workflow_runs) {
+            if (run.created_at && run.updated_at) {
+              const duration = Math.round((new Date(run.updated_at) - new Date(run.created_at)) / 1000);
+              const date = run.created_at.split('T')[0]; // YYYY-MM-DD
+
+              durations.push(duration);
+
+              // Daily aggregation
+              if (!dailyStats[date]) {
+                dailyStats[date] = { runs: 0, total_duration: 0, successes: 0 };
+              }
+              dailyStats[date].runs++;
+              dailyStats[date].total_duration += duration;
+              if (run.conclusion === 'success') dailyStats[date].successes++;
+
+              // Individual run data
+              performanceData.recent_runs.push({
+                run_number: run.run_number,
+                duration_seconds: duration,
+                status: run.conclusion,
+                branch: run.head_branch,
+                commit_sha: run.head_sha.substring(0, 7),
+                trigger: run.event,
+                created_at: run.created_at,
+                url: run.html_url
+              });
+
+              // Get job-level performance for detailed runs
+              if (performanceData.recent_runs.length <= 10) {
+                try {
+                  const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: run.id
+                  });
+
+                  for (const job of jobs.data.jobs) {
+                    if (!performanceData.job_performance[job.name]) {
+                      performanceData.job_performance[job.name] = [];
+                    }
+
+                    const jobDuration = job.completed_at && job.started_at ?
+                      Math.round((new Date(job.completed_at) - new Date(job.started_at)) / 1000) : null;
+
+                    if (jobDuration) {
+                      performanceData.job_performance[job.name].push({
+                        duration: jobDuration,
+                        conclusion: job.conclusion,
+                        run_number: run.run_number,
+                        date: run.created_at.split('T')[0]
+                      });
+                    }
+                  }
+                } catch (error) {
+                  console.log(`Could not fetch jobs for run ${run.run_number}: ${error.message}`);
+                }
+              }
+            }
+          }
+
+          // Calculate summary statistics
+          if (durations.length > 0) {
+            performanceData.summary.total_runs = durations.length;
+            performanceData.summary.average_duration = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+            performanceData.summary.fastest_run = Math.min(...durations);
+            performanceData.summary.slowest_run = Math.max(...durations);
+            performanceData.summary.success_rate = Math.round((successCount / durations.length) * 100);
+
+            // Calculate trend (compare first 10 vs last 10 runs)
+            if (durations.length >= 20) {
+              const recentAvg = durations.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
+              const olderAvg = durations.slice(-10).reduce((a, b) => a + b, 0) / 10;
+              const trendDiff = ((recentAvg - olderAvg) / olderAvg) * 100;
+
+              if (trendDiff > 10) performanceData.summary.trend_direction = 'degrading';
+              else if (trendDiff < -10) performanceData.summary.trend_direction = 'improving';
+              else performanceData.summary.trend_direction = 'stable';
+            }
+          }
+
+          // Process daily stats
+          performanceData.daily_stats = Object.entries(dailyStats)
+            .sort(([a], [b]) => b.localeCompare(a)) // Most recent first
+            .slice(0, 30) // Last 30 days
+            .reduce((acc, [date, stats]) => {
+              acc[date] = {
+                ...stats,
+                average_duration: Math.round(stats.total_duration / stats.runs),
+                success_rate: Math.round((stats.successes / stats.runs) * 100)
+              };
+              return acc;
+            }, {});
+
+          // Save performance data
+          fs.writeFileSync('performance-data.json', JSON.stringify(performanceData, null, 2));
+
+          console.log('📊 Performance data collected for dashboard generation');
+          console.log(`📈 Analyzed ${performanceData.summary.total_runs} workflow runs`);
+          console.log(`⏱️  Average duration: ${performanceData.summary.average_duration}s`);
+          console.log(`✅ Success rate: ${performanceData.summary.success_rate}%`);
+
+          return performanceData;
+
+    - name: 'Generate Dashboard HTML'
+      run: |
+        cat > performance-dashboard.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>CI/CD Performance Dashboard - Nearest Nice Weather</title>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #f8fafc;
+                    color: #1e293b;
+                }
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                }
+                .header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 30px;
+                    text-align: center;
+                }
+                .header h1 {
+                    margin: 0;
+                    font-size: 2.5em;
+                }
+                .header p {
+                    margin: 10px 0 0 0;
+                    opacity: 0.9;
+                }
+                .metrics-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 20px;
+                    padding: 30px;
+                }
+                .metric-card {
+                    background: #f8fafc;
+                    border-radius: 8px;
+                    padding: 20px;
+                    text-align: center;
+                    border-left: 4px solid #667eea;
+                }
+                .metric-value {
+                    font-size: 2.5em;
+                    font-weight: bold;
+                    color: #667eea;
+                    margin: 10px 0;
+                }
+                .metric-label {
+                    color: #64748b;
+                    font-size: 0.9em;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                .chart-section {
+                    padding: 30px;
+                    border-top: 1px solid #e2e8f0;
+                }
+                .chart-container {
+                    position: relative;
+                    height: 400px;
+                    margin: 20px 0;
+                }
+                .status-good { border-left-color: #10b981; }
+                .status-good .metric-value { color: #10b981; }
+                .status-warning { border-left-color: #f59e0b; }
+                .status-warning .metric-value { color: #f59e0b; }
+                .status-critical { border-left-color: #ef4444; }
+                .status-critical .metric-value { color: #ef4444; }
+                .recent-runs {
+                    padding: 30px;
+                    border-top: 1px solid #e2e8f0;
+                }
+                .run-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 15px;
+                    margin: 10px 0;
+                    background: #f8fafc;
+                    border-radius: 6px;
+                    border-left: 4px solid #10b981;
+                }
+                .run-item.failed { border-left-color: #ef4444; }
+                .run-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+                .run-duration {
+                    font-weight: bold;
+                    color: #667eea;
+                }
+                .footer {
+                    background: #1e293b;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 0.9em;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🚀 CI/CD Performance Dashboard</h1>
+                    <p>Nearest Nice Weather - Comprehensive CI/CD Pipeline Monitoring</p>
+                    <p id="last-updated">Loading...</p>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card" id="avg-duration-card">
+                        <div class="metric-label">Average Duration</div>
+                        <div class="metric-value" id="avg-duration">--</div>
+                        <div>Target: <180s</div>
+                    </div>
+                    <div class="metric-card status-good">
+                        <div class="metric-label">Success Rate</div>
+                        <div class="metric-value" id="success-rate">--</div>
+                        <div>Last 50 runs</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Fastest Run</div>
+                        <div class="metric-value" id="fastest-run">--</div>
+                        <div>Best performance</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Total Runs</div>
+                        <div class="metric-value" id="total-runs">--</div>
+                        <div>Analysis period</div>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <h2>📈 Performance Trends (Last 30 Days)</h2>
+                    <div class="chart-container">
+                        <canvas id="performance-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <h2>⚡ Job Performance Breakdown</h2>
+                    <div class="chart-container">
+                        <canvas id="job-performance-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="recent-runs">
+                    <h2>📋 Recent Workflow Runs</h2>
+                    <div id="recent-runs-list">Loading...</div>
+                </div>
+
+                <div class="footer">
+                    Generated by GitHub Actions Performance Dashboard •
+                    Repository: nearest-nice-weather •
+                    <span id="generation-time"></span>
+                </div>
+            </div>
+
+            <script>
+                // Load performance data and populate dashboard
+                fetch('./performance-data.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        populateDashboard(data);
+                        createPerformanceChart(data);
+                        createJobPerformanceChart(data);
+                        populateRecentRuns(data);
+                    })
+                    .catch(error => {
+                        console.error('Error loading performance data:', error);
+                        document.body.innerHTML = '<div style="text-align:center;padding:50px;"><h2>Error loading dashboard data</h2><p>Please check the performance-data.json file.</p></div>';
+                    });
+
+                function populateDashboard(data) {
+                    const { summary, metadata } = data;
+
+                    document.getElementById('last-updated').textContent =
+                        `Last updated: ${new Date(metadata.generated_at).toLocaleString()}`;
+                    document.getElementById('generation-time').textContent =
+                        `Generated: ${new Date(metadata.generated_at).toLocaleString()}`;
+
+                    document.getElementById('avg-duration').textContent = `${summary.average_duration}s`;
+                    document.getElementById('success-rate').textContent = `${summary.success_rate}%`;
+                    document.getElementById('fastest-run').textContent = `${summary.fastest_run}s`;
+                    document.getElementById('total-runs').textContent = summary.total_runs;
+
+                    // Color code average duration based on performance
+                    const avgCard = document.getElementById('avg-duration-card');
+                    if (summary.average_duration <= 180) {
+                        avgCard.className = 'metric-card status-good';
+                    } else if (summary.average_duration <= 300) {
+                        avgCard.className = 'metric-card status-warning';
+                    } else {
+                        avgCard.className = 'metric-card status-critical';
+                    }
+                }
+
+                function createPerformanceChart(data) {
+                    const ctx = document.getElementById('performance-chart').getContext('2d');
+                    const dailyData = data.daily_stats;
+
+                    const dates = Object.keys(dailyData).reverse(); // Chronological order
+                    const durations = dates.map(date => dailyData[date].average_duration);
+                    const successRates = dates.map(date => dailyData[date].success_rate);
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: dates.map(date => new Date(date).toLocaleDateString()),
+                            datasets: [{
+                                label: 'Average Duration (seconds)',
+                                data: durations,
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                tension: 0.1,
+                                yAxisID: 'y'
+                            }, {
+                                label: 'Success Rate (%)',
+                                data: successRates,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.1,
+                                yAxisID: 'y1'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    title: { display: true, text: 'Duration (seconds)' }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    title: { display: true, text: 'Success Rate (%)' },
+                                    grid: { drawOnChartArea: false }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Daily Performance Trends'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function createJobPerformanceChart(data) {
+                    const ctx = document.getElementById('job-performance-chart').getContext('2d');
+                    const jobData = data.job_performance;
+
+                    const jobNames = Object.keys(jobData);
+                    const averageDurations = jobNames.map(jobName => {
+                        const durations = jobData[jobName].map(job => job.duration);
+                        return durations.length > 0 ?
+                            Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
+                    });
+
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: jobNames,
+                            datasets: [{
+                                label: 'Average Duration (seconds)',
+                                data: averageDurations,
+                                backgroundColor: [
+                                    '#667eea', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Average Job Duration by Type'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Duration (seconds)' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function populateRecentRuns(data) {
+                    const container = document.getElementById('recent-runs-list');
+                    const recentRuns = data.recent_runs.slice(0, 10); // Last 10 runs
+
+                    container.innerHTML = recentRuns.map(run => `
+                        <div class="run-item ${run.status === 'failure' ? 'failed' : ''}">
+                            <div class="run-info">
+                                <strong>#${run.run_number}</strong>
+                                <span>${run.branch}</span>
+                                <span>${run.commit_sha}</span>
+                                <span>${new Date(run.created_at).toLocaleDateString()}</span>
+                                <span class="run-duration">${run.duration_seconds}s</span>
+                            </div>
+                            <div>
+                                <a href="${run.url}" target="_blank" style="color: #667eea; text-decoration: none;">
+                                    View Run →
+                                </a>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            </script>
+        </body>
+        </html>
+        EOF
+
+    - name: 'Upload Dashboard Artifacts'
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-dashboard
+        path: |
+          performance-dashboard.html
+          performance-data.json
+        retention-days: 30
+
+    - name: 'Setup Pages'
+      if: github.ref == 'refs/heads/main'
+      uses: actions/configure-pages@v4
+
+    - name: 'Deploy to GitHub Pages'
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '.'
+
+    - name: 'Performance Dashboard Summary'
+      run: |
+        echo "📊 Performance Dashboard Generated Successfully"
+        echo "🌐 Dashboard will be available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/performance-dashboard.html"
+        echo "📈 Data includes analysis of recent workflow performance"
+        echo "🔔 Monitoring alerts configured for performance degradation"
+        echo "📋 Recent runs and trends visualized with interactive charts"
+
+  deploy-pages:
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: generate-dashboard
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
