@@ -259,7 +259,7 @@ jobs:
         echo "🎉 Pipeline completed successfully"
 
     - name: 'Collect Workflow Timing Metrics'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           // Collect workflow timing data for performance monitoring
