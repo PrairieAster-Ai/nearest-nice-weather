@@ -6,33 +6,62 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the "Nearest Nice Weather" project - a weather intelligence platform connecting outdoor enthusiasts with optimal weather conditions.
 
-**Core Business Philosophy**: [The Innovation Infrastructure Advantage](documentation/business-plan/innovation-velocity-principles.md) - we optimize technical architecture for rapid experimentation and learning speed, creating competitive advantage through faster market discovery.
+**📚 Complete Documentation**: [GitHub Wiki](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki) - **SINGLE SOURCE OF TRUTH** for all documentation
 
-**🚀 RAPID DEVELOPMENT WORKFLOW**: [Optimized for High-Speed Experimentation](RAPID-DEVELOPMENT.md) - Idea to production in 2-5 minutes with automated quality gates and instant rollback capabilities.
+**Core Business Philosophy**: [Innovation Velocity Principles](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/business-plan/innovation-velocity-principles) - we optimize technical architecture for rapid experimentation and learning speed, creating competitive advantage through faster market discovery.
 
-**📋 WORK PLANNING & SPRINT MANAGEMENT**: [GitHub Project "NearestNiceWeather.com App Development"](https://github.com/orgs/PrairieAster-Ai/projects/2) - **SINGLE SOURCE OF TRUTH** for all current work, sprint planning, and issue tracking. See [GITHUB-PROJECT-REFERENCE.md](GITHUB-PROJECT-REFERENCE.md) for complete project structure and workflow guidance.
+**🚀 RAPID DEVELOPMENT WORKFLOW**: [Rapid Development Guide](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks/RAPID-DEVELOPMENT) - Idea to production in 2-5 minutes with automated quality gates and instant rollback capabilities.
+
+**📋 WORK PLANNING & SPRINT MANAGEMENT**: [GitHub Project "NearestNiceWeather.com App Development"](https://github.com/orgs/PrairieAster-Ai/projects/2) - **SINGLE SOURCE OF TRUTH** for all current work, sprint planning, and issue tracking. See [GitHub Project Reference](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/summaries/GITHUB-PROJECT-REFERENCE) for complete project structure and workflow guidance.
 
 **Target Market**: Casual mass market consumers in Minneapolis metro area seeking constraint-based weather optimization for free/frugal local activities.
 
 ## Repository Structure
 
-- `documentation/` - Complete business plan, technical architecture, and operational documentation
-  - `business-plan/` - Master plan, executive summary, implementation roadmap
-  - `appendices/` - Market research, user personas, financial assumptions
-  - `sessions/` - Action items and focused work tracking
-  - `runbooks/` - **Operational procedures and troubleshooting guides**
-    - `docker-networking-troubleshooting.md` - Docker networking issue resolution
-    - `nodejs-migration-checklist.md` - LTS migration procedures
-    - `cache-busting-implementation-guide.md` - Production cache control
-    - `emergency-deployment-procedures.md` - Incident response protocols
-    - `environment-setup-automation.md` - Team onboarding automation
-  - `DEVELOPMENT-ENVIRONMENT-SUMMARY.md` - Overview of all operational improvements
-  - `architecture-overview.md` - Complete technical specification for FastAPI + Directus + PostGIS stack
+**📚 Documentation**: [Complete Wiki](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki) - All documentation now on GitHub Wiki
+  - **[Runbooks](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks)** - Operational procedures and troubleshooting
+  - **[PRDs](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/prd)** - Product requirement documents
+  - **[Architecture](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Architecture-Overview)** - Technical specs and deployment
+  - **[Business Plan](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/business-plan)** - Strategy and roadmap
+
+**Code Structure**:
+- `apps/web/` - React + Vite frontend (production PWA)
+- `apps/web/api/` - Vercel serverless functions (production)
+- `dev-api-server.js` - Express.js localhost API (development)
 - `scripts/` - **Automated development environment tools**
   - `environment-validation.sh` - **Comprehensive multi-environment validation (localhost/preview/production)**
   - `localhost-health-check.sh` - Legacy localhost-specific validation
-  - `scripts/utilities/quick-docker-health.sh` - Fast Docker networking check
+  - `utilities/quick-docker-health.sh` - Fast Docker networking check
   - `development-dashboard.sh` - Real-time environment monitoring
+
+## Memory Bank Context - Rapid Context Switching
+
+**🧠 MEMORY BANK STRUCTURE**: Structured business context for Claude Code pair programming sessions:
+
+- **[Quick Reference](memory-bank/quick-reference.json)**: Essential business model, tech stack, and red flags
+- **[Business Context](memory-bank/business-context/)**: Core business model and requirements
+- **[Technical Patterns](memory-bank/technical-patterns/)**: Successful patterns and anti-patterns
+- **[Session Handoffs](memory-bank/session-handoffs/)**: Templates and handoff documentation
+- **[Latest Health Check](memory-bank/latest-health-check.json)**: Real-time environment status
+- **[Playwright Test Context](memory-bank/playwright-test-context.json)**: Test automation and QA patterns
+
+**Critical Commands** (from Memory Bank):
+```bash
+# Comprehensive environment health check
+./scripts/comprehensive-health-check.sh localhost
+
+# QA automation before deployment
+npm run qa:deployment-gate
+
+# Start unified development environment
+npm start
+```
+
+**Red Flags** (Stop and Fix Immediately):
+- ❌ Cities showing instead of parks/trails (should be poi_locations table only)
+- ❌ Blank screen on any environment
+- ❌ API queries using legacy "locations" table
+- ❌ B2B tourism features being developed (B2C focus only)
 
 ## GitHub Tools and Automation
 
@@ -330,7 +359,7 @@ npm run deploy                      # Returns error message with correct command
 - **Vercel Serverless Functions** (`apps/web/api/*.js`) for production
 - **Complete API duplication** between both implementations
 - **Maintenance overhead**: ~2-4 hours/week for sync management
-- **See**: `DUAL-API-MITIGATION-STRATEGIES.md` for complete documentation
+- **See**: [Dual API Mitigation Strategies](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/architecture/DUAL-API-MITIGATION-STRATEGIES) for complete documentation
 
 **Database Architecture** (NO LOCAL POSTGRESQL):
 - Database is hosted on Neon cloud in all environments
@@ -531,8 +560,8 @@ npm run test:mobile           # Mobile responsive testing
 **Key Features**:
 - **42 Test Files**: Comprehensive coverage of POI, weather, business model validation
 - **100% MCP Integration**: Validated configuration with environment variables
-- **Memory Bank Integration**: Test context stored in `memory-bank/playwright-test-context.json`
-- **B2C Focus**: Tests aligned with outdoor recreation business model
+- **Memory Bank Integration**: Test context stored in [memory-bank/playwright-test-context.json](memory-bank/playwright-test-context.json)
+- **B2C Focus**: Tests aligned with outdoor recreation business model (see [Memory Bank Business Context](memory-bank/business-context/))
 - **Performance Optimized**: 60-70% speed improvement with parallel execution
 
 ## 🚀 VercelMCP: Primary Deployment Integration
@@ -609,7 +638,7 @@ curl -s http://localhost:3050/health | jq '.'
 ./scripts/utilities/environment-health-check.sh
 ```
 
-**Development Environment KPIs** (see [CLAUDE-PRODUCTIVITY-KPIs.md](CLAUDE-PRODUCTIVITY-KPIs.md)):
+**Development Environment KPIs** (see [Claude Productivity KPIs](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/summaries/CLAUDE-PRODUCTIVITY-KPIs)):
 - **Health Score >90%**: Full development capability - proceed with complex tasks
 - **Health Score 70-89%**: Reduced capability - focus on incremental changes
 - **Health Score <70%**: CRITICAL - prioritize environment fixes over features
@@ -630,7 +659,7 @@ curl -s http://localhost:3050/health | jq '.'
 - Health 85-94%: Normal development, monitor resources during builds
 - Health 70-84%: Incremental changes only, avoid config modifications
 - Health <70%: Stop feature work, focus on environment recovery
-  - Emergency issues → Follow `documentation/runbooks/emergency-deployment-procedures.md`
+  - Emergency issues → Follow [Emergency Deployment Procedures](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks/emergency-deployment-procedures)
 
 - Ask for feedback before adding or editing end user facing content
 
@@ -682,21 +711,21 @@ curl -s http://localhost:3050/health | jq '.'
 - **Process Improvements**: Identify and implement workflow optimizations
 
 ### Emergency Procedures
-- **Critical Issues**: Follow `documentation/runbooks/emergency-deployment-procedures.md`
-- **Docker Problems**: Use `documentation/runbooks/docker-networking-troubleshooting.md`
-- **Migration Needs**: Follow `documentation/runbooks/nodejs-migration-checklist.md`
-- **Cache Issues**: Reference `documentation/runbooks/cache-busting-implementation-guide.md`
+- **Critical Issues**: Follow [Emergency Deployment Procedures](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks/emergency-deployment-procedures)
+- **Docker Problems**: Use [Docker Troubleshooting](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks/docker-networking-troubleshooting)
+- **Migration Needs**: Follow [Node.js Migration Checklist](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks/nodejs-migration-checklist)
+- **Cache Issues**: Reference [Cache Busting Guide](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks/cache-busting-implementation-guide)
 - **Blank Screen Issues**: Use `./scripts/blank-screen-diagnostic.sh` for automated diagnosis and fix
 
 ### Knowledge Management
-- **Runbook Location**: All procedures documented in `documentation/runbooks/`
-- **Setup Automation**: New team members use `documentation/runbooks/environment-setup-automation.md`
+- **Runbook Location**: All procedures documented on [Wiki Runbooks](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks)
+- **Setup Automation**: New team members use [Environment Setup Automation](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks/environment-setup-automation)
 - **Health Monitoring**: Automated scripts in `scripts/` directory
 - **Incident Documentation**: Update runbooks after resolving new issues
 
 ### Key Documentation Files
-- **[GitHub Wiki](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki)** - Complete technical documentation
-- `documentation/runbooks/` - Complete operational procedures
+- **[GitHub Wiki](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki)** - Complete technical documentation (single source of truth)
+- **[Runbooks](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks)** - Complete operational procedures
 - `scripts/` - Automated health check and validation tools
 - `apply-docker-fix.sh` - Docker networking issue resolution
 - `MIGRATION-SUMMARY.md` - Node.js 22→20 migration record
@@ -748,3 +777,4 @@ curl -s http://localhost:3050/health | jq '.'
 
 - Vercel preview environment requires vercel authentication to access
 - Vercel authentication should only apply to preview, if it's on production there is a break
+- Production URL = https://portfolio-factory.vercel.app

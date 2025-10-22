@@ -179,11 +179,10 @@ npm run deploy:production
 
 ## 📁 Key Project Files
 
-- **Business Model**: `/PURE-B2C-STRATEGY-2025.md` - B2C outdoor recreation focus
-- **POI Specification**: `/POI-DATABASE-SPECIFICATION-2025.md` - Outdoor destination data model
-- **API Implementation**: `/dev-api-server.js` (localhost), `/apps/web/api/` (production)
-- **Frontend Hook**: `/apps/web/src/hooks/usePOINavigation.ts` - Primary UI data integration
-- **Database Seeding**: `/scripts/seed-minnesota-parks.js` - outdoor destinations
+- **API Implementation**: `dev-api-server.js` (localhost), `apps/web/api/` (production)
+- **Frontend Hook**: `apps/web/src/hooks/usePOINavigation.ts` - Primary UI data integration
+- **Database Seeding**: `scripts/seed-minnesota-parks.js` - outdoor destinations
+- **Configuration**: `CLAUDE.md` - AI assistant instructions, `.env.example` - environment template
 
 ## 🧭 Development Guidelines
 
@@ -298,21 +297,18 @@ pre-commit run --all-files
 
 ## 📚 Documentation
 
-**📖 [Complete Documentation - GitHub Wiki](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki)** - Single Source of Truth ✅
+**📖 [Complete Documentation - GitHub Wiki](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki)** - Single Source of Truth
 
-### **🚀 Quick Start Links:**
+### Quick Links
 
-⭐ **[Developer Quick Start Guide](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Developer-Quick-Start)** - 5-minute onboarding
-🏗️ **[API Reference](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/API-Reference)** - Complete endpoint documentation
-⚛️ **[Frontend Architecture](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Frontend-Architecture)** - React patterns and components
-🗄️ **[Database Schema](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Database-Schema)** - POI data model and queries
-📊 **[Executive Summary](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Executive-Summary)** - Business overview and production status
+| Resource | Purpose |
+|----------|---------|
+| **[Developer Quick Start](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Developer-Quick-Start)** | 5-minute onboarding |
+| **[API Reference](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/API-Reference)** | Complete endpoints |
+| **[Architecture Overview](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Architecture-Overview)** | Tech stack & deployment |
+| **[Database Schema](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Database-Schema)** | POI data model |
+| **[Runbooks](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/runbooks)** | Operational procedures |
+| **[PRDs](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Docs/prd)** | Product requirements |
+| **[Executive Summary](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Executive-Summary)** | Business overview |
 
-### **🔍 All Claims Validated:**
-
-📋 **[Sources Reference](https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki/Sources-Reference)** - Every statistic backed by 3+ authoritative sources
-
-**For Claude AI context, see `/CLAUDE.md`**
-
-<!-- Testing Vercel secrets: Tue Sep  9 02:47:18 PM CDT 2025 -->
-# Vercel token test - Tue Sep  9 03:02:00 PM CDT 2025
+**For AI Assistant Instructions**: See `CLAUDE.md` in repository root
