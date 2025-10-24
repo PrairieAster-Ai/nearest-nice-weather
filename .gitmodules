@@ -1,0 +1,3 @@
+[submodule ".claude/skills/github"]
+	path = .claude/skills/github
+	url = git@github.com:PrairieAster-Ai/claude-github-skill.git
