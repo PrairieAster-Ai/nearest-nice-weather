@@ -7,7 +7,7 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 ## Investment Thesis
 
 ### **Unique Value Proposition**
-- **$140K Technical Foundation**: Completed FastAPI + PostGIS + PWA architecture eliminates 6 months of development risk
+- **$120K Technical Foundation**: Completed Vercel + Neon PostgreSQL + PWA architecture eliminates 6 months of development risk
 - **Consumer Market Focus**: Pivot to validated consumer ad-supported model vs. unverified B2B assumptions
 - **Conservative Projections**: 80% confidence in break-even by Month 12 with consumer ad revenue
 - **First-Mover Advantage**: 2-3 year lead in constraint-based weather optimization for consumers
@@ -65,7 +65,7 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 
 **Use of Funds**:
 - **Market Expansion (40% - $160K)**: National sales, regional partnerships, brand building
-- **Technology Platform (35% - $140K)**: AI/ML enhancement, enterprise features, data analytics
+- **Technology Platform (35% - $120K)**: AI/ML enhancement, enterprise features, data analytics
 - **Team Building (25% - $100K)**: Engineering, sales, customer success, operations
 
 **Success Metrics**:
@@ -88,7 +88,7 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 
 **Pitch Focus**:
 - Personal validation of weather-tourism pain points
-- Technical foundation completed ($140K value)
+- Technical foundation completed ($120K value)
 - Conservative projections with multiple safety margins
 - Local market knowledge and network access
 
@@ -124,7 +124,7 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 
 ### **Phase 1 Valuation: $250,000**
 **Methodology**: Technical foundation value + market opportunity discount
-- **Technical Assets**: $140K completed development
+- **Technical Assets**: $120K completed development
 - **Market Opportunity**: $16.6B Minnesota tourism market
 - **Risk Discount**: 80% for pre-revenue stage
 - **Founder Contribution**: Sweat equity and domain expertise
@@ -156,7 +156,7 @@ This investment strategy outlines the funding approach for Nearest Nice Weather'
 - **Growth Investors**: 8-12x return (IPO pathway)
 
 ### **Downside Protection** (5% Probability)
-- **Technical Assets**: $140K infrastructure value
+- **Technical Assets**: $120K infrastructure value
 - **Customer Contracts**: Asset value in acquisition
 - **Data Assets**: Weather intelligence database
 - **Intellectual Property**: Algorithm and methodology
