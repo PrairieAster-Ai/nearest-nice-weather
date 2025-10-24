@@ -181,7 +181,7 @@ curl -s "https://p.nearestniceweather.com/api/weather-locations?limit=2" | jq .
 
 ### **Database Schema Validation & Weather API Integration**
 - **Always verify table structure** before deploying API changes
-- **Primary table**: `poi_locations` (138 Minnesota outdoor recreation destinations: parks, trails, forests, nature centers)
+- **Primary table**: `poi_locations` (Minnesota outdoor recreation destinations: parks, trails, forests, nature centers)
 - **Deprecated tables**: `locations` (legacy cities/weather stations), `weather_conditions` (legacy weather data) - replaced by POI-centric architecture
 - **Note**: tourism_operators table may exist for future data completeness, but B2C focus means outdoor recreation POIs are the primary data source
 
@@ -266,7 +266,7 @@ npm run start:clean         # Clean restart
 
 # The development server will proxy API calls to localhost:4000 automatically
 # Each environment uses its own database branch:
-# - localhost: development branch (source of truth - 138 POI records)
+# - localhost: development branch (source of truth - POI records)
 # - preview: preview branch (staging validation - requires POI migration)
 # - production: production branch (live data - requires POI migration)
 
@@ -407,7 +407,7 @@ npm run deploy                      # Returns error message with correct command
 
 **CURRENT IMPLEMENTATION STATUS** ✅ (2025):
 1. ✅ **Technical Foundation**: Vercel Functions + Neon PostgreSQL fully operational
-2. ✅ **Database Implementation**: 138 Minnesota outdoor recreation POIs loaded (parks, trails, forests)
+2. ✅ **Database Implementation**: Minnesota outdoor recreation POIs loaded (parks, trails, forests)
 3. ✅ **API Development**: POI discovery endpoints with weather integration live
 4. ✅ **Frontend**: React PWA with Material-UI displaying outdoor destinations on map
 5. ✅ **Weather Integration**: Real-time weather data via OpenWeather API (needs API key)
@@ -415,7 +415,7 @@ npm run deploy                      # Returns error message with correct command
 
 **BUSINESS MODEL IMPLEMENTATION**:
 - ✅ **B2C Focus**: Pure consumer platform for outdoor enthusiasts
-- ✅ **POI-Centric**: 138 real Minnesota parks/trails (NOT weather stations)
+- ✅ **POI-Centric**: real Minnesota parks/trails (NOT weather stations)
 - ❌ **No B2B Features**: Tourism operator functionality NOT implemented
 
 ## File Organization

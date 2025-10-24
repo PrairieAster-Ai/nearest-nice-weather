@@ -103,7 +103,7 @@ Frontend Hooks:
 - ✅ **Auto-expanding search** finds parks in remote areas
 - ✅ **Distance-based navigation** from closest to farthest
 - ✅ **Weather-integrated POIs** for outdoor activity planning
-- ✅ **138 real Minnesota destinations** vs 50 irrelevant cities
+- ✅ **real Minnesota destinations** vs 50 irrelevant cities
 
 ### **Developer Experience**
 - ✅ **Intuitive code comments** explain business context

@@ -7,7 +7,7 @@
 ### **Business Model Alignment**
 - **Purpose**: B2C outdoor recreation discovery platform for Minnesota
 - **Users**: Casual outdoor enthusiasts seeking parks/trails with nice weather
-- **Scale**: 138 POI locations, targeting 10,000+ active users
+- **Scale**: POI locations, targeting 10,000+ active users
 - **Revenue**: Ad-supported free platform (no premium features)
 
 ### **Technology Stack (What's Actually Deployed)**

@@ -16,7 +16,7 @@
 | **Technical Foundation** | $120,000 | Complete production infrastructure deployed |
 | **Current Status** | Production deployed | 20 Minnesota POI locations operational |
 
-**Bottom Line**: Production-ready Progressive Web App targeting Minnesota outdoor enthusiasts with constraint-based weather optimization. AdSense revenue infrastructure operational, Redis caching implemented, 20 POI locations with real-time weather integration deployed and validated.
+**Bottom Line**: Production-ready Progressive Web App targeting Minnesota outdoor enthusiasts with constraint-based weather optimization. AdSense revenue infrastructure operational, Redis caching implemented, POI locations with real-time weather integration deployed and validated.
 
 ---
 
@@ -155,7 +155,7 @@ User Location + Weather Preferences → 20 Minnesota POI Locations → Real-Time
 ## 🎯 Geographic Strategy (Validated Technical Foundation)
 
 ### Central Minnesota Operational Coverage
-**20 POI locations** deployed covering:
+**POI locations** deployed covering:
 - **Major Recreation Areas**: State parks, trails, and outdoor destinations
 - **Weather Diversity**: Geographic spread ensuring varied weather conditions
 - **User Access**: Strategic locations within driving distance of Twin Cities

@@ -167,7 +167,7 @@ PRODUCTION_DATABASE_URL="postgresql://username:password@ep-production-xxxxx.regi
 
 ### Schema Status by Environment
 **Development Branch (Source of Truth)**:
-- ✅ `poi_locations` table: 138 Minnesota outdoor recreation POIs
+- ✅ `poi_locations` table: Minnesota outdoor recreation POIs
 - ✅ Geographic data properly formatted (lat/lng as decimal)
 - ✅ Business model aligned (parks/trails/forests, not cities)
 - ✅ Data source: manual curation + park_type classification
@@ -212,7 +212,7 @@ PRODUCTION_DATABASE_URL="postgresql://username:password@ep-production-xxxxx.regi
 [Development Branch] --export--> [POI Data JSON] --import--> [Preview Branch]
         ↓                                                          ↓
     (Source of Truth)                                       (Staging Validation)
-   138 POI Records                                              ↓
+   POI Records                                              ↓
                                                         [Preview Testing]
                                                               ↓
                                                      [Production Branch]

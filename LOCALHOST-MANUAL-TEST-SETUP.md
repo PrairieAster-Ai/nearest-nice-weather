@@ -66,7 +66,7 @@ curl -s http://localhost:3001 | head -20
 **Current Status**:
 - ✅ DATABASE_URL configured and working
 - ✅ OPENWEATHER_API_KEY configured
-- ✅ Database connectivity verified: 169 POI locations accessible
+- ✅ Database connectivity verified: POI locations accessible
 - ✅ All POI endpoints now operational
 
 **Verification**:

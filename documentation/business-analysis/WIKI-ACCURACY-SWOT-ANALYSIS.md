@@ -11,9 +11,9 @@
 **Critical Finding**: The wiki contains **significant accuracy discrepancies** that undermine credibility and user trust. While technical infrastructure claims are largely validated, data inconsistencies and missing GitHub integrations present major opportunities for improvement.
 
 **Research Validation**:
-- ✅ **Live Systems Verified**: Production API operational with 138 POI records
+- ✅ **Live Systems Verified**: Production API operational with POI records
 - ✅ **GitHub Project Confirmed**: "NearestNiceWeather.com App Development" exists
-- ❌ **Major Data Inconsistencies**: Wiki claims 20 vs 138 POI locations (590% discrepancy)
+- ❌ **Major Data Inconsistencies**: Wiki claims 20 vs POI locations (590% discrepancy)
 - ❌ **Missing GitHub Integration**: No cross-references to repository features, issues, or projects
 
 ---
@@ -46,7 +46,7 @@
 
 #### **POI Count Discrepancy (590% Error)**
 - **Wiki Claims**: 20 Minnesota POI locations (Architecture Overview:24, Home:44)
-- **Production Reality**: 138 POI locations verified via API
+- **Production Reality**: POI locations verified via API
 - **Impact**: Massive understatement of product capability and development progress
 
 #### **Inconsistent Performance Metrics**
@@ -148,7 +148,7 @@
 #### **1. Critical Accuracy Fixes with POI Expansion Context**
 ```markdown
 Priority 1: Fix POI count discrepancy and prepare for expansion
-- Update Architecture-Overview.md: 20 → 138 POI locations (current)
+- Update Architecture-Overview.md: 20 → POI locations (current)
 - Add POI expansion roadmap: "138 → 1,000+ locations via Issue #197"
 - Update Home.md: Reference current count with expansion timeline
 - Link to GitHub Issue #197: POI expansion capability

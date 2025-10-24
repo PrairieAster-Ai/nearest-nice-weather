@@ -11,7 +11,7 @@
 - **Revenue**: Ad-supported free platform (no premium features)
 
 ### **Data Model**: POI-Centric Architecture
-- **Primary Data**: 138 Minnesota outdoor recreation POIs in `poi_locations` table
+- **Primary Data**: Minnesota outdoor recreation POIs in `poi_locations` table
 - **POI Types**: State Parks, Trail Systems, State Forests, Nature Centers, Wildlife Refuges
 - **Examples**: "Gooseberry Falls State Park", "Paul Bunyan State Trail", "Deep Portage Conservation Reserve"
 - **Weather Integration**: Each POI enhanced with real-time weather data for activity planning

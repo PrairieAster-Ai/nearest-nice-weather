@@ -198,7 +198,7 @@ function classifyParkType(tags) {
 - [ ] Build basic Overpass API client
 - [ ] Test queries against Minnesota bounding box
 - [ ] Validate data quality for 50 sample locations
-- [ ] Compare against existing 138 POI database for overlap detection
+- [ ] Compare against existing POI database for overlap detection
 - [ ] Establish data normalization pipeline
 
 ### Phase 2: Core Integration (Week 2-3)
@@ -240,7 +240,7 @@ function classifyParkType(tags) {
 
 ### ROI Calculation
 ```
-Current State: 138 POI locations
+Current State: POI locations
 Expansion Potential: 1,000+ locations (7x increase)
 Development Cost: 160 hours @ $150/hour = $24,000
 Potential Revenue Increase: 7x locations = 7x user engagement = ~$252,000 annual impact
