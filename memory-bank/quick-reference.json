@@ -7,11 +7,16 @@
   "healthCheck": "./scripts/comprehensive-health-check.sh localhost",
   "qaAutomation": "npm run qa:deployment-gate",
   "environmentStart": "npm start",
+  "wikiAuthentication": "SSH ONLY (fine-grained tokens cannot push)",
+  "wikiUrl": "https://github.com/PrairieAster-Ai/nearest-nice-weather/wiki",
+  "wikiSshUrl": "git@github.com:PrairieAster-Ai/nearest-nice-weather.wiki.git",
+  "verifySSH": "ssh -T git@github.com",
   "redFlags": [
     "Cities appearing instead of parks",
     "Blank screen on any environment",
     "API querying locations table",
     "Manual screenshot workflow",
-    "B2B features being developed"
+    "B2B features being developed",
+    "Using fine-grained token for Wiki push (will fail with 403)"
   ]
 }

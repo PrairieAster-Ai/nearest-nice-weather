@@ -131,3 +131,4 @@ playwright-report/
 *.swp
 *.swo
 .preview-trigger
+.env*.local

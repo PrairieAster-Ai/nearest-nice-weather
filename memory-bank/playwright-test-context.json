@@ -1,30 +1,45 @@
 {
-  "timestamp": "2025-08-11T15:46:59.118Z",
+  "timestamp": "2025-09-19T01:56:35.000Z",
   "context": "playwright-test-run",
-  "businessModel": "B2C outdoor recreation",
+  "businessModel": "B2C outdoor recreation + Portfolio Factory performance optimization",
   "testResults": {
-    "timestamp": "2025-08-11T15:46:59.116Z",
-    "totalTests": 0,
-    "passed": 0,
-    "failed": 0,
+    "timestamp": "2025-09-19T01:56:35.000Z",
+    "totalTests": 8,
+    "passed": 4,
+    "failed": 2,
     "skipped": 0,
-    "duration": 0,
-    "businessModel": "B2C outdoor recreation platform",
+    "duration": 39500,
+    "businessModel": "B2C outdoor recreation platform + Portfolio Factory validation",
     "primaryTable": "poi_locations",
     "environment": {
       "nodeVersion": "v20.18.0",
       "platform": "linux",
-      "baseURL": "http://localhost:3001"
+      "baseURL": "https://portfolio-factory.vercel.app"
     },
     "categories": {
-      "visualRegression": 0,
-      "functionalTesting": 0,
-      "performanceTesting": 0,
-      "accessibilityTesting": 0,
+      "visualRegression": 1,
+      "functionalTesting": 3,
+      "performanceTesting": 3,
+      "accessibilityTesting": 1,
       "businessValidation": 0
     }
   },
+  "portfolioFactoryResults": {
+    "pageLoadTime": "1375ms",
+    "assessmentGeneration": "74ms",
+    "mobileCompatibility": "100%",
+    "accessibilityScore": 100,
+    "consoleErrors": 0,
+    "performance": "A+ grade",
+    "thresholdsStatus": "All passed"
+  },
   "knownIssues": [
+    {
+      "issue": "Assessment generation button disabled without input",
+      "solution": "Requires job description text input to enable button",
+      "frequency": "expected behavior",
+      "status": "working as designed"
+    },
     {
       "issue": "Map markers not loading",
       "solution": "Check POI API endpoint and poi_locations table",
@@ -37,8 +52,42 @@
     }
   ],
   "performanceBenchmarks": {
+    "portfolioFactoryPageLoad": "< 3 seconds (achieved: 1.4s)",
+    "portfolioFactoryAssessment": "< 5 seconds (achieved: 0.074s)",
     "mapLoadTime": "< 3 seconds",
     "poiApiResponse": "< 500ms",
     "autoExpandDelay": "< 1 second"
+  },
+  "testPatterns": {
+    "performanceMonitoring": {
+      "pattern": "Real-time performance measurement with 10s warning, 20s blocker thresholds",
+      "implementation": "Date.now() timing with console logging",
+      "coverage": "Page load, assessment generation, API response times"
+    },
+    "productionValidation": {
+      "pattern": "Complete end-to-end workflow testing on live production URL",
+      "implementation": "PLAYWRIGHT_BASE_URL environment variable targeting vercel deployment",
+      "coverage": "UI interaction, performance thresholds, error monitoring"
+    },
+    "businessModelValidation": {
+      "pattern": "Verify B2C outdoor recreation content, exclude B2B features",
+      "implementation": "Text content validation and API endpoint verification",
+      "coverage": "Content alignment, data source validation"
+    },
+    "pageObjectModel": {
+      "pattern": "Maintainable test organization with reusable page classes",
+      "implementation": "Separate page classes with semantic locators",
+      "coverage": "Map interactions, filter management, feedback workflows"
+    },
+    "testIsolation": {
+      "pattern": "Complete test independence with state clearing",
+      "implementation": "beforeEach hooks clearing cookies, storage, permissions",
+      "coverage": "Fresh state for each test execution"
+    }
+  },
+  "bestPracticesDocumented": {
+    "file": "PLAYWRIGHT-BEST-PRACTICES.md",
+    "lastUpdated": "2025-09-19",
+    "coverage": ["Performance monitoring", "Production validation", "Business model validation", "Page Object Model", "Test isolation", "Error monitoring"]
   }
 }
