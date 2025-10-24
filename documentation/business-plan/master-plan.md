@@ -6,6 +6,18 @@
 
 ---
 
+## ⚠️ Business Model Clarification
+
+**CURRENT BUSINESS MODEL (2025)**: 100% B2C ad-supported platform for outdoor enthusiasts
+
+**NOT PURSUING**: B2B tourism operator features documented in this plan are **FAR-FUTURE possibilities only** - not part of current 12-24 month roadmap.
+
+**For Current Strategy**: See [PURE-B2C-STRATEGY-2025.md](../strategies/PURE-B2C-STRATEGY-2025.md)
+
+**Last Updated**: October 24, 2025
+
+---
+
 ## Table of Contents
 
 - [Executive Summary](#executive-summary)

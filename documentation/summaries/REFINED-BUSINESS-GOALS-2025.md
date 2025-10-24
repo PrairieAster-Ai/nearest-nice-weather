@@ -1,8 +1,19 @@
-# Refined Business Goals & Strategic Roadmap
-## Weather Intelligence Platform - 2025 Strategic Focus
+# ⚠️ DEPRECATED - B2C→B2B Conversion Strategy
+
+**❌ WARNING: This document describes a B2C→B2B conversion strategy that is NOT the current business model.**
+
+**✅ CURRENT BUSINESS MODEL**: 100% B2C ad-supported platform (see [PURE-B2C-STRATEGY-2025.md](../strategies/PURE-B2C-STRATEGY-2025.md))
+
+**Deprecation Date**: October 24, 2025
+**Reason**: Contradicts validated B2C-only focus documented in memory-bank and Wiki
+
+---
+
+# Refined Business Goals & Strategic Roadmap (LEGACY)
+## Weather Intelligence Platform - 2025 Strategic Focus (OUTDATED)
 
 **Last Updated**: 2025-07-19
-**Purpose**: Resolve B2C vs B2B strategic tensions with validated conversion model
+**Purpose**: ~~Resolve B2C vs B2B strategic tensions~~ **OUTDATED - B2B NOT PURSUED**
 **Basis**: Composite persona analysis + existing market research validation
 
 ---
