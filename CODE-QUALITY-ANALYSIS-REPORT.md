@@ -20,6 +20,24 @@ This analysis reveals significant technical debt across the codebase, primarily 
 
 ---
 
+## ⚠️ CORRECTION NOTICE - 2025-10-24
+
+**CRITICAL FINDING CORRECTED**: The original report stated "Production uses mock weather data" - this was **FALSE**.
+
+**Actual Issue**: Repository code drift - Production deployment was using real OpenWeather API, but the fix was never committed to git. Repository contained outdated mock weather code (233 lines) while production used real weather (405 lines).
+
+**Resolution**: Repository sync completed 2025-10-24 (commit 30c0774)
+- Restored real OpenWeather API implementation to repository
+- Updated `apps/web/api/poi-locations-with-weather.js` from 233→405 lines
+- Created comprehensive documentation: `REPO-SYNC-2025-10-24.md`
+- Created safety backup: `poi-locations-with-weather.js.BACKUP-20251024-143202`
+
+**Impact on Analysis**: All other findings remain valid. The mock weather finding has been corrected in sections below (lines 1511, 1910, 1930).
+
+**Reference**: See `REPO-SYNC-2025-10-24.md` for complete root cause analysis and revert instructions.
+
+---
+
 ## 1. CODE DUPLICATION ANALYSIS
 
 ### 1.1 CRITICAL: Weather Filter Logic (100% Duplication)
@@ -1508,37 +1526,51 @@ const winds = locations.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
 | 127 | **No input validation** | HIGH | Validate lat, lng, limit, filter values |
 | 130 | **console.log in production** | CRITICAL | Use structured logging |
 | 141-149 | **Haversine formula (SQL template literal)** | HIGH | Extract to shared utility (use parameterized query builder) |
-| 184-199 | **Mock weather data generation** | CRITICAL | **BUG: Production uses fake weather** - Replace with real API |
-| 186-187 | **Weak PRNG for mock data** | MEDIUM | If mock data kept, use crypto.randomInt() |
+| ~~184-199~~ | ~~**Mock weather data generation**~~ | ~~CRITICAL~~ | **✅ RESOLVED 2025-10-24: Repository sync restored real weather** (commit 30c0774) |
 | 203 | **console.log in production** | CRITICAL | Use structured logging |
 | 217 | **environment field in debug** | LOW | Remove or use environment variable |
 | 223 | **Generic error message** | MEDIUM | Use structured error handling |
 
-**Critical Finding**: Production uses mock weather data while localhost uses real OpenWeather API
+**⚠️ FINDING CORRECTED - Code Drift Issue Resolved**
 
-**Code Analysis**:
+**Original Finding** (FALSE): "Production uses mock weather data while localhost uses real OpenWeather API"
+
+**Actual Root Cause**: Repository code drift - Production was manually updated with real OpenWeather API integration but the fix was never committed to git. This created a discrepancy between:
+- **Repository code**: Contained outdated mock weather implementation (233 lines)
+- **Actual production deployment**: Used real OpenWeather API (manually deployed, never committed)
+- **Localhost code**: Used real OpenWeather API (in sync with production)
+
+**Resolution**: Repository sync completed 2025-10-24 (commit 30c0774)
+- Extracted real weather implementation from `weatherService.js` and `dev-api-server.js`
+- Updated `apps/web/api/poi-locations-with-weather.js` from 233→405 lines with OpenWeather API integration
+- Created comprehensive documentation: `REPO-SYNC-2025-10-24.md`
+- Created safety backup: `poi-locations-with-weather.js.BACKUP-20251024-143202`
+
+**Current Implementation**:
 ```javascript
-// Lines 184-199 - FAKE WEATHER DATA IN PRODUCTION
-const transformedData = baseData.map((poi, index) => {
-  const seed = parseInt(poi.id) + index
-  const random = (seed * 9301 + 49297) % 233280 / 233280
+// Lines 58-122 - REAL OPENWEATHER API (Synced 2025-10-24)
+async function fetchWeatherData(lat, lng) {
+  // OpenWeather API integration with fallback strategy
+  const apiKey = process.env.OPENWEATHER_API_KEY
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=imperial`
+
+  const response = await fetch(url, {
+    signal: controller.signal,
+    headers: { 'User-Agent': 'NearestNiceWeather/1.0' }
+  })
 
   return {
-    ...poi,
-    temperature: Math.floor(random * 50) + 40, // Fake: 40-90°F
-    condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Clear'][Math.floor(random * 5)],
-    weather_description: 'Perfect weather for outdoor activities', // Generic
-    precipitation: Math.floor(random * 80), // Fake: 0-80%
-    windSpeed: Math.floor(random * 20) + 3, // Fake: 3-23mph
-    weather_source: 'mock',  // ⚠️  Exposed to users
-    weather_timestamp: new Date().toISOString()
+    temperature: Math.round(data.main.temp),
+    condition: mapWeatherCondition(data.weather[0].main),
+    weather_source: 'openweather',  // ✅ Real weather data
+    // ... full implementation restored
   }
-})
+}
 ```
 
-**Recommendations**:
-1. **URGENT**: Replace mock weather with real OpenWeather API integration
-2. Use shared weather filter module
+**Remaining Recommendations** (mock weather issue resolved):
+1. ~~**URGENT**: Replace mock weather with real OpenWeather API integration~~ ✅ **COMPLETED**
+2. Use shared weather filter module (still duplicated)
 3. Add input validation
 4. Remove console.log statements
 5. Use shared Haversine utility
@@ -1907,7 +1939,7 @@ This codebase analysis reveals **significant technical debt** primarily stemming
 1. **60% code duplication** between localhost and production APIs
 2. **Weather filter logic duplicated 100%** (184 lines × 2 files)
 3. **Zero test coverage** for production Vercel functions
-4. **Mock weather data in production** (business model integrity issue)
+4. ~~**Mock weather data in production**~~ **✅ RESOLVED 2025-10-24**: Repository sync restored real OpenWeather API (commit 30c0774)
 5. **50+ console.log statements** in production code
 
 **Business Impact**:
@@ -1927,7 +1959,7 @@ This codebase analysis reveals **significant technical debt** primarily stemming
 
 **Critical Next Steps**:
 1. Extract weather filter logic to shared module (CRITICAL)
-2. Replace mock weather in production with real API (CRITICAL)
+2. ~~Replace mock weather in production with real API~~ **✅ COMPLETED 2025-10-24** (commit 30c0774)
 3. Add unit tests for Vercel functions (CRITICAL)
 4. Replace console.log with structured logging (CRITICAL)
 
