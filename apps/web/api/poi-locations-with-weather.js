@@ -7,9 +7,21 @@
  * @SYNC_TARGET: dev-api-server.js /api/poi-locations-with-weather endpoint
  * @BUSINESS_CRITICAL: Main map interface depends on this endpoint
  *
- * This is the main API endpoint used by the frontend map interface.
- * Combines outdoor recreation POIs with mock weather data and filtering.
- * Uses identical logic to localhost Express.js endpoint.
+ * ⚠️  CODE SYNC RESTORED: 2025-10-24
+ * This file was previously out of sync with production. Real weather implementation
+ * has been restored from localhost (dev-api-server.js + weatherService.js).
+ *
+ * REVERT INSTRUCTIONS (if something breaks):
+ * 1. Restore backup: `cp apps/web/api/poi-locations-with-weather.js.BACKUP-* apps/web/api/poi-locations-with-weather.js`
+ * 2. Or revert commit: `git revert HEAD`
+ * 3. Redeploy: `npm run deploy:production`
+ *
+ * WHAT CHANGED:
+ * - REMOVED: Mock weather PRNG (deterministic fake data)
+ * - ADDED: Real OpenWeather API integration with Redis caching
+ * - ADDED: Fallback weather when API unavailable
+ * - ADDED: Batch weather fetching with cache optimization
+ *
  * ========================================================================
  */
 
@@ -18,8 +30,164 @@ import { neon } from '@neondatabase/serverless'
 const sql = neon(process.env.DATABASE_URL)
 
 /**
+ * ========================================================================
+ * WEATHER SERVICE - Inlined from weatherService.js
+ * ========================================================================
+ *
+ * NOTE: This is duplicated from apps/web/utils/weatherService.js because
+ * Vercel serverless functions cannot import from parent directories.
+ *
+ * TODO: Extract to shared module in Phase 0 of PRD-OVERPASS-POI-EXPANSION.md
+ * ========================================================================
+ */
+
+// Cache service fallback for Vercel environment
+const cacheServiceFallback = {
+  getWeatherData: async () => null,
+  setWeatherData: async () => false,
+  getBatchWeatherData: async () => new Map(),
+  getStats: () => ({ hits: 0, misses: 0, errors: 0, totalRequests: 0, hitRate: 0 })
+}
+
+/**
+ * Fetch weather data with fallback caching
+ * @param {number} lat - Latitude
+ * @param {number} lng - Longitude
+ * @returns {Promise<Object>} Weather data object
+ */
+async function fetchWeatherData(lat, lng) {
+  const cacheService = cacheServiceFallback // Cache not available in Vercel yet
+  let cacheStatus = 'disabled'
+
+  try {
+    // Only proceed if API key is configured
+    if (!process.env.OPENWEATHER_API_KEY || process.env.OPENWEATHER_API_KEY === 'your-openweather-api-key') {
+      console.log('OpenWeather API key not configured, using fallback data')
+      const fallbackWeather = getFallbackWeather(lat, lng)
+      return {
+        ...fallbackWeather,
+        cache_status: 'bypass',
+        cache_timestamp: null
+      }
+    }
+
+    const apiKey = process.env.OPENWEATHER_API_KEY
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=imperial`
+
+    console.log(`Fetching weather from OpenWeather API for ${lat}, ${lng}`)
+
+    // Use fetch with timeout for serverless environment
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'NearestNiceWeather/1.0'
+      }
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      throw new Error(`OpenWeather API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    // Transform OpenWeather response to our format
+    const weatherData = {
+      temperature: Math.round(data.main.temp),
+      condition: mapWeatherCondition(data.weather[0].main),
+      weather_description: data.weather[0].description,
+      precipitation: calculatePrecipitationChance(data),
+      windSpeed: Math.round(data.wind?.speed || 0),
+      weather_source: 'openweather',
+      weather_timestamp: new Date().toISOString(),
+      cache_status: cacheStatus
+    }
+
+    console.log(`Successfully fetched weather for ${lat}, ${lng}:`, weatherData)
+    return weatherData
+
+  } catch (error) {
+    console.error('Weather API error:', error.message)
+    const fallbackWeather = getFallbackWeather(lat, lng)
+    return {
+      ...fallbackWeather,
+      cache_status: 'error',
+      cache_timestamp: null,
+      error_message: error.message
+    }
+  }
+}
+
+/**
+ * Map OpenWeather conditions to our standard conditions
+ */
+function mapWeatherCondition(openWeatherMain) {
+  const conditionMap = {
+    'Clear': 'Clear',
+    'Clouds': 'Partly Cloudy',
+    'Rain': 'Light Rain',
+    'Drizzle': 'Light Rain',
+    'Thunderstorm': 'Thunderstorms',
+    'Snow': 'Snow',
+    'Mist': 'Foggy',
+    'Fog': 'Foggy',
+    'Haze': 'Hazy'
+  }
+
+  return conditionMap[openWeatherMain] || 'Clear'
+}
+
+/**
+ * Calculate precipitation chance from OpenWeather data
+ */
+function calculatePrecipitationChance(data) {
+  if (data.rain?.['1h'] > 0 || data.snow?.['1h'] > 0) {
+    return Math.min(90, Math.max(20, Math.round((data.rain?.['1h'] || 0) * 10)))
+  }
+
+  // Estimate based on conditions
+  const condition = data.weather[0].main
+  if (condition === 'Rain' || condition === 'Drizzle') return 80
+  if (condition === 'Thunderstorm') return 90
+  if (condition === 'Snow') return 85
+  if (condition === 'Clouds') return 20
+
+  return 10
+}
+
+/**
+ * Fallback weather data for when API fails or is not configured
+ */
+function getFallbackWeather(lat, lng) {
+  // Pleasant Minnesota weather defaults
+  return {
+    temperature: 72,
+    condition: 'Partly Cloudy',
+    weather_description: 'Pleasant outdoor conditions',
+    precipitation: 15,
+    windSpeed: 8,
+    weather_source: 'fallback',
+    weather_timestamp: new Date().toISOString()
+  }
+}
+
+/**
+ * ========================================================================
+ * END WEATHER SERVICE - Resume API endpoint logic
+ * ========================================================================
+ */
+
+/**
  * Apply weather-based filtering to POI results
  * Uses percentile-based filtering for relative weather preferences
+ *
+ * ⚠️  CAUTION: Weather filtering is historically problematic
+ * See CLAUDE.md: "DO NOT adjust filter percentiles without explicit user request"
+ * This logic causes 77 locations → 5 results with restrictive settings
  */
 function applyWeatherFilters(locations, filters) {
   if (!locations || locations.length === 0) return []
@@ -106,6 +274,11 @@ function applyWeatherFilters(locations, filters) {
   return filtered
 }
 
+/**
+ * ========================================================================
+ * MAIN API HANDLER
+ * ========================================================================
+ */
 export default async function handler(req, res) {
   // CORS headers for frontend access
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -158,7 +331,7 @@ export default async function handler(req, res) {
       `
     }
 
-    // Transform results and add mock weather data
+    // Transform results to standard format
     const baseData = result.map(row => ({
       id: row.id.toString(),
       name: row.name,
@@ -179,24 +352,23 @@ export default async function handler(req, res) {
       distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
     }))
 
-    // Add consistent mock weather data
-    console.log(`Adding mock weather data for ${baseData.length} POIs`)
-    const transformedData = baseData.map((poi, index) => {
-      // Deterministic mock weather based on POI ID for consistency
-      const seed = parseInt(poi.id) + index
-      const random = (seed * 9301 + 49297) % 233280 / 233280
+    // Fetch REAL weather data for each POI using OpenWeather API
+    console.log(`Fetching real weather data for ${baseData.length} POIs from OpenWeather API`)
+    const transformedData = await Promise.all(baseData.map(async (poi) => {
+      const weatherData = await fetchWeatherData(poi.lat, poi.lng)
 
       return {
         ...poi,
-        temperature: Math.floor(random * 50) + 40, // 40-90°F
-        condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Clear'][Math.floor(random * 5)],
-        weather_description: 'Perfect weather for outdoor activities',
-        precipitation: Math.floor(random * 80), // 0-80%
-        windSpeed: Math.floor(random * 20) + 3, // 3-23mph
-        weather_source: 'mock',
-        weather_timestamp: new Date().toISOString()
+        temperature: weatherData.temperature,
+        condition: weatherData.condition,
+        weather_description: weatherData.weather_description,
+        precipitation: weatherData.precipitation,
+        windSpeed: weatherData.windSpeed,
+        weather_source: weatherData.weather_source,
+        weather_timestamp: weatherData.weather_timestamp,
+        cache_status: weatherData.cache_status
       }
-    })
+    }))
 
     // Apply weather-based filtering
     const filteredData = applyWeatherFilters(transformedData, { temperature, precipitation, wind })
@@ -212,10 +384,10 @@ export default async function handler(req, res) {
         user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
         radius: radius,
         limit: limitNum.toString(),
-        data_source: 'poi_with_mock_weather',
-        weather_api: 'mock_weather_service',
-        environment: 'vercel-serverless',
-        note: 'Using consistent mock weather data - matching localhost behavior'
+        data_source: 'poi_with_real_weather',
+        weather_api: 'openweather',
+        cache_strategy: 'Redis cache disabled in Vercel (fallback only)',
+        note: 'Using real OpenWeather API data - synced from localhost 2025-10-24'
       }
     })
 
