@@ -4,6 +4,9 @@
 // Handles user feedback submission with database storage
 
 import { neon } from '@neondatabase/serverless'
+import { createLogger, createRequestContext, createErrorContext } from '../../../shared/logging/logger.js'
+
+const logger = createLogger('api/feedback')
 
 // Neon serverless database connection
 // Standardized environment variable usage across all environments
@@ -25,9 +28,19 @@ export default async function handler(req, res) {
   }
 
   try {
+    const requestContext = createRequestContext(req)
     const { email, feedback, rating, category, categories, session_id, page_url } = req.body
 
+    logger.info('Feedback submission received', {
+      ...requestContext,
+      hasEmail: !!email,
+      hasRating: !!rating,
+      category: category || 'none',
+      feedbackLength: feedback?.length || 0
+    })
+
     if (!feedback || feedback.trim().length === 0) {
+      logger.warn('Feedback validation failed: empty feedback', requestContext)
       return res.status(400).json({
         success: false,
         error: 'Feedback text is required'
@@ -81,6 +94,13 @@ export default async function handler(req, res) {
 
     const feedbackRecord = result[0]
 
+    logger.info('Feedback submitted successfully', {
+      feedbackId: feedbackRecord.id,
+      category: finalCategory,
+      hasEmail: !!email,
+      rating: rating || 'none'
+    })
+
     res.status(200).json({
       success: true,
       feedback_id: feedbackRecord.id,
@@ -89,7 +109,8 @@ export default async function handler(req, res) {
     })
 
   } catch (error) {
-    console.error('Feedback submission error:', error)
+    const errorContext = createErrorContext(error)
+    logger.error('Feedback submission failed', errorContext)
 
     const errorMessage = process.env.NODE_ENV === 'production'
       ? 'Failed to submit feedback. Please try again.'

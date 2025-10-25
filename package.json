@@ -61,9 +61,10 @@
     "test:record": "playwright codegen localhost:3001",
     "test:mcp:smoke": "playwright test --grep @smoke --ui",
     "test:mcp:critical": "playwright test --grep @critical --debug",
-    "test:unit": "jest",
-    "test:unit:watch": "jest --watch",
-    "test:unit:coverage": "jest --coverage",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:unit:ui": "vitest --ui",
+    "test:unit:coverage": "vitest run --coverage",
     "test:performance": "playwright test tests/performance",
     "test:accessibility": "playwright test tests/accessibility",
     "test:visual": "playwright test tests/visual",
@@ -141,7 +142,11 @@
     "mvp:create": "node .github/scripts/create-accurate-mvp.js",
     "mvp:cleanup": "node .github/scripts/cleanup-issues.js",
     "validate:env": "./scripts/validate-env.sh",
-    "setup": "./scripts/dev-setup.sh"
+    "setup": "./scripts/dev-setup.sh",
+    "test:acceptance": "vitest run tests/acceptance",
+    "test:acceptance:localhost": "TEST_ENV=localhost vitest run tests/acceptance",
+    "test:acceptance:preview": "TEST_ENV=preview vitest run tests/acceptance",
+    "test:acceptance:production": "TEST_ENV=production vitest run tests/acceptance"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -155,6 +160,8 @@
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "adm-zip": "^0.5.16",
     "axe-playwright": "^2.0.1",
     "babel-jest": "^30.1.2",
@@ -163,6 +170,7 @@
     "jest-environment-jsdom": "^30.0.5",
     "playwright": "^1.54.2",
     "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
     "wait-on": "^8.0.1"
   },
   "dependencies": {

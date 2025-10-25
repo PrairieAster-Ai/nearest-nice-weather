@@ -1,189 +1,271 @@
 /**
  * ========================================================================
- * SHARED WEATHER FILTERING - Unified Logic for Dual API Architecture
+ * SHARED WEATHER FILTERS MODULE
  * ========================================================================
  *
- * @PURPOSE: Single source of truth for all weather-based POI filtering
- * @USAGE: Used by both Express.js (localhost) and Vercel functions (production)
- * @BENEFIT: Eliminates filtering logic duplication and sync maintenance overhead
+ * Single source of truth for weather-based POI filtering logic.
  *
- * This module provides consistent weather filtering logic across environments:
- * - localhost: dev-api-server.js imports applyWeatherFilters()
- * - production: apps/web/api/poi-locations-with-weather.js imports applyWeatherFilters()
+ * EXTRACTED FROM:
+ * - dev-api-server.js (lines 54-137) - Localhost Express.js API
+ * - apps/web/api/poi-locations-with-weather.js (lines 192-274) - Production Vercel Function
  *
- * Uses percentile-based filtering for relative weather preferences
- * that adapt to current seasonal conditions automatically.
+ * PURPOSE:
+ * - Eliminate 184 lines of code duplication
+ * - Single place to fix bugs and adjust filtering logic
+ * - Testable, maintainable, reusable
+ *
+ * APPROACH:
+ * - Percentile-based filtering for relative weather preferences
+ * - Adapts to current weather distribution across POIs
+ * - Seasonal relevance without hardcoded temperature thresholds
+ *
+ * ⚠️  CAUTION: Weather filtering is historically problematic
+ * See CLAUDE.md: "DO NOT adjust filter percentiles without explicit user request"
+ * This logic can cause restrictive filtering (77 locations → 5 results)
+ *
+ * @module shared/weather/filters
+ * @version 1.0.0
+ * @created 2025-10-24
+ * @part-of Phase 0: Code Quality Prerequisites (CQ-1)
+ * ========================================================================
  */
 
 /**
  * Apply weather-based filtering to POI results
  * Uses percentile-based filtering for relative weather preferences
  *
- * @param {Array} locations - POI locations with weather data
+ * @param {Array<Object>} locations - Array of POI objects with weather data
  * @param {Object} filters - Weather filter preferences
- * @param {string} filters.temperature - 'cold', 'mild', 'hot', or empty
- * @param {string} filters.precipitation - 'none', 'light', 'heavy', or empty
- * @param {string} filters.wind - 'calm', 'breezy', 'windy', or empty
- * @returns {Array} Filtered POI locations
+ * @param {string} [filters.temperature] - Temperature preference: 'cold', 'hot', 'mild', or ''
+ * @param {string} [filters.precipitation] - Precipitation preference: 'none', 'light', 'heavy', or ''
+ * @param {string} [filters.wind] - Wind preference: 'calm', 'breezy', 'windy', or ''
+ * @param {Function} [logger=console.log] - Optional logging function for diagnostics
+ * @returns {Array<Object>} Filtered array of POI objects
+ *
+ * @example
+ * const filtered = applyWeatherFilters(pois, {
+ *   temperature: 'mild',
+ *   precipitation: 'none',
+ *   wind: 'calm'
+ * });
  */
-export function applyWeatherFilters(locations, filters) {
+export function applyWeatherFilters(locations, filters, logger = console.log) {
+  // Handle empty input
   if (!locations || locations.length === 0) return []
 
+  // Start with all locations
   let filtered = [...locations]
   const startCount = filtered.length
 
-  // Temperature filtering - uses percentile-based approach for seasonal relevance
+  // Apply temperature filter if specified
   if (filters.temperature && filters.temperature !== '') {
-    const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
-    const tempCount = temps.length
-
-    if (filters.temperature === 'cold') {
-      // Show coldest 40% of available temperatures
-      const threshold = temps[Math.floor(tempCount * 0.4)]
-      filtered = filtered.filter(loc => loc.temperature <= threshold)
-      console.log(`❄️ Cold filter: temps ≤ ${threshold}°F`)
-    } else if (filters.temperature === 'hot') {
-      // Show hottest 40% of available temperatures
-      const threshold = temps[Math.floor(tempCount * 0.6)]
-      filtered = filtered.filter(loc => loc.temperature >= threshold)
-      console.log(`🔥 Hot filter: temps ≥ ${threshold}°F`)
-    } else if (filters.temperature === 'mild') {
-      // Show middle 80% of temperatures (exclude extreme 10% on each end)
-      const minThreshold = temps[Math.floor(tempCount * 0.1)]
-      const maxThreshold = temps[Math.floor(tempCount * 0.9)]
-      filtered = filtered.filter(loc => loc.temperature >= minThreshold && loc.temperature <= maxThreshold)
-      console.log(`🌤️ Mild filter: temps ${minThreshold}°F - ${maxThreshold}°F`)
-    }
+    filtered = filterByTemperature(filtered, locations, filters.temperature, logger)
   }
 
-  // Precipitation filtering - based on percentiles of available data
+  // Apply precipitation filter if specified
   if (filters.precipitation && filters.precipitation !== '') {
-    const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b)
-    const precipCount = precips.length
-
-    if (filters.precipitation === 'none') {
-      // Show driest 60% of available locations
-      const threshold = precips[Math.floor(precipCount * 0.6)]
-      filtered = filtered.filter(loc => loc.precipitation <= threshold)
-      console.log(`☀️ No precip filter: precip ≤ ${threshold}%`)
-    } else if (filters.precipitation === 'light') {
-      // Show middle precipitation range (20th-70th percentile)
-      const minThreshold = precips[Math.floor(precipCount * 0.2)]
-      const maxThreshold = precips[Math.floor(precipCount * 0.7)]
-      filtered = filtered.filter(loc => loc.precipitation >= minThreshold && loc.precipitation <= maxThreshold)
-      console.log(`🌦️ Light precip filter: precip ${minThreshold}% - ${maxThreshold}%`)
-    } else if (filters.precipitation === 'heavy') {
-      // Show wettest 30% of available locations
-      const threshold = precips[Math.floor(precipCount * 0.7)]
-      filtered = filtered.filter(loc => loc.precipitation >= threshold)
-      console.log(`🌧️ Heavy precip filter: precip ≥ ${threshold}%`)
-    }
+    filtered = filterByPrecipitation(filtered, locations, filters.precipitation, logger)
   }
 
-  // Wind filtering - based on percentiles of available wind speeds
+  // Apply wind filter if specified
   if (filters.wind && filters.wind !== '') {
-    const winds = locations.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
-    const windCount = winds.length
-
-    if (filters.wind === 'calm') {
-      // Show calmest 50% of available locations
-      const threshold = winds[Math.floor(windCount * 0.5)]
-      filtered = filtered.filter(loc => (loc.windSpeed || 0) <= threshold)
-      console.log(`🍃 Calm filter: wind ≤ ${threshold}mph`)
-    } else if (filters.wind === 'breezy') {
-      // Show middle wind range (30th-70th percentile)
-      const minThreshold = winds[Math.floor(windCount * 0.3)]
-      const maxThreshold = winds[Math.floor(windCount * 0.7)]
-      filtered = filtered.filter(loc => {
-        const windSpeed = loc.windSpeed || 0
-        return windSpeed >= minThreshold && windSpeed <= maxThreshold
-      })
-      console.log(`💨 Breezy filter: wind ${minThreshold} - ${maxThreshold}mph`)
-    } else if (filters.wind === 'windy') {
-      // Show windiest 30% of available locations
-      const threshold = winds[Math.floor(windCount * 0.7)]
-      filtered = filtered.filter(loc => (loc.windSpeed || 0) >= threshold)
-      console.log(`🌪️ Windy filter: wind ≥ ${threshold}mph`)
-    }
+    filtered = filterByWind(filtered, locations, filters.wind, logger)
   }
 
-  console.log(`🎯 Weather filtering: ${startCount} → ${filtered.length} POIs`)
+  // Log final filtering result
+  logger(`Weather filtering: ${startCount} -> ${filtered.length} POIs`)
+
   return filtered
 }
 
 /**
- * Generate mock weather data for testing
- * Used when real weather API is unavailable
+ * Filter locations by temperature preference
+ * Uses percentile-based approach for seasonal relevance
  *
- * @param {number} seed - Random seed for consistent mock data
- * @returns {Object} Mock weather data
+ * @param {Array<Object>} filtered - Current filtered locations
+ * @param {Array<Object>} all - All original locations (for percentile calculation)
+ * @param {string} preference - Temperature preference: 'cold', 'hot', 'mild'
+ * @param {Function} logger - Logging function
+ * @returns {Array<Object>} Temperature-filtered locations
  */
-export function generateMockWeather(seed = Math.random()) {
-  const conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Clear']
-  const descriptions = [
-    'Perfect weather for outdoor activities',
-    'Great conditions for hiking and recreation',
-    'Comfortable weather for exploring',
-    'Pleasant conditions for outdoor fun',
-    'Nice weather for park visits'
-  ]
+function filterByTemperature(filtered, all, preference, logger) {
+  // Calculate temperature percentiles from all locations
+  const temps = all.map(loc => loc.temperature).sort((a, b) => a - b)
+  const tempCount = temps.length
 
-  // Use seed for consistent results during testing
-  const random = () => (seed * 9301 + 49297) % 233280 / 233280
+  switch (preference) {
+    case 'cold':
+      // Show coldest 40% of available temperatures
+      const coldThreshold = temps[Math.floor(tempCount * 0.4)]
+      const coldFiltered = filtered.filter(loc => loc.temperature <= coldThreshold)
+      logger(`Cold filter: temps <= ${coldThreshold}F`)
+      return coldFiltered
 
-  return {
-    temperature: Math.floor(random() * 50) + 40, // 40-90°F
-    condition: conditions[Math.floor(random() * conditions.length)],
-    weather_description: descriptions[Math.floor(random() * descriptions.length)],
-    precipitation: Math.floor(random() * 80), // 0-80%
-    windSpeed: Math.floor(random() * 20) + 3, // 3-23mph
-    weather_source: 'mock',
-    weather_timestamp: new Date().toISOString()
+    case 'hot':
+      // Show hottest 40% of available temperatures
+      const hotThreshold = temps[Math.floor(tempCount * 0.6)]
+      const hotFiltered = filtered.filter(loc => loc.temperature >= hotThreshold)
+      logger(`Hot filter: temps >= ${hotThreshold}F`)
+      return hotFiltered
+
+    case 'mild':
+      // Show middle 80% of temperatures (exclude extreme 10% on each end)
+      const mildMin = temps[Math.floor(tempCount * 0.1)]
+      const mildMax = temps[Math.floor(tempCount * 0.9)]
+      const mildFiltered = filtered.filter(loc =>
+        loc.temperature >= mildMin && loc.temperature <= mildMax
+      )
+      logger(`Mild filter: temps ${mildMin}F - ${mildMax}F`)
+      return mildFiltered
+
+    default:
+      return filtered
   }
 }
 
 /**
- * Validate weather filter parameters
- * Ensures consistent parameter validation across environments
+ * Filter locations by precipitation preference
+ * Uses percentile-based approach for relative filtering
  *
- * @param {Object} filters - Filter parameters to validate
- * @returns {Object} Validation result with normalized filters
+ * @param {Array<Object>} filtered - Current filtered locations
+ * @param {Array<Object>} all - All original locations (for percentile calculation)
+ * @param {string} preference - Precipitation preference: 'none', 'light', 'heavy'
+ * @param {Function} logger - Logging function
+ * @returns {Array<Object>} Precipitation-filtered locations
  */
-export function validateWeatherFilters(filters) {
-  const validTemperatures = ['cold', 'mild', 'hot']
-  const validPrecipitation = ['none', 'light', 'heavy']
-  const validWind = ['calm', 'breezy', 'windy']
+function filterByPrecipitation(filtered, all, preference, logger) {
+  // Calculate precipitation percentiles from all locations
+  const precips = all.map(loc => loc.precipitation).sort((a, b) => a - b)
+  const precipCount = precips.length
 
-  const normalized = {}
-  const errors = []
+  switch (preference) {
+    case 'none':
+      // Show driest 60% of available locations
+      const noneThreshold = precips[Math.floor(precipCount * 0.6)]
+      const noneFiltered = filtered.filter(loc => loc.precipitation <= noneThreshold)
+      logger(`No precip filter: precip <= ${noneThreshold}%`)
+      return noneFiltered
 
-  if (filters.temperature) {
-    if (validTemperatures.includes(filters.temperature)) {
-      normalized.temperature = filters.temperature
-    } else {
-      errors.push(`Invalid temperature filter: ${filters.temperature}`)
-    }
+    case 'light':
+      // Show middle precipitation range (20th-70th percentile)
+      const lightMin = precips[Math.floor(precipCount * 0.2)]
+      const lightMax = precips[Math.floor(precipCount * 0.7)]
+      const lightFiltered = filtered.filter(loc =>
+        loc.precipitation >= lightMin && loc.precipitation <= lightMax
+      )
+      logger(`Light precip filter: precip ${lightMin}% - ${lightMax}%`)
+      return lightFiltered
+
+    case 'heavy':
+      // Show wettest 30% of available locations
+      const heavyThreshold = precips[Math.floor(precipCount * 0.7)]
+      const heavyFiltered = filtered.filter(loc => loc.precipitation >= heavyThreshold)
+      logger(`Heavy precip filter: precip >= ${heavyThreshold}%`)
+      return heavyFiltered
+
+    default:
+      return filtered
+  }
+}
+
+/**
+ * Filter locations by wind preference
+ * Uses percentile-based approach for relative filtering
+ *
+ * @param {Array<Object>} filtered - Current filtered locations
+ * @param {Array<Object>} all - All original locations (for percentile calculation)
+ * @param {string} preference - Wind preference: 'calm', 'breezy', 'windy'
+ * @param {Function} logger - Logging function
+ * @returns {Array<Object>} Wind-filtered locations
+ */
+function filterByWind(filtered, all, preference, logger) {
+  // Calculate wind speed percentiles from all locations
+  const winds = all.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
+  const windCount = winds.length
+
+  switch (preference) {
+    case 'calm':
+      // Show calmest 50% of available locations
+      const calmThreshold = winds[Math.floor(windCount * 0.5)]
+      const calmFiltered = filtered.filter(loc => (loc.windSpeed || 0) <= calmThreshold)
+      logger(`Calm filter: wind <= ${calmThreshold}mph`)
+      return calmFiltered
+
+    case 'breezy':
+      // Show middle wind range (30th-70th percentile)
+      const breezyMin = winds[Math.floor(windCount * 0.3)]
+      const breezyMax = winds[Math.floor(windCount * 0.7)]
+      const breezyFiltered = filtered.filter(loc => {
+        const windSpeed = loc.windSpeed || 0
+        return windSpeed >= breezyMin && windSpeed <= breezyMax
+      })
+      logger(`Breezy filter: wind ${breezyMin} - ${breezyMax}mph`)
+      return breezyFiltered
+
+    case 'windy':
+      // Show windiest 30% of available locations
+      const windyThreshold = winds[Math.floor(windCount * 0.7)]
+      const windyFiltered = filtered.filter(loc => (loc.windSpeed || 0) >= windyThreshold)
+      logger(`Windy filter: wind >= ${windyThreshold}mph`)
+      return windyFiltered
+
+    default:
+      return filtered
+  }
+}
+
+/**
+ * Calculate percentile threshold from sorted array
+ * Helper utility for percentile-based filtering
+ *
+ * @param {Array<number>} sortedValues - Sorted array of numeric values
+ * @param {number} percentile - Percentile (0.0 to 1.0)
+ * @returns {number} Value at the specified percentile
+ *
+ * @example
+ * const temps = [40, 50, 60, 70, 80].sort((a, b) => a - b);
+ * const median = calculatePercentileThreshold(temps, 0.5); // 60
+ */
+export function calculatePercentileThreshold(sortedValues, percentile) {
+  if (!sortedValues || sortedValues.length === 0) return 0
+  const index = Math.floor(sortedValues.length * percentile)
+  return sortedValues[Math.min(index, sortedValues.length - 1)]
+}
+
+/**
+ * Validate filter preferences object
+ * Ensures filter values are valid options
+ *
+ * @param {Object} filters - Filter preferences to validate
+ * @returns {boolean} True if filters are valid
+ *
+ * @example
+ * validateFilters({ temperature: 'mild' }); // true
+ * validateFilters({ temperature: 'invalid' }); // false
+ */
+export function validateFilters(filters) {
+  const validTemperatures = ['', 'cold', 'hot', 'mild']
+  const validPrecipitation = ['', 'none', 'light', 'heavy']
+  const validWind = ['', 'calm', 'breezy', 'windy']
+
+  if (filters.temperature && !validTemperatures.includes(filters.temperature)) {
+    return false
   }
 
-  if (filters.precipitation) {
-    if (validPrecipitation.includes(filters.precipitation)) {
-      normalized.precipitation = filters.precipitation
-    } else {
-      errors.push(`Invalid precipitation filter: ${filters.precipitation}`)
-    }
+  if (filters.precipitation && !validPrecipitation.includes(filters.precipitation)) {
+    return false
   }
 
-  if (filters.wind) {
-    if (validWind.includes(filters.wind)) {
-      normalized.wind = filters.wind
-    } else {
-      errors.push(`Invalid wind filter: ${filters.wind}`)
-    }
+  if (filters.wind && !validWind.includes(filters.wind)) {
+    return false
   }
 
-  return {
-    valid: errors.length === 0,
-    errors: errors,
-    filters: normalized
-  }
+  return true
+}
+
+// Default export for convenience
+export default {
+  applyWeatherFilters,
+  calculatePercentileThreshold,
+  validateFilters
 }

@@ -26,7 +26,9 @@
  */
 
 import { neon } from '@neondatabase/serverless'
+import { createLogger, createRequestContext, createErrorContext } from '../../../shared/logging/logger.js'
 
+const logger = createLogger('api/poi-locations-with-weather')
 const sql = neon(process.env.DATABASE_URL)
 
 /**
@@ -61,8 +63,8 @@ async function fetchWeatherData(lat, lng) {
 
   try {
     // Only proceed if API key is configured
-    if (!process.env.OPENWEATHER_API_KEY || process.env.OPENWEATHER_API_KEY === 'your-openweather-api-key') {
-      console.log('OpenWeather API key not configured, using fallback data')
+    if (!process.env.OPENWEATHER_API_KEY || process.env.OPENWEATHER_API_KEY === 'your-openweather-api-key') { // pragma: allowlist secret
+      logger.warn('OpenWeather API key not configured, using fallback data', { lat, lng })
       const fallbackWeather = getFallbackWeather(lat, lng)
       return {
         ...fallbackWeather,
@@ -74,7 +76,7 @@ async function fetchWeatherData(lat, lng) {
     const apiKey = process.env.OPENWEATHER_API_KEY
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=imperial`
 
-    console.log(`Fetching weather from OpenWeather API for ${lat}, ${lng}`)
+    logger.debug(`Fetching weather from OpenWeather API`, { lat, lng })
 
     // Use fetch with timeout for serverless environment
     const controller = new AbortController()
@@ -107,11 +109,11 @@ async function fetchWeatherData(lat, lng) {
       cache_status: cacheStatus
     }
 
-    console.log(`Successfully fetched weather for ${lat}, ${lng}:`, weatherData)
+    logger.debug('Successfully fetched weather', { lat, lng, condition: weatherData.condition, temperature: weatherData.temperature })
     return weatherData
 
   } catch (error) {
-    console.error('Weather API error:', error.message)
+    logger.error('Weather API error', { error: error.message, lat, lng })
     const fallbackWeather = getFallbackWeather(lat, lng)
     return {
       ...fallbackWeather,
@@ -182,97 +184,160 @@ function getFallbackWeather(lat, lng) {
  */
 
 /**
- * Apply weather-based filtering to POI results
- * Uses percentile-based filtering for relative weather preferences
+ * ========================================================================
+ * WEATHER FILTERS - Inlined from shared/weather/filters.js
+ * ========================================================================
+ *
+ * NOTE: This is inlined from shared/weather/filters.js because Vercel
+ * serverless functions cannot import from parent directories.
+ *
+ * @SYNC_SOURCE: shared/weather/filters.js (single source of truth)
+ * @SYNC_FREQUENCY: Manual sync when filter logic changes
+ * @VERSION: 1.0.0 (2025-10-24)
  *
  * ⚠️  CAUTION: Weather filtering is historically problematic
  * See CLAUDE.md: "DO NOT adjust filter percentiles without explicit user request"
  * This logic causes 77 locations → 5 results with restrictive settings
+ * ========================================================================
  */
-function applyWeatherFilters(locations, filters) {
+
+/**
+ * Apply weather-based filtering to POI results
+ * Uses percentile-based filtering for relative weather preferences
+ */
+function applyWeatherFilters(locations, filters, filterLogger = logger.debug.bind(logger)) {
   if (!locations || locations.length === 0) return []
 
   let filtered = [...locations]
   const startCount = filtered.length
 
-  // Temperature filtering - uses percentile-based approach for seasonal relevance
+  // Apply temperature filter if specified
   if (filters.temperature && filters.temperature !== '') {
-    const temps = locations.map(loc => loc.temperature).sort((a, b) => a - b)
-    const tempCount = temps.length
-
-    if (filters.temperature === 'cold') {
-      // Show coldest 40% of available temperatures
-      const threshold = temps[Math.floor(tempCount * 0.4)]
-      filtered = filtered.filter(loc => loc.temperature <= threshold)
-      console.log(`❄️ Cold filter: temps ≤ ${threshold}°F`)
-    } else if (filters.temperature === 'hot') {
-      // Show hottest 40% of available temperatures
-      const threshold = temps[Math.floor(tempCount * 0.6)]
-      filtered = filtered.filter(loc => loc.temperature >= threshold)
-      console.log(`🔥 Hot filter: temps ≥ ${threshold}°F`)
-    } else if (filters.temperature === 'mild') {
-      // Show middle 80% of temperatures (exclude extreme 10% on each end)
-      const minThreshold = temps[Math.floor(tempCount * 0.1)]
-      const maxThreshold = temps[Math.floor(tempCount * 0.9)]
-      filtered = filtered.filter(loc => loc.temperature >= minThreshold && loc.temperature <= maxThreshold)
-      console.log(`🌤️ Mild filter: temps ${minThreshold}°F - ${maxThreshold}°F`)
-    }
+    filtered = filterByTemperature(filtered, locations, filters.temperature, filterLogger)
   }
 
-  // Precipitation filtering - based on percentiles of available data
+  // Apply precipitation filter if specified
   if (filters.precipitation && filters.precipitation !== '') {
-    const precips = locations.map(loc => loc.precipitation).sort((a, b) => a - b)
-    const precipCount = precips.length
-
-    if (filters.precipitation === 'none') {
-      // Show driest 60% of available locations
-      const threshold = precips[Math.floor(precipCount * 0.6)]
-      filtered = filtered.filter(loc => loc.precipitation <= threshold)
-      console.log(`☀️ No precip filter: precip ≤ ${threshold}%`)
-    } else if (filters.precipitation === 'light') {
-      // Show middle precipitation range (20th-70th percentile)
-      const minThreshold = precips[Math.floor(precipCount * 0.2)]
-      const maxThreshold = precips[Math.floor(precipCount * 0.7)]
-      filtered = filtered.filter(loc => loc.precipitation >= minThreshold && loc.precipitation <= maxThreshold)
-      console.log(`🌦️ Light precip filter: precip ${minThreshold}% - ${maxThreshold}%`)
-    } else if (filters.precipitation === 'heavy') {
-      // Show wettest 30% of available locations
-      const threshold = precips[Math.floor(precipCount * 0.7)]
-      filtered = filtered.filter(loc => loc.precipitation >= threshold)
-      console.log(`🌧️ Heavy precip filter: precip ≥ ${threshold}%`)
-    }
+    filtered = filterByPrecipitation(filtered, locations, filters.precipitation, filterLogger)
   }
 
-  // Wind filtering - based on percentiles of available wind speeds
+  // Apply wind filter if specified
   if (filters.wind && filters.wind !== '') {
-    const winds = locations.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
-    const windCount = winds.length
-
-    if (filters.wind === 'calm') {
-      // Show calmest 50% of available locations
-      const threshold = winds[Math.floor(windCount * 0.5)]
-      filtered = filtered.filter(loc => (loc.windSpeed || 0) <= threshold)
-      console.log(`🍃 Calm filter: wind ≤ ${threshold}mph`)
-    } else if (filters.wind === 'breezy') {
-      // Show middle wind range (30th-70th percentile)
-      const minThreshold = winds[Math.floor(windCount * 0.3)]
-      const maxThreshold = winds[Math.floor(windCount * 0.7)]
-      filtered = filtered.filter(loc => {
-        const windSpeed = loc.windSpeed || 0
-        return windSpeed >= minThreshold && windSpeed <= maxThreshold
-      })
-      console.log(`💨 Breezy filter: wind ${minThreshold} - ${maxThreshold}mph`)
-    } else if (filters.wind === 'windy') {
-      // Show windiest 30% of available locations
-      const threshold = winds[Math.floor(windCount * 0.7)]
-      filtered = filtered.filter(loc => (loc.windSpeed || 0) >= threshold)
-      console.log(`🌪️ Windy filter: wind ≥ ${threshold}mph`)
-    }
+    filtered = filterByWind(filtered, locations, filters.wind, filterLogger)
   }
 
-  console.log(`🎯 Weather filtering: ${startCount} → ${filtered.length} POIs`)
+  filterLogger(`🎯 Weather filtering: ${startCount} → ${filtered.length} POIs`)
   return filtered
 }
+
+/**
+ * Filter locations by temperature preference
+ */
+function filterByTemperature(filtered, all, preference, logger) {
+  const temps = all.map(loc => loc.temperature).sort((a, b) => a - b)
+  const tempCount = temps.length
+
+  switch (preference) {
+    case 'cold':
+      const coldThreshold = temps[Math.floor(tempCount * 0.4)]
+      const coldFiltered = filtered.filter(loc => loc.temperature <= coldThreshold)
+      logger(`❄️ Cold filter: temps ≤ ${coldThreshold}°F`)
+      return coldFiltered
+
+    case 'hot':
+      const hotThreshold = temps[Math.floor(tempCount * 0.6)]
+      const hotFiltered = filtered.filter(loc => loc.temperature >= hotThreshold)
+      logger(`🔥 Hot filter: temps ≥ ${hotThreshold}°F`)
+      return hotFiltered
+
+    case 'mild':
+      const mildMin = temps[Math.floor(tempCount * 0.1)]
+      const mildMax = temps[Math.floor(tempCount * 0.9)]
+      const mildFiltered = filtered.filter(loc =>
+        loc.temperature >= mildMin && loc.temperature <= mildMax
+      )
+      logger(`🌤️ Mild filter: temps ${mildMin}°F - ${mildMax}°F`)
+      return mildFiltered
+
+    default:
+      return filtered
+  }
+}
+
+/**
+ * Filter locations by precipitation preference
+ */
+function filterByPrecipitation(filtered, all, preference, logger) {
+  const precips = all.map(loc => loc.precipitation).sort((a, b) => a - b)
+  const precipCount = precips.length
+
+  switch (preference) {
+    case 'none':
+      const noneThreshold = precips[Math.floor(precipCount * 0.6)]
+      const noneFiltered = filtered.filter(loc => loc.precipitation <= noneThreshold)
+      logger(`☀️ No precip filter: precip ≤ ${noneThreshold}%`)
+      return noneFiltered
+
+    case 'light':
+      const lightMin = precips[Math.floor(precipCount * 0.2)]
+      const lightMax = precips[Math.floor(precipCount * 0.7)]
+      const lightFiltered = filtered.filter(loc =>
+        loc.precipitation >= lightMin && loc.precipitation <= lightMax
+      )
+      logger(`🌦️ Light precip filter: precip ${lightMin}% - ${lightMax}%`)
+      return lightFiltered
+
+    case 'heavy':
+      const heavyThreshold = precips[Math.floor(precipCount * 0.7)]
+      const heavyFiltered = filtered.filter(loc => loc.precipitation >= heavyThreshold)
+      logger(`🌧️ Heavy precip filter: precip ≥ ${heavyThreshold}%`)
+      return heavyFiltered
+
+    default:
+      return filtered
+  }
+}
+
+/**
+ * Filter locations by wind preference
+ */
+function filterByWind(filtered, all, preference, logger) {
+  const winds = all.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
+  const windCount = winds.length
+
+  switch (preference) {
+    case 'calm':
+      const calmThreshold = winds[Math.floor(windCount * 0.5)]
+      const calmFiltered = filtered.filter(loc => (loc.windSpeed || 0) <= calmThreshold)
+      logger(`🍃 Calm filter: wind ≤ ${calmThreshold}mph`)
+      return calmFiltered
+
+    case 'breezy':
+      const breezyMin = winds[Math.floor(windCount * 0.3)]
+      const breezyMax = winds[Math.floor(windCount * 0.7)]
+      const breezyFiltered = filtered.filter(loc => {
+        const windSpeed = loc.windSpeed || 0
+        return windSpeed >= breezyMin && windSpeed <= breezyMax
+      })
+      logger(`💨 Breezy filter: wind ${breezyMin} - ${breezyMax}mph`)
+      return breezyFiltered
+
+    case 'windy':
+      const windyThreshold = winds[Math.floor(windCount * 0.7)]
+      const windyFiltered = filtered.filter(loc => (loc.windSpeed || 0) >= windyThreshold)
+      logger(`🌪️ Windy filter: wind ≥ ${windyThreshold}mph`)
+      return windyFiltered
+
+    default:
+      return filtered
+  }
+}
+
+/**
+ * ========================================================================
+ * END WEATHER FILTERS - Resume API endpoint logic
+ * ========================================================================
+ */
 
 /**
  * ========================================================================
@@ -300,7 +365,15 @@ export default async function handler(req, res) {
     const { lat, lng, radius = '50', limit = '200', temperature, precipitation, wind } = req.query
     const limitNum = Math.min(parseInt(limit) || 200, 500)
 
-    console.log('🔍 POI-Weather query parameters:', { lat, lng, radius, limit, temperature, precipitation, wind })
+    const requestContext = createRequestContext(req)
+    logger.info('POI-Weather query received', {
+      ...requestContext,
+      lat,
+      lng,
+      radius,
+      limit,
+      filters: { temperature, precipitation, wind }
+    })
 
     let result
     if (lat && lng) {
@@ -353,7 +426,7 @@ export default async function handler(req, res) {
     }))
 
     // Fetch REAL weather data for each POI using OpenWeather API
-    console.log(`Fetching real weather data for ${baseData.length} POIs from OpenWeather API`)
+    logger.debug('Fetching weather data for POIs', { poiCount: baseData.length })
     const transformedData = await Promise.all(baseData.map(async (poi) => {
       const weatherData = await fetchWeatherData(poi.lat, poi.lng)
 
@@ -372,7 +445,11 @@ export default async function handler(req, res) {
 
     // Apply weather-based filtering
     const filteredData = applyWeatherFilters(transformedData, { temperature, precipitation, wind })
-    console.log(`After weather filtering: ${filteredData.length} POIs`)
+    logger.info('Weather filtering complete', {
+      originalCount: transformedData.length,
+      filteredCount: filteredData.length,
+      hasFilters: !!(temperature || precipitation || wind)
+    })
 
     res.json({
       success: true,
@@ -392,7 +469,8 @@ export default async function handler(req, res) {
     })
 
   } catch (error) {
-    console.error('POI-Weather API error:', error)
+    const errorContext = createErrorContext(error)
+    logger.error('POI-Weather API error', errorContext)
 
     res.status(500).json({
       success: false,

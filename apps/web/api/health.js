@@ -3,6 +3,10 @@
 // ========================================================================
 // Simple health check endpoint for production monitoring
 
+import { createLogger, createRequestContext, createErrorContext } from '../../../shared/logging/logger.js'
+
+const logger = createLogger('api/health')
+
 export default async function handler(req, res) {
   // CORS headers for frontend access
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -19,6 +23,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    const requestContext = createRequestContext(req)
+    logger.info('Health check requested', requestContext)
+
     res.json({
       success: true,
       message: 'Production API server is running',
@@ -32,7 +39,8 @@ export default async function handler(req, res) {
       }
     })
   } catch (error) {
-    console.error('Health check error:', error)
+    const errorContext = createErrorContext(error)
+    logger.error('Health check failed', errorContext)
 
     res.status(500).json({
       success: false,
