@@ -84,6 +84,7 @@ class DatabaseImporter {
 
         } catch (error) {
           console.log(`❌ Error processing POI ${poi.name}: ${error.message}`)
+          console.log(`   POI Data:`, JSON.stringify(poi, null, 2))
           stats.errors++
           throw error // Rollback transaction on error
         }
@@ -153,18 +154,24 @@ class DatabaseImporter {
   async checkDuplicate(client, lat, lng) {
     const thresholdMiles = this.duplicateThresholdMeters / 1609.34 // Convert meters to miles
 
+    // Use GREATEST/LEAST to clamp acos input to valid range [-1, 1]
+    // This prevents "input is out of range" errors from floating-point precision issues
     const result = await client.query(`
       SELECT id, name,
         (3959 * acos(
-          cos(radians($1)) * cos(radians(lat)) *
-          cos(radians(lng) - radians($2)) +
-          sin(radians($1)) * sin(radians(lat))
+          GREATEST(-1, LEAST(1,
+            cos(radians($1)) * cos(radians(lat)) *
+            cos(radians(lng) - radians($2)) +
+            sin(radians($1)) * sin(radians(lat))
+          ))
         )) as distance_miles
       FROM poi_locations
       WHERE (3959 * acos(
-        cos(radians($1)) * cos(radians(lat)) *
-        cos(radians(lng) - radians($2)) +
-        sin(radians($1)) * sin(radians(lat))
+        GREATEST(-1, LEAST(1,
+          cos(radians($1)) * cos(radians(lat)) *
+          cos(radians(lng) - radians($2)) +
+          sin(radians($1)) * sin(radians(lat))
+        ))
       )) < $3
       LIMIT 1
     `, [lat, lng, thresholdMiles])

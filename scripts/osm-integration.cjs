@@ -642,10 +642,15 @@ class OSMIntegration {
     // Calculate place rank from park level
     const placeRank = this.calculatePlaceRank(parkLevel)
 
+    // Round coordinates to 8 decimal places (PostgreSQL DECIMAL(10,8) / DECIMAL(11,8) limit)
+    // 8 decimal places = ~1.1mm precision, more than sufficient for POI locations
+    const lat = Math.round(parseFloat(coordinates.lat) * 100000000) / 100000000
+    const lng = Math.round(parseFloat(coordinates.lng) * 100000000) / 100000000
+
     return {
       name: tags.name,
-      lat: parseFloat(coordinates.lat),
-      lng: parseFloat(coordinates.lng),
+      lat,
+      lng,
       park_type: this.classifyParkType(element),
       park_level: parkLevel,
       ownership: tags.ownership || tags.operator,
