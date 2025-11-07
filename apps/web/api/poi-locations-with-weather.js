@@ -404,7 +404,8 @@ export default async function handler(req, res) {
       `
     }
 
-    // Transform results to standard format
+    // Transform results to standard format with FULL POI metadata
+    // @SYNC_NOTE: Must match dev-api-server.js response structure exactly
     const baseData = result.map(row => ({
       id: row.id.toString(),
       name: row.name,
@@ -421,25 +422,26 @@ export default async function handler(req, res) {
       website: row.website || null,
       amenities: row.amenities || [],
       activities: row.activities || [],
-      place_rank: row.place_rank || row.importance_rank || 1,
+      place_rank: row.place_rank || 1,
       distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
     }))
 
     // Fetch REAL weather data for each POI using OpenWeather API
+    // @SYNC_NOTE: Weather field structure must match dev-api-server.js:823-855
     logger.debug('Fetching weather data for POIs', { poiCount: baseData.length })
     const transformedData = await Promise.all(baseData.map(async (poi) => {
       const weatherData = await fetchWeatherData(poi.lat, poi.lng)
 
       return {
         ...poi,
+        // Weather data fields (matching localhost structure)
         temperature: weatherData.temperature,
         condition: weatherData.condition,
         weather_description: weatherData.weather_description,
         precipitation: weatherData.precipitation,
         windSpeed: weatherData.windSpeed,
         weather_source: weatherData.weather_source,
-        weather_timestamp: weatherData.weather_timestamp,
-        cache_status: weatherData.cache_status
+        weather_timestamp: weatherData.weather_timestamp
       }
     }))
 
@@ -463,8 +465,8 @@ export default async function handler(req, res) {
         limit: limitNum.toString(),
         data_source: 'poi_with_real_weather',
         weather_api: 'openweather',
-        cache_strategy: 'Redis cache disabled in Vercel (fallback only)',
-        note: 'Using real OpenWeather API data - synced from localhost 2025-10-24'
+        cache_strategy: 'Serverless - no persistent cache',
+        note: 'Using real OpenWeather API data - response structure synced with localhost 2025-11-07'
       }
     })
 
