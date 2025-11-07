@@ -204,8 +204,8 @@ class DatabaseImporter {
       poi.place_rank || 50,
       poi.phone || null,
       poi.website || null,
-      poi.amenities || [],  // Pass as array, not JSON string
-      poi.activities || []  // Pass as array, not JSON string
+      JSON.stringify(poi.amenities || []),  // Serialize as JSON string for PostgreSQL
+      JSON.stringify(poi.activities || [])  // Serialize as JSON string for PostgreSQL
     ])
   }
 
