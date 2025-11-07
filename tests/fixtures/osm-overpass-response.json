@@ -1,0 +1,161 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API Mock",
+  "elements": [
+    {
+      "type": "node",
+      "id": 123456789,
+      "lat": 44.9153,
+      "lon": -93.2111,
+      "tags": {
+        "name": "Minnehaha Falls Regional Park",
+        "leisure": "park",
+        "park:type": "regional",
+        "operator": "Minneapolis Park and Recreation Board",
+        "website": "https://www.minneapolisparks.org/parks__destinations/parks__lakes/minnehaha_regional_park/",
+        "description": "Historic waterfall park with paved trails and scenic overlooks"
+      }
+    },
+    {
+      "type": "way",
+      "id": 987654321,
+      "center": {
+        "lat": 47.1389,
+        "lon": -91.4706
+      },
+      "tags": {
+        "name": "Gooseberry Falls State Park",
+        "leisure": "nature_reserve",
+        "protection_title": "State Park",
+        "operator": "Minnesota DNR",
+        "website": "https://www.dnr.state.mn.us/state_parks/park.html?id=spk00181",
+        "phone": "+1-218-595-7100",
+        "description": "Spectacular waterfalls along Lake Superior with hiking trails"
+      }
+    },
+    {
+      "type": "relation",
+      "id": 456789123,
+      "center": {
+        "lat": 47.2181,
+        "lon": -95.2058
+      },
+      "tags": {
+        "name": "Itasca State Park",
+        "boundary": "protected_area",
+        "protection_title": "State Park",
+        "leisure": "nature_reserve",
+        "operator": "Minnesota DNR",
+        "phone": "+1-218-266-2100",
+        "website": "https://www.dnr.state.mn.us/state_parks/park.html?id=spk00181",
+        "description": "Minnesota's first state park, headwaters of the Mississippi River"
+      }
+    },
+    {
+      "type": "node",
+      "id": 234567890,
+      "lat": 45.2450,
+      "lon": -93.2800,
+      "tags": {
+        "name": "Bunker Hills Regional Park",
+        "leisure": "park",
+        "park:type": "regional",
+        "operator": "Anoka County",
+        "ownership": "Anoka County",
+        "description": "Multi-use park with trails, beach, and recreational facilities"
+      }
+    },
+    {
+      "type": "way",
+      "id": 345678901,
+      "center": {
+        "lat": 44.8800,
+        "lon": -93.2200
+      },
+      "tags": {
+        "name": "Fort Snelling State Park",
+        "leisure": "nature_reserve",
+        "protection_title": "State Park",
+        "operator": "Minnesota DNR",
+        "description": "Historic fort and confluence of Mississippi and Minnesota rivers"
+      }
+    },
+    {
+      "type": "node",
+      "id": 567890123,
+      "lat": 47.5689,
+      "lon": -90.8742,
+      "tags": {
+        "name": "Temperance River State Park",
+        "leisure": "nature_reserve",
+        "protection_title": "State Park",
+        "operator": "Minnesota DNR",
+        "description": "Deep river gorge and cascading waterfalls with hiking trails"
+      }
+    },
+    {
+      "type": "node",
+      "id": 678901234,
+      "lat": 45.3600,
+      "lon": -93.2000,
+      "tags": {
+        "name": "Rum River Central Regional Park",
+        "leisure": "park",
+        "park:type": "regional",
+        "operator": "Anoka County",
+        "ownership": "Anoka County",
+        "description": "River park with canoe access and hiking trails"
+      }
+    },
+    {
+      "type": "relation",
+      "id": 789012345,
+      "center": {
+        "lat": 47.9953,
+        "lon": -89.6842
+      },
+      "tags": {
+        "name": "Grand Portage National Monument",
+        "boundary": "national_park",
+        "leisure": "nature_reserve",
+        "operator": "National Park Service",
+        "ownership": "National Park Service",
+        "phone": "+1-218-475-0123",
+        "website": "https://www.nps.gov/grpo/",
+        "description": "Historic fur trade depot and Ojibwe heritage site on Lake Superior"
+      }
+    },
+    {
+      "type": "node",
+      "id": 890123456,
+      "lat": 44.7400,
+      "lon": -93.1100,
+      "tags": {
+        "name": "Lebanon Hills Regional Park",
+        "leisure": "park",
+        "park:type": "regional",
+        "operator": "Dakota County",
+        "ownership": "Dakota County",
+        "description": "Large county park with trails, lakes, and winter recreation"
+      }
+    },
+    {
+      "type": "way",
+      "id": 901234567,
+      "center": {
+        "lat": 48.4839,
+        "lon": -92.8382
+      },
+      "tags": {
+        "name": "Voyageurs National Park",
+        "boundary": "national_park",
+        "leisure": "nature_reserve",
+        "operator": "National Park Service",
+        "ownership": "National Park Service",
+        "phone": "+1-218-283-6600",
+        "website": "https://www.nps.gov/voya/",
+        "description": "Water-based national park in the Boundary Waters region"
+      }
+    }
+  ]
+}

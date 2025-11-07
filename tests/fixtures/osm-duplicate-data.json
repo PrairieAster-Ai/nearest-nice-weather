@@ -1,0 +1,89 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API Mock - Duplicate Test Data",
+  "elements": [
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": 44.9153,
+      "lon": -93.2111,
+      "tags": {
+        "name": "Minnehaha Falls Park",
+        "leisure": "park",
+        "operator": "Minneapolis Parks"
+      },
+      "test_case": "exact_duplicate_coordinates"
+    },
+    {
+      "type": "node",
+      "id": 1002,
+      "lat": 44.9153,
+      "lon": -93.2111,
+      "tags": {
+        "name": "Minnehaha Regional Park",
+        "leisure": "park",
+        "operator": "Minneapolis Park Board"
+      },
+      "test_case": "exact_duplicate_coordinates_different_name"
+    },
+    {
+      "type": "node",
+      "id": 1003,
+      "lat": 44.9154,
+      "lon": -93.2112,
+      "tags": {
+        "name": "Minnehaha Falls Entrance",
+        "leisure": "park",
+        "operator": "Minneapolis Parks"
+      },
+      "test_case": "within_10_meters"
+    },
+    {
+      "type": "node",
+      "id": 1004,
+      "lat": 44.9160,
+      "lon": -93.2120,
+      "tags": {
+        "name": "Minnehaha Falls North Entrance",
+        "leisure": "park"
+      },
+      "test_case": "within_100_meters_should_not_be_duplicate"
+    },
+    {
+      "type": "node",
+      "id": 2001,
+      "lat": 47.1389,
+      "lon": -91.4706,
+      "tags": {
+        "name": "Gooseberry Falls State Park",
+        "leisure": "nature_reserve",
+        "protection_title": "State Park"
+      },
+      "test_case": "exact_duplicate_from_main_fixture"
+    },
+    {
+      "type": "way",
+      "id": 2002,
+      "center": {
+        "lat": 47.1389,
+        "lon": -91.4706
+      },
+      "tags": {
+        "name": "Gooseberry Falls SP",
+        "leisure": "nature_reserve"
+      },
+      "test_case": "exact_duplicate_different_element_type"
+    },
+    {
+      "type": "node",
+      "id": 2003,
+      "lat": 47.13895,
+      "lon": -91.47065,
+      "tags": {
+        "name": "Gooseberry Falls Visitor Center",
+        "tourism": "information"
+      },
+      "test_case": "within_5_meters_tiny_offset"
+    }
+  ]
+}

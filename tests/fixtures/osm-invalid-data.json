@@ -1,0 +1,152 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API Mock - Invalid Test Data",
+  "elements": [
+    {
+      "type": "node",
+      "id": 1,
+      "lat": null,
+      "lon": -93.2650,
+      "tags": {
+        "name": "Missing Latitude Park",
+        "leisure": "park"
+      },
+      "test_case": "missing_lat"
+    },
+    {
+      "type": "node",
+      "id": 2,
+      "lat": 44.9778,
+      "lon": null,
+      "tags": {
+        "name": "Missing Longitude Park",
+        "leisure": "park"
+      },
+      "test_case": "missing_lng"
+    },
+    {
+      "type": "node",
+      "id": 3,
+      "lat": 35.0000,
+      "lon": -93.0000,
+      "tags": {
+        "name": "Outside Minnesota Park",
+        "leisure": "park"
+      },
+      "test_case": "outside_minnesota_bounds_south"
+    },
+    {
+      "type": "node",
+      "id": 4,
+      "lat": 50.0000,
+      "lon": -93.0000,
+      "tags": {
+        "name": "Outside Minnesota Park North",
+        "leisure": "park"
+      },
+      "test_case": "outside_minnesota_bounds_north"
+    },
+    {
+      "type": "node",
+      "id": 5,
+      "lat": 44.9778,
+      "lon": -98.0000,
+      "tags": {
+        "name": "Outside Minnesota Park West",
+        "leisure": "park"
+      },
+      "test_case": "outside_minnesota_bounds_west"
+    },
+    {
+      "type": "node",
+      "id": 6,
+      "lat": 44.9778,
+      "lon": -88.0000,
+      "tags": {
+        "name": "Outside Minnesota Park East",
+        "leisure": "park"
+      },
+      "test_case": "outside_minnesota_bounds_east"
+    },
+    {
+      "type": "node",
+      "id": 7,
+      "lat": 44.9778,
+      "lon": -93.2650,
+      "tags": {},
+      "test_case": "missing_name_no_tags"
+    },
+    {
+      "type": "node",
+      "id": 8,
+      "lat": 44.9778,
+      "lon": -93.2650,
+      "tags": {
+        "leisure": "park"
+      },
+      "test_case": "missing_name_with_leisure"
+    },
+    {
+      "type": "node",
+      "id": 9,
+      "lat": 44.9778,
+      "lon": -93.2650,
+      "tags": {
+        "name": "A",
+        "leisure": "park"
+      },
+      "test_case": "name_too_short_1_char"
+    },
+    {
+      "type": "node",
+      "id": 10,
+      "lat": 44.9778,
+      "lon": -93.2650,
+      "tags": {
+        "name": "AB",
+        "leisure": "park"
+      },
+      "test_case": "name_too_short_2_chars"
+    },
+    {
+      "type": "way",
+      "id": 11,
+      "tags": {
+        "name": "No Coordinates Way",
+        "leisure": "park"
+      },
+      "test_case": "way_without_center_or_nodes"
+    },
+    {
+      "type": "relation",
+      "id": 12,
+      "tags": {
+        "name": "No Coordinates Relation",
+        "leisure": "park"
+      },
+      "test_case": "relation_without_center_or_members"
+    },
+    {
+      "type": "node",
+      "id": 13,
+      "lat": "invalid",
+      "lon": -93.2650,
+      "tags": {
+        "name": "Invalid Latitude Type",
+        "leisure": "park"
+      },
+      "test_case": "invalid_lat_type"
+    },
+    {
+      "type": "node",
+      "id": 14,
+      "lat": 44.9778,
+      "lon": "invalid",
+      "tags": {
+        "name": "Invalid Longitude Type",
+        "leisure": "park"
+      },
+      "test_case": "invalid_lng_type"
+    }
+  ]
+}
