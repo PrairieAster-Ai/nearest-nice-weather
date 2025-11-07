@@ -26,7 +26,7 @@
  */
 
 import { neon } from '@neondatabase/serverless'
-import { createLogger, createRequestContext, createErrorContext } from '../../../shared/logging/logger.js'
+import { createLogger, createRequestContext, createErrorContext } from '../shared/logging/logger.js'
 
 const logger = createLogger('api/poi-locations-with-weather')
 const sql = neon(process.env.DATABASE_URL)
