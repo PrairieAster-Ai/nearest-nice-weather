@@ -27,6 +27,8 @@
 
 import { neon } from '@neondatabase/serverless'
 import { createLogger, createRequestContext, createErrorContext } from '../../../shared/logging/logger.js'
+import { applyWeatherFilters } from '../../../shared/weather/filters.js'
+import { buildNeonPOIQuery } from '../../../shared/database/queries.js'
 
 const logger = createLogger('api/poi-locations-with-weather')
 const sql = neon(process.env.DATABASE_URL)
@@ -185,162 +187,6 @@ function getFallbackWeather(lat, lng) {
 
 /**
  * ========================================================================
- * WEATHER FILTERS - Inlined from shared/weather/filters.js
- * ========================================================================
- *
- * NOTE: This is inlined from shared/weather/filters.js because Vercel
- * serverless functions cannot import from parent directories.
- *
- * @SYNC_SOURCE: shared/weather/filters.js (single source of truth)
- * @SYNC_FREQUENCY: Manual sync when filter logic changes
- * @VERSION: 1.0.0 (2025-10-24)
- *
- * ⚠️  CAUTION: Weather filtering is historically problematic
- * See CLAUDE.md: "DO NOT adjust filter percentiles without explicit user request"
- * This logic causes 77 locations → 5 results with restrictive settings
- * ========================================================================
- */
-
-/**
- * Apply weather-based filtering to POI results
- * Uses percentile-based filtering for relative weather preferences
- */
-function applyWeatherFilters(locations, filters, filterLogger = logger.debug.bind(logger)) {
-  if (!locations || locations.length === 0) return []
-
-  let filtered = [...locations]
-  const startCount = filtered.length
-
-  // Apply temperature filter if specified
-  if (filters.temperature && filters.temperature !== '') {
-    filtered = filterByTemperature(filtered, locations, filters.temperature, filterLogger)
-  }
-
-  // Apply precipitation filter if specified
-  if (filters.precipitation && filters.precipitation !== '') {
-    filtered = filterByPrecipitation(filtered, locations, filters.precipitation, filterLogger)
-  }
-
-  // Apply wind filter if specified
-  if (filters.wind && filters.wind !== '') {
-    filtered = filterByWind(filtered, locations, filters.wind, filterLogger)
-  }
-
-  filterLogger(`🎯 Weather filtering: ${startCount} → ${filtered.length} POIs`)
-  return filtered
-}
-
-/**
- * Filter locations by temperature preference
- */
-function filterByTemperature(filtered, all, preference, logger) {
-  const temps = all.map(loc => loc.temperature).sort((a, b) => a - b)
-  const tempCount = temps.length
-
-  switch (preference) {
-    case 'cold':
-      const coldThreshold = temps[Math.floor(tempCount * 0.4)]
-      const coldFiltered = filtered.filter(loc => loc.temperature <= coldThreshold)
-      logger(`❄️ Cold filter: temps ≤ ${coldThreshold}°F`)
-      return coldFiltered
-
-    case 'hot':
-      const hotThreshold = temps[Math.floor(tempCount * 0.6)]
-      const hotFiltered = filtered.filter(loc => loc.temperature >= hotThreshold)
-      logger(`🔥 Hot filter: temps ≥ ${hotThreshold}°F`)
-      return hotFiltered
-
-    case 'mild':
-      const mildMin = temps[Math.floor(tempCount * 0.1)]
-      const mildMax = temps[Math.floor(tempCount * 0.9)]
-      const mildFiltered = filtered.filter(loc =>
-        loc.temperature >= mildMin && loc.temperature <= mildMax
-      )
-      logger(`🌤️ Mild filter: temps ${mildMin}°F - ${mildMax}°F`)
-      return mildFiltered
-
-    default:
-      return filtered
-  }
-}
-
-/**
- * Filter locations by precipitation preference
- */
-function filterByPrecipitation(filtered, all, preference, logger) {
-  const precips = all.map(loc => loc.precipitation).sort((a, b) => a - b)
-  const precipCount = precips.length
-
-  switch (preference) {
-    case 'none':
-      const noneThreshold = precips[Math.floor(precipCount * 0.6)]
-      const noneFiltered = filtered.filter(loc => loc.precipitation <= noneThreshold)
-      logger(`☀️ No precip filter: precip ≤ ${noneThreshold}%`)
-      return noneFiltered
-
-    case 'light':
-      const lightMin = precips[Math.floor(precipCount * 0.2)]
-      const lightMax = precips[Math.floor(precipCount * 0.7)]
-      const lightFiltered = filtered.filter(loc =>
-        loc.precipitation >= lightMin && loc.precipitation <= lightMax
-      )
-      logger(`🌦️ Light precip filter: precip ${lightMin}% - ${lightMax}%`)
-      return lightFiltered
-
-    case 'heavy':
-      const heavyThreshold = precips[Math.floor(precipCount * 0.7)]
-      const heavyFiltered = filtered.filter(loc => loc.precipitation >= heavyThreshold)
-      logger(`🌧️ Heavy precip filter: precip ≥ ${heavyThreshold}%`)
-      return heavyFiltered
-
-    default:
-      return filtered
-  }
-}
-
-/**
- * Filter locations by wind preference
- */
-function filterByWind(filtered, all, preference, logger) {
-  const winds = all.map(loc => loc.windSpeed || 0).sort((a, b) => a - b)
-  const windCount = winds.length
-
-  switch (preference) {
-    case 'calm':
-      const calmThreshold = winds[Math.floor(windCount * 0.5)]
-      const calmFiltered = filtered.filter(loc => (loc.windSpeed || 0) <= calmThreshold)
-      logger(`🍃 Calm filter: wind ≤ ${calmThreshold}mph`)
-      return calmFiltered
-
-    case 'breezy':
-      const breezyMin = winds[Math.floor(windCount * 0.3)]
-      const breezyMax = winds[Math.floor(windCount * 0.7)]
-      const breezyFiltered = filtered.filter(loc => {
-        const windSpeed = loc.windSpeed || 0
-        return windSpeed >= breezyMin && windSpeed <= breezyMax
-      })
-      logger(`💨 Breezy filter: wind ${breezyMin} - ${breezyMax}mph`)
-      return breezyFiltered
-
-    case 'windy':
-      const windyThreshold = winds[Math.floor(windCount * 0.7)]
-      const windyFiltered = filtered.filter(loc => (loc.windSpeed || 0) >= windyThreshold)
-      logger(`🌪️ Windy filter: wind ≥ ${windyThreshold}mph`)
-      return windyFiltered
-
-    default:
-      return filtered
-  }
-}
-
-/**
- * ========================================================================
- * END WEATHER FILTERS - Resume API endpoint logic
- * ========================================================================
- */
-
-/**
- * ========================================================================
  * MAIN API HANDLER
  * ========================================================================
  */
@@ -375,33 +221,15 @@ export default async function handler(req, res) {
       filters: { temperature, precipitation, wind }
     })
 
-    let result
-    if (lat && lng) {
-      const userLat = parseFloat(lat)
-      const userLng = parseFloat(lng)
+    // Use shared Neon POI query builder (eliminates Haversine distance formula duplication)
+    const { primaryQuery, fallbackQuery } = buildNeonPOIQuery({ lat, lng, limit: limitNum })
 
-      result = await sql`
-        SELECT
-          id, name, lat, lng, park_type, park_level, ownership, operator,
-          data_source, description, place_rank, phone, website, amenities, activities,
-          (3959 * acos(
-            cos(radians(${userLat})) * cos(radians(lat)) *
-            cos(radians(lng) - radians(${userLng})) +
-            sin(radians(${userLat})) * sin(radians(lat))
-          )) as distance_miles
-        FROM poi_locations
-        ORDER BY distance_miles ASC
-        LIMIT ${limitNum}
-      `
-    } else {
-      result = await sql`
-        SELECT
-          id, name, lat, lng, park_type, park_level, ownership, operator,
-          data_source, description, place_rank, phone, website, amenities, activities
-        FROM poi_locations
-        ORDER BY place_rank ASC, name ASC
-        LIMIT ${limitNum}
-      `
+    let result
+    try {
+      result = await primaryQuery(sql)
+    } catch (error) {
+      logger.debug('POI primary query failed, trying fallback', { error: error.message })
+      result = await fallbackQuery(sql)
     }
 
     // Transform results to standard format with FULL POI metadata

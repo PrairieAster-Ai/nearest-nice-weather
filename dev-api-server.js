@@ -47,6 +47,7 @@ import { dirname } from 'path'
 import dotenv from 'dotenv'
 import { fetchWeatherData, fetchBatchWeather } from './apps/web/utils/weatherService.js'
 import { applyWeatherFilters } from './shared/weather/filters.js'
+import { buildPOIQuery } from './shared/database/queries.js'
 
 // Load environment variables
 dotenv.config()
@@ -749,74 +750,16 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
 
     console.log('🔍 Query parameters:', { lat, lng, radius, limit, temperature, precipitation, wind })
 
-    // Reuse the same query logic from POI endpoint
-    let query, queryParams
-
-    if (lat && lng) {
-      query = `
-        SELECT
-          id, name, lat, lng, park_type, park_level, ownership, operator,
-          data_source, description, place_rank, phone, website, amenities, activities,
-          (3959 * acos(
-            cos(radians($2)) * cos(radians(lat)) *
-            cos(radians(lng) - radians($1)) +
-            sin(radians($2)) * sin(radians(lat))
-          )) as distance_miles
-        FROM poi_locations_expanded
-        ORDER BY distance_miles ASC
-        LIMIT $3
-      `
-      queryParams = [parseFloat(lng), parseFloat(lat), parseInt(limit)]
-    } else {
-      query = `
-        SELECT
-          id, name, lat, lng, park_type, park_level, ownership, operator,
-          data_source, description, place_rank, phone, website, amenities, activities
-        FROM poi_locations_expanded
-        ORDER BY place_rank ASC, name ASC
-        LIMIT $1
-      `
-      queryParams = [parseInt(limit)]
-    }
+    // Use shared POI query builder (eliminates Haversine distance formula duplication)
+    const { primaryQuery, fallbackQuery, params } = buildPOIQuery({ lat, lng, limit })
 
     // Execute with fallback handling
     let result
     try {
-      result = await client.query(query, queryParams)
+      result = await client.query(primaryQuery, params)
     } catch (error) {
       console.log('POI-weather query failed, trying fallback:', error.message)
-
-      // Fallback to original table for schema compatibility
-      if (lat && lng) {
-        query = `
-          SELECT id, name, lat, lng, park_type, data_source,
-                 description, place_rank,
-                 NULL as park_level, NULL as ownership, NULL as operator,
-                 NULL as phone, NULL as website, NULL as amenities, NULL as activities,
-            (3959 * acos(
-              cos(radians($2)) * cos(radians(lat)) *
-              cos(radians(lng) - radians($1)) +
-              sin(radians($2)) * sin(radians(lat))
-            )) as distance_miles
-          FROM poi_locations
-          WHERE data_source = 'manual' OR park_type IS NOT NULL
-          ORDER BY distance_miles ASC
-          LIMIT $3
-        `
-      } else {
-        query = `
-          SELECT id, name, lat, lng, park_type, data_source,
-                 description, place_rank,
-                 NULL as park_level, NULL as ownership, NULL as operator,
-                 NULL as phone, NULL as website, NULL as amenities, NULL as activities
-          FROM poi_locations
-          WHERE data_source = 'manual' OR park_type IS NOT NULL
-          ORDER BY place_rank ASC, name ASC
-          LIMIT $1
-        `
-      }
-
-      result = await client.query(query, queryParams)
+      result = await client.query(fallbackQuery, params)
     }
 
     // Transform results with REAL weather data from OpenWeather API
