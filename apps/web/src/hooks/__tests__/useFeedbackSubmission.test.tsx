@@ -21,6 +21,9 @@ import { monitoring } from '../../services/monitoring'
 import type { FeedbackFormData, FeedbackSubmissionResponse } from '../../types/feedback'
 import React from 'react'
 
+// Helper to flush promises
+const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0))
+
 // Mock dependencies
 vi.mock('../../services/weatherApi', () => ({
   weatherApi: {
@@ -61,12 +64,14 @@ const createWrapper = () => {
 describe('useFeedbackSubmission Hook', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.clearAllTimers()
-    vi.useFakeTimers()
+    // Explicitly reset all mocks to prevent test pollution
+    mockWeatherApi.submitFeedback.mockReset()
+    mockMonitoring.captureUserAction.mockReset()
+    mockMonitoring.captureError.mockReset()
   })
 
   afterEach(() => {
-    vi.useRealTimers()
+    // Cleanup
   })
 
   describe('✅ Successful Submissions', () => {
@@ -222,11 +227,28 @@ describe('useFeedbackSubmission Hook', () => {
 
   describe('❌ Error Handling', () => {
     it('should handle API errors correctly', async () => {
-      const apiError = new Error('API Error')
-      mockWeatherApi.submitFeedback.mockRejectedValueOnce(apiError)
+      const apiError = new Error('API Error') as any
+      apiError.status = 400 // Client error - won't retry
+
+      mockWeatherApi.submitFeedback.mockRejectedValue(apiError)
+
+      // Use custom QueryClient with retry disabled for faster error testing
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          mutations: {
+            retry: false,
+          },
+        },
+      })
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      )
 
       const { result } = renderHook(() => useFeedbackSubmission(), {
-        wrapper: createWrapper()
+        wrapper
       })
 
       const feedbackData: FeedbackFormData = {
@@ -247,11 +269,28 @@ describe('useFeedbackSubmission Hook', () => {
     })
 
     it('should track monitoring events for failed submission', async () => {
-      const apiError = new Error('Network error')
-      mockWeatherApi.submitFeedback.mockRejectedValueOnce(apiError)
+      const apiError = new Error('Network error') as any
+      apiError.status = 400 // Client error - won't retry
+
+      mockWeatherApi.submitFeedback.mockRejectedValue(apiError)
+
+      // Use custom QueryClient with retry disabled for faster error testing
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          mutations: {
+            retry: false,
+          },
+        },
+      })
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      )
 
       const { result } = renderHook(() => useFeedbackSubmission(), {
-        wrapper: createWrapper()
+        wrapper
       })
 
       const feedbackData: FeedbackFormData = {
@@ -289,15 +328,32 @@ describe('useFeedbackSubmission Hook', () => {
     })
 
     it('should call onError callback when provided', async () => {
-      const apiError = new Error('Test error')
+      const apiError = new Error('Test error') as any
+      apiError.status = 400 // Client error - won't retry
+
       const onErrorMock = vi.fn()
 
-      mockWeatherApi.submitFeedback.mockRejectedValueOnce(apiError)
+      mockWeatherApi.submitFeedback.mockRejectedValue(apiError)
+
+      // Use custom QueryClient with retry disabled for faster error testing
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          mutations: {
+            retry: false,
+          },
+        },
+      })
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      )
 
       const { result } = renderHook(() => useFeedbackSubmission({
         onError: onErrorMock
       }), {
-        wrapper: createWrapper()
+        wrapper
       })
 
       const feedbackData: FeedbackFormData = {
@@ -482,7 +538,9 @@ describe('useFeedbackSubmission Hook', () => {
         })
       })
 
-      expect(result.current.isPending).toBe(true)
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(true)
+      }, { timeout: 1000 })
 
       await act(async () => {
         resolvePromise!({
@@ -494,7 +552,7 @@ describe('useFeedbackSubmission Hook', () => {
 
       await waitFor(() => {
         expect(result.current.isPending).toBe(false)
-      })
+      }, { timeout: 1000 })
 
       expect(result.current.isSuccess).toBe(true)
     })
