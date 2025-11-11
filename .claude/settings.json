@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "description": "Nearest Nice Weather - Claude Code Configuration",
+  "project": {
+    "name": "nearest-nice-weather",
+    "type": "B2C outdoor recreation platform",
+    "primaryTable": "poi_locations",
+    "environments": {
+      "localhost": {
+        "frontend": "http://localhost:3002",
+        "api": "http://localhost:4000"
+      },
+      "preview": "https://p.nearestniceweather.com",
+      "production": "https://nearestniceweather.com"
+    }
+  }
+}
