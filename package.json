@@ -170,8 +170,7 @@
     "jest-environment-jsdom": "^30.0.5",
     "playwright": "^1.54.2",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4",
-    "wait-on": "^8.0.1"
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

@@ -33,7 +33,14 @@ export default [
       '@typescript-eslint': tseslint,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      // Classic rules-of-hooks set (matches eslint-plugin-react-hooks v5 recommended).
+      // v7's recommended adds new compiler-based rules (react-hooks/refs,
+      // set-state-in-effect, etc.) that flag 3 real issues in App.tsx,
+      // FilterManager.tsx, and MapContainer.tsx. Those need a focused
+      // code-quality pass on core UI (with sign-off), so they're deferred here
+      // rather than enabled wholesale in a dependency bump.
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
