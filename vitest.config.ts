@@ -15,12 +15,14 @@ export default defineConfig({
     // Test environment
     environment: 'node',
 
-    // Test file patterns
+    // Test file patterns — UNIT tests only (mocked, no live server/network).
+    // Acceptance/smoke tests live in tests/acceptance and run via their own
+    // config (vitest.acceptance.config.ts) against a deployed environment;
+    // including them here made CI fail with ECONNREFUSED to localhost:4000.
     include: [
       'shared/**/__tests__/**/*.test.js',
       'shared/**/*.test.js',
-      'apps/web/api/**/__tests__/**/*.test.js',
-      'tests/acceptance/**/*.test.js'
+      'apps/web/api/**/__tests__/**/*.test.js'
     ],
 
     // Exclude patterns
@@ -29,6 +31,7 @@ export default defineConfig({
       '**/dist/**',
       '**/.vercel/**',
       '**/tests/performance/**',
+      '**/tests/acceptance/**',
       '**/tests/unit/utils/source-coverage.test.js'
     ],
 

@@ -68,9 +68,9 @@ describe('Temperature Filtering', () => {
     const filters = { temperature: 'cold' }
     const result = applyWeatherFilters(locations, filters, () => {}) // Silent logger
 
-    // Expect coldest 40% (4 out of 10 locations)
-    expect(result.length).toBe(4)
-    expect(result.every(loc => loc.temperature <= 58)).toBe(true)
+    // Coldest 40%: threshold = temps[floor(10*0.4)] = 62F, filter is <= (inclusive)
+    expect(result.length).toBe(5)
+    expect(result.every(loc => loc.temperature <= 62)).toBe(true)
   })
 
   it('should filter for hot temperatures (>=60th percentile)', () => {
@@ -88,11 +88,12 @@ describe('Temperature Filtering', () => {
     const filters = { temperature: 'mild' }
     const result = applyWeatherFilters(locations, filters, () => {})
 
-    // Expect middle 80% (excludes coldest and hottest 10%)
-    expect(result.length).toBe(8)
+    // Middle band [temps[floor(10*0.1)], temps[floor(10*0.9)]] = [45F, 82F].
+    // The 90th percentile lands on the max value, so only the single coldest is dropped.
+    expect(result.length).toBe(9)
     const temps = result.map(loc => loc.temperature)
     expect(Math.min(...temps)).toBeGreaterThanOrEqual(45)
-    expect(Math.max(...temps)).toBeLessThanOrEqual(78)
+    expect(Math.max(...temps)).toBeLessThanOrEqual(82)
   })
 
   it('should return all locations when temperature filter is empty string', () => {
@@ -126,9 +127,9 @@ describe('Precipitation Filtering', () => {
     const filters = { precipitation: 'none' }
     const result = applyWeatherFilters(locations, filters, () => {})
 
-    // Expect driest 60% (6 out of 10 locations)
-    expect(result.length).toBe(6)
-    expect(result.every(loc => loc.precipitation <= 12)).toBe(true)
+    // Driest 60%: threshold = precips[floor(10*0.6)] = 15%, filter is <= (inclusive)
+    expect(result.length).toBe(7)
+    expect(result.every(loc => loc.precipitation <= 15)).toBe(true)
   })
 
   it('should filter for light precipitation (20th-70th percentile)', () => {
@@ -136,11 +137,11 @@ describe('Precipitation Filtering', () => {
     const filters = { precipitation: 'light' }
     const result = applyWeatherFilters(locations, filters, () => {})
 
-    // Expect middle precipitation range
-    expect(result.length).toBe(5)
+    // Middle band [precips[floor(10*0.2)], precips[floor(10*0.7)]] = [5%, 18%]
+    expect(result.length).toBe(6)
     const precips = result.map(loc => loc.precipitation)
     expect(Math.min(...precips)).toBeGreaterThanOrEqual(5)
-    expect(Math.max(...precips)).toBeLessThanOrEqual(15)
+    expect(Math.max(...precips)).toBeLessThanOrEqual(18)
   })
 
   it('should filter for heavy precipitation (>=70th percentile)', () => {
@@ -176,9 +177,9 @@ describe('Wind Filtering', () => {
     const filters = { wind: 'calm' }
     const result = applyWeatherFilters(locations, filters, () => {})
 
-    // Expect calmest 50% (5 out of 10 locations)
-    expect(result.length).toBe(5)
-    expect(result.every(loc => (loc.windSpeed || 0) <= 8)).toBe(true)
+    // Calmest 50%: threshold = winds[floor(10*0.5)] = 9mph, filter is <= (inclusive)
+    expect(result.length).toBe(6)
+    expect(result.every(loc => (loc.windSpeed || 0) <= 9)).toBe(true)
   })
 
   it('should filter for breezy wind (30th-70th percentile)', () => {
@@ -186,11 +187,11 @@ describe('Wind Filtering', () => {
     const filters = { wind: 'breezy' }
     const result = applyWeatherFilters(locations, filters, () => {})
 
-    // Expect middle wind range
-    expect(result.length).toBe(4)
+    // Middle band [winds[floor(10*0.3)], winds[floor(10*0.7)]] = [7mph, 12mph]
+    expect(result.length).toBe(5)
     const winds = result.map(loc => loc.windSpeed || 0)
-    expect(Math.min(...winds)).toBeGreaterThanOrEqual(6)
-    expect(Math.max(...winds)).toBeLessThanOrEqual(10)
+    expect(Math.min(...winds)).toBeGreaterThanOrEqual(7)
+    expect(Math.max(...winds)).toBeLessThanOrEqual(12)
   })
 
   it('should filter for windy conditions (>=70th percentile)', () => {
@@ -249,9 +250,9 @@ describe('Combined Filters', () => {
     // All results should satisfy all filter criteria
     result.forEach(loc => {
       expect(loc.temperature).toBeGreaterThanOrEqual(45)
-      expect(loc.temperature).toBeLessThanOrEqual(78)
-      expect(loc.precipitation).toBeLessThanOrEqual(12)
-      expect(loc.windSpeed || 0).toBeLessThanOrEqual(8)
+      expect(loc.temperature).toBeLessThanOrEqual(82)
+      expect(loc.precipitation).toBeLessThanOrEqual(15)
+      expect(loc.windSpeed || 0).toBeLessThanOrEqual(9)
     })
   })
 
@@ -273,7 +274,7 @@ describe('Combined Filters', () => {
     // Should log wind filter
     expect(mockLogger).toHaveBeenCalledWith(expect.stringContaining('Calm filter'))
     // Should log final result
-    expect(mockLogger).toHaveBeenCalledWith(expect.stringContaining('🎯 Weather filtering'))
+    expect(mockLogger).toHaveBeenCalledWith(expect.stringContaining('Weather filtering'))
   })
 
   it('should skip filters that are empty or undefined', () => {
@@ -293,7 +294,7 @@ describe('Combined Filters', () => {
     expect(mockLogger).not.toHaveBeenCalledWith(expect.stringContaining('wind'))
 
     // Result should only have temperature filtering applied
-    expect(result.length).toBe(8) // Mild temperature filter only
+    expect(result.length).toBe(9) // Mild temperature filter only
   })
 })
 

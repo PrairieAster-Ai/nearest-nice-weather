@@ -143,10 +143,10 @@
     "mvp:cleanup": "node .github/scripts/cleanup-issues.js",
     "validate:env": "./scripts/validate-env.sh",
     "setup": "./scripts/dev-setup.sh",
-    "test:acceptance": "vitest run tests/acceptance",
-    "test:acceptance:localhost": "TEST_ENV=localhost vitest run tests/acceptance",
-    "test:acceptance:preview": "TEST_ENV=preview vitest run tests/acceptance",
-    "test:acceptance:production": "TEST_ENV=production vitest run tests/acceptance"
+    "test:acceptance": "vitest run --config vitest.acceptance.config.ts",
+    "test:acceptance:localhost": "TEST_ENV=localhost vitest run --config vitest.acceptance.config.ts",
+    "test:acceptance:preview": "TEST_ENV=preview vitest run --config vitest.acceptance.config.ts",
+    "test:acceptance:production": "TEST_ENV=production vitest run --config vitest.acceptance.config.ts"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
