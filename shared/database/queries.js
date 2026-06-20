@@ -16,6 +16,28 @@
  */
 
 /**
+ * 📐 HAVERSINE GREAT-CIRCLE DISTANCE (in MILES) as a SQL expression.
+ *
+ * ⚠️ SINGLE SOURCE OF TRUTH — every POI proximity query (Express/pg AND
+ * Vercel/Neon) builds its distance column from this one function. Do not
+ * inline the formula anywhere else.
+ *
+ * 🌍 3959 = Earth's radius in miles (use 6371 for kilometers)
+ * 🧮 R * acos(cos(lat1)·cos(lat2)·cos(lng2-lng1) + sin(lat1)·sin(lat2))
+ *
+ * @param {string} latParam - SQL token for the user's latitude  (e.g. '$2')
+ * @param {string} lngParam - SQL token for the user's longitude (e.g. '$1')
+ * @returns {string} SQL scalar expression returning distance in miles
+ */
+export function haversineMilesSQL(latParam, lngParam) {
+  return `3959 * acos(
+            cos(radians(${latParam})) * cos(radians(lat)) *
+            cos(radians(lng) - radians(${lngParam})) +
+            sin(radians(${latParam})) * sin(radians(lat))
+          )`
+}
+
+/**
  * Standard POI query with proximity calculation
  * Uses Haversine formula for distance calculation
  *
@@ -29,24 +51,16 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
   const limitNum = Math.min(parseInt(limit) || 200, 500)
 
   if (lat && lng) {
-    // Proximity-based query with Haversine distance calculation
+    // Proximity-based query with Haversine distance calculation.
+    // Param order is SYNC-CRITICAL: $1 = lng, $2 = lat, $3 = limit.
+    const distance = haversineMilesSQL('$2', '$1')
     return {
       // Try expanded table first (production schema)
       primaryQuery: `
         SELECT
           id, name, lat, lng, park_type, park_level, ownership, operator,
           data_source, description, place_rank, phone, website, amenities, activities,
-          (
-            -- 📐 HAVERSINE DISTANCE FORMULA - Great Circle Distance Calculation
-            -- 🌍 3959 = Earth's radius in miles (use 6371 for kilometers)
-            -- 🧮 Formula: R * acos(cos(lat1) * cos(lat2) * cos(lng2-lng1) + sin(lat1) * sin(lat2))
-            -- 📍 Parameters: lng (user), lat (user), lat/lng are POI coordinates
-            3959 * acos(
-              cos(radians($2)) * cos(radians(lat)) *
-              cos(radians(lng) - radians($1)) +
-              sin(radians($2)) * sin(radians(lat))
-            )
-          ) as distance_miles
+          (${distance}) as distance_miles
         FROM poi_locations_expanded
         ORDER BY distance_miles ASC
         LIMIT $3
@@ -57,11 +71,7 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
                description, place_rank,
                NULL as park_level, NULL as ownership, NULL as operator,
                NULL as phone, NULL as website, NULL as amenities, NULL as activities,
-          (3959 * acos(
-            cos(radians($2)) * cos(radians(lat)) *
-            cos(radians(lng) - radians($1)) +
-            sin(radians($2)) * sin(radians(lat))
-          )) as distance_miles
+          (${distance}) as distance_miles
         FROM poi_locations
         WHERE data_source = 'manual' OR park_type IS NOT NULL
         ORDER BY distance_miles ASC
@@ -96,8 +106,15 @@ export function buildPOIQuery({ lat, lng, limit = 200 }) {
 }
 
 /**
- * Neon-compatible query builder (template literal format)
- * Converts parameterized queries to Neon's template literal syntax
+ * Neon-compatible query builder (template literal format).
+ *
+ * @SYNC: The Haversine distance expression below MUST stay identical to
+ * haversineMilesSQL() above (the canonical pg definition). It cannot reuse that
+ * function directly: the @neondatabase/serverless driver does not flatten nested
+ * `sql\`\`` fragments (a composed fragment is sent as a bound parameter, breaking
+ * the query), and switching to the `sql.query(text, params)` form changes the
+ * driver's return contract that the production handler + tests depend on.
+ * The dual-api-parity test guards this copy against drift.
  */
 export function buildNeonPOIQuery({ lat, lng, limit = 200 }) {
   const limitNum = Math.min(parseInt(limit) || 200, 500)

@@ -45,9 +45,9 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import dotenv from 'dotenv'
-import { fetchWeatherData, fetchBatchWeather } from './apps/web/utils/weatherService.js'
-import { applyWeatherFilters } from './shared/weather/filters.js'
+import { fetchWeatherData } from './apps/web/utils/weatherService.js'
 import { buildPOIQuery } from './shared/database/queries.js'
+import { getPOILocationsWithWeather } from './shared/api/poiLocationsWithWeather.js'
 
 // Load environment variables
 dotenv.config()
@@ -512,101 +512,23 @@ app.get('/api/poi-locations', async (req, res) => {
     try {
       const { lat, lng, radius = '50', limit = '20' } = req.query
 
-      let query, queryParams
+      // Use shared POI query builder (single source of truth for the Haversine
+      // distance formula + expanded/basic schema fallback). See
+      // shared/database/queries.js — the formula lives in haversineMilesSQL().
+      const { primaryQuery, fallbackQuery, params } = buildPOIQuery({ lat, lng, limit })
 
-      if (lat && lng) {
-        // ⚠️  DUPLICATED HAVERSINE FORMULA - Appears in 3+ locations
-        // DUPLICATE LOCATIONS:
-        // 1. This POI endpoint (lines ~607-612)
-        // 2. Weather-locations endpoint in this file (lines ~270-275)
-        // 3. apps/web/api/weather-locations.js (Vercel version)
-        // 4. Potentially apps/web/api/poi-locations.js (Vercel version)
-        //
-        // FORMULA CONSISTENCY CRITICAL:
-        // - 3959 = Earth radius in miles (could be 6371 for kilometers)
-        // - Parameter order: lng=$1, lat=$2 (MUST match across all implementations)
-        // - Mathematical accuracy depends on identical implementation
-        //
-        // SYNC RISK: HIGH - Math errors cause incorrect distance calculations
-        // MITIGATION: Extract to shared GeographyUtils class (post-MVP)
-        // Try expanded table first for 1000+ POI dataset
-        query = `
-          SELECT
-            id, name, lat, lng, park_type, park_level, ownership, operator,
-            data_source, description, place_rank, phone, website, amenities, activities,
-            (
-              -- 📐 HAVERSINE DISTANCE FORMULA - Great Circle Distance Calculation
-              -- 🌍 3959 = Earth's radius in miles (use 6371 for kilometers)
-              -- 🧮 Formula: R * acos(cos(lat1) * cos(lat2) * cos(lng2-lng1) + sin(lat1) * sin(lat2))
-              -- 📍 Parameters: $1=lng (user), $2=lat (user), lat/lng are POI coordinates
-              -- ⚠️  SYNC CRITICAL: This exact formula used in 3+ locations, must stay identical
-              3959 * acos(
-                cos(radians($2)) * cos(radians(lat)) *
-                cos(radians(lng) - radians($1)) +
-                sin(radians($2)) * sin(radians(lat))
-              )
-            ) as distance_miles
-          FROM poi_locations_expanded
-          ORDER BY distance_miles ASC
-          LIMIT $3
-        `
-        queryParams = [parseFloat(lng), parseFloat(lat), parseInt(limit)]
-      } else {
-        // All POIs ordered by importance (expanded table)
-        query = `
-          SELECT
-            id, name, lat, lng, park_type, park_level, ownership, operator,
-            data_source, description, place_rank, phone, website, amenities, activities
-          FROM poi_locations_expanded
-          ORDER BY place_rank ASC, name ASC
-          LIMIT $1
-        `
-        queryParams = [parseInt(limit)]
-      }
-
-      // Try query with schema fallbacks like production
+      // Try expanded-schema query first, fall back to the basic poi_locations table
       let result
       try {
-        result = await client.query(query, queryParams)
+        result = await client.query(primaryQuery, params)
       } catch (error) {
         console.log('POI query failed, trying fallback:', error.message)
 
-        // Fallback to original table for schema compatibility
         if (error.message.includes('poi_locations_expanded')) {
           console.log('Expanded table not found, falling back to original poi_locations table')
-          // Fallback to original table structure
-          if (lat && lng) {
-            query = `
-              SELECT id, name, lat, lng, park_type, data_source,
-                     description, place_rank,
-                     NULL as park_level, NULL as ownership, NULL as operator,
-                     NULL as phone, NULL as website, NULL as amenities, NULL as activities,
-                (3959 * acos(
-                  cos(radians($2)) * cos(radians(lat)) *
-                  cos(radians(lng) - radians($1)) +
-                  sin(radians($2)) * sin(radians(lat))
-                )) as distance_miles
-              FROM poi_locations
-              WHERE data_source = 'manual' OR park_type IS NOT NULL
-              ORDER BY distance_miles ASC
-              LIMIT $3
-            `
-          } else {
-            query = `
-              SELECT id, name, lat, lng, park_type, data_source,
-                     description, place_rank,
-                     NULL as park_level, NULL as ownership, NULL as operator,
-                     NULL as phone, NULL as website, NULL as amenities, NULL as activities
-              FROM poi_locations
-              WHERE data_source = 'manual' OR park_type IS NOT NULL
-              ORDER BY place_rank ASC, name ASC
-              LIMIT $1
-            `
-          }
+          result = await client.query(fallbackQuery, params)
 
-          result = await client.query(query, queryParams)
-
-          // Add default values for all missing columns
+          // Normalize missing columns from the basic schema
           result.rows = result.rows.map(row => ({
             ...row,
             park_type: null,
@@ -745,77 +667,27 @@ app.get('/api/poi-locations-with-weather', async (req, res) => {
   const client = await pool.connect()
 
   try {
-    const { lat, lng, radius = '50', limit = '200', temperature, precipitation, wind } = req.query
-    const limitNum = Math.min(parseInt(limit) || 200, 500)
+    console.log('🔍 Query parameters:', req.query)
 
-    console.log('🔍 Query parameters:', { lat, lng, radius, limit, temperature, precipitation, wind })
-
-    // Use shared POI query builder (eliminates Haversine distance formula duplication)
-    const { primaryQuery, fallbackQuery, params } = buildPOIQuery({ lat, lng, limit })
-
-    // Execute with fallback handling
-    let result
-    try {
-      result = await client.query(primaryQuery, params)
-    } catch (error) {
-      console.log('POI-weather query failed, trying fallback:', error.message)
-      result = await client.query(fallbackQuery, params)
-    }
-
-    // Transform results with REAL weather data from OpenWeather API
-    const poiLocations = await Promise.all(result.rows.map(async (row) => {
-      // Fetch real weather for each POI location
-      const weatherData = await fetchWeatherData(parseFloat(row.lat), parseFloat(row.lng))
-
-      return {
-        id: row.id.toString(),
-        name: row.name,
-        lat: parseFloat(row.lat),
-        lng: parseFloat(row.lng),
-        park_type: row.park_type || null,
-        park_level: row.park_level || null,
-        ownership: row.ownership || null,
-        operator: row.operator || null,
-        data_source: row.data_source || 'unknown',
-        description: row.description || null,
-        importance_rank: row.place_rank || 1,
-        phone: row.phone || null,
-        website: row.website || null,
-        amenities: row.amenities || [],
-        activities: row.activities || [],
-        place_rank: row.place_rank || row.importance_rank,
-        distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null,
-
-        // REAL weather data from OpenWeather API
-        temperature: weatherData.temperature,
-        condition: weatherData.condition,
-        weather_description: weatherData.description,
-        precipitation: weatherData.precipitation,
-        windSpeed: weatherData.windSpeed,
-        weather_source: weatherData.source, // 'openweather' or 'fallback'
-        weather_timestamp: weatherData.timestamp
-      }
-    }))
-
-    // Apply weather-based filtering if filters are provided
-    const filteredPOIs = applyWeatherFilters(poiLocations, { temperature, precipitation, wind })
-    console.log(`After weather filtering: ${filteredPOIs.length} POIs`)
-
-    res.json({
-      success: true,
-      data: filteredPOIs,
-      count: filteredPOIs.length,
-      timestamp: new Date().toISOString(),
-      debug: {
-        query_type: lat && lng ? 'proximity_with_weather' : 'all_pois_with_weather',
-        user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
-        radius: radius,
-        limit: limitNum.toString(),
-        data_source: 'poi_with_real_weather',
-        weather_api: 'OpenWeather API',
-        note: 'Using real weather data from OpenWeather API with 5-minute caching'
-      }
+    // Thin Express/pg adapter: inject the node-postgres query runner (with
+    // schema fallback) and the cached OpenWeather fetcher into the shared core.
+    const body = await getPOILocationsWithWeather(req.query, {
+      runPOIQuery: async ({ lat, lng, limit }) => {
+        const { primaryQuery, fallbackQuery, params } = buildPOIQuery({ lat, lng, limit })
+        let result
+        try {
+          result = await client.query(primaryQuery, params)
+        } catch (error) {
+          console.log('POI-weather query failed, trying fallback:', error.message)
+          result = await client.query(fallbackQuery, params)
+        }
+        return result.rows
+      },
+      fetchWeather: fetchWeatherData,
+      logger: console,
     })
+
+    res.json(body)
 
   } catch (error) {
     console.error('POI locations with weather API error:', error)

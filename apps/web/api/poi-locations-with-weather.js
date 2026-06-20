@@ -27,8 +27,8 @@
 
 import { neon } from '@neondatabase/serverless'
 import { createLogger, createRequestContext, createErrorContext } from '../../../shared/logging/logger.js'
-import { applyWeatherFilters } from '../../../shared/weather/filters.js'
 import { buildNeonPOIQuery } from '../../../shared/database/queries.js'
+import { getPOILocationsWithWeather } from '../../../shared/api/poiLocationsWithWeather.js'
 
 const logger = createLogger('api/poi-locations-with-weather')
 const sql = neon(process.env.DATABASE_URL)
@@ -208,95 +208,37 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { lat, lng, radius = '50', limit = '200', temperature, precipitation, wind } = req.query
-    const limitNum = Math.min(parseInt(limit) || 200, 500)
-
     const requestContext = createRequestContext(req)
     logger.info('POI-Weather query received', {
       ...requestContext,
-      lat,
-      lng,
-      radius,
-      limit,
-      filters: { temperature, precipitation, wind }
+      lat: req.query.lat,
+      lng: req.query.lng,
+      radius: req.query.radius,
+      limit: req.query.limit,
+      filters: {
+        temperature: req.query.temperature,
+        precipitation: req.query.precipitation,
+        wind: req.query.wind,
+      },
     })
 
-    // Use shared Neon POI query builder (eliminates Haversine distance formula duplication)
-    const { primaryQuery, fallbackQuery } = buildNeonPOIQuery({ lat, lng, limit: limitNum })
-
-    let result
-    try {
-      result = await primaryQuery(sql)
-    } catch (error) {
-      logger.debug('POI primary query failed, trying fallback', { error: error.message })
-      result = await fallbackQuery(sql)
-    }
-
-    // Transform results to standard format with FULL POI metadata
-    // @SYNC_NOTE: Must match dev-api-server.js response structure exactly
-    const baseData = result.map(row => ({
-      id: row.id.toString(),
-      name: row.name,
-      lat: parseFloat(row.lat),
-      lng: parseFloat(row.lng),
-      park_type: row.park_type || null,
-      park_level: row.park_level || null,
-      ownership: row.ownership || null,
-      operator: row.operator || null,
-      data_source: row.data_source || 'unknown',
-      description: row.description || null,
-      importance_rank: row.place_rank || 1,
-      phone: row.phone || null,
-      website: row.website || null,
-      amenities: row.amenities || [],
-      activities: row.activities || [],
-      place_rank: row.place_rank || 1,
-      distance_miles: row.distance_miles ? parseFloat(row.distance_miles).toFixed(2) : null
-    }))
-
-    // Fetch REAL weather data for each POI using OpenWeather API
-    // @SYNC_NOTE: Weather field structure must match dev-api-server.js:823-855
-    logger.debug('Fetching weather data for POIs', { poiCount: baseData.length })
-    const transformedData = await Promise.all(baseData.map(async (poi) => {
-      const weatherData = await fetchWeatherData(poi.lat, poi.lng)
-
-      return {
-        ...poi,
-        // Weather data fields (matching localhost structure)
-        temperature: weatherData.temperature,
-        condition: weatherData.condition,
-        weather_description: weatherData.weather_description,
-        precipitation: weatherData.precipitation,
-        windSpeed: weatherData.windSpeed,
-        weather_source: weatherData.weather_source,
-        weather_timestamp: weatherData.weather_timestamp
-      }
-    }))
-
-    // Apply weather-based filtering
-    const filteredData = applyWeatherFilters(transformedData, { temperature, precipitation, wind })
-    logger.info('Weather filtering complete', {
-      originalCount: transformedData.length,
-      filteredCount: filteredData.length,
-      hasFilters: !!(temperature || precipitation || wind)
+    // Thin Vercel/Neon adapter: inject the Neon query runner (with schema
+    // fallback) and this function's OpenWeather fetcher into the shared core.
+    const body = await getPOILocationsWithWeather(req.query, {
+      runPOIQuery: async ({ lat, lng, limit }) => {
+        const { primaryQuery, fallbackQuery } = buildNeonPOIQuery({ lat, lng, limit })
+        try {
+          return await primaryQuery(sql)
+        } catch (error) {
+          logger.debug('POI primary query failed, trying fallback', { error: error.message })
+          return await fallbackQuery(sql)
+        }
+      },
+      fetchWeather: fetchWeatherData,
+      logger,
     })
 
-    res.json({
-      success: true,
-      data: filteredData,
-      count: filteredData.length,
-      timestamp: new Date().toISOString(),
-      debug: {
-        query_type: lat && lng ? 'proximity_with_weather' : 'all_pois_with_weather',
-        user_location: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
-        radius: radius,
-        limit: limitNum.toString(),
-        data_source: 'poi_with_real_weather',
-        weather_api: 'openweather',
-        cache_strategy: 'Serverless - no persistent cache',
-        note: 'Using real OpenWeather API data - response structure synced with localhost 2025-11-07'
-      }
-    })
+    res.json(body)
 
   } catch (error) {
     const errorContext = createErrorContext(error)
