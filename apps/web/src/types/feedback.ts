@@ -32,7 +32,7 @@ export interface FeedbackRecord {
 export const FeedbackSchema = z.object({
   rating: z.number().min(1).max(5),
   comment: z.string().min(1).max(1000),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.email().optional().or(z.literal('')),
   category: z.enum(['bug', 'feature', 'general']),
 })
 
