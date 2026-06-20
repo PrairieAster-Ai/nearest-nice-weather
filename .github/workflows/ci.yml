@@ -28,12 +28,12 @@ jobs:
 
     steps:
     - name: 'Checkout Code'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0 # Full history for security scanning
 
     - name: 'Setup Node.js'
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
@@ -84,10 +84,10 @@ jobs:
 
     steps:
     - name: 'Checkout Code'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: 'Setup Node.js'
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
@@ -97,7 +97,7 @@ jobs:
 
     # Security: CodeQL analysis
     - name: 'Initialize CodeQL'
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: javascript,typescript
       continue-on-error: true
@@ -107,7 +107,7 @@ jobs:
         cd apps/web && npm run build || true  # Allow build failures for security scanning
 
     - name: 'Perform CodeQL Analysis'
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
       with:
         category: "/language:javascript"
       continue-on-error: true
@@ -121,10 +121,10 @@ jobs:
 
     steps:
     - name: 'Checkout Code'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: 'Setup Node.js'
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
@@ -142,7 +142,7 @@ jobs:
       continue-on-error: true
 
     - name: 'Upload Coverage Report'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: coverage-report
         path: coverage/
