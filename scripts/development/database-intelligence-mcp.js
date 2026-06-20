@@ -248,13 +248,17 @@ class DatabaseIntelligenceMCP {
       }
     });
 
-    this.server.listen(this.port, () => {
-      console.log(`🚀 DatabaseIntelligenceMCP HTTP server listening on port ${this.port}`);
+    // Bind to localhost only — this is a developer tool that executes arbitrary
+    // SQL (a query console for Claude); never expose it on the network.
+    this.server.listen(this.port, '127.0.0.1', () => {
+      console.log(`🚀 DatabaseIntelligenceMCP HTTP server listening on 127.0.0.1:${this.port}`);
     });
   }
 
   startWebSocketServer() {
-    this.wsServer = new WebSocket.Server({ port: this.wsPort });
+    // Localhost-only: the executeQuery handler runs arbitrary SQL by design,
+    // so the socket must not be reachable from the network.
+    this.wsServer = new WebSocket.Server({ port: this.wsPort, host: '127.0.0.1' });
 
     this.wsServer.on('connection', (ws) => {
       console.log('📡 Claude AI client connected to DatabaseIntelligenceMCP stream');
