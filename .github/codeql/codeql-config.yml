@@ -1,0 +1,22 @@
+name: "Nearest Nice Weather CodeQL config"
+
+# Scope CodeQL to the code that actually ships to users:
+#   - apps/web/src  : the React PWA
+#   - apps/web/api  : the deployed Vercel serverless functions
+#   - shared        : shared API/query/weather logic used by the functions
+#
+# Everything else is excluded to remove noise that was drowning the real
+# findings: the localhost-only Express dev server, test suites, one-off
+# scripts/tooling, and the non-deployed apps/api package. Those can be audited
+# separately (e.g. via the security-audit skill) but should not gate CI.
+paths:
+  - apps/web/src
+  - apps/web/api
+  - shared
+
+paths-ignore:
+  - "**/__tests__/**"
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/dist/**"
+  - "**/node_modules/**"

@@ -62,7 +62,7 @@ export const weatherApi = {
         feedback: feedback.comment,
         rating: feedback.rating,
         category: feedback.category,
-        session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        session_id: `session_${Date.now()}_${crypto.randomUUID()}`,
         page_url: window.location.href,
       }
 

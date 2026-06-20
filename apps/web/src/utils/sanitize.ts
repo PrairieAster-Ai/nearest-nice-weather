@@ -31,12 +31,10 @@ export const escapeHtml = (str: string | number): string => {
 export const sanitizeUrl = (url: string): string => {
   if (!url) return '';
 
-  // Block javascript: and data: URLs
-  const lowerUrl = url.toLowerCase().trim();
-  if (lowerUrl.startsWith('javascript:') || lowerUrl.startsWith('data:')) {
-    return '';
-  }
-
+  // Allowlist approach: parse the URL and only permit known-safe protocols.
+  // An allowlist is more robust than blocklisting javascript:/data:/etc., which
+  // can be bypassed with obfuscated or less-common dangerous schemes
+  // (vbscript:, blob:, filesystem:, control-char tricks, ...).
   try {
     const urlObj = new URL(url, window.location.origin);
     // Only allow http, https, and mailto protocols
