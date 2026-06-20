@@ -1,9 +1,75 @@
+# ---------------------------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------------------------
+node_modules/
+apps/*/node_modules/
+tests/node_modules/
+.pnp
+.pnp.js
+
+# ---------------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------------
+dist/
+build/
+apps/*/dist/
+apps/*/build/
+.vercel/
+.turbo/
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Secrets & environment files  (NEVER commit real credentials)
+# Keep *.example templates tracked; ignore everything else.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+apps/**/.env
+apps/**/.env.*
+!apps/**/.env.example
+
+# MCP server secrets (config templates with ${VARS} stay tracked)
+.mcp/ai-env
+.mcp/*.env
+!.mcp/*.env.example
+.mcp-cache/
+
+# Misc credential file types
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+*-credentials.json
+
+# ---------------------------------------------------------------------------
+# Test / coverage / reports
+# ---------------------------------------------------------------------------
+coverage/
+test-results/
+playwright-report/
+duplication-report/
+/reports/
+tests/reports/
+*.log
+
+# ---------------------------------------------------------------------------
+# Runtime / process artifacts
+# ---------------------------------------------------------------------------
+.pids/
+*.pid
+
 # Overpass API runtime files
 .osm-import-checkpoint.json
 .overpass-usage.json
 .poi-backup-*.json
 
-# Test output
-coverage/
-*.log
-tests/node_modules/
+# ---------------------------------------------------------------------------
+# Editor / OS
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp

@@ -9,6 +9,8 @@ export default [
   {
     ignores: [
       'dist',
+      'build',
+      'coverage',
       '**/*.config.js',
       '**/*.config.ts',
       // Ignore test files and problematic config files
