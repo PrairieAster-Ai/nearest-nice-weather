@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     // Get client info
     const userAgent = req.headers['user-agent'] || ''
     const clientIp = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown'
-    const sessionId = session_id || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const sessionId = session_id || `session_${Date.now()}_${crypto.randomUUID()}`
 
     // Create table if it doesn't exist
     await sql`
