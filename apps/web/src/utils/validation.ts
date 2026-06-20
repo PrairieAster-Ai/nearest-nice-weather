@@ -18,15 +18,10 @@ export const sanitizeHtml = (input: string): string => {
 // Validation schemas for different inputs
 export const UserInputSchemas = {
   weatherFilter: z.object({
-    temperature: z.enum(['warm', 'mild', 'cool'], {
-      errorMap: () => ({ message: 'Invalid temperature selection' })
-    }),
-    precipitation: z.enum(['none', 'light', 'any'], {
-      errorMap: () => ({ message: 'Invalid precipitation selection' })
-    }),
-    wind: z.enum(['calm', 'light', 'windy'], {
-      errorMap: () => ({ message: 'Invalid wind selection' })
-    }),
+    // zod v4: enum custom messages use `error` (replaced v3 `errorMap`)
+    temperature: z.enum(['warm', 'mild', 'cool'], { error: 'Invalid temperature selection' }),
+    precipitation: z.enum(['none', 'light', 'any'], { error: 'Invalid precipitation selection' }),
+    wind: z.enum(['calm', 'light', 'windy'], { error: 'Invalid wind selection' }),
   }),
 
   feedback: z.object({
@@ -34,14 +29,13 @@ export const UserInputSchemas = {
     comment: z.string()
       .max(1000, 'Comment must be less than 1000 characters')
       .transform(sanitizeString),
-    email: z.string()
-      .email('Invalid email format')
+    // zod v4: top-level z.email() (v3 .email() string method is deprecated and
+    // also dropped the custom message when wrapped in .or()); z.email keeps it.
+    email: z.email('Invalid email format')
       .max(254, 'Email is too long')
       .optional()
       .or(z.literal('')),
-    category: z.enum(['bug', 'feature', 'general'], {
-      errorMap: () => ({ message: 'Invalid feedback category' })
-    }),
+    category: z.enum(['bug', 'feature', 'general'], { error: 'Invalid feedback category' }),
   }),
 
   search: z.object({
