@@ -37,12 +37,14 @@ export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
   enableAds = process.env.NODE_ENV === 'production',
   testMode: _testMode = process.env.NODE_ENV === 'development'
 }) => {
-  const [state, setState] = useState<AdManagerState>({
+  // Lazy initializer so the A/B testGroup is chosen exactly once (not re-rolled
+  // on every render — Math.random() must not run during render).
+  const [state, setState] = useState<AdManagerState>(() => ({
     isAdBlockDetected: false,
     adsLoaded: false,
     performanceMetrics: {},
     testGroup: Math.random() > 0.5 ? 'A' : 'B' // Simple A/B testing
-  })
+  }))
 
   // Detect ad blocking
   useEffect(() => {

@@ -33,14 +33,29 @@ export default [
       '@typescript-eslint': tseslint,
     },
     rules: {
-      // Classic rules-of-hooks set (matches eslint-plugin-react-hooks v5 recommended).
-      // v7's recommended adds new compiler-based rules (react-hooks/refs,
-      // set-state-in-effect, etc.) that flag 3 real issues in App.tsx,
-      // FilterManager.tsx, and MapContainer.tsx. Those need a focused
-      // code-quality pass on core UI (with sign-off), so they're deferred here
-      // rather than enabled wholesale in a dependency bump.
+      // eslint-plugin-react-hooks v7. Classic rules stay on as errors:
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+
+      // v7 React-Compiler rules we've fully resolved — enabled as errors so the
+      // fixes can't regress:
+      'react-hooks/refs': 'error',              // refs written/read during render
+      'react-hooks/static-components': 'error', // components defined during render
+
+      // v7 React-Compiler rules with remaining findings in business-critical
+      // code (Leaflet map popup/marker management in MapContainer, POI
+      // data-fetch in usePOILocations, navigation/expansion in usePOINavigation
+      // — which has documented intentional circular deps — and filter sync in
+      // FilterManager). These flag real Compiler-readiness issues, but fixing
+      // them safely needs dedicated, behavior-validated refactors of code
+      // CLAUDE.md flags as a frequent failure point. The app is not on the
+      // React Compiler yet, so they are advisory. Tracked as follow-up; left
+      // OFF here to avoid forcing risky changes that can't be UI-tested in CI.
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },

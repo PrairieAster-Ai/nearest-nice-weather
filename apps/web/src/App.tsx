@@ -81,7 +81,7 @@
  * LAST UPDATED: 2025-08-08
  */
 
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline, CircularProgress, Alert } from '@mui/material'
 import { FabFilterSystem } from './components/FabFilterSystem'
@@ -189,17 +189,19 @@ export default function App() {
 
   // Weather filtering operations handled by POI navigation hook
 
-  // Use POI data from new navigation hook
-  const apiLocations = React.useMemo(() => {
+  // Use POI data from new navigation hook. `visiblePOIs` is already memoized
+  // upstream, so this is a referentially-stable alias.
+  const apiLocations = visiblePOIs
+
+  // Keep the compatibility refs in sync + diagnostics. Refs must be written in
+  // an effect, never during render.
+  useEffect(() => {
     console.log(`POI locations: ${allPOICount} total, ${visiblePOIs.length} visible within ${currentSliceMax}mi`)
     console.log(`Loading: ${poiLoading}, Error: ${poiError}`)
     console.log(`User location:`, userLocation)
 
-    // Update the refs with current locations for compatibility
     currentApiLocationsRef.current = visiblePOIs
     currentFilteredLocationsRef.current = visiblePOIs
-
-    return visiblePOIs
   }, [visiblePOIs, allPOICount, currentSliceMax, poiLoading, poiError, userLocation])
 
   /**
