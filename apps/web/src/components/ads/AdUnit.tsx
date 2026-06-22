@@ -103,8 +103,9 @@ export const AdUnit: React.FC<AdUnitProps> = ({
 
   const dimensions = getAdDimensions()
 
-  // Loading placeholder for better UX
-  const AdSkeleton = () => (
+  // Loading placeholder for better UX. Defined as an element (not a nested
+  // component) so React doesn't see a new component type on every render.
+  const adSkeleton = (
     <Skeleton
       variant="rectangular"
       width="100%"
@@ -148,7 +149,7 @@ export const AdUnit: React.FC<AdUnitProps> = ({
   return (
     <AdContainer className={className}>
       {showLabel && <AdLabel>Advertisement</AdLabel>}
-      <Suspense fallback={<AdSkeleton />}>
+      <Suspense fallback={adSkeleton}>
         <Adsense
           client={clientId}
           slot={slot}
