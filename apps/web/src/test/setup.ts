@@ -35,6 +35,41 @@ if (typeof global.Event === 'undefined') {
   }
 }
 
+// Fix for HTMLElement and activeElement required by React-DOM cleanup
+if (typeof global.HTMLElement === 'undefined') {
+  global.HTMLElement = class HTMLElement {} as any
+}
+
+// Ensure document.activeElement exists for React-DOM getActiveElementDeep
+if (typeof document !== 'undefined' && !document.activeElement) {
+  Object.defineProperty(document, 'activeElement', {
+    get() {
+      return null
+    },
+    configurable: true
+  })
+}
+
+// Ensure window.event exists for React-DOM getCurrentEventPriority
+if (typeof window !== 'undefined' && !window.hasOwnProperty('event')) {
+  Object.defineProperty(window, 'event', {
+    get() {
+      return undefined
+    },
+    configurable: true
+  })
+}
+
+// Also ensure it exists on global.window
+if (typeof global.window !== 'undefined' && !global.window.hasOwnProperty('event')) {
+  Object.defineProperty(global.window, 'event', {
+    get() {
+      return undefined
+    },
+    configurable: true
+  })
+}
+
 // Establish API mocking before all tests
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 

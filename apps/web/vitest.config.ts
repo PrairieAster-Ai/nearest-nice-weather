@@ -13,6 +13,15 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
+    // Exclude Playwright E2E tests from Vitest
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/*.spec.js',  // Playwright E2E tests
+      '**/*.spec.ts',  // Playwright E2E tests
+      '**/tests/e2e/**',
+      '**/tests/**/*.spec.{js,ts}',  // Any spec files in tests directory
+    ],
     // Disable parallel execution for hook tests to prevent environment conflicts
     threads: false,
     pool: 'forks',
