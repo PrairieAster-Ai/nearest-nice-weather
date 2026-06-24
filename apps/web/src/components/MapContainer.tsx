@@ -52,9 +52,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
-import { escapeHtml, sanitizeUrl } from '../utils/sanitize';
-import { generateMediaNetPopupAdHTML } from '../utils/adUtils';
 import { trackPOIInteraction, trackFeatureUsage } from '../utils/analytics';
+import { buildPoiPopupHtml } from '../utils/mapPopup';
 // Import POI popup styles
 import '../styles/poi-popup.css';
 
@@ -323,119 +322,20 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     userMarkerRef.current.setLatLng(userLocation);
   }, [userLocation]);
 
-  // Helper function to detect platform and generate appropriate mapping URL
-  const generateMappingUrl = useCallback((location: POILocation): string => {
-    const coords = `${location.lat},${location.lng}`;
-    const locationName = encodeURIComponent(location.name);
-
-    // Detect platform based on user agent
-    const userAgent = navigator.userAgent || '';
-    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
-    const isAndroid = /Android/.test(userAgent);
-    const isMobile = /Mobi|Android/i.test(userAgent);
-
-    // Platform-specific URL generation
-    if (isIOS) {
-      // iOS: Use Apple Maps
-      return `http://maps.apple.com/?daddr=${coords}&dirflg=d`;
-    } else if (isAndroid) {
-      // Android: Use geo: URL for Google Maps
-      return `geo:${coords}?q=${coords}(${locationName})`;
-    } else if (isMobile) {
-      // Other mobile: Try geo: first
-      return `geo:${coords}?q=${coords}(${locationName})`;
-    } else {
-      // Desktop: Use Google Maps web interface
-      return `https://www.google.com/maps/dir/?api=1&destination=${coords}`;
-    }
-  }, []);
-
-  // Helper function to create popup content
+  // Popup HTML + mapping-URL logic lives in ../utils/mapPopup (pure + tested).
+  // This thin wrapper supplies the current navigation state.
   const createPopupContent = useCallback((location: POILocation): string => {
-    // Sanitize all user content
-    const safeName = escapeHtml(location.name);
-    const safeParkType = location.park_type ? escapeHtml(location.park_type) : '';
-    const safeDescription = escapeHtml(location.description);
-    const safeCondition = escapeHtml(location.condition);
-    const safeWindSpeed = escapeHtml(location.windSpeed);
-    const safeWeatherStation = location.weather_station_name ? escapeHtml(location.weather_station_name) : '';
-    const safeWeatherDistance = location.weather_distance_miles ? escapeHtml(location.weather_distance_miles) : '';
-
-    // Generate platform-appropriate mapping URL
-    const mapsUrl = sanitizeUrl(generateMappingUrl(location));
-
-    // Generate Media.net contextual ad content for geographic optimization
-    // Convert MapContainer POILocation to adUtils POILocation format
-    const adUtilsLocation = {
-      id: location.id,
-      name: location.name,
-      temperature: location.temperature,
-      precipitation: location.precipitation,
-      latitude: location.lat,
-      longitude: location.lng,
-      park_type: (location as any).park_type // Optional field
-    };
-    const contextualAdHTML = generateMediaNetPopupAdHTML(adUtilsLocation, process.env.NODE_ENV === 'development');
-
-    return `
-      <div class="poi-popup-container">
-        <div class="mb-2">
-          <!-- Title row with directions button -->
-          <div class="poi-title-row">
-            <a href="${mapsUrl}"
-               target="_blank" rel="noopener noreferrer"
-               title="Get directions"
-               class="poi-directions-button"
-               data-analytics-poi="${safeName}"
-               data-analytics-action="directions-clicked">
-              🧭
-            </a>
-            <h3 class="poi-title">${safeName}</h3>
-          </div>
-
-          ${safeParkType ? `<div class="poi-park-type">${safeParkType}</div>` : ''}
-
-          <!-- Full width description -->
-          <p class="poi-description">${safeDescription}</p>
-
-          <!-- Full width contextual Ad Container -->
-          ${contextualAdHTML}
-        </div>
-
-        <!-- Weather Information -->
-        <div class="bg-gray-100 rounded p-2 mb-2 border">
-          <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
-            <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
-            <span class="text-lg">
-              ${safeCondition === 'Sunny' ? '☀️' :
-                safeCondition === 'Partly Cloudy' ? '⛅' :
-                safeCondition === 'Cloudy' ? '☁️' :
-                safeCondition === 'Overcast' ? '🌫️' :
-                safeCondition === 'Clear' ? '✨' : safeCondition}
-            </span>
-            <span>💧 ${escapeHtml(location.precipitation)}%</span>
-            <span>💨 ${safeWindSpeed}</span>
-          </div>
-          ${safeWeatherStation ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>` : ''}
-        </div>
-
-        <!-- Navigation Controls -->
-        ${(locations.length > 1 || canExpand) ? `
-        <div class="poi-nav-container" data-popup-nav="true">
-          <button data-nav-action="closer"
-                  ${isAtClosest ? 'disabled' : ''}
-                  class="poi-nav-button ${isAtClosest ? '' : ''}">
-            ← Closer
-          </button>
-          <button data-nav-action="farther"
-                  class="poi-nav-button ${isAtFarthest && !canExpand ? 'farther-disabled' : ''}">
-            ${canExpand && isAtFarthest ? '🔍 Expand +30mi' : isAtFarthest && !canExpand ? 'No More →' : 'Farther →'}
-          </button>
-        </div>
-        ` : ''}
-      </div>
-    `;
-  }, [isAtClosest, isAtFarthest, canExpand, locations.length, generateMappingUrl]);
+    return buildPoiPopupHtml(
+      location,
+      {
+        hasNavigation: locations.length > 1 || canExpand,
+        isAtClosest,
+        isAtFarthest,
+        canExpand,
+      },
+      process.env.NODE_ENV === 'development'
+    );
+  }, [isAtClosest, isAtFarthest, canExpand, locations.length]);
 
   // Function to update popup content with current navigation state
   const updatePopupContent = useCallback((markerIndex: number) => {
