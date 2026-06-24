@@ -41,20 +41,24 @@ export default [
       // fixes can't regress:
       'react-hooks/refs': 'error',              // refs written/read during render
       'react-hooks/static-components': 'error', // components defined during render
+      // MapContainer's "use before declare" findings were fixed by reordering
+      // the popup/notification callbacks above the effects that use them. The
+      // only remaining immutability finding is the intentional navigateFarther
+      // ⇄ expandDistanceSlice mutual reference in usePOINavigation, suppressed
+      // inline with justification.
+      'react-hooks/immutability': 'error',
+      'react-hooks/preserve-manual-memoization': 'error',
 
-      // v7 React-Compiler rules with remaining findings in business-critical
-      // code (Leaflet map popup/marker management in MapContainer, POI
-      // data-fetch in usePOILocations, navigation/expansion in usePOINavigation
-      // — which has documented intentional circular deps — and filter sync in
-      // FilterManager). These flag real Compiler-readiness issues, but fixing
-      // them safely needs dedicated, behavior-validated refactors of code
-      // CLAUDE.md flags as a frequent failure point. The app is not on the
-      // React Compiler yet, so they are advisory. Tracked as follow-up; left
-      // OFF here to avoid forcing risky changes that can't be UI-tested in CI.
+      // Still OFF — remaining findings are idiomatic patterns the strict
+      // Compiler rules over-flag, in code CLAUDE.md marks as a frequent failure
+      // point, and the app is not on the React Compiler yet (advisory):
+      //  - set-state-in-effect: data-fetch effects (usePOILocations,
+      //    usePOINavigation) + prop→state sync (FilterManager). A real fix means
+      //    migrating to react-query / restructuring — needs sign-off.
+      //  - purity: usePOILocations computes `isStale` from Date.now() during
+      //    render (a time-derived boolean); a pure fix needs timer-based state.
       'react-hooks/set-state-in-effect': 'off',
-      'react-hooks/immutability': 'off',
       'react-hooks/purity': 'off',
-      'react-hooks/preserve-manual-memoization': 'off',
 
       'react-refresh/only-export-components': [
         'warn',
