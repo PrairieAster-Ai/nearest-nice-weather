@@ -48,17 +48,14 @@ export default [
       // inline with justification.
       'react-hooks/immutability': 'error',
       'react-hooks/preserve-manual-memoization': 'error',
-
-      // Still OFF — remaining findings are idiomatic patterns the strict
-      // Compiler rules over-flag, in code CLAUDE.md marks as a frequent failure
-      // point, and the app is not on the React Compiler yet (advisory):
-      //  - set-state-in-effect: data-fetch effects (usePOILocations,
-      //    usePOINavigation) + prop→state sync (FilterManager). A real fix means
-      //    migrating to react-query / restructuring — needs sign-off.
-      //  - purity: usePOILocations computes `isStale` from Date.now() during
-      //    render (a time-derived boolean); a pure fix needs timer-based state.
-      'react-hooks/set-state-in-effect': 'off',
-      'react-hooks/purity': 'off',
+      // All 6 v7 Compiler rules now enforced. The known idiomatic exceptions are
+      // suppressed with justification at their call sites (data-fetch /
+      // prop-sync effects in usePOILocations, usePOINavigation, FilterManager;
+      // the Date.now()-derived isStale; the navigateFarther⇄expandDistanceSlice
+      // mutual reference). Enabling these catches NEW violations elsewhere
+      // (e.g. an impure Math.random()/Date.now() in render).
+      'react-hooks/set-state-in-effect': 'error',
+      'react-hooks/purity': 'error',
 
       'react-refresh/only-export-components': [
         'warn',
