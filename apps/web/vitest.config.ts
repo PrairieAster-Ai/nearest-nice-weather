@@ -60,10 +60,10 @@ export default defineConfig({
       // tests are added (do not lower). NB: vitest 4 dropped the `global` nesting
       // — thresholds live directly under `thresholds`.
       thresholds: {
-        branches: 34,
-        functions: 40,
-        lines: 34,
-        statements: 34
+        branches: 37,
+        functions: 42,
+        lines: 36,
+        statements: 36
       }
     },
     // Watch mode configuration
