@@ -30,6 +30,13 @@
  * LAST UPDATED: 2025-08-08
  */
 
+import {
+  calculateConfidence,
+  scoreEstimate,
+  isCacheValid,
+} from '../utils/locationEstimationUtils';
+import { fetchIPLocation } from './ipGeolocation';
+
 export interface LocationEstimate {
   coordinates: [number, number]; // [latitude, longitude]
   accuracy: number; // Accuracy in meters (approximate)
@@ -62,13 +69,6 @@ interface LocationOptions {
   cacheMaxAge?: number; // Maximum age for cached location (ms)
 }
 
-interface NetworkLocationProvider {
-  name: string;
-  endpoint: string;
-  apiKey?: string;
-  parser: (response: any) => LocationEstimate | null;
-}
-
 export class UserLocationEstimator {
   private defaultOptions: LocationOptions = {
     enableHighAccuracy: false, // Start with fast, lower accuracy
@@ -90,7 +90,7 @@ export class UserLocationEstimator {
 
     if (this.isEstimating) {
       // Return cached or wait for current estimation
-      if (this.cachedLocation && this.isCacheValid(this.cachedLocation, opts.cacheMaxAge!)) {
+      if (this.cachedLocation && isCacheValid(this.cachedLocation, opts.cacheMaxAge!)) {
         return this.cachedLocation;
       }
       throw new Error('Location estimation already in progress');
@@ -122,7 +122,7 @@ export class UserLocationEstimator {
       let bestFastEstimate: LocationEstimate | null = null;
       if (fastEstimates.length > 0) {
         bestFastEstimate = fastEstimates
-          .sort((a, b) => this.scoreEstimate(b) - this.scoreEstimate(a))[0];
+          .sort((a, b) => scoreEstimate(b) - scoreEstimate(a))[0];
       }
 
       // Execute accurate methods if requested and if fast estimate isn't already high quality
@@ -138,7 +138,7 @@ export class UserLocationEstimator {
           // Select the most accurate estimate if significantly better
           if (accurateEstimates.length > 0) {
             const bestAccurate = accurateEstimates
-              .sort((a, b) => this.scoreEstimate(b) - this.scoreEstimate(a))[0];
+              .sort((a, b) => scoreEstimate(b) - scoreEstimate(a))[0];
 
             // Use accurate estimate if it's significantly better or if no fast estimate
             if (!bestFastEstimate || bestAccurate.accuracy < bestFastEstimate.accuracy * 0.5) {
@@ -180,7 +180,7 @@ export class UserLocationEstimator {
    */
   async getFastLocation(): Promise<LocationEstimate> {
     // Try cached first
-    if (this.cachedLocation && this.isCacheValid(this.cachedLocation, 1800000)) {
+    if (this.cachedLocation && isCacheValid(this.cachedLocation, 1800000)) {
       return this.cachedLocation;
     }
 
@@ -209,7 +209,7 @@ export class UserLocationEstimator {
             accuracy: position.coords.accuracy,
             method: position.coords.accuracy < 100 ? 'gps' : 'network',
             timestamp: position.timestamp,
-            confidence: this.calculateConfidence(position.coords.accuracy, position.timestamp),
+            confidence: calculateConfidence(position.coords.accuracy, position.timestamp),
             source: 'browser_geolocation'
           };
           resolve(estimate);
@@ -227,127 +227,11 @@ export class UserLocationEstimator {
   }
 
   /**
-   * IP GEOLOCATION: City/region level location via multiple providers with parallel requests
+   * IP GEOLOCATION: City/region level location via multiple providers.
+   * Implementation lives in ./ipGeolocation (pure + testable).
    */
   private async getIPLocation(): Promise<LocationEstimate> {
-    const providers: NetworkLocationProvider[] = [
-      {
-        name: 'ipapi',
-        endpoint: 'https://ipapi.co/json/',
-        parser: (data) => {
-          if (data.latitude && data.longitude && data.latitude !== 0 && data.longitude !== 0) {
-            return {
-              coordinates: [data.latitude, data.longitude],
-              accuracy: this.estimateIPAccuracy(data.city, data.region),
-              method: 'ip',
-              timestamp: Date.now(),
-              confidence: this.calculateIPConfidence(data.city, data.region, data.country_code),
-              source: `ipapi_${data.city || 'unknown'}_${data.region || 'unknown'}`
-            };
-          }
-          return null;
-        }
-      },
-      {
-        name: 'ip-api',
-        endpoint: 'http://ip-api.com/json/?fields=status,lat,lon,city,region,country',
-        parser: (data) => {
-          if (data.status === 'success' && data.lat && data.lon) {
-            return {
-              coordinates: [data.lat, data.lon],
-              accuracy: this.estimateIPAccuracy(data.city, data.region),
-              method: 'ip',
-              timestamp: Date.now(),
-              confidence: this.calculateIPConfidence(data.city, data.region, data.country),
-              source: `ip-api_${data.city || 'unknown'}_${data.region || 'unknown'}`
-            };
-          }
-          return null;
-        }
-      },
-      {
-        name: 'ipgeolocation',
-        endpoint: 'https://api.ipgeolocation.io/ipgeo',
-        parser: (data) => {
-          if (data.latitude && data.longitude && parseFloat(data.latitude) !== 0) {
-            return {
-              coordinates: [parseFloat(data.latitude), parseFloat(data.longitude)],
-              accuracy: this.estimateIPAccuracy(data.city, data.state_prov),
-              method: 'ip',
-              timestamp: Date.now(),
-              confidence: this.calculateIPConfidence(data.city, data.state_prov, data.country_code2),
-              source: `ipgeolocation_${data.city || 'unknown'}`
-            };
-          }
-          return null;
-        }
-      }
-    ];
-
-    // ENHANCED: Try multiple providers in parallel for speed and reliability
-    const providerPromises = providers.map(async (provider) => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout per provider
-
-        const response = await fetch(provider.endpoint, {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache'
-          }
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-        const estimate = provider.parser(data);
-
-        if (estimate) {
-          console.log(`📍 IP Location from ${provider.name}: ${estimate.source}, ±${estimate.accuracy}m`);
-          return { provider: provider.name, estimate, error: null };
-        }
-
-        return { provider: provider.name, estimate: null, error: 'Invalid response data' };
-
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`IP provider ${provider.name} failed:`, errorMessage);
-        return { provider: provider.name, estimate: null, error: errorMessage };
-      }
-    });
-
-    // Wait for all providers with a race condition to return the first successful result
-    const results = await Promise.allSettled(providerPromises);
-
-    // Collect all successful estimates
-    const successfulEstimates = results
-      .filter((result): result is PromiseFulfilledResult<any> =>
-        result.status === 'fulfilled' && result.value.estimate !== null
-      )
-      .map(result => result.value.estimate);
-
-    if (successfulEstimates.length > 0) {
-      // Select best estimate based on scoring
-      const bestEstimate = successfulEstimates
-        .sort((a, b) => this.scoreEstimate(b) - this.scoreEstimate(a))[0];
-
-      console.log(`📍 Selected best IP location: ${bestEstimate.source} (${successfulEstimates.length} providers responded)`);
-      return bestEstimate;
-    }
-
-    // Log all failures for debugging
-    const failedProviders = results.map((result, i) => ({
-      name: providers[i].name,
-      error: result.status === 'fulfilled' ? result.value.error : result.reason.message
-    }));
-
-    console.warn('All IP geolocation providers failed:', failedProviders);
-    throw new Error(`IP geolocation unavailable: ${failedProviders.map(p => `${p.name}: ${p.error}`).join(', ')}`);
+    return fetchIPLocation();
   }
 
   /**
@@ -355,7 +239,7 @@ export class UserLocationEstimator {
    */
   private async getCachedLocation(): Promise<LocationEstimate | null> {
     // Check in-memory cache first
-    if (this.cachedLocation && this.isCacheValid(this.cachedLocation, this.defaultOptions.cacheMaxAge!)) {
+    if (this.cachedLocation && isCacheValid(this.cachedLocation, this.defaultOptions.cacheMaxAge!)) {
       return {
         ...this.cachedLocation,
         method: 'cached'
@@ -409,74 +293,10 @@ export class UserLocationEstimator {
     };
   }
 
-  /**
-   * ACCURACY HELPERS
-   */
-  private calculateConfidence(accuracy: number, timestamp: number): LocationConfidence {
-    const age = Date.now() - timestamp;
-
-    if (accuracy < 50 && age < 300000) return 'high';      // <50m, <5min
-    if (accuracy < 1000 && age < 1800000) return 'medium'; // <1km, <30min
-    if (accuracy < 10000) return 'low';                    // <10km
-    return 'unknown';
-  }
-
-  private estimateIPAccuracy(city?: string, region?: string): number {
-    // Urban areas typically have better IP geolocation
-    const urbanCities = ['minneapolis', 'saint paul', 'duluth', 'rochester', 'bloomington', 'st. paul'];
-    const cityName = city?.toLowerCase() || '';
-    const regionName = region?.toLowerCase() || '';
-
-    // Minnesota-specific accuracy improvements
-    if (regionName.includes('minnesota') || regionName.includes('mn')) {
-      if (urbanCities.some(city => cityName.includes(city))) {
-        return 3000; // ~3km for Minnesota urban areas (better ISP mapping)
-      }
-      return 15000; // ~15km for rural Minnesota
-    }
-
-    // General urban vs rural classification
-    if (urbanCities.includes(cityName) || cityName.includes('minneapolis') || cityName.includes('paul')) {
-      return 5000; // ~5km for urban areas
-    }
-    return 25000; // ~25km for rural areas
-  }
-
-  private calculateIPConfidence(city?: string, region?: string, country?: string): LocationConfidence {
-    // Higher confidence for areas with known good IP geolocation
-    const hasCity = city && city.toLowerCase() !== 'unknown';
-    const hasRegion = region && region.toLowerCase() !== 'unknown';
-    const isMinnesota = region?.toLowerCase().includes('minnesota') || region?.toLowerCase().includes('mn');
-    const isUS = country?.toLowerCase().includes('us') || country?.toLowerCase().includes('united states');
-
-    if (isMinnesota && hasCity) {
-      return 'medium'; // Good confidence for Minnesota cities
-    } else if (isUS && hasCity && hasRegion) {
-      return 'low'; // Basic confidence for US cities with region
-    } else if (hasCity || hasRegion) {
-      return 'low'; // Some confidence with partial location data
-    } else {
-      return 'unknown'; // No confidence without location details
-    }
-  }
-
-  private scoreEstimate(estimate: LocationEstimate): number {
-    const confidenceScores = { 'high': 100, 'medium': 75, 'low': 50, 'unknown': 25 };
-    const methodScores = { 'gps': 100, 'network': 80, 'manual': 75, 'cached': 60, 'ip': 40, 'fallback': 10, 'none': 0 };
-    const ageScore = Math.max(0, 100 - (Date.now() - estimate.timestamp) / 60000); // Decay over time
-    const accuracyScore = Math.max(0, 100 - Math.log10(estimate.accuracy));
-
-    return (
-      confidenceScores[estimate.confidence] * 0.3 +
-      methodScores[estimate.method] * 0.3 +
-      accuracyScore * 0.2 +
-      ageScore * 0.2
-    );
-  }
-
-  private isCacheValid(location: LocationEstimate, maxAge: number): boolean {
-    return (Date.now() - location.timestamp) < maxAge;
-  }
+  // NOTE: calculateConfidence, estimateIPAccuracy, calculateIPConfidence,
+  // scoreEstimate, and isCacheValid now live in ../utils/locationEstimationUtils
+  // (pure + unit-tested) and are imported above — removing the duplicate copies
+  // that had drifted from that module.
 
   private cacheLocation(estimate: LocationEstimate): void {
     this.cachedLocation = estimate;
