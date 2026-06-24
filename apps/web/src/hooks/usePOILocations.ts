@@ -168,8 +168,11 @@ export function usePOILocations(options: UsePOILocationsOptions = {}) {
     }
   }, [userLocation, radius, weatherRadius, limit])
 
-  // Fetch data when dependencies change
+  // Fetch data when dependencies change. Standard data-fetch effect:
+  // fetchPOILocations sets loading/locations/error state. A "pure" alternative
+  // (react-query) is a larger migration — deferred.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPOILocations()
   }, [fetchPOILocations])
 
@@ -188,6 +191,9 @@ export function usePOILocations(options: UsePOILocationsOptions = {}) {
     // Computed values (compatible with useWeatherLocations interface)
     hasData: locations.length > 0,
     isEmpty: !loading && locations.length === 0,
+    // Time-derived staleness flag; reading Date.now() during render is
+    // intentional (recomputes each render). A pure fix needs timer-based state.
+    // eslint-disable-next-line react-hooks/purity
     isStale: lastFetch && Date.now() - lastFetch.getTime() > 5 * 60 * 1000, // 5 minutes
 
     // POI-specific computed values

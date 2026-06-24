@@ -65,8 +65,13 @@ export const useFilterManager = () => {
   // Track previous filters to prevent infinite loops
   const prevDebouncedFilters = useRef(debouncedFilters);
 
-  // Initialize instant filters from persisted filters on mount
+  // Sync external (persisted) filter changes into the instant-UI mirror.
+  // Intentional prop→state sync: `instantFilters` provides immediate UI feedback
+  // and is debounced separately for API calls, so it can't simply derive from
+  // `filters` during render. A non-effect fix would mean restructuring the
+  // debounce flow — deferred.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInstantFilters(filters);
   }, [filters]); // Add filters as dependency
 

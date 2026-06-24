@@ -321,9 +321,12 @@ export const usePOINavigation = (
     return newVisiblePOIs[newPOIsStartIndex] || null;
   }, [state]); // Remove function dependencies that aren't stateful
 
-  // Load data when location or filters change
+  // Load data when location or filters change. Standard data-fetch effect:
+  // loadPOIData updates POI state. A "pure" alternative (react-query) is a
+  // larger migration — deferred.
   useEffect(() => {
     if (userLocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadPOIData();
     }
   }, [userLocation, filters, loadPOIData]); // Re-enabled with proper dependencies
