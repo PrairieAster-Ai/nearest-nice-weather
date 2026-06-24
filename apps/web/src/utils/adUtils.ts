@@ -12,6 +12,35 @@ export interface POILocation {
 }
 
 /**
+ * Serialize a value for safe embedding inside an inline <script> block.
+ *
+ * JSON.stringify escapes quotes/backslashes; the unicode replacements prevent
+ * a `</script>` (or `<!--`) sequence in the data from breaking out of the
+ * script element — which would otherwise allow injecting live HTML (e.g.
+ * `</script><img src=x onerror=...>`) even when the surrounding markup is set
+ * via innerHTML.  /  are escaped because they are valid JSON but
+ * illegal raw in a JS string literal.
+ */
+function toScriptJson(value: unknown): string {
+  return JSON.stringify(value ?? null)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
+/** Escape a value for an HTML attribute or text context. */
+function escapeHtmlAttr(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
  * Generate Media.net contextual ad HTML for map popup integration
  * Optimized for geographic constraint context and weather awareness
  */
@@ -26,21 +55,25 @@ export const generateMediaNetPopupAdHTML = (location: POILocation, testMode: boo
   if (testMode) {
     return `<div style="background: #f0f8ff; padding: 8px; border-radius: 4px; font-size: 12px;">
       <strong>Media.net Test Ad</strong><br/>
-      Context: ${contextualKeywords}<br/>
+      Context: ${escapeHtmlAttr(contextualKeywords)}<br/>
       <em>Real ads will appear here in production</em>
     </div>`;
   }
 
-  return `<div id="medianet-popup-ad-${location.id}" style="margin: 8px 0;">
+  // All dynamic data is embedded via toScriptJson so an attacker-controlled POI
+  // name cannot break out of the inline <script>.
+  const safeId = escapeHtmlAttr(location.id);
+  const contextual = {
+    targeting: contextualKeywords,
+    location: `${location.name}, Minnesota`,
+    coordinates: [location.latitude, location.longitude],
+  };
+  return `<div id="medianet-popup-ad-${safeId}" style="margin: 8px 0;">
     <script>
       (function() {
-        var contextual = {
-          targeting: '${contextualKeywords}',
-          location: '${location.name}, Minnesota',
-          coordinates: [${location.latitude}, ${location.longitude}]
-        };
+        var contextual = ${toScriptJson(contextual)};
         if (window.mnet) {
-          window.mnet.loadAd('popup-ad-${location.id}', contextual);
+          window.mnet.loadAd(${toScriptJson(`popup-ad-${location.id}`)}, contextual);
         }
       })();
     </script>
@@ -66,28 +99,32 @@ export const generatePOIAdHTML = (location: POILocation, testMode: boolean = fal
   if (testMode) {
     return `<div style="background: linear-gradient(135deg, #e3f2fd, #fff3e0); padding: 12px; border-radius: 8px; margin: 10px 0;">
       <div style="font-weight: bold; color: #1976d2; margin-bottom: 4px;">🎯 Contextual Test Ad</div>
-      <div style="font-size: 11px; color: #666;">Keywords: ${activityKeywords}</div>
-      <div style="font-size: 11px; color: #666;">Weather: ${location.temperature}°F, ${location.precipitation}% chance rain</div>
+      <div style="font-size: 11px; color: #666;">Keywords: ${escapeHtmlAttr(activityKeywords)}</div>
+      <div style="font-size: 11px; color: #666;">Weather: ${escapeHtmlAttr(location.temperature)}°F, ${escapeHtmlAttr(location.precipitation)}% chance rain</div>
       <div style="font-style: italic; color: #999; margin-top: 6px;">Production ads will be geo-targeted and weather-aware</div>
     </div>`;
   }
 
-  return `<div id="contextual-poi-ad-${location.id}" class="poi-contextual-ad" style="margin: 10px 0;">
+  // Embed the config via toScriptJson to neutralize injection through the POI
+  // name / keywords inside the inline <script>.
+  const safeId = escapeHtmlAttr(location.id);
+  const adConfig = {
+    containerId: `contextual-poi-ad-${location.id}`,
+    keywords: activityKeywords,
+    location: {
+      name: location.name,
+      coordinates: [location.latitude, location.longitude],
+      weather: {
+        temperature: location.temperature ?? null,
+        precipitation: location.precipitation ?? null,
+      },
+    },
+  };
+  return `<div id="contextual-poi-ad-${safeId}" class="poi-contextual-ad" style="margin: 10px 0;">
     <script>
       (function() {
         if (window.contextualAds) {
-          window.contextualAds.display({
-            containerId: 'contextual-poi-ad-${location.id}',
-            keywords: '${activityKeywords}',
-            location: {
-              name: '${location.name}',
-              coordinates: [${location.latitude}, ${location.longitude}],
-              weather: {
-                temperature: ${location.temperature || 'null'},
-                precipitation: ${location.precipitation || 'null'}
-              }
-            }
-          });
+          window.contextualAds.display(${toScriptJson(adConfig)});
         }
       })();
     </script>
