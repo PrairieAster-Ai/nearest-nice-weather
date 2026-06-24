@@ -268,6 +268,11 @@ export const usePOINavigation = (
       // At farthest visible POI - try to expand
       if (checkCanExpand(allPOIs, currentSliceMax)) {
         console.log(`📍 Expanding from ${currentSliceMax}mi to ${currentSliceMax + DISTANCE_SLICE_SIZE}mi`);
+        // Intentional mutual reference: navigateFarther ⇄ expandDistanceSlice.
+        // Both are useCallbacks keyed on `state`, so the forward reference is
+        // safe at call time. Restructuring to satisfy the compiler rule would
+        // mean ref-indirection in core navigation — deferred (needs sign-off).
+        // eslint-disable-next-line react-hooks/immutability
         return expandDistanceSlice();
       } else {
         console.log('📍 No more POIs to show');

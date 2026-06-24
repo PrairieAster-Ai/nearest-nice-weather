@@ -112,6 +112,82 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   const markersRef = useRef<L.Marker[]>([]);
   const [, setCurrentMarkerIndex] = useState(0);
 
+  // Popup builders — declared before the effects that use them (the marker
+  // effects below) so the React Compiler can preserve their memoization.
+  // The HTML/URL logic itself lives in ../utils/mapPopup (pure + tested); this
+  // is a thin wrapper supplying the current navigation state.
+  const createPopupContent = useCallback((location: POILocation): string => {
+    return buildPoiPopupHtml(
+      location,
+      {
+        hasNavigation: locations.length > 1 || canExpand,
+        isAtClosest,
+        isAtFarthest,
+        canExpand,
+      },
+      process.env.NODE_ENV === 'development'
+    );
+  }, [isAtClosest, isAtFarthest, canExpand, locations.length]);
+
+  // Update an existing marker's popup with current navigation state
+  const updatePopupContent = useCallback((markerIndex: number) => {
+    if (markerIndex >= 0 && markerIndex < locations.length && markersRef.current[markerIndex]) {
+      const location = locations[markerIndex];
+      const updatedContent = createPopupContent(location);
+      markersRef.current[markerIndex].setPopupContent(updatedContent);
+    }
+  }, [locations, createPopupContent]);
+
+  // End-of-results notification (self-contained; declared before the navigation
+  // effect that triggers it).
+  const showEndOfResultsNotification = useCallback(() => {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 10000;
+      text-align: center;
+      max-width: 300px;
+    `;
+
+    notification.innerHTML = `
+      <h3 style="margin: 0 0 10px 0; color: #333;">End of Results</h3>
+      <p style="margin: 0 0 15px 0; color: #666;">That's all the results we have for this area!</p>
+      <button style="
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      ">OK</button>
+    `;
+
+    // Add click handler to OK button
+    const okButton = notification.querySelector('button');
+    if (okButton) {
+      okButton.addEventListener('click', () => {
+        notification.remove();
+      });
+    }
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 5000);
+  }, []);
+
   // Map initialization with React StrictMode compatibility
   useEffect(() => {
     if (!containerRef.current) return;
@@ -322,30 +398,6 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     userMarkerRef.current.setLatLng(userLocation);
   }, [userLocation]);
 
-  // Popup HTML + mapping-URL logic lives in ../utils/mapPopup (pure + tested).
-  // This thin wrapper supplies the current navigation state.
-  const createPopupContent = useCallback((location: POILocation): string => {
-    return buildPoiPopupHtml(
-      location,
-      {
-        hasNavigation: locations.length > 1 || canExpand,
-        isAtClosest,
-        isAtFarthest,
-        canExpand,
-      },
-      process.env.NODE_ENV === 'development'
-    );
-  }, [isAtClosest, isAtFarthest, canExpand, locations.length]);
-
-  // Function to update popup content with current navigation state
-  const updatePopupContent = useCallback((markerIndex: number) => {
-    if (markerIndex >= 0 && markerIndex < locations.length && markersRef.current[markerIndex]) {
-      const location = locations[markerIndex];
-      const updatedContent = createPopupContent(location);
-      markersRef.current[markerIndex].setPopupContent(updatedContent);
-    }
-  }, [locations, createPopupContent]);
-
   // Event delegation for popup navigation buttons and analytics tracking
   useEffect(() => {
     const handleNavigation = (event: Event) => {
@@ -416,54 +468,6 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onNavigateCloser, onNavigateFarther, locations]);
 
-  // End of results notification
-  const showEndOfResultsNotification = useCallback(() => {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 10000;
-      text-align: center;
-      max-width: 300px;
-    `;
-
-    notification.innerHTML = `
-      <h3 style="margin: 0 0 10px 0; color: #333;">End of Results</h3>
-      <p style="margin: 0 0 15px 0; color: #666;">That's all the results we have for this area!</p>
-      <button style="
-        background: #4CAF50;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">OK</button>
-    `;
-
-    // Add click handler to OK button
-    const okButton = notification.querySelector('button');
-    if (okButton) {
-      okButton.addEventListener('click', () => {
-        notification.remove();
-      });
-    }
-
-    document.body.appendChild(notification);
-
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 5000);
-  }, []);
 
   // Auto-open popup for currentPOI
   useEffect(() => {
