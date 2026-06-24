@@ -40,20 +40,30 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      // Measure the WHOLE source tree, not just files imported by tests, so the
+      // reported number reflects true codebase coverage. Untested files count
+      // as 0% rather than being silently omitted.
+      all: true,
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'node_modules/',
         'src/test/',
         '**/*.d.ts',
         '**/*.config.*',
+        '**/*.test.{ts,tsx}',
+        '**/__tests__/**',
+        'src/App.simple.tsx', // throwaway scaffold, not shipped
         'dist/',
       ],
+      // Thresholds are a ratchet set just under current whole-codebase coverage
+      // so they prevent regression without spuriously failing. Raise them as
+      // tests are added (do not lower). NB: vitest 4 dropped the `global` nesting
+      // — thresholds live directly under `thresholds`.
       thresholds: {
-        global: {
-          branches: 70,
-          functions: 70,
-          lines: 70,
-          statements: 70
-        }
+        branches: 29,
+        functions: 38,
+        lines: 31,
+        statements: 31
       }
     },
     // Watch mode configuration
