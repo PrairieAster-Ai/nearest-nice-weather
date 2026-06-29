@@ -103,6 +103,7 @@ interface MapContainerProps {
   onNavigateFarther: () => POILocation | string | null;
 }
 
+// 🔗 INTEGRATION: Main MapContainer component for App.tsx consumption
 /**
  * Interactive Leaflet map that renders POI markers with weather-rich popups plus
  * a draggable user-location marker. Wraps Leaflet imperatively with incremental
@@ -127,7 +128,6 @@ interface MapContainerProps {
  * />
  * ```
  */
-// 🔗 INTEGRATION: Main MapContainer component for App.tsx consumption
 export const MapContainer: React.FC<MapContainerProps> = ({
   center,
   zoom,
