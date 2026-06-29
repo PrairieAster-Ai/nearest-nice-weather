@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { WeatherFilter } from '../types/weather'
 import { Location } from '../types/weather'
 
+/** State and actions returned by {@link useWeatherSearch}. */
 interface UseWeatherSearchReturn {
   loading: boolean
   error: string | null
@@ -10,6 +11,13 @@ interface UseWeatherSearchReturn {
   clearResults: () => void
 }
 
+/**
+ * Local-state weather search hook backed by a direct `fetch` to the
+ * POI-with-weather endpoint. Requires all three filter axes to be set, applies
+ * a `VITE_API_TIMEOUT` abort, and surfaces timeout/error messages to the caller.
+ *
+ * @returns Search state plus `searchWeather` and `clearResults` actions.
+ */
 export const useWeatherSearch = (): UseWeatherSearchReturn => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

@@ -21,38 +21,53 @@
  * LAST UPDATED: 2025-08-13
  */
 
-// Location interface for geographic calculations
+/** A named geographic point (POI or user location) used in map view calculations. */
 export interface LocationPoint {
+  /** Stable identifier for the point (e.g. POI id, or `'user'` for the user marker). */
   id: string;
+  /** Human-readable label for the point. */
   name: string;
+  /** Latitude in decimal degrees. */
   lat: number;
+  /** Longitude in decimal degrees. */
   lng: number;
 }
 
-// Coordinate type for map calculations
-export type Coordinates = [number, number]; // [latitude, longitude]
+/** A `[latitude, longitude]` coordinate pair, in decimal degrees. */
+export type Coordinates = [number, number];
 
-// Geographic bounds for map calculations
+/** Axis-aligned latitude/longitude bounding box enclosing a set of points. */
 export interface GeographicBounds {
+  /** Southernmost latitude. */
   minLat: number;
+  /** Northernmost latitude. */
   maxLat: number;
+  /** Westernmost longitude. */
   minLng: number;
+  /** Easternmost longitude. */
   maxLng: number;
 }
 
-// Map view configuration
+/** A resolved map view: where to center and how far to zoom. */
 export interface MapView {
+  /** Center coordinate of the viewport. */
   center: Coordinates;
+  /** Leaflet zoom level. */
   zoom: number;
 }
 
-// Map calculation options
+/** Tunable parameters for bounds/zoom calculation; all fields fall back to service defaults. */
 export interface MapCalculationOptions {
-  padding?: number;           // Padding factor for bounds (default: 1.2)
-  defaultZoom?: number;       // Default zoom level (default: 8)
-  minZoom?: number;          // Minimum zoom level (default: 6)
-  maxZoom?: number;          // Maximum zoom level (default: 15)
-  fallbackCenter?: Coordinates; // Fallback center when no locations (default: Minneapolis)
+  /** Padding factor applied to the bounds range for breathing room (default: 1.2). */
+  padding?: number;
+  /** Default zoom used when no locations are available (default: 8). */
+  defaultZoom?: number;
+  /** Lower clamp on the computed zoom level (default: 6). */
+  minZoom?: number;
+  /** Upper clamp on the computed zoom level (default: 15). */
+  maxZoom?: number;
+  /** Center to fall back to when no locations are provided (default: Minneapolis). */
+  fallbackCenter?: Coordinates;
 }
 
 /**
