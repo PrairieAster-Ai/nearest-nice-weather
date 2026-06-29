@@ -100,13 +100,17 @@ export const STORAGE_KEYS = {
  * Pre-configured hooks for specific app data types
  */
 
-// Weather filters with sensible defaults for Minnesota outdoor activities
+/** Persisted weather filter selections. */
 export interface WeatherFilters {
   temperature: string;
   precipitation: string;
   wind: string;
 }
 
+/**
+ * Persist the user's weather filters in `localStorage`, defaulting to mild/dry/
+ * calm — sensible starting conditions for Minnesota outdoor activities.
+ */
 export function useWeatherFiltersStorage() {
   return useLocalStorageState<WeatherFilters>(STORAGE_KEYS.WEATHER_FILTERS, {
     temperature: 'mild',    // Good default for Minnesota outdoor activities
@@ -115,7 +119,10 @@ export function useWeatherFiltersStorage() {
   });
 }
 
-// User location with null default (requires user input)
+/**
+ * Persist the user's location `[lat, lng]`, defaulting to null so the app
+ * triggers location detection on first load.
+ */
 export function useUserLocationStorage() {
   return useLocalStorageState<[number, number] | null>(
     STORAGE_KEYS.USER_LOCATION,
@@ -123,12 +130,16 @@ export function useUserLocationStorage() {
   );
 }
 
-// Map view settings
+/** Persisted map viewport (center coordinate and zoom level). */
 export interface MapViewSettings {
   center: [number, number];
   zoom: number;
 }
 
+/**
+ * Persist the map viewport, defaulting to a statewide view centered on
+ * Minnesota.
+ */
 export function useMapViewStorage() {
   return useLocalStorageState<MapViewSettings>(STORAGE_KEYS.MAP_VIEW, {
     center: [46.7296, -94.6859], // Minnesota center default
@@ -136,9 +147,10 @@ export function useMapViewStorage() {
   });
 }
 
-// Location method tracking
+/** How the user's location was determined. */
 export type LocationMethod = 'geolocation' | 'ip' | 'manual' | 'none';
 
+/** Persist which method produced the current user location (defaults to `'none'`). */
 export function useLocationMethodStorage() {
   return useLocalStorageState<LocationMethod>(
     STORAGE_KEYS.LOCATION_METHOD,
@@ -146,7 +158,7 @@ export function useLocationMethodStorage() {
   );
 }
 
-// UI state preferences
+/** Persist whether to show the location-permission prompt (defaults to `true`). */
 export function useShowLocationPromptStorage() {
   return useLocalStorageState<boolean>(
     STORAGE_KEYS.SHOW_LOCATION_PROMPT,
@@ -154,7 +166,7 @@ export function useShowLocationPromptStorage() {
   );
 }
 
-// Last visit tracking for analytics and user experience
+/** Persist the user's last-visit timestamp for analytics/UX (defaults to null). */
 export function useLastVisitStorage() {
   return useLocalStorageState<string | null>(
     STORAGE_KEYS.LAST_VISIT,

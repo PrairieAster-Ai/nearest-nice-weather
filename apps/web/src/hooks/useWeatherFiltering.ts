@@ -48,7 +48,10 @@ import {
   FilterCounts
 } from '../services/WeatherFilteringService';
 
-// Local location interface (from App.tsx)
+/**
+ * POI location shape used by this hook (mirrors the structure App.tsx holds in
+ * state), carrying coordinates plus flattened current weather fields.
+ */
 export interface Location {
   id: string;
   name: string;
@@ -61,14 +64,14 @@ export interface Location {
   windSpeed: number;
 }
 
-// Local weather filters interface (from App.tsx)
+/** The user's selected weather filter buckets (App.tsx representation). */
 export interface WeatherFilters {
   temperature: string;
   precipitation: string;
   wind: string;
 }
 
-// Hook result interface
+/** Value returned by {@link useWeatherFiltering}: badge counts and the apply fn. */
 export interface WeatherFilteringHookResult {
   filterResultCounts: FilterCounts;
   applyWeatherFilters: (locations: Location[], filters: WeatherFilters, maxDistance?: number) => Location[];

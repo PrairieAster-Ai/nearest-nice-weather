@@ -3,6 +3,12 @@ import { weatherApi, WeatherApiError } from '../services/weatherApi'
 import { WeatherFilter, Location, queryKeys } from '../types/weather'
 import { monitoring } from '../services/monitoring'
 
+/**
+ * Query hook that fetches all locations, cached for 5 minutes. Retries up to 3
+ * times on non-4xx errors and reports failures to monitoring without throwing.
+ *
+ * @returns The TanStack Query result for the locations list.
+ */
 export const useLocations = () => {
   return useQuery({
     queryKey: queryKeys.weather.locations(),
@@ -25,6 +31,13 @@ export const useLocations = () => {
   })
 }
 
+/**
+ * Mutation hook that runs a weather search for the given filters, records
+ * timing/usage telemetry, and primes the query cache with both the search
+ * result and any per-location weather it returns.
+ *
+ * @returns The TanStack Query mutation object keyed by {@link WeatherFilter}.
+ */
 export const useWeatherSearch = () => {
   const queryClient = useQueryClient()
 
@@ -85,6 +98,14 @@ export const useWeatherSearch = () => {
   })
 }
 
+/**
+ * Query hook for weather search results that auto-runs when a complete filter
+ * set is provided. Disabled while `filters` is null or any axis is empty;
+ * results are cached for 2 minutes.
+ *
+ * @param filters - The active weather filters, or null to disable the query.
+ * @returns The TanStack Query result for the matched locations.
+ */
 export const useWeatherSearchResults = (filters: WeatherFilter | null) => {
   return useQuery({
     queryKey: filters ? queryKeys.weather.search(filters) : ['weather', 'search', 'disabled'],
@@ -104,7 +125,12 @@ export const useWeatherSearchResults = (filters: WeatherFilter | null) => {
   })
 }
 
-// Custom hook for managing cached weather searches
+/**
+ * Hook exposing helpers to read and clear recent weather searches straight from
+ * the React Query cache (most-recent first, capped at 5 non-empty results).
+ *
+ * @returns `{ getSearchHistory, clearSearchHistory }`.
+ */
 export const useWeatherSearchHistory = () => {
   const queryClient = useQueryClient()
 

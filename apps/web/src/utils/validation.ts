@@ -1,6 +1,13 @@
 import { z } from 'zod'
 
-// Input sanitization utilities
+/**
+ * Strip the most common XSS vectors from a free-text string: `<script>` blocks,
+ * `javascript:` protocols, and inline `on*=` event handlers. Best-effort
+ * defense-in-depth — not a substitute for output encoding.
+ *
+ * @param input - Untrusted user-supplied text.
+ * @returns The trimmed, sanitized string.
+ */
 export const sanitizeString = (input: string): string => {
   return input
     .trim()
@@ -9,13 +16,24 @@ export const sanitizeString = (input: string): string => {
     .replace(/on\w+\s*=/gi, '') // Remove event handlers
 }
 
+/**
+ * HTML-encode a string by round-tripping it through a detached element's
+ * `textContent`, so it can be safely interpolated as text.
+ *
+ * @param input - Raw string to encode.
+ * @returns The HTML-escaped string.
+ */
 export const sanitizeHtml = (input: string): string => {
   const div = document.createElement('div')
   div.textContent = input
   return div.innerHTML
 }
 
-// Validation schemas for different inputs
+/**
+ * Zod schemas for the app's user-facing inputs (weather filter, feedback,
+ * search). Feedback/search free-text is sanitized via {@link sanitizeString}
+ * during validation.
+ */
 export const UserInputSchemas = {
   weatherFilter: z.object({
     // zod v4: enum custom messages use `error` (replaced v3 `errorMap`)
@@ -71,9 +89,16 @@ class RateLimiter {
   }
 }
 
+/**
+ * Process-wide in-memory rate limiter. Tracks request timestamps per key and
+ * allows up to `limit` requests within a sliding `windowMs`.
+ */
 export const rateLimiter = new RateLimiter()
 
-// Content Security Policy helpers
+/**
+ * Content Security Policy directives, expressed as directive → allowed-source
+ * lists. Consumed by {@link generateCSP} to build the header value.
+ */
 export const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
   'script-src': [
@@ -109,14 +134,20 @@ export const CSP_DIRECTIVES = {
   'form-action': ["'self'"],
 }
 
-// Generate CSP header value
+/**
+ * Serialize {@link CSP_DIRECTIVES} into a `Content-Security-Policy` header value.
+ *
+ * @returns The semicolon-delimited CSP header string.
+ */
 export const generateCSP = (): string => {
   return Object.entries(CSP_DIRECTIVES)
     .map(([directive, sources]) => `${directive} ${sources.join(' ')}`)
     .join('; ')
 }
 
-// Security headers for production
+/**
+ * Recommended production HTTP security headers, including the generated CSP.
+ */
 export const SECURITY_HEADERS = {
   'Content-Security-Policy': generateCSP(),
   'X-Content-Type-Options': 'nosniff',
@@ -126,7 +157,11 @@ export const SECURITY_HEADERS = {
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
 }
 
-// Validate environment variables
+/**
+ * Assert that all required `VITE_*` environment variables are present.
+ *
+ * @throws Error if any required variable is missing.
+ */
 export const validateEnvironment = () => {
   const requiredEnvVars = [
     'VITE_API_BASE_URL',
@@ -139,7 +174,12 @@ export const validateEnvironment = () => {
   }
 }
 
-// URL validation for external links
+/**
+ * Validate that a string is a parseable URL using the `http`/`https` protocol.
+ *
+ * @param url - Candidate external link.
+ * @returns `true` only for well-formed http(s) URLs.
+ */
 export const isValidExternalUrl = (url: string): boolean => {
   try {
     const parsed = new URL(url)
