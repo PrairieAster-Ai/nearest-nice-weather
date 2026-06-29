@@ -1,3 +1,8 @@
+/**
+ * Input-sanitization and validation helpers shared across forms and API
+ * boundaries: best-effort XSS stripping, HTML encoding, and Zod-backed schema
+ * validation. Defense-in-depth — pair with proper output encoding at render time.
+ */
 import { z } from 'zod'
 
 /**

@@ -26,38 +26,70 @@
  */
 
 // Distance calculation constants
+
+/** Width of each distance band, in miles, used to group POIs for progressive reveal (0–30mi, 30–60mi, …). */
 export const DISTANCE_SLICE_SIZE = 30; // 30 mile slices
+/** Earth's mean radius in miles, used by the Haversine distance calculation. */
 export const EARTH_RADIUS_MILES = 3959; // Earth's radius in miles
 
 // Data processing constants
+
+/** Maximum number of POIs returned/processed per request; mirrors the API's hard limit. */
 export const MAX_RESULTS = 50; // Hard-coded API limit
 
 // Type definitions (extracted from usePOINavigation)
+
+/**
+ * A POI enriched with the derived fields the navigation algorithm needs:
+ * distance from the user, which distance slice it falls in, and whether it is
+ * currently revealed in the UI.
+ */
 export interface POIWithMetadata {
+  /** Stable unique identifier for the POI. */
   id: string;
+  /** Human-readable POI name. */
   name: string;
+  /** Latitude in decimal degrees. */
   lat: number;
+  /** Longitude in decimal degrees. */
   lng: number;
+  /** Temperature in degrees Fahrenheit. */
   temperature: number;
+  /** Precipitation probability as a 0–100 percentage. */
   precipitation: number;
+  /** Wind speed in mph; arrives as a string from the API and is kept as-is. */
   windSpeed: string; // Wind speed in mph (string from API)
+  /** Short condition label (e.g. "Clear"). */
   condition: string;
+  /** Longer human-readable weather description. */
   description: string;
+  /** Great-circle distance from the user's location, in miles. */
   distance: number;
+  /** Whether this POI is currently revealed in the UI (vs. held back for later expansion). */
   displayed: boolean;
+  /** Zero-based distance-band index ({@link DISTANCE_SLICE_SIZE}-mile bands). */
   sliceIndex: number;
 }
 
+/** Result of processing a raw POI list: the enriched POIs plus summary distance statistics. */
 export interface POIProcessingResult {
+  /** POIs enriched with distance/slice/display metadata, sorted nearest-first. */
   processedPOIs: POIWithMetadata[];
+  /** Total number of POIs in the processed set. */
   totalCount: number;
+  /** Distance to the nearest POI, in miles. */
   closestDistance: number;
+  /** Distance to the farthest POI, in miles. */
   farthestDistance: number;
 }
 
+/** Server-side weather filter parameters sent with a POI query (temperature range + acceptable conditions). */
 export interface WeatherFilters {
+  /** Minimum acceptable temperature in °F. */
   temp_min: number;
+  /** Maximum acceptable temperature in °F. */
   temp_max: number;
+  /** Acceptable condition labels (e.g. `['Clear', 'Partly Cloudy']`). */
   conditions: string[];
 }
 

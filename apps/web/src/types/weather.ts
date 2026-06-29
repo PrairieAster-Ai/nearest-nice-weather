@@ -1,3 +1,8 @@
+/**
+ * Zod schemas, inferred types, and React Query cache keys for the weather/POI
+ * domain. The schemas are the single source of truth: the exported types are
+ * inferred from them, so runtime validation and compile-time types can't drift.
+ */
 import { z } from 'zod'
 
 /**
@@ -51,8 +56,11 @@ export type WeatherSearchResponse = z.infer<typeof WeatherSearchResponseSchema>
 
 /** Normalized error returned by the weather API layer. */
 export interface ApiError {
+  /** Human-readable error message. */
   message: string
+  /** HTTP status code, when the error originated from an HTTP response. */
   status?: number
+  /** Stable machine-readable error code, when available. */
   code?: string
 }
 

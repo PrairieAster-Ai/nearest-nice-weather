@@ -3,12 +3,20 @@
  * Loads analytics script based on environment variables
  */
 
+/** Resolved Umami configuration needed to inject the analytics script tag. */
 interface UmamiConfig {
+  /** URL of the hosted Umami tracker script. */
   scriptUrl: string;
+  /** Umami website id this deployment reports under. */
   websiteId: string;
+  /** Comma-separated allowlist of domains Umami should track. */
   domains: string;
 }
 
+/**
+ * Read Umami settings from Vite env vars.
+ * @returns A complete {@link UmamiConfig}, or `null` when the required env vars are absent (analytics disabled).
+ */
 const getUmamiConfig = (): UmamiConfig | null => {
   const scriptUrl = import.meta.env.VITE_UMAMI_SCRIPT_URL;
   const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
@@ -25,6 +33,20 @@ const getUmamiConfig = (): UmamiConfig | null => {
   };
 };
 
+/**
+ * Lazily inject the Umami analytics script, once, based on environment config.
+ *
+ * Resolves rather than rejects on every outcome so callers never need a try/catch:
+ * the boolean tells you whether tracking is active.
+ *
+ * @returns A promise resolving `true` when the script is loaded (or already present),
+ * and `false` when analytics is disabled (missing env vars) or the script failed to load.
+ * @example
+ * ```ts
+ * const tracking = await loadUmamiAnalytics();
+ * if (tracking) console.log('Umami active');
+ * ```
+ */
 export const loadUmamiAnalytics = (): Promise<boolean> => {
   return new Promise((resolve) => {
     const config = getUmamiConfig();
