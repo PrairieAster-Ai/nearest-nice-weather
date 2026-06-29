@@ -1,21 +1,53 @@
-// Monitoring and Analytics Service
-// This will be extended with Sentry integration in production
+/**
+ * Client-side error, performance, and user-action monitoring.
+ *
+ * Buffers events through a single {@link monitoring} singleton that logs to the
+ * console in development and POSTs to `/api/analytics` in production. Registers
+ * global `error` / `unhandledrejection` handlers on import as a side effect.
+ *
+ * @remarks
+ * This is intentionally minimal and is slated to be extended with Sentry in
+ * production. All sends fail silently so monitoring never degrades the UX.
+ *
+ * @module services/monitoring
+ */
 
+/**
+ * Optional contextual metadata attached to a captured error.
+ *
+ * Open-ended (`[key: string]: any`) so call sites can attach ad-hoc diagnostics
+ * without a schema change.
+ */
 export interface ErrorContext {
+  /** Authenticated user id, when known. */
   userId?: string
+  /** Monitoring session id correlating events from one visit. */
   sessionId?: string
+  /** Browser user-agent string. */
   userAgent?: string
+  /** URL where the error occurred. */
   url?: string
+  /** Short label describing where in the app the error came from. */
   context?: string
+  /** Arbitrary extra diagnostic fields. */
   additionalContext?: Record<string, any>
-  [key: string]: any  // Allow additional properties
+  /** Escape hatch for additional call-site-specific properties. */
+  [key: string]: any
 }
 
+/**
+ * A single performance measurement (e.g. a Core Web Vital).
+ */
 export interface PerformanceMetric {
+  /** Metric name, e.g. `'LCP'`, `'FID'`, `'CLS'`. */
   name: string
+  /** Measured value. */
   value: number
+  /** Unit of {@link PerformanceMetric.value}, e.g. `'ms'` or `'score'`. */
   unit: string
+  /** When the measurement was taken. */
   timestamp: Date
+  /** Optional extra context for the measurement. */
   context?: Record<string, any>
 }
 
@@ -156,6 +188,15 @@ class MonitoringService {
   }
 }
 
+/**
+ * App-wide monitoring singleton.
+ *
+ * @example
+ * ```ts
+ * monitoring.captureUserAction('poi_selected', { poiId })
+ * monitoring.captureWebVitals() // call once on app mount
+ * ```
+ */
 export const monitoring = new MonitoringService()
 
 // Global error handler
