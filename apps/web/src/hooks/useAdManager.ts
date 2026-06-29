@@ -5,7 +5,15 @@ import { useContext } from 'react';
 import { AdManagerContext, type AdManagerContextType } from '../components/ads/AdManagerContext';
 
 /**
- * Hook to access AdManager functionality
+ * Reads the {@link AdManagerContextType} from the nearest `AdManagerProvider`:
+ * ad-block detection, load state, A/B test group, and performance metrics.
+ *
+ * @returns The AdManager context value.
+ * @throws Error if called outside an `AdManagerProvider`.
+ * @example
+ * ```tsx
+ * const { isAdBlockDetected, testGroup } = useAdManager();
+ * ```
  */
 export const useAdManager = (): AdManagerContextType => {
   const context = useContext(AdManagerContext);

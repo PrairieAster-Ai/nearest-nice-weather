@@ -23,19 +23,31 @@
 
 import React from 'react'
 
+/** The POI + current weather context used to target a contextual ad. */
 interface POILocation {
+  /** Stable POI identifier. */
   id: string
+  /** Display name of the destination. */
   name: string
+  /** Latitude. */
   lat: number
+  /** Longitude. */
   lng: number
+  /** Current temperature (°F). */
   temperature: number
+  /** Weather condition label (e.g. "Clear", "Rain"). */
   condition: string
+  /** Precipitation likelihood/intensity (0-100). */
   precipitation: number
+  /** Current wind speed (string with unit). */
   windSpeed: string
+  /** Park classification (e.g. "State Park", "Trail"), when known. */
   park_type?: string
 }
 
+/** Props for {@link MediaNetContextualAd}. */
 interface MediaNetContextualAdProps {
+  /** POI + weather context that drives the contextual keywords. */
   location: POILocation
   /** Test mode for development */
   testMode?: boolean
@@ -44,10 +56,15 @@ interface MediaNetContextualAdProps {
 }
 
 /**
- * MediaNetContextualAd - Geographic constraint optimization partner
+ * Media.net contextual ad keyed to a POI's geographic + weather context. Builds
+ * contextual keywords (location, conditions, activity) for the Yahoo/Bing ad
+ * network, which has no policy restriction on popup/modal placement — so it
+ * suits in-popup outdoor/travel ad slots better than AdSense.
  *
- * Delivers contextually intelligent ads based on user's geographic constraints,
- * weather conditions, and outdoor recreation preferences
+ * @example
+ * ```tsx
+ * <MediaNetContextualAd location={poi} testMode={isDev} />
+ * ```
  */
 export const MediaNetContextualAd: React.FC<MediaNetContextualAdProps> = ({
   location,

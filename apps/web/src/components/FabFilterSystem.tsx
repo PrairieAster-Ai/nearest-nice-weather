@@ -58,18 +58,42 @@ import {
 // 🔗 INTEGRATION: Consumed by App.tsx as primary filter interface
 // 🔗 SEE ALSO: LocationManager.tsx for user positioning context
 
+/** The user's current weather preference selection, one bucket per axis. */
 interface WeatherFilters {
+  /** Temperature bucket: `'cold' | 'mild' | 'hot'`. */
   temperature: string
+  /** Precipitation bucket: `'none' | 'light' | 'heavy'`. */
   precipitation: string
+  /** Wind bucket: `'calm' | 'breezy' | 'windy'`. */
   wind: string
 }
 
+/** Props for {@link FabFilterSystem}. */
 interface FabFilterSystemProps {
+  /** Current selections; each FAB renders the glyph for its selected value. */
   filters: WeatherFilters
+  /** Called when the user picks an option from a category's slide-out. */
   onFilterChange: (category: keyof WeatherFilters, value: string) => void
-  isLoading?: boolean // Optional loading state for instant feedback
+  /** Shows a spinner overlay for instant feedback while filtering is in flight. */
+  isLoading?: boolean
 }
 
+/**
+ * Floating-action-button cluster for weather preferences. Each FAB shows the
+ * user's *current* selection (e.g. 😊 mild, ☀️ none, 🌱 calm) and, when tapped,
+ * slides out the three options for that axis. Optimised for thumb-friendly
+ * mobile use; selections fire `onFilterChange` immediately for <100ms feedback
+ * while the parent debounces the actual POI refresh.
+ *
+ * @example
+ * ```tsx
+ * <FabFilterSystem
+ *   filters={debouncedFilters}
+ *   onFilterChange={handleFilterChange}
+ *   isLoading={isFiltering}
+ * />
+ * ```
+ */
 export function FabFilterSystem({ filters, onFilterChange, isLoading = false }: FabFilterSystemProps) {
   const [openCategory, setOpenCategory] = useState<keyof WeatherFilters | null>(null)
 

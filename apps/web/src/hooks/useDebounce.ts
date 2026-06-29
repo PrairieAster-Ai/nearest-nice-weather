@@ -23,6 +23,21 @@ import { useState, useEffect } from 'react';
 // 🔗 INTEGRATION: Used throughout App.tsx for performance-optimized user interactions
 // 🔗 SEE ALSO: DEBOUNCE_DELAYS exported constants used by multiple components
 
+/**
+ * Returns a debounced copy of `value` that only updates after `delay` ms of no
+ * further changes — the trailing-edge timer resets on every change, so rapid
+ * updates collapse into one. Use it to throttle expensive work (API calls) while
+ * the UI keeps reacting to the live value.
+ *
+ * @typeParam T - Type of the value being debounced.
+ * @param value - The fast-changing source value.
+ * @param delay - Quiet period in milliseconds before the debounced value updates.
+ * @returns The latest value, delayed until input settles.
+ * @example
+ * ```ts
+ * const debouncedFilters = useDebounce(instantFilters, DEBOUNCE_DELAYS.FAST_SEARCH);
+ * ```
+ */
 export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 

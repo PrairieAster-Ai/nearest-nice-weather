@@ -1,5 +1,17 @@
 import { Box, Typography } from '@mui/material'
 
+/**
+ * Fixed app-wide brand footer: the Purple Aster logo plus the "Nearest Nice
+ * Weather / by PrairieAster.Ai" wordmark, pinned to the bottom of the viewport.
+ * Takes no props; its height scales responsively (smaller on iPhone) and it sits
+ * at `zIndex: 1004` so it stays above the map (1003) and the FABs (1000).
+ *
+ * @example
+ * ```tsx
+ * // Rendered once at the root, after the map container.
+ * <UnifiedStickyFooter />
+ * ```
+ */
 export function UnifiedStickyFooter() {
   return (
     <Box

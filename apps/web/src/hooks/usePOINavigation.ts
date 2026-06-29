@@ -105,7 +105,15 @@ const CLICK_THROTTLE_MS = 500; // 0.5 second throttling
  *
  * @param userLocation - User coordinates `[lat, lng]`, or null until known.
  * @param filters - Active weather filter buckets driving which POIs are shown.
- * @returns Navigation state and actions for the POI carousel/map UI.
+ * @returns Navigation state and actions for the POI carousel/map UI:
+ *  `visiblePOIs`, `currentPOI`, `loading`/`error`, the `isAtClosest` /
+ *  `isAtFarthest` / `canExpand` boundary flags, and the `navigateCloser` /
+ *  `navigateFarther` / `reload` actions.
+ * @example
+ * ```tsx
+ * const { visiblePOIs, currentPOI, navigateCloser, navigateFarther, canExpand } =
+ *   usePOINavigation(userLocation, filters);
+ * ```
  */
 export const usePOINavigation = (
   userLocation: [number, number] | null,

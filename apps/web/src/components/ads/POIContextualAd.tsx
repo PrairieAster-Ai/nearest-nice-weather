@@ -18,29 +18,46 @@
 
 import React from 'react'
 
+/** The POI + current weather context used to choose contextual ad content. */
 interface POILocation {
+  /** Stable POI identifier. */
   id: string
+  /** Display name of the destination. */
   name: string
+  /** Latitude. */
   lat: number
+  /** Longitude. */
   lng: number
+  /** Current temperature (°F); drives warm/cold ad variants. */
   temperature: number
+  /** Weather condition label (e.g. "Clear", "Rain"). */
   condition: string
+  /** Precipitation likelihood/intensity (0-100); >50 selects rainy-day content. */
   precipitation: number
+  /** Current wind speed (string with unit); parsed to flag windy conditions. */
   windSpeed: string
+  /** Park classification (e.g. "State Park", "Trail"), when known. */
   park_type?: string
 }
 
+/** Props for {@link POIContextualAd}. */
 interface POIContextualAdProps {
+  /** POI + weather context that selects the ad creative. */
   location: POILocation
   /** Test mode for development */
   testMode?: boolean
 }
 
 /**
- * POIContextualAd - Weather and location contextual ad for map markers
+ * Compact, weather- and location-aware AdSense slot rendered inside a POI map
+ * popup. Picks creative from current conditions (sunny → outdoor gear, rainy →
+ * indoor alternatives) and POI type, sized for the popup's tight space at a
+ * high-engagement moment.
  *
- * Provides relevant outdoor recreation ads based on current weather
- * conditions and POI characteristics for maximum user value
+ * @example
+ * ```tsx
+ * <POIContextualAd location={poi} testMode={isDev} />
+ * ```
  */
 export const POIContextualAd: React.FC<POIContextualAdProps> = ({
   location,

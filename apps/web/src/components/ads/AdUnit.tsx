@@ -70,10 +70,14 @@ interface AdUnitProps {
 }
 
 /**
- * AdUnit - Responsive Google AdSense component
+ * Responsive Google AdSense unit with a labeled, layout-shift-proof container
+ * (reserves min-height per breakpoint) and a `Skeleton` fallback while loading.
+ * Dimensions and styling adapt to the `placement` slot.
  *
- * Optimized for outdoor recreation weather app with strategic placement
- * for maximum revenue while maintaining excellent user experience
+ * @example
+ * ```tsx
+ * <AdUnit slot="1234567890" placement="weather-results" format="auto" />
+ * ```
  */
 export const AdUnit: React.FC<AdUnitProps> = ({
   slot,

@@ -52,10 +52,15 @@ interface POILocationResponse {
   }
 }
 
+/** Options for {@link usePOILocations}. */
 interface UsePOILocationsOptions {
+  /** User coordinates `[lat, lng]` for proximity filtering; omit for an unfiltered set. */
   userLocation?: [number, number] | null
-  radius?: number                    // POI search radius in miles
-  weatherRadius?: number            // Weather station search radius in miles
+  /** POI search radius in miles (default 50). */
+  radius?: number
+  /** Weather-station search radius in miles (default 25). */
+  weatherRadius?: number
+  /** Max POIs to fetch (default 200). */
   limit?: number
 }
 
@@ -81,6 +86,17 @@ interface UsePOILocationsOptions {
  * @ARCHITECTURE_NOTE: Central data layer for POI-weather integration
  * @BUSINESS_RULE: Always return meaningful weather data for each POI
  * @PERFORMANCE_CRITICAL: Optimized for 200+ POI locations with weather
+ *
+ * @param options - {@link UsePOILocationsOptions} (user location, radii, limit).
+ * @returns POI-with-weather state and derived values: `locations`, `loading`,
+ *   `error`, `lastFetch`, `refetch`, the `hasData` / `isEmpty` / `isStale`
+ *   flags, and the `poisWithWeather` / `poisWithoutWeather` / `uniqueParkTypes`
+ *   / `averageWeatherDistance` aggregates.
+ * @example
+ * ```tsx
+ * const { locations, loading, error, refetch } =
+ *   usePOILocations({ userLocation, radius: 50 });
+ * ```
  */
 export function usePOILocations(options: UsePOILocationsOptions = {}) {
   const [locations, setLocations] = useState<POILocation[]>([])

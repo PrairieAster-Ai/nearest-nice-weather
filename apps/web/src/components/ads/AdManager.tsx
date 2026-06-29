@@ -23,14 +23,28 @@ import {
   type AdManagerState
 } from './AdManagerContext'
 
+/** Props for {@link AdManagerProvider}. */
 interface AdManagerProviderProps {
+  /** The subtree that gains access to the AdManager context. */
   children: ReactNode
+  /** Master switch for ad loading; defaults to on only in production. */
   enableAds?: boolean
+  /** Forces test/placeholder behavior; defaults to on in development. */
   testMode?: boolean
 }
 
 /**
- * AdManager Provider - Centralized ad management and optimization
+ * React context provider that centralizes ad management: ad-block detection, an
+ * A/B `testGroup` rolled once per mount, load state, and performance metrics —
+ * exposed to descendants via {@link useAdManager}. Wrap the app (or the ad-bearing
+ * subtree) in it so individual ad units stay thin.
+ *
+ * @example
+ * ```tsx
+ * <AdManagerProvider enableAds={true} testMode={process.env.NODE_ENV === 'development'}>
+ *   <App />
+ * </AdManagerProvider>
+ * ```
  */
 export const AdManagerProvider: React.FC<AdManagerProviderProps> = ({
   children,

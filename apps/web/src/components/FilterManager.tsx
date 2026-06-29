@@ -53,6 +53,24 @@ import { useDebounce, DEBOUNCE_DELAYS } from '../hooks/useDebounce';
 // 🔗 SEE ALSO: usePOINavigation.ts for filter-aware POI discovery
 
 // 🔗 INTEGRATION: Custom hook providing filter state management for weather-based POI discovery
+/**
+ * Weather-filter state manager implementing the triple-state pattern that keeps
+ * the UI responsive while throttling the API: `instantFilters` updates on every
+ * tap (instant feedback), `debouncedFilters` trails it for API calls, and
+ * `filters` is the debounced value persisted to `localStorage`.
+ *
+ * @returns Filter state and the change handler:
+ *  - `filters` — persisted selections (source of truth across sessions).
+ *  - `debouncedFilters` — the debounced value to drive POI fetches.
+ *  - `instantFilters` — the immediate UI mirror for FAB glyphs.
+ *  - `isFiltering` — true between a change and its debounced commit.
+ *  - `handleFilterChange(category, value)` — update one axis with instant feedback.
+ * @example
+ * ```tsx
+ * const { debouncedFilters, isFiltering, handleFilterChange } = useFilterManager();
+ * <FabFilterSystem filters={debouncedFilters} onFilterChange={handleFilterChange} isLoading={isFiltering} />
+ * ```
+ */
 export const useFilterManager = () => {
   // Persistent filter preferences with localStorage
   const [filters, setFilters] = useWeatherFiltersStorage();

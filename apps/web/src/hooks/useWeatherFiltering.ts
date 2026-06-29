@@ -82,7 +82,15 @@ export interface WeatherFilteringHookResult {
  *
  * @param visiblePOIs - Array of POI locations to filter and count
  * @param userLocation - User's current location for distance-based filtering
- * @returns Object with filtering operations and result counts
+ * @returns {@link WeatherFilteringHookResult} — `filterResultCounts` (memoized
+ *   badge counts per filter option) and `applyWeatherFilters(locations, filters,
+ *   maxDistance?)` for filtering a list on demand.
+ * @example
+ * ```tsx
+ * const { filterResultCounts, applyWeatherFilters } =
+ *   useWeatherFiltering(visiblePOIs, userLocation);
+ * const matches = applyWeatherFilters(visiblePOIs, filters);
+ * ```
  */
 export const useWeatherFiltering = (
   visiblePOIs: Location[],

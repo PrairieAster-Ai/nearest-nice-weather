@@ -8,6 +8,10 @@ import { monitoring } from '../services/monitoring'
  * times on non-4xx errors and reports failures to monitoring without throwing.
  *
  * @returns The TanStack Query result for the locations list.
+ * @example
+ * ```tsx
+ * const { data: locations, isLoading } = useLocations();
+ * ```
  */
 export const useLocations = () => {
   return useQuery({
@@ -37,6 +41,11 @@ export const useLocations = () => {
  * result and any per-location weather it returns.
  *
  * @returns The TanStack Query mutation object keyed by {@link WeatherFilter}.
+ * @example
+ * ```tsx
+ * const search = useWeatherSearch();
+ * search.mutate({ temperature: 'mild', precipitation: 'none', wind: 'calm' });
+ * ```
  */
 export const useWeatherSearch = () => {
   const queryClient = useQueryClient()
@@ -105,6 +114,10 @@ export const useWeatherSearch = () => {
  *
  * @param filters - The active weather filters, or null to disable the query.
  * @returns The TanStack Query result for the matched locations.
+ * @example
+ * ```tsx
+ * const { data, isFetching } = useWeatherSearchResults(filters);
+ * ```
  */
 export const useWeatherSearchResults = (filters: WeatherFilter | null) => {
   return useQuery({
@@ -130,6 +143,11 @@ export const useWeatherSearchResults = (filters: WeatherFilter | null) => {
  * the React Query cache (most-recent first, capped at 5 non-empty results).
  *
  * @returns `{ getSearchHistory, clearSearchHistory }`.
+ * @example
+ * ```tsx
+ * const { getSearchHistory, clearSearchHistory } = useWeatherSearchHistory();
+ * const recent = getSearchHistory(); // most-recent first, up to 5
+ * ```
  */
 export const useWeatherSearchHistory = () => {
   const queryClient = useQueryClient()
