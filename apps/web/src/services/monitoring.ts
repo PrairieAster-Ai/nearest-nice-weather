@@ -55,6 +55,15 @@ class MonitoringService {
   private isProduction = import.meta.env.NODE_ENV === 'production'
   private apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
 
+  /**
+   * Record an error and its surrounding context.
+   *
+   * Logs to the console in development; POSTs to `/api/analytics` in production.
+   * Fails silently — never throws — so monitoring never degrades the UX.
+   *
+   * @param error - The caught `Error` object.
+   * @param context - Optional metadata (user id, session, originating URL, etc.).
+   */
   // Error tracking
   captureError(error: Error, context?: ErrorContext) {
     const errorData = {
@@ -78,6 +87,11 @@ class MonitoringService {
     }
   }
 
+  /**
+   * Record a single performance measurement (e.g. a Core Web Vital).
+   *
+   * @param metric - The measured value with its name, unit, and timestamp.
+   */
   // Performance tracking
   capturePerformance(metric: PerformanceMetric) {
     const performanceData = {
@@ -95,6 +109,12 @@ class MonitoringService {
     }
   }
 
+  /**
+   * Record a discrete user interaction (e.g. selecting a POI, submitting feedback).
+   *
+   * @param action - A short snake_case label for the action, e.g. `'poi_selected'`.
+   * @param context - Optional key–value metadata attached to the event.
+   */
   // User action tracking
   captureUserAction(action: string, context?: Record<string, any>) {
     const actionData = {
@@ -113,6 +133,13 @@ class MonitoringService {
     }
   }
 
+  /**
+   * Register `PerformanceObserver` listeners for the three Core Web Vitals:
+   * LCP (Largest Contentful Paint), FID (First Input Delay), and CLS (Cumulative Layout Shift).
+   *
+   * Call once on app mount. Each observer fires asynchronously as the browser
+   * collects measurements and forwards them to {@link capturePerformance}.
+   */
   // Core Web Vitals tracking
   captureWebVitals() {
     // Largest Contentful Paint

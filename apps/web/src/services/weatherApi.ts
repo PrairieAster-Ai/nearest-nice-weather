@@ -27,11 +27,12 @@ const API_CONFIG = {
  * Unifies HTTP errors, request timeouts, and unexpected failures so callers can
  * `catch (e) { if (e instanceof WeatherApiError) ... }` without inspecting `fetch`
  * internals.
- *
- * @param message - Human-readable description of what failed.
- * @param status - HTTP status code when the failure originated from a response; omitted for timeouts/network errors.
  */
 export class WeatherApiError extends Error {
+  /**
+   * @param message - Human-readable description of what failed.
+   * @param status - HTTP status code when the failure originated from a response; omitted for timeouts/network errors.
+   */
   constructor(message: string, public status?: number) {
     super(message)
     this.name = 'WeatherApiError'
