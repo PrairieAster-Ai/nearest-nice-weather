@@ -37,15 +37,29 @@ import {
 } from '../utils/locationEstimationUtils';
 import { fetchIPLocation } from './ipGeolocation';
 
+/**
+ * A resolved estimate of the user's position plus how it was obtained and how
+ * much to trust it.
+ */
 export interface LocationEstimate {
-  coordinates: [number, number]; // [latitude, longitude]
-  accuracy: number; // Accuracy in meters (approximate)
+  /** `[latitude, longitude]` in decimal degrees. */
+  coordinates: [number, number];
+  /** Approximate accuracy radius in meters (larger = less precise). */
+  accuracy: number;
+  /** Which strategy produced this estimate. */
   method: LocationMethod;
-  timestamp: number; // Unix timestamp
+  /** Unix epoch (ms) when the estimate was captured. */
+  timestamp: number;
+  /** Derived trust level for {@link LocationEstimate.accuracy} and freshness. */
   confidence: LocationConfidence;
-  source?: string; // Optional source identifier
+  /** Optional provenance label, e.g. `'browser_geolocation'`, `'default_minnesota'`. */
+  source?: string;
 }
 
+/**
+ * The strategy that produced a {@link LocationEstimate}, listed roughly from most
+ * to least accurate (`'none'` means no location is available).
+ */
 export type LocationMethod =
   | 'gps'           // High accuracy GPS
   | 'network'       // Network-based (WiFi/cell towers)
@@ -55,6 +69,9 @@ export type LocationMethod =
   | 'fallback'     // Default Minneapolis center
   | 'none';        // No location available
 
+/**
+ * Trust level for a {@link LocationEstimate}, derived from accuracy and freshness.
+ */
 export type LocationConfidence =
   | 'high'         // <50m accuracy, recent timestamp
   | 'medium'       // <1km accuracy, reasonable timestamp
@@ -69,6 +86,24 @@ interface LocationOptions {
   cacheMaxAge?: number; // Maximum age for cached location (ms)
 }
 
+/**
+ * Estimates the user's location through a prioritized fallback chain
+ * (cache → IP → optional high-accuracy GPS → Minneapolis default).
+ *
+ * Use the shared {@link locationEstimator} singleton rather than constructing
+ * your own instance, so the in-memory and `localStorage` caches are shared
+ * app-wide. All persistence is local; coordinates are never sent to a server.
+ *
+ * @example
+ * ```ts
+ * // Fast, no permission prompt:
+ * const fast = await locationEstimator.getFastLocation()
+ * // Best available (may request GPS permission):
+ * const best = await locationEstimator.estimateLocation({ enableHighAccuracy: true })
+ * ```
+ *
+ * @remarks Business rule (P0): must return a location within ~10s for every user.
+ */
 export class UserLocationEstimator {
   private defaultOptions: LocationOptions = {
     enableHighAccuracy: false, // Start with fast, lower accuracy
@@ -428,5 +463,8 @@ export class UserLocationEstimator {
   }
 }
 
-// Singleton instance for app-wide use
+/**
+ * Shared app-wide {@link UserLocationEstimator} instance. Prefer this over
+ * `new UserLocationEstimator()` so the location cache is shared across callers.
+ */
 export const locationEstimator = new UserLocationEstimator();
