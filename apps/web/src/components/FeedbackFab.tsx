@@ -28,6 +28,18 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />
 })
 
+/**
+ * Floating feedback button that opens a modal collecting a star rating, free-text
+ * comment, optional email, and category tags, then submits to the feedback API.
+ * Self-contained (manages its own open/submit state and success/error messaging)
+ * and takes no props, so it can be dropped anywhere in the layout.
+ *
+ * @example
+ * ```tsx
+ * // Positioned above the sticky footer in the app shell.
+ * <FeedbackFab />
+ * ```
+ */
 export function FeedbackFab() {
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState<number | null>(0)

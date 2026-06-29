@@ -53,13 +53,35 @@ import {
 // 🔗 INTEGRATION: Consumed by App.tsx for map centering and POI distance calculations
 // 🔗 SEE ALSO: usePOINavigation.ts for location-aware POI discovery
 
+/** Props for {@link LocationManager} — all callbacks lifting detected state to the parent. */
 interface LocationManagerProps {
+  /** Receives the resolved user location `[lat, lng]`, or null while detecting. */
   onLocationChange: (location: [number, number] | null) => void;
+  /** Receives how the location was determined (`geolocation` | `ip` | `manual` | `none`). */
   onLocationMethodChange: (method: LocationMethod) => void;
+  /** Toggles the parent's location-permission prompt. */
   onShowPromptChange: (show: boolean) => void;
+  /** Receives the map center to use for the detected location. */
   onMapCenterChange: (center: [number, number]) => void;
 }
 
+/**
+ * Headless (render-nothing) location engine. Runs the IP-first fallback chain
+ * — IP geolocation → browser geolocation → Minneapolis default — once on mount,
+ * persists the result to `localStorage`, and lifts location, method, prompt
+ * visibility, and map center to the parent via callbacks. IP-first avoids a
+ * permission prompt on load; an init guard prevents repeat detection.
+ *
+ * @example
+ * ```tsx
+ * <LocationManager
+ *   onLocationChange={setUserLocation}
+ *   onLocationMethodChange={setLocationMethod}
+ *   onShowPromptChange={setShowLocationPrompt}
+ *   onMapCenterChange={setMapCenter}
+ * />
+ * ```
+ */
 export const LocationManager: React.FC<LocationManagerProps> = ({
   onLocationChange,
   onLocationMethodChange,

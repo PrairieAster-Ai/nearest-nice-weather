@@ -58,15 +58,39 @@ interface Location {
   distance?: number;
 }
 
+/** Map view state and controls returned by {@link useMapViewManager}. */
 interface MapViewManagerResult {
+  /** Current map center `[lat, lng]` (persisted to `localStorage`). */
   mapCenter: [number, number];
+  /** Current Leaflet zoom level (persisted to `localStorage`). */
   mapZoom: number;
+  /** Recompute center/zoom to frame the user + nearest POIs from `locations`. */
   updateMapView: (locations: Location[]) => void;
+  /** Imperatively set the center (e.g. on user-location change). */
   setMapCenter: (center: [number, number]) => void;
+  /** Imperatively set the zoom. */
   setMapZoom: (zoom: number) => void;
 }
 
 // 🔗 INTEGRATION: Custom hook providing map view management for App.tsx
+/**
+ * Derives an optimal map center and zoom from POI distribution and the user's
+ * location, framing the user plus the closest five POIs in one viewport so users
+ * never have to pan to find relevance. Center/zoom persist to `localStorage`;
+ * falls back to a medium zoom on the user (or the Minneapolis default) when no
+ * POIs are available.
+ *
+ * @param userLocation - User coordinates `[lat, lng]`, or null until known.
+ * @param defaultCenter - Center used before any view is computed (default: Minneapolis).
+ * @param defaultZoom - Zoom used before any view is computed (default: 8).
+ * @returns {@link MapViewManagerResult} — current `mapCenter`/`mapZoom` plus
+ *   `updateMapView` and the imperative `setMapCenter`/`setMapZoom` setters.
+ * @example
+ * ```tsx
+ * const { mapCenter, mapZoom, updateMapView } = useMapViewManager(userLocation);
+ * useEffect(() => updateMapView(visiblePOIs), [visiblePOIs]);
+ * ```
+ */
 export const useMapViewManager = (
   userLocation: [number, number] | null,
   defaultCenter: [number, number] = [44.9537, -93.0900], // Minneapolis fallback
