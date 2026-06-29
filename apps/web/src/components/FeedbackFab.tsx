@@ -1,3 +1,25 @@
+/**
+ * FeedbackFab — floating feedback collection button and dialog.
+ *
+ * Renders a purple FAB in the bottom-right corner. Clicking it opens
+ * a full dialog where the user can leave a star rating, select emoji
+ * categories (bug / feature / performance / general), type a comment
+ * (up to 1 000 characters), and optionally supply an email address.
+ * On submit the form POSTs to `/api/feedback` and auto-closes after
+ * 2 seconds on success.
+ *
+ * @remarks
+ * - The dialog uses `keepMounted` so the form state is preserved if
+ *   the user dismisses without submitting.
+ * - Client-side `maxLength` on the comment field mirrors the
+ *   server-side limit; do not remove either independently.
+ *
+ * @example
+ * ```tsx
+ * // Drop anywhere in the layout — the FAB positions itself via fixed CSS.
+ * <FeedbackFab />
+ * ```
+ */
 import { useState } from 'react'
 import {
   Fab,
@@ -19,6 +41,11 @@ import { Feedback as FeedbackIcon } from '@mui/icons-material'
 import { TransitionProps } from '@mui/material/transitions'
 import React from 'react'
 
+/**
+ * Upward-sliding transition used by the feedback Dialog.
+ *
+ * @internal Passed via `Dialog.slots.transition`; not intended for direct use.
+ */
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<any, any>

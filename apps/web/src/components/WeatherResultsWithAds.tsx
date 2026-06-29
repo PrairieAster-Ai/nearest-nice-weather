@@ -19,30 +19,63 @@ import React from 'react'
 import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
 import { AdUnit } from './ads'
 
+/** A single POI entry returned by `/api/poi-locations-with-weather`. */
 interface WeatherLocation {
+  /** Stable POI identifier (UUID from `poi_locations` table). */
   id: string
+  /** Display name of the park, trail, or nature area. */
   name: string
+  /** WGS-84 latitude. */
   lat: number
+  /** WGS-84 longitude. */
   lng: number
+  /** Current temperature in °F from OpenWeather. */
   temperature: number
+  /** Short weather condition label (e.g. "Clear", "Partly Cloudy"). */
   condition: string
+  /** Human-readable weather summary sentence. */
   description: string
+  /** Precipitation probability as a percentage (0–100). */
   precipitation: number
+  /** Wind speed in mph. */
   windSpeed: number
+  /** Rounded distance from the user's location in miles, if available. */
   distance_miles?: string
 }
 
+/** Props for {@link WeatherResultsWithAds}. */
 interface WeatherResultsWithAdsProps {
+  /** POI weather entries to display; should come from `usePOINavigation`. */
   locations: WeatherLocation[]
+  /** Show skeleton loaders while weather data is being fetched. @defaultValue false */
   isLoading?: boolean
+  /** Cap on the number of results rendered (performance guard). @defaultValue 20 */
   maxResults?: number
 }
 
 /**
- * WeatherResultsWithAds - POI weather listings with strategic ad placement
+ * WeatherResultsWithAds — POI weather listings with native AdSense placement.
  *
- * Optimizes revenue through native ad integration while maintaining
- * excellent user experience for outdoor recreation planning
+ * Renders a scrollable list of weather cards for Minnesota outdoor POIs,
+ * injecting a live AdSense unit after every 4th result (but only when
+ * there are ≥ 4 results total). Handles loading and empty states inline.
+ *
+ * @remarks
+ * Ad slot `6059346500` is the live "Weather results inline" slot — do not
+ * swap it without updating the AdSense console. The `testMode` flag
+ * automatically activates in `NODE_ENV === 'development'` so no real
+ * impressions are served locally.
+ *
+ * @example
+ * ```tsx
+ * const { visiblePOIs, loading } = usePOINavigation(userLocation, filters)
+ *
+ * <WeatherResultsWithAds
+ *   locations={visiblePOIs}
+ *   isLoading={loading}
+ *   maxResults={20}
+ * />
+ * ```
  */
 export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
   locations,
