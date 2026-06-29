@@ -16,6 +16,11 @@ interface UseFeedbackSubmissionOptions {
  *
  * @param options - Optional `onSuccess`/`onError` callbacks.
  * @returns The TanStack Query mutation object (`mutate`, `isPending`, etc.).
+ * @example
+ * ```tsx
+ * const { mutate, isPending } = useFeedbackSubmission({ onSuccess: close });
+ * mutate({ rating: 5, comment: 'Great!', category: 'general' });
+ * ```
  */
 export const useFeedbackSubmission = (options?: UseFeedbackSubmissionOptions) => {
   const queryClient = useQueryClient()

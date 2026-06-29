@@ -27,6 +27,21 @@ import { useState, useEffect, useCallback } from 'react';
 // 🔗 INTEGRATION: Used by App.tsx for map view state persistence
 // 🔗 SEE ALSO: All components rely on this for cross-session state management
 
+/**
+ * `useState` that transparently persists to `localStorage` under `key`. Reads the
+ * stored value on init (falling back to `defaultValue`), writes on every change,
+ * and skips no-op updates via a deep-equality check to avoid needless re-renders.
+ * Safe in SSR/no-storage environments — it swallows access errors and warns.
+ *
+ * @typeParam T - Type of the persisted value (must be JSON-serializable).
+ * @param key - `localStorage` key to read/write.
+ * @param defaultValue - Value used when nothing is stored (or storage is unavailable).
+ * @returns A `[value, setValue]` tuple with the same shape as `useState`.
+ * @example
+ * ```ts
+ * const [theme, setTheme] = useLocalStorageState('theme', 'light');
+ * ```
+ */
 export function useLocalStorageState<T>(
   key: string,
   defaultValue: T
@@ -110,6 +125,11 @@ export interface WeatherFilters {
 /**
  * Persist the user's weather filters in `localStorage`, defaulting to mild/dry/
  * calm — sensible starting conditions for Minnesota outdoor activities.
+ *
+ * @example
+ * ```ts
+ * const [filters, setFilters] = useWeatherFiltersStorage();
+ * ```
  */
 export function useWeatherFiltersStorage() {
   return useLocalStorageState<WeatherFilters>(STORAGE_KEYS.WEATHER_FILTERS, {
@@ -122,6 +142,11 @@ export function useWeatherFiltersStorage() {
 /**
  * Persist the user's location `[lat, lng]`, defaulting to null so the app
  * triggers location detection on first load.
+ *
+ * @example
+ * ```ts
+ * const [userLocation, setUserLocation] = useUserLocationStorage();
+ * ```
  */
 export function useUserLocationStorage() {
   return useLocalStorageState<[number, number] | null>(
@@ -139,6 +164,11 @@ export interface MapViewSettings {
 /**
  * Persist the map viewport, defaulting to a statewide view centered on
  * Minnesota.
+ *
+ * @example
+ * ```ts
+ * const [mapView, setMapView] = useMapViewStorage();
+ * ```
  */
 export function useMapViewStorage() {
   return useLocalStorageState<MapViewSettings>(STORAGE_KEYS.MAP_VIEW, {
@@ -150,7 +180,14 @@ export function useMapViewStorage() {
 /** How the user's location was determined. */
 export type LocationMethod = 'geolocation' | 'ip' | 'manual' | 'none';
 
-/** Persist which method produced the current user location (defaults to `'none'`). */
+/**
+ * Persist which method produced the current user location (defaults to `'none'`).
+ *
+ * @example
+ * ```ts
+ * const [method, setMethod] = useLocationMethodStorage(); // 'geolocation' | 'ip' | 'manual' | 'none'
+ * ```
+ */
 export function useLocationMethodStorage() {
   return useLocalStorageState<LocationMethod>(
     STORAGE_KEYS.LOCATION_METHOD,
@@ -158,7 +195,14 @@ export function useLocationMethodStorage() {
   );
 }
 
-/** Persist whether to show the location-permission prompt (defaults to `true`). */
+/**
+ * Persist whether to show the location-permission prompt (defaults to `true`).
+ *
+ * @example
+ * ```ts
+ * const [showPrompt, setShowPrompt] = useShowLocationPromptStorage();
+ * ```
+ */
 export function useShowLocationPromptStorage() {
   return useLocalStorageState<boolean>(
     STORAGE_KEYS.SHOW_LOCATION_PROMPT,
@@ -166,7 +210,14 @@ export function useShowLocationPromptStorage() {
   );
 }
 
-/** Persist the user's last-visit timestamp for analytics/UX (defaults to null). */
+/**
+ * Persist the user's last-visit timestamp for analytics/UX (defaults to null).
+ *
+ * @example
+ * ```ts
+ * const [lastVisit, setLastVisit] = useLastVisitStorage();
+ * ```
+ */
 export function useLastVisitStorage() {
   return useLocalStorageState<string | null>(
     STORAGE_KEYS.LAST_VISIT,

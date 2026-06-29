@@ -19,30 +19,49 @@ import React from 'react'
 import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
 import { AdUnit } from './ads'
 
+/** A single POI weather row rendered in the results list. */
 interface WeatherLocation {
+  /** Stable POI identifier. */
   id: string
+  /** Display name of the destination. */
   name: string
+  /** Latitude. */
   lat: number
+  /** Longitude. */
   lng: number
+  /** Current temperature (°F). */
   temperature: number
+  /** Weather condition label. */
   condition: string
+  /** Human-readable weather description. */
   description: string
+  /** Precipitation likelihood/intensity (0-100). */
   precipitation: number
+  /** Current wind speed (mph). */
   windSpeed: number
+  /** Distance from the user, if computed. */
   distance_miles?: string
 }
 
+/** Props for {@link WeatherResultsWithAds}. */
 interface WeatherResultsWithAdsProps {
+  /** POI weather rows to display. */
   locations: WeatherLocation[]
+  /** Shows loading affordances instead of rows. */
   isLoading?: boolean
+  /** Caps how many rows render, for performance (default 20). */
   maxResults?: number
 }
 
 /**
- * WeatherResultsWithAds - POI weather listings with strategic ad placement
+ * Renders a POI weather results list with a native {@link AdUnit} woven in after
+ * every 4th result (never trailing the last row). Slices to `maxResults` for
+ * performance; balances ad revenue against an uninterrupted browsing experience.
  *
- * Optimizes revenue through native ad integration while maintaining
- * excellent user experience for outdoor recreation planning
+ * @example
+ * ```tsx
+ * <WeatherResultsWithAds locations={results} isLoading={loading} maxResults={20} />
+ * ```
  */
 export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
   locations,

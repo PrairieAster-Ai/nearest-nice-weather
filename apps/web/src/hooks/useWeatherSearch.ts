@@ -17,6 +17,11 @@ interface UseWeatherSearchReturn {
  * a `VITE_API_TIMEOUT` abort, and surfaces timeout/error messages to the caller.
  *
  * @returns Search state plus `searchWeather` and `clearResults` actions.
+ * @example
+ * ```tsx
+ * const { results, loading, error, searchWeather } = useWeatherSearch();
+ * searchWeather({ temperature: 'mild', precipitation: 'none', wind: 'calm' });
+ * ```
  */
 export const useWeatherSearch = (): UseWeatherSearchReturn => {
   const [loading, setLoading] = useState(false)

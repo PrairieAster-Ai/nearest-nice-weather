@@ -77,20 +77,56 @@ interface POILocation {
   weather_distance_miles?: string;
 }
 
+/** Props for {@link MapContainer}. */
 interface MapContainerProps {
+  /** Map center `[lat, lng]`; updating it recenters the view (smart-centered to avoid jitter). */
   center: [number, number];
+  /** Leaflet zoom level. */
   zoom: number;
+  /** POIs to render as weather-aware markers. */
   locations: POILocation[];
+  /** The draggable user-location marker position, or null when unknown. */
   userLocation: [number, number] | null;
+  /** Fired when the user drags their location marker to a new `[lat, lng]`. */
   onLocationChange: (newPosition: [number, number]) => void;
+  /** The POI currently highlighted by the navigation flow, or null. */
   currentPOI: POILocation | null;
+  /** True when the cursor is at the nearest POI (disables "closer"). */
   isAtClosest: boolean;
+  /** True when the cursor is at the farthest loaded POI (disables "farther"). */
   isAtFarthest: boolean;
+  /** True when more POIs can be revealed by expanding the search radius. */
   canExpand: boolean;
+  /** Popup action: step to the next-closer POI; returns it, or null at the boundary. */
   onNavigateCloser: () => POILocation | null;
+  /** Popup action: step to the next-farther POI, or expand the radius; may return a status string. */
   onNavigateFarther: () => POILocation | string | null;
 }
 
+/**
+ * Interactive Leaflet map that renders POI markers with weather-rich popups plus
+ * a draggable user-location marker. Wraps Leaflet imperatively with incremental
+ * marker updates (no full rebuild on data change) and popup event delegation, so
+ * it stays performant and StrictMode-safe. Popup "closer/farther" buttons drive
+ * the distance-based POI navigation in the parent.
+ *
+ * @example
+ * ```tsx
+ * <MapContainer
+ *   center={mapCenter}
+ *   zoom={mapZoom}
+ *   locations={visiblePOIs}
+ *   userLocation={userLocation}
+ *   onLocationChange={handleUserLocationChange}
+ *   currentPOI={currentPOI}
+ *   isAtClosest={isAtClosest}
+ *   isAtFarthest={isAtFarthest}
+ *   canExpand={canExpand}
+ *   onNavigateCloser={navigateCloser}
+ *   onNavigateFarther={navigateFarther}
+ * />
+ * ```
+ */
 // 🔗 INTEGRATION: Main MapContainer component for App.tsx consumption
 export const MapContainer: React.FC<MapContainerProps> = ({
   center,
