@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { visualizer } from 'rollup-plugin-visualizer'
-// import vitePluginVercelApi from 'vite-plugin-vercel-api' // Not working properly, using proxy instead
 
 export default defineConfig({
   plugins: [
@@ -10,7 +9,7 @@ export default defineConfig({
       // React 18 LTS with classic JSX runtime for stability
       jsxRuntime: 'automatic'
     }),
-    // Note: vite-plugin-vercel-api has execution issues, using proxy instead
+    // API requests are proxied to dev-api-server.js (see server.proxy below)
     VitePWA({
       registerType: 'autoUpdate',
       disable: true,
