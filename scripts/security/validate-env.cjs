@@ -8,6 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 // Dangerous patterns that should never appear in files
 const DANGEROUS_PATTERNS = [
@@ -124,7 +125,25 @@ class SecurityValidator {
   }
 
   shouldExcludeFile(filePath) {
-    return EXCLUDE_PATTERNS.some(pattern => pattern.test(filePath));
+    if (EXCLUDE_PATTERNS.some(pattern => pattern.test(filePath))) {
+      return true;
+    }
+    // Skip git-ignored paths (e.g. local .env / .env.local). The hook exists to
+    // stop secrets being *committed*; files git won't commit are never a leak and
+    // legitimately hold real local credentials, so scanning them just blocks every
+    // commit. Tracked/committable files are still scanned, preserving protection.
+    return this.isGitIgnored(filePath);
+  }
+
+  isGitIgnored(filePath) {
+    try {
+      // exit 0 → ignored. exit 1 (not ignored) and 128 (not a repo / git missing)
+      // both throw, and we fall back to "not ignored" so scanning still happens.
+      execFileSync('git', ['check-ignore', '--quiet', '--', filePath], { stdio: 'ignore' });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   scanFile(filePath) {
