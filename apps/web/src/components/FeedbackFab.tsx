@@ -117,7 +117,7 @@ export function FeedbackFab() {
         onClose={handleClose}
         maxWidth="sm"
         fullWidth
-        TransitionComponent={Transition}
+        slots={{ transition: Transition }}
         keepMounted
       >
         <DialogTitle>
@@ -223,7 +223,7 @@ export function FeedbackFab() {
               fullWidth
               required
               helperText={`${comment.length}/1000 characters`}
-              inputProps={{ maxLength: 1000 }}
+              slotProps={{ htmlInput: { maxLength: 1000 } }}
             />
 
             {/* Email */}
