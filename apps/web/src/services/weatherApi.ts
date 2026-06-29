@@ -1,3 +1,17 @@
+/**
+ * Thin client for the POI/weather and feedback HTTP endpoints.
+ *
+ * Wraps `fetch` with a per-request timeout (via `AbortController`) and normalizes
+ * every failure mode — non-2xx responses, timeouts, and unexpected errors — into a
+ * single {@link WeatherApiError} so callers only have to catch one error type.
+ *
+ * @remarks
+ * Base URL and timeout come from `VITE_API_BASE_URL` / `VITE_API_TIMEOUT` and default
+ * to `/api` and 10s. In development these proxy to the Express dev server; in
+ * production they hit the Vercel serverless functions.
+ *
+ * @module services/weatherApi
+ */
 import { Location } from '../types/weather'
 import type { FeedbackFormData, FeedbackSubmissionResponse } from '../types/feedback'
 
@@ -7,6 +21,16 @@ const API_CONFIG = {
 }
 
 
+/**
+ * Error thrown for any failed weather/feedback API call.
+ *
+ * Unifies HTTP errors, request timeouts, and unexpected failures so callers can
+ * `catch (e) { if (e instanceof WeatherApiError) ... }` without inspecting `fetch`
+ * internals.
+ *
+ * @param message - Human-readable description of what failed.
+ * @param status - HTTP status code when the failure originated from a response; omitted for timeouts/network errors.
+ */
 export class WeatherApiError extends Error {
   constructor(message: string, public status?: number) {
     super(message)
@@ -14,7 +38,25 @@ export class WeatherApiError extends Error {
   }
 }
 
+/**
+ * Singleton API client exposing the two calls the web app makes.
+ *
+ * @example
+ * ```ts
+ * try {
+ *   const locations = await weatherApi.getLocations()
+ * } catch (e) {
+ *   if (e instanceof WeatherApiError) showToast(e.message)
+ * }
+ * ```
+ */
 export const weatherApi = {
+  /**
+   * Fetch all POI locations enriched with current weather.
+   *
+   * @returns The list of locations, or an empty array if the response carries no `data`.
+   * @throws {@link WeatherApiError} on non-2xx responses, request timeout, or unexpected failure.
+   */
   async getLocations(): Promise<Location[]> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)
@@ -51,6 +93,16 @@ export const weatherApi = {
     }
   },
 
+  /**
+   * Submit user feedback, translating the form shape into the API payload.
+   *
+   * Generates a per-submission `session_id` and attaches the current page URL and
+   * user agent for diagnostics.
+   *
+   * @param feedback - The collected form data (comment, rating, category, optional email).
+   * @returns The normalized success response with the persisted feedback id.
+   * @throws {@link WeatherApiError} on non-2xx responses, a `success: false` body, timeout, or unexpected failure.
+   */
   async submitFeedback(feedback: FeedbackFormData): Promise<FeedbackSubmissionResponse> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)
