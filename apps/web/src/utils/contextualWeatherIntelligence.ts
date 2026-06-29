@@ -1,44 +1,102 @@
-// Contextual Weather Intelligence for Subjective "Nearest Nice Weather"
-// Transforms static filtering into adaptive discovery
+/**
+ * ========================================================================
+ * CONTEXTUAL WEATHER INTELLIGENCE
+ * ========================================================================
+ *
+ * Scores "nearest nice weather" subjectively instead of with static filters:
+ * how *near* and how *nice* a destination is are both relative to the user's
+ * context (intended activity, season, travel willingness) and to the other
+ * options currently available.
+ *
+ * @remarks
+ * This is a standalone scoring engine and is not currently wired into the app's
+ * POI navigation path (no imports outside this module). Treat it as an
+ * experimental/alternative discovery strategy; the live filtering lives in
+ * {@link ../utils/weatherFilteringUtils} and {@link ../utils/poiNavigationUtils}.
+ */
 
+/** An outdoor destination plus its current weather, the unit this engine scores. */
 export interface WeatherLocation {
+  /** Stable unique identifier for the location. */
   id: string
+  /** Human-readable location name. */
   name: string
+  /** Latitude in decimal degrees. */
   lat: number
+  /** Longitude in decimal degrees. */
   lng: number
+  /** Temperature in degrees Fahrenheit. */
   temperature: number
+  /** Short condition label (e.g. "Clear", "Overcast"). */
   condition: string
+  /** Longer human-readable weather description. */
   description: string
+  /** Precipitation probability as a 0–100 percentage. */
   precipitation: number
+  /** Wind speed in miles per hour. */
   windSpeed: number
 }
 
+/** The user's situation, used to make "near" and "nice" subjective rather than absolute. */
 export interface UserContext {
+  /** User's current position as `[latitude, longitude]`; when omitted, all destinations are treated as equally near. */
   currentLocation?: [number, number]
+  /** Part of day, for time-aware adjustments. */
   timeOfDay?: 'morning' | 'afternoon' | 'evening' | 'night'
+  /** Season, used to compare conditions against seasonal norms. */
   season?: 'spring' | 'summer' | 'fall' | 'winter'
+  /** Activity the user intends to do, which sets the optimal weather band. */
   intendedActivity?: 'hiking' | 'fishing' | 'photography' | 'camping' | 'sightseeing' | 'general'
+  /** How strongly weather quality should influence scoring. */
   weatherSensitivity?: 'low' | 'moderate' | 'high'
+  /** Maximum distance the user is willing to travel, in miles. */
   travelWillingness?: number // miles willing to travel
+  /** Required on-site infrastructure level. */
   infrastructure?: 'any' | 'basic' | 'full_services'
 }
 
+/** A scored recommendation for one location, with human-readable reasoning and comparative context. */
 export interface ContextualAssessment {
+  /** The location this assessment is for. */
   location: WeatherLocation
+  /** 0–1 score for how contextually "near" the location is. */
   nearnessFit: number // 0-1 score for contextual "nearness"
+  /** 0–1 score for how contextually "nice" the weather is. */
   nicenessFit: number // 0-1 score for contextual "niceness"
+  /** Combined nearness/niceness score used for ranking. */
   overallScore: number
+  /** Plain-language explanations behind each score, plus any concerns. */
   reasoning: {
+    /** Why this location scored as it did on nearness. */
     nearness: string[]
+    /** Why this location scored as it did on niceness. */
     niceness: string[]
+    /** Notable downsides to flag to the user. */
     concerns: string[]
   }
+  /** How this location stacks up against the other candidates. */
   comparisonContext: {
+    /** Percentage of the other options this location beats. */
     betterThan: number // percentage of other options this beats
+    /** Standout advantages relative to alternatives. */
     uniqueAdvantages: string[]
   }
 }
 
+/**
+ * Engine that turns a list of {@link WeatherLocation}s plus a {@link UserContext}
+ * into ranked, explained recommendations.
+ *
+ * @example
+ * ```ts
+ * const engine = new ContextualWeatherIntelligence();
+ * const ranked = engine.generateContextualRecommendations(locations, {
+ *   currentLocation: [44.95, -93.09],
+ *   intendedActivity: 'hiking',
+ *   travelWillingness: 120,
+ * });
+ * ```
+ */
 export class ContextualWeatherIntelligence {
   private seasonalNorms = {
     spring: { temp: [50, 70], precip: [20, 40], wind: [8, 15] },
@@ -74,6 +132,14 @@ export class ContextualWeatherIntelligence {
     }
   }
 
+  /**
+   * Score how contextually "near" a destination is, blending raw distance with
+   * context (e.g. campers tolerate longer drives).
+   * @param userLocation - User's position, or `undefined` to treat all destinations as equally accessible.
+   * @param destination - The candidate destination being scored.
+   * @param context - User context that adjusts distance tolerance.
+   * @returns A 0–1 `score` (higher is nearer-feeling) plus `reasoning` strings explaining it.
+   */
   calculateContextualNearness(
     userLocation: [number, number] | undefined,
     destination: WeatherLocation,
@@ -112,6 +178,15 @@ export class ContextualWeatherIntelligence {
     return { score: Math.min(1.0, score), reasoning }
   }
 
+  /**
+   * Score how contextually "nice" a location's weather is for the user's intended
+   * activity, judging temperature, precipitation, wind, and condition against the
+   * activity's optimal band and the rest of the candidate set.
+   * @param weather - The location whose weather is being judged.
+   * @param context - User context supplying the activity and season.
+   * @param allLocations - The full candidate set, used for comparative ranking.
+   * @returns A 0–1 `score` (higher is nicer) plus `reasoning` strings explaining it.
+   */
   calculateWeatherNiceness(
     weather: WeatherLocation,
     context: UserContext,
@@ -185,6 +260,15 @@ export class ContextualWeatherIntelligence {
     return { score: Math.max(0, Math.min(1, score)), reasoning }
   }
 
+  /**
+   * Score every candidate location and return them ranked best-first.
+   *
+   * The overall score weights niceness over nearness (0.6 / 0.4), so a meaningfully
+   * better-weather destination can outrank a closer one within the user's travel budget.
+   * @param locations - Candidate destinations to assess.
+   * @param userContext - The user's situation driving the scoring.
+   * @returns Assessments sorted by descending {@link ContextualAssessment.overallScore}.
+   */
   generateContextualRecommendations(
     locations: WeatherLocation[],
     userContext: UserContext

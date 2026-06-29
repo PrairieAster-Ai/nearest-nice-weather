@@ -24,15 +24,23 @@
  * LAST UPDATED: 2025-08-13
  */
 
+/** Minimal location shape needed to compute a map view: an identifiable point with coordinates. */
 export interface LocationPoint {
+  /** Stable unique identifier for the point. */
   id: string
+  /** Human-readable name (for debugging / labels). */
   name: string
+  /** Latitude in decimal degrees. */
   lat: number
+  /** Longitude in decimal degrees. */
   lng: number
 }
 
+/** A resolved Leaflet map view: where to center and how far to zoom. */
 export interface MapViewBounds {
+  /** Map center as `[latitude, longitude]`. */
   center: [number, number]
+  /** Leaflet zoom level (higher is closer in). */
   zoom: number
 }
 

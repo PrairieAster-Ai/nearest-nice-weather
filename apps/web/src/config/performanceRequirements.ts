@@ -30,11 +30,17 @@ import performanceConfig from './PERFORMANCE-REQUIREMENTS.json';
  * boundary in the given `unit`, with optional business-rule/scaling notes.
  */
 export interface PerformanceMetric {
+  /** Ideal value to aim for; passing tests should stay at or below this. */
   target: number;
+  /** Failing boundary; exceeding this is treated as a regression. */
   max: number;
+  /** Unit the `target`/`max` numbers are expressed in. */
   unit: 'ms' | 's';
+  /** Human-readable explanation of what this metric measures. */
   description: string;
+  /** Optional business rationale tying the threshold to a user/engagement outcome. */
   businessRule?: string;
+  /** Optional note on how the threshold should change as data volume or scale grows. */
   scalingNote?: string;
 }
 

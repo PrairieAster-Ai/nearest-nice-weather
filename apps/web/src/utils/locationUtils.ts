@@ -26,17 +26,26 @@
  * LAST UPDATED: 2025-08-13
  */
 
+/** How the current user location was obtained (`'none'` means no location yet). */
 export type LocationMethod = 'none' | 'gps' | 'ip' | 'manual' | 'cached'
 
+/** The app's user-location state as persisted and rendered: position, its source, and whether to prompt the user. */
 export interface LocationState {
+  /** Current position as `[latitude, longitude]`, or `null` when unknown. */
   userLocation: [number, number] | null
+  /** How {@link LocationState.userLocation} was obtained. */
   locationMethod: LocationMethod
+  /** Whether to show the "share your location" prompt to the user. */
   showLocationPrompt: boolean
 }
 
+/** A single location-change event: the new position, its source, and when it occurred. */
 export interface LocationUpdate {
+  /** New position as `[latitude, longitude]`. */
   position: [number, number]
+  /** How the new position was obtained. */
   method: LocationMethod
+  /** ISO-8601 timestamp of when the update happened. */
   timestamp: string
 }
 

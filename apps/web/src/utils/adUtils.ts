@@ -1,13 +1,26 @@
 // Ad Utilities
 // Helper functions for generating contextual advertising content
+//
+// The HTML builders here embed POI-derived data into inline <script> blocks, so
+// every dynamic value is routed through toScriptJson / escapeHtmlAttr to prevent
+// a malicious POI name from breaking out of the script element (see the
+// per-function notes below).
 
+/** The POI fields the ad builders read to derive weather-aware, geo-targeted ad keywords. */
 export interface POILocation {
+  /** Stable unique identifier for the POI (used to namespace ad container ids). */
   id: string;
+  /** POI name, surfaced in ad targeting context. */
   name: string;
+  /** Optional temperature in °F, used to pick seasonal keywords. */
   temperature?: number;
+  /** Optional precipitation probability (0–100), used to pick gear keywords. */
   precipitation?: number;
+  /** Optional park classification (e.g. "State Park", "Trail"), used for activity keywords. */
   park_type?: string;
+  /** Latitude in decimal degrees. */
   latitude: number;
+  /** Longitude in decimal degrees. */
   longitude: number;
 }
 

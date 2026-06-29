@@ -26,6 +26,12 @@
  */
 
 // Constants for location estimation
+
+/**
+ * Accuracy (meters) and age (minutes) ceilings that map a fix onto a
+ * {@link LocationConfidence} level in {@link calculateConfidence}. A fix must beat
+ * both the accuracy and age bound of a tier to qualify for it.
+ */
 export const LOCATION_CONFIDENCE_THRESHOLDS = {
   HIGH_ACCURACY_METERS: 50,
   HIGH_AGE_MINUTES: 5,
@@ -34,6 +40,11 @@ export const LOCATION_CONFIDENCE_THRESHOLDS = {
   LOW_ACCURACY_METERS: 10000,
 } as const;
 
+/**
+ * Heuristic IP-geolocation accuracy estimates (meters), tuned for Minnesota.
+ * Urban areas resolve more tightly than rural; the `GENERAL_*` values are the
+ * fallback when the location can't be classified as Minnesota-specific.
+ */
 export const MINNESOTA_ACCURACY_ESTIMATES = {
   URBAN_METERS: 3000,    // ~3km for Minnesota urban areas
   RURAL_METERS: 15000,   // ~15km for rural Minnesota
@@ -41,6 +52,7 @@ export const MINNESOTA_ACCURACY_ESTIMATES = {
   GENERAL_RURAL_METERS: 25000,  // ~25km for rural areas
 } as const;
 
+/** Numeric weight per {@link LocationConfidence} level, used when scoring/comparing estimates. */
 export const CONFIDENCE_SCORES = {
   high: 100,
   medium: 75,
@@ -48,6 +60,7 @@ export const CONFIDENCE_SCORES = {
   unknown: 25
 } as const;
 
+/** Numeric weight per {@link LocationMethod}, ranking sources from most trusted (gps) to least (none). */
 export const METHOD_SCORES = {
   gps: 100,
   network: 80,
@@ -59,6 +72,8 @@ export const METHOD_SCORES = {
 } as const;
 
 // Type definitions (extracted from UserLocationEstimator)
+
+/** How a user location was obtained, ordered roughly from most to least accurate. */
 export type LocationMethod =
   | 'gps'           // High accuracy GPS
   | 'network'       // Network-based (WiFi/cell towers)
@@ -68,14 +83,22 @@ export type LocationMethod =
   | 'fallback'     // Default Minneapolis center
   | 'none';        // No location available
 
+/** Coarse trust level for a location fix, derived from its accuracy and age. */
 export type LocationConfidence = 'high' | 'medium' | 'low' | 'unknown';
 
+/** A single resolved user-location candidate, with the metadata needed to score and compare it. */
 export interface LocationEstimate {
+  /** Resolved position as `[latitude, longitude]` in decimal degrees. */
   coordinates: [number, number]; // [latitude, longitude]
+  /** Approximate accuracy radius in meters (smaller is better). */
   accuracy: number; // Accuracy in meters (approximate)
+  /** How the fix was obtained. */
   method: LocationMethod;
+  /** When the fix was taken, as a Unix epoch timestamp in milliseconds. */
   timestamp: number; // Unix timestamp
+  /** Derived trust level for this fix. */
   confidence: LocationConfidence;
+  /** Optional free-form source identifier (e.g. the IP-geolocation provider). */
   source?: string; // Optional source identifier
 }
 
