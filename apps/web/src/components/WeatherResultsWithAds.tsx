@@ -68,7 +68,7 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
           }}
         >
           <CardContent>
-            <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
               <Typography variant="h6" component="h3" color="primary">
                 {location.name}
               </Typography>
@@ -81,7 +81,7 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
               )}
             </Box>
 
-            <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
               <Chip
                 label={`${location.temperature}°F`}
                 color="primary"
@@ -133,7 +133,7 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
 
   if (isLoading) {
     return (
-      <Box p={2}>
+      <Box sx={{ p: 2 }}>
         <Typography variant="h6" gutterBottom>
           Loading weather conditions...
         </Typography>
@@ -143,7 +143,7 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
 
   if (displayLocations.length === 0) {
     return (
-      <Box p={2} textAlign="center">
+      <Box sx={{ p: 2, textAlign: 'center' }}>
         <Typography variant="h6" color="text.secondary" gutterBottom>
           No locations match your weather preferences
         </Typography>
@@ -155,7 +155,7 @@ export const WeatherResultsWithAds: React.FC<WeatherResultsWithAdsProps> = ({
   }
 
   return (
-    <Box p={2}>
+    <Box sx={{ p: 2 }}>
       <Typography variant="h5" gutterBottom color="primary">
         Weather Conditions ({displayLocations.length} locations)
       </Typography>
