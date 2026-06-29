@@ -3,11 +3,20 @@ import { weatherApi } from '../services/weatherApi'
 import { monitoring } from '../services/monitoring'
 import type { FeedbackFormData, FeedbackSubmissionResponse } from '../types/feedback'
 
+/** Optional success/error callbacks for {@link useFeedbackSubmission}. */
 interface UseFeedbackSubmissionOptions {
   onSuccess?: (data: FeedbackSubmissionResponse) => void
   onError?: (error: Error) => void
 }
 
+/**
+ * React Query mutation hook for submitting user feedback. Records monitoring
+ * events around the request, invalidates `['feedback']` queries on success, and
+ * retries server (5xx) errors up to twice while never retrying 4xx responses.
+ *
+ * @param options - Optional `onSuccess`/`onError` callbacks.
+ * @returns The TanStack Query mutation object (`mutate`, `isPending`, etc.).
+ */
 export const useFeedbackSubmission = (options?: UseFeedbackSubmissionOptions) => {
   const queryClient = useQueryClient()
 

@@ -72,6 +72,11 @@ import {
 // Re-export POIWithMetadata type for backwards compatibility
 export type { POIWithMetadata };
 
+/**
+ * Internal state for distance-sliced POI navigation: the full POI set, the
+ * currently visible subset, the active distance slice and cursor, plus derived
+ * flags for boundary/expansion UI affordances.
+ */
 export interface POINavigationState {
   allPOIs: POIWithMetadata[]; // All 50 from API
   visiblePOIs: POIWithMetadata[]; // Current visible subset
@@ -92,6 +97,16 @@ interface WeatherFilters {
 const STORAGE_KEY = 'poi-navigation-cache';
 const CLICK_THROTTLE_MS = 500; // 0.5 second throttling
 
+/**
+ * Manages distance-sliced navigation through weather-filtered POIs: loads POIs
+ * relative to the user, expands the visible radius in slices, and tracks the
+ * current cursor with click throttling. Persists its working set to
+ * `localStorage` for fast restore.
+ *
+ * @param userLocation - User coordinates `[lat, lng]`, or null until known.
+ * @param filters - Active weather filter buckets driving which POIs are shown.
+ * @returns Navigation state and actions for the POI carousel/map UI.
+ */
 export const usePOINavigation = (
   userLocation: [number, number] | null,
   filters: WeatherFilters

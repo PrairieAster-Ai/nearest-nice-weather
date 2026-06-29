@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// Feedback form data types
+/** User-submitted feedback as captured by the feedback form. */
 export interface FeedbackFormData {
   rating: number
   comment: string
@@ -8,14 +8,17 @@ export interface FeedbackFormData {
   category: 'bug' | 'feature' | 'general'
 }
 
-// API response types
+/** API response returned after a feedback submission succeeds. */
 export interface FeedbackSubmissionResponse {
   success: boolean
   message: string
   id: number
 }
 
-// Database model types
+/**
+ * Persisted feedback row as stored in the database — the form fields plus
+ * server-captured request metadata and timestamps.
+ */
 export interface FeedbackRecord {
   id: number
   rating: number
@@ -28,7 +31,10 @@ export interface FeedbackRecord {
   updated_at: string
 }
 
-// Zod validation schemas
+/**
+ * Runtime validation schema for incoming feedback: rating 1–5, non-empty
+ * comment (≤1000 chars), optional email, and a known category.
+ */
 export const FeedbackSchema = z.object({
   rating: z.number().min(1).max(5),
   comment: z.string().min(1).max(1000),
@@ -36,4 +42,5 @@ export const FeedbackSchema = z.object({
   category: z.enum(['bug', 'feature', 'general']),
 })
 
+/** Feedback payload validated against {@link FeedbackSchema}. */
 export type ValidatedFeedback = z.infer<typeof FeedbackSchema>

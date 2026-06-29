@@ -1,11 +1,19 @@
 /**
  * ========================================================================
- * IP GEOLOCATION - MULTI-PROVIDER CITY/REGION LOCATION
+ * IP GEOLOCATION - CITY/REGION LOCATION VIA ipapi.co
  * ========================================================================
  *
- * Extracted from UserLocationEstimator. Queries several IP-geolocation
- * providers in parallel, normalizes their responses to a LocationEstimate via
- * the shared scoring/accuracy helpers, and returns the best-scored result.
+ * Extracted from UserLocationEstimator. Queries the ipapi.co IP-geolocation
+ * service, normalizes the response to a LocationEstimate via the shared
+ * scoring/accuracy helpers, and returns the best-scored result.
+ *
+ * The provider list is kept as an array so additional providers can be added
+ * later (every response is scored and the best is chosen), but today only
+ * ipapi.co is wired up — it is the one provider that works from an HTTPS origin
+ * without an API key. Two previously-listed providers were removed because they
+ * could never succeed in production:
+ *   - ip-api.com is HTTP-only → blocked as mixed-content on the HTTPS app.
+ *   - api.ipgeolocation.io requires an `apiKey` query param → returns 401.
  *
  * Pure of component/service state — depends only on fetch + the pure helpers in
  * locationEstimationUtils, so it is independently unit-testable.
@@ -42,49 +50,19 @@ const PROVIDERS: NetworkLocationProvider[] = [
       }
       return null;
     }
-  },
-  {
-    name: 'ip-api',
-    endpoint: 'http://ip-api.com/json/?fields=status,lat,lon,city,region,country',
-    parser: (data) => {
-      if (data.status === 'success' && data.lat && data.lon) {
-        return {
-          coordinates: [data.lat, data.lon],
-          accuracy: estimateIPAccuracy(data.city, data.region),
-          method: 'ip',
-          timestamp: Date.now(),
-          confidence: calculateIPConfidence(data.city, data.region, data.country),
-          source: `ip-api_${data.city || 'unknown'}_${data.region || 'unknown'}`
-        };
-      }
-      return null;
-    }
-  },
-  {
-    name: 'ipgeolocation',
-    endpoint: 'https://api.ipgeolocation.io/ipgeo',
-    parser: (data) => {
-      if (data.latitude && data.longitude && parseFloat(data.latitude) !== 0) {
-        return {
-          coordinates: [parseFloat(data.latitude), parseFloat(data.longitude)],
-          accuracy: estimateIPAccuracy(data.city, data.state_prov),
-          method: 'ip',
-          timestamp: Date.now(),
-          confidence: calculateIPConfidence(data.city, data.state_prov, data.country_code2),
-          source: `ipgeolocation_${data.city || 'unknown'}`
-        };
-      }
-      return null;
-    }
   }
 ];
 
 /**
- * Query all IP-geolocation providers in parallel and return the best-scored
+ * Query the configured IP-geolocation provider(s) and return the best-scored
  * estimate. Throws if every provider fails or returns unusable data.
+ *
+ * Currently a single provider (ipapi.co) is configured; the array/scoring shape
+ * is retained so more providers can be added without changing the call site.
  */
 export async function fetchIPLocation(): Promise<LocationEstimate> {
-  // Try multiple providers in parallel for speed and reliability
+  // Query each configured provider (today: ipapi.co), score the responses,
+  // and pick the best. Structured for parallel fan-out if more are added.
   const providerPromises = PROVIDERS.map(async (provider) => {
     try {
       const controller = new AbortController();

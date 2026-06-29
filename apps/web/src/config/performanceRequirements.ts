@@ -25,6 +25,10 @@
 // 🔗 INTEGRATION: Import JSON config for runtime access
 import performanceConfig from './PERFORMANCE-REQUIREMENTS.json';
 
+/**
+ * A single performance threshold: a `target` (ideal) and `max` (failing)
+ * boundary in the given `unit`, with optional business-rule/scaling notes.
+ */
 export interface PerformanceMetric {
   target: number;
   max: number;
@@ -34,10 +38,16 @@ export interface PerformanceMetric {
   scalingNote?: string;
 }
 
+/** A named set of {@link PerformanceMetric}s for one component or endpoint. */
 export interface ComponentPerformance {
   [metricName: string]: PerformanceMetric;
 }
 
+/**
+ * Full performance-requirements document: global, per-component, and per-endpoint
+ * thresholds plus business-rule priorities, testing guidance, and monitoring
+ * config. Mirrors the shape of `PERFORMANCE-REQUIREMENTS.json`.
+ */
 export interface PerformanceRequirements {
   version: string;
   lastUpdated: string;
@@ -68,10 +78,13 @@ export interface PerformanceRequirements {
   };
 }
 
-// Type-safe access to performance requirements
+/** Type-safe view of the imported performance-requirements JSON. */
 export const PERFORMANCE_REQUIREMENTS: PerformanceRequirements = performanceConfig;
 
-// 🎯 QUICK ACCESS: Commonly used performance thresholds
+/**
+ * Flattened quick-access map of the most commonly asserted thresholds
+ * (UI responsiveness, page load, API, and map performance).
+ */
 export const PERF_THRESHOLDS = {
   // UI Responsiveness
   INSTANT_FEEDBACK: PERFORMANCE_REQUIREMENTS.componentRequirements.FabFilterSystem.uiFeedbackTime.max,
@@ -90,7 +103,10 @@ export const PERF_THRESHOLDS = {
   MAP_ANIMATION: PERFORMANCE_REQUIREMENTS.componentRequirements.MapComponent.panAnimationDuration.max,
 } as const;
 
-// 🔗 PLAYWRIGHT INTEGRATION: Helper functions for test assertions
+/**
+ * Helpers for consuming performance requirements in tests — resolving wait
+ * times, asserting measured values against thresholds, and formatting reports.
+ */
 export const performanceHelpers = {
   /**
    * Get wait time for a specific component action
@@ -131,7 +147,13 @@ export const performanceHelpers = {
   }
 };
 
-// 🔗 BUSINESS RULE PRIORITIES: For automated test prioritization
+/**
+ * Classify a business rule into a test-prioritization tier (`P0`/`P1`/`P2`) by
+ * matching it against the configured priority lists, or null if unlisted.
+ *
+ * @param rule - Business-rule identifier or description to classify.
+ * @returns The priority tier, or null when no list matches.
+ */
 export const getBusinessRulePriority = (rule: string): 'P0' | 'P1' | 'P2' | null => {
   const rules = PERFORMANCE_REQUIREMENTS.businessRules.priority;
   if (rules.P0_CRITICAL.some(r => rule.includes(r))) return 'P0';
