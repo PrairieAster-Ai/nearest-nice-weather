@@ -82,7 +82,7 @@ jobs:
         ANALYZE: true
 
     - name: Analyze bundle size
-      uses: preactjs/compressed-size-action@v2
+      uses: preactjs/compressed-size-action@v3
       with:
         repo-token: '${{ secrets.GITHUB_TOKEN }}'
         pattern: './apps/web/dist/**/*.{js,css}'
