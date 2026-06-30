@@ -36,10 +36,11 @@ export default [
     },
     rules: {
       // Complexity ratchets — set at the current max so nothing breaks today; NEW
-      // code above the line fails CI. Tighten over time as the outliers
-      // (useMapPopupNavigation, usePOILocations) are refactored. (See Quality-Coverage.)
-      complexity: ['error', 18],
-      'sonarjs/cognitive-complexity': ['error', 30],
+      // code above the line fails CI. Tightened after refactoring useMapPopupNavigation
+      // (was the cyclomatic-18 / cognitive-30 ceiling). Current ceilings: cyclomatic 17
+      // (usePOILocations), cognitive 22 (mapPopup). Lower further as those are refactored.
+      complexity: ['error', 17],
+      'sonarjs/cognitive-complexity': ['error', 22],
       // eslint-plugin-react-hooks v7. Classic rules stay on as errors:
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',

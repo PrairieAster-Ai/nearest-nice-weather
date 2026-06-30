@@ -40,6 +40,22 @@ export function useMapPopupNavigation({
 }: UseMapPopupNavigationArgs): void {
   // Event delegation for popup navigation buttons and analytics tracking
   useEffect(() => {
+    // Open the navigated POI's popup and smart-center on it (shared by closer +
+    // farther). Smart centering only pans if the marker is outside the viewport.
+    const focusPoiMarker = (poi: POILocation) => {
+      const index = locations.findIndex(loc => loc.id === poi.id);
+      const marker = index >= 0 ? markersRef.current[index] : undefined;
+      if (!marker) return;
+
+      updatePopupContent(index);
+      marker.openPopup();
+
+      const markerLatLng = L.latLng(poi.lat, poi.lng);
+      if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
+        mapRef.current.panTo(markerLatLng);
+      }
+    };
+
     const handleNavigation = (event: Event) => {
       const target = event.target as HTMLElement;
 
@@ -64,36 +80,16 @@ export function useMapPopupNavigation({
         const result = onNavigateCloser();
         if (result) {
           console.log('Navigate closer result:', result);
-          const newPOIIndex = locations.findIndex(loc => loc.id === result.id);
-          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
-            updatePopupContent(newPOIIndex);
-            markersRef.current[newPOIIndex].openPopup();
-
-            // Smart centering: only pan if marker is outside viewport
-            const markerLatLng = L.latLng(result.lat, result.lng);
-            if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
-              mapRef.current.panTo(markerLatLng);
-            }
-          }
+          focusPoiMarker(result);
         }
       } else if (action === 'farther') {
         const result = onNavigateFarther();
-        if (result && result !== 'NO_MORE_RESULTS') {
-          console.log('Navigate farther result:', result);
-          const newPOIIndex = locations.findIndex(loc => (loc as POILocation).id === (result as POILocation).id);
-          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
-            updatePopupContent(newPOIIndex);
-            markersRef.current[newPOIIndex].openPopup();
-
-            // Smart centering: only pan if marker is outside viewport
-            const markerLatLng = L.latLng((result as POILocation).lat, (result as POILocation).lng);
-            if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
-              mapRef.current.panTo(markerLatLng);
-            }
-          }
-        } else if (result === 'NO_MORE_RESULTS') {
+        if (result === 'NO_MORE_RESULTS') {
           console.log('No more results available');
           showEndOfResultsNotification();
+        } else if (result) {
+          console.log('Navigate farther result:', result);
+          focusPoiMarker(result as POILocation);
         }
       }
     };
