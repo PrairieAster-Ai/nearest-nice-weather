@@ -61,6 +61,14 @@ jobs:
       run: |
         cd apps/web && npm run type-check
 
+    # Quality: No circular imports (madge gate)
+    - name: 'Circular Imports Gate'
+      run: npm run lint:circular
+
+    # Quality: 100% TSDoc on exported declarations (doc-coverage gate)
+    - name: 'Doc Coverage Gate'
+      run: npm run docs:gate
+
     # Security: Dependency audit
     - name: 'Security Audit'
       run: |

@@ -291,5 +291,5 @@ export class MapCalculationService {
   }
 }
 
-// Singleton instance for app-wide use
+/** Shared app-wide {@link MapCalculationService} singleton. */
 export const mapCalculationService = new MapCalculationService();
