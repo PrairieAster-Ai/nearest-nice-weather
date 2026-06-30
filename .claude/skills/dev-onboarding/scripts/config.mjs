@@ -25,6 +25,7 @@ export const SECRETS = cfg.secrets || {};
 /** { team:{...}, contributor:{seedCommand?, mockEnv?[], desc?} } */
 export const PROFILES = cfg.profiles || { team: {}, contributor: {} };
 
+/** Reads `--profile <name>` from argv; falls back to `def` if absent or not a known profile. */
 export function parseProfile(argv, def = 'team') {
   const i = argv.indexOf('--profile');
   const p = i >= 0 ? argv[i + 1] : def;
