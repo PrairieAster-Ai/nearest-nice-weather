@@ -101,6 +101,11 @@ Keep the docs true to the code:
   and stamp the wiki page (`stamp-codehealth.mjs <wiki>/Code-Health-Dashboard.md`) so its
   `<!--ch:*-->` markers reflect the new reading. The dashboard is the single rendering of the
   CodeHealth roll-up.
+- Refresh the **Quality-Coverage checklist** (`npm run quality:checklist -- --wiki <wiki>
+  --stamp <wiki>/Quality-Coverage.md`): it re-probes which quality capabilities are actually
+  enabled vs. available-but-off, so a capability that exists but was never turned on (a metric
+  measured but never made a CI gate) doesn't stay a silent gap. Raise any new ❌ gap as a
+  suggestion in step 2's channel.
 - Run the project's **doc-publish flow** to refresh living docs (e.g. `/code-readability
   publish` / `team`, plus any stamp scripts). Respect generator markers — never clobber
   hand-authored pages.
