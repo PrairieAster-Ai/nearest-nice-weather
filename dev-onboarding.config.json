@@ -1,0 +1,23 @@
+{
+  "project": "nearest-nice-weather",
+  "runCommand": "npm start",
+  "runUrl": "http://localhost:3001",
+  "healthEndpoints": ["http://localhost:4000/api/health"],
+  "installCommand": "npm install",
+  "envExample": ".env.example",
+  "envFile": ".env",
+  "requiredTools": [
+    { "name": "node", "versionFrom": ".nvmrc", "installHint": "nvm install (reads .nvmrc → Node 20)" },
+    { "name": "npm", "range": ">=10.8.0" },
+    { "name": "git" },
+    { "name": "docker", "optional": true, "reason": "local Redis cache (optional; DB is cloud Neon)" }
+  ],
+  "secrets": {
+    "DATABASE_URL": { "profiles": ["team", "contributor"], "shape": "^postgres(ql)?://", "help": "Neon Postgres dev-branch URL — team: internal project; contributor: your own free Neon account (https://console.neon.tech)" },
+    "OPENWEATHER_API_KEY": { "profiles": ["team", "contributor"], "shape": "^[A-Za-z0-9]{20,}$", "mockToggle": "USE_MOCK_WEATHER", "help": "free OpenWeather key (https://openweathermap.org/api)" }
+  },
+  "profiles": {
+    "team": { "desc": "internal access to the Neon project + OpenWeather + Vercel" },
+    "contributor": { "desc": "own free-tier Neon + OpenWeather; no internal access", "seedCommand": "node scripts/seed-minnesota-parks.js", "mockEnv": ["USE_SEED_DATA=true"] }
+  }
+}
