@@ -62,13 +62,28 @@ State your detected mode in the first line of your final report.
 **The differential nature of the review skills matters.** `/code-review` and `/security-audit`
 operate on a **diff**, not a static tree — so a sweep against a clean working tree gives them
 nothing to chew on. For the **weekly sweep**, review the diff range you are given in the
-instruction. The shipped workflow computes `<last-sweep-sha>...HEAD` from a durable marker on a
-`steward-state` branch and persists the new HEAD after a successful run — CI runners are
-ephemeral, so that branch (not agent memory) is the source of truth. If no range is provided
-(e.g. an on-demand local run), fall back to your `project` memory's last-sweep SHA, else
-`git diff HEAD~20...HEAD` or the last 7 days (`git log --since='7 days ago'`) — keep the first
-sweep bounded so it completes within the turn budget. Trend deltas (step 1) remain repo-wide
-and are independent of this diff window.
+instruction. If no range is provided (e.g. an on-demand local run), fall back to your `project`
+memory's last-sweep SHA, else `git diff HEAD~20...HEAD` or the last 7 days
+(`git log --since='7 days ago'`) — keep the first sweep bounded so it completes within the turn
+budget. Trend deltas (step 1) remain repo-wide and are independent of this diff window.
+
+### The `steward-state` branch (durable state)
+
+CI runners are ephemeral, so agent memory does **not** survive between runs. A dedicated
+**`steward-state` branch** is the persistent source of truth, managed entirely by the shipped
+workflow (`.github/workflows/quality-steward.yml`), not by you. It holds:
+
+- **`last-sweep-sha`** — the HEAD the last successful sweep ran against. The workflow's "Resolve
+  sweep range" step diffs `<last-sweep-sha>...HEAD` into your instruction; "Persist sweep marker"
+  writes the new HEAD after a successful run.
+- **`code-health/*-history.tsv` + the stamp JSON** — the accumulated CodeHealth **trend**. The
+  workflow **restores** it into the working tree before you run, so `npm run codehealth:report`
+  *appends* a new row to real history (making the dashboard a trend line, not a fresh single-row
+  reading), then **persists** the updated trend back after the sweep.
+
+What this means for you: just run the metric command normally — the restore/persist is the
+workflow's job. **Never merge `steward-state` into the default branch, branch off it, or hand-edit
+it** — it's machine-owned state, not code. It self-bootstraps on the first run if absent.
 
 ## Playbook
 
@@ -132,4 +147,6 @@ notification carries this; locally it's your final message.
   at runtime; track `.claude/agents/` so the definition is checked out). See the package
   README for the workflow that does this.
 - Use `memory` to remember decisions across runs (e.g. a finding the maintainer dismissed —
-  don't re-raise it; the last-sweep SHA).
+  don't re-raise it). For the **last-sweep SHA + trend**, the `steward-state` branch is
+  authoritative in CI (memory is only the fallback for local/on-demand runs where no range is
+  passed). Don't write to `steward-state` yourself — the workflow does.
