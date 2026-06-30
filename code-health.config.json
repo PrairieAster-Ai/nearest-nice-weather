@@ -1,0 +1,16 @@
+{
+  "dirs": ["apps/web/src"],
+  "docDirs": [
+    "apps/web/src/components",
+    "apps/web/src/hooks",
+    "apps/web/src/services",
+    "apps/web/src/utils",
+    "apps/web/src/types",
+    "apps/web/src/config"
+  ],
+  "coverageWorkspaces": ["apps/web"],
+  "tsconfig": "apps/web/tsconfig.json",
+  "blobBase": "https://github.com/PrairieAster-Ai/nearest-nice-weather/blob/main",
+  "historyDir": "code-health",
+  "window": "365 days ago"
+}

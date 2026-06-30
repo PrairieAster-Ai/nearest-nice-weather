@@ -73,3 +73,4 @@ tests/reports/
 .DS_Store
 Thumbs.db
 *.swp
+code-health/.jscpd-tmp/
