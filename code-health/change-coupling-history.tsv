@@ -1,2 +1,3 @@
 date	commits	coupled_pairs	cross_layer	top_pair	top_degree_pct
 2026-06-30	96	14	0	apps/web/src/components/ads/AdManager.tsx ⇄ apps/web/src/components/ads/AdUnit.tsx	83
+2026-06-30	99	14	0	apps/web/src/components/ads/AdManager.tsx ⇄ apps/web/src/components/ads/AdUnit.tsx	83
