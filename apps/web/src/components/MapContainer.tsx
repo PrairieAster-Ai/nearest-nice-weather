@@ -54,6 +54,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import { trackPOIInteraction, trackFeatureUsage } from '../utils/analytics';
 import { buildPoiPopupHtml } from '../utils/mapPopup';
+import { showEndOfResultsNotification as notifyEndOfResults } from '../utils/mapNotifications';
 // Import POI popup styles
 import '../styles/poi-popup.css';
 
@@ -174,54 +175,11 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
   }, [locations, createPopupContent]);
 
-  // End-of-results notification (self-contained; declared before the navigation
-  // effect that triggers it).
+  // End-of-results notification — the imperative DOM toast lives in
+  // ../utils/mapNotifications (self-contained); this is a stable callback wrapper
+  // so the navigation effect below keeps a steady dependency.
   const showEndOfResultsNotification = useCallback(() => {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 10000;
-      text-align: center;
-      max-width: 300px;
-    `;
-
-    notification.innerHTML = `
-      <h3 style="margin: 0 0 10px 0; color: #333;">End of Results</h3>
-      <p style="margin: 0 0 15px 0; color: #666;">That's all the results we have for this area!</p>
-      <button style="
-        background: #4CAF50;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">OK</button>
-    `;
-
-    // Add click handler to OK button
-    const okButton = notification.querySelector('button');
-    if (okButton) {
-      okButton.addEventListener('click', () => {
-        notification.remove();
-      });
-    }
-
-    document.body.appendChild(notification);
-
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 5000);
+    notifyEndOfResults();
   }, []);
 
   // Map initialization with React StrictMode compatibility
