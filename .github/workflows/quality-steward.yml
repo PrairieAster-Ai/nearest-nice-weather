@@ -128,6 +128,12 @@ jobs:
             if [ -n "$LAST" ] && git cat-file -e "${LAST}^{commit}" 2>/dev/null; then
               RANGE="${LAST}...HEAD"
             fi
+            # Restore the accumulated code-health trend so this run's reading APPENDS to
+            # history instead of starting fresh (runners are ephemeral; steward-state is
+            # the durable home of the trend). No-op on the first run.
+            if git checkout FETCH_HEAD -- code-health 2>/dev/null; then
+              echo "Restored code-health trend from steward-state"
+            fi
           fi
           echo "range=$RANGE" >> "$GITHUB_OUTPUT"
           echo "Sweep range: $RANGE"
@@ -201,7 +207,15 @@ jobs:
             git -C "$D" rm -rf . >/dev/null 2>&1 || true
           fi
           echo "$HEAD_SHA" > "$D/last-sweep-sha"
-          git -C "$D" add last-sweep-sha
+          # Persist the accumulated code-health trend alongside the marker, so the next
+          # run can restore it (see "Resolve sweep range"). This is what makes the
+          # dashboard a real trend line rather than a fresh single-row reading each week.
+          if ls code-health/*-history.tsv >/dev/null 2>&1; then
+            mkdir -p "$D/code-health"
+            cp code-health/*-history.tsv "$D/code-health/" 2>/dev/null || true
+            cp code-health/*.json        "$D/code-health/" 2>/dev/null || true
+          fi
+          git -C "$D" add last-sweep-sha code-health 2>/dev/null || git -C "$D" add last-sweep-sha
           git -C "$D" -c user.name='github-actions[bot]' -c user.email='github-actions[bot]@users.noreply.github.com' \
-            commit -m "chore(steward): last-sweep marker ${HEAD_SHA}" || { echo "marker unchanged"; exit 0; }
+            commit -m "chore(steward): sweep state ${HEAD_SHA}" || { echo "state unchanged"; exit 0; }
           git -C "$D" push origin steward-state
