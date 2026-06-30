@@ -3,168 +3,53 @@
  * WEATHER FILTERING UTILITIES - EXTRACTED PURE FUNCTIONS
  * ========================================================================
  *
- * 📋 PURPOSE: Pure functions extracted from WeatherFilteringService for testability
- * 🔗 EXTRACTED_FROM: services/WeatherFilteringService.ts - Weather filtering service
- * 📊 COVERAGE: Weather filtering algorithms, distance calculations, percentile calculations
- * ⚙️ FUNCTIONALITY: Geographic and weather-based filtering for outdoor recreation
- * 🎯 BUSINESS_IMPACT: Ensures accurate weather filtering for optimal outdoor activity discovery
+ * 📋 PURPOSE: Pure weather-filtering functions (percentile thresholds + bucket filters)
+ * 🔗 EXTRACTED_FROM: services/WeatherFilteringService.ts
+ * 🎯 BUSINESS_IMPACT: Accurate weather filtering for optimal outdoor activity discovery
  *
- * BUSINESS CONTEXT: Weather filtering for Minnesota outdoor enthusiasts
- * - Calculates percentile-based weather thresholds for relative filtering
- * - Provides distance-based filtering for geographic constraints
- * - Enables intelligent location sorting and filtering for outdoor activities
- * - Supports badge count calculations for UI feedback
+ * Types/constants live in {@link ./weatherFilteringTypes} and the geographic
+ * helpers (distance, bounds, sorting, stats) live in {@link ./geoUtils}; both are
+ * re-exported below so existing callers keep importing everything from here.
  *
- * TECHNICAL DETAILS: Pure functions for weather and geographic filtering
- * - Haversine formula for accurate distance calculations
- * - Percentile-based thresholds for relative weather classification
- * - Distance sorting and filtering algorithms
- * - Weather threshold calculations for cold/mild/hot classification
- *
- * EXTRACTED FROM: WeatherFilteringService class to improve testability and maintainability
  * @CLAUDE_CONTEXT: Pure function extraction for comprehensive weather filtering testing
  */
 
-/** Earth's mean radius in miles, used by the Haversine distance calculation. */
-export const EARTH_RADIUS_MILES = 3959;
+import {
+  WEATHER_PERCENTILES,
+  type Location,
+  type WeatherFilters,
+  type Coordinates,
+  type FilterCounts,
+  type WeatherThresholds,
+  type PrecipitationThresholds,
+  type WindThresholds,
+} from './weatherFilteringTypes';
+import { filterByDistance } from './geoUtils';
 
-/**
- * Percentile cut points that turn an absolute weather distribution into the
- * coarse cold/mild/hot, dry/light/heavy, calm/breezy/windy buckets the UI filters on.
- *
- * @remarks
- * These are intentionally relative (percentile-based), not absolute thresholds:
- * "mild" means the middle of whatever the current result set looks like, not a
- * fixed temperature. Changing these values directly changes how restrictive each
- * filter feels, so treat them as product-tuning knobs and adjust only on request.
- * @example
- * ```ts
- * // Coldest 40% of locations qualify as "cold"
- * const isCold = percentileRank <= WEATHER_PERCENTILES.COLD_THRESHOLD;
- * ```
- */
-export const WEATHER_PERCENTILES = {
-  // Temperature filtering percentiles
-  COLD_THRESHOLD: 0.4,     // Coldest 40%
-  HOT_THRESHOLD: 0.6,      // Hottest 40% (starting from 60th percentile)
-  MILD_MIN: 0.1,          // Exclude extreme 10% cold
-  MILD_MAX: 0.9,          // Exclude extreme 10% hot
-
-  // Precipitation filtering percentiles
-  DRY_THRESHOLD: 0.6,      // Driest 60%
-  LIGHT_MIN: 0.2,         // Light rain range 20th-70th percentile
-  LIGHT_MAX: 0.7,
-  HEAVY_THRESHOLD: 0.7,    // Wettest 30%
-
-  // Wind filtering percentiles
-  CALM_THRESHOLD: 0.5,     // Calmest 50%
-  BREEZY_MIN: 0.3,        // Breezy range 30th-70th percentile
-  BREEZY_MAX: 0.7,
-  WINDY_THRESHOLD: 0.7     // Windiest 30%
-} as const;
-
-// Type definitions
-
-/** A geographic point expressed as `[latitude, longitude]` in decimal degrees. */
-export type Coordinates = [number, number]; // [latitude, longitude]
-
-/** An outdoor recreation location with the weather fields needed for filtering and sorting. */
-export interface Location {
-  /** Stable unique identifier for the POI. */
-  id: string;
-  /** Human-readable POI name (e.g. "Gooseberry Falls State Park"). */
-  name: string;
-  /** Latitude in decimal degrees. */
-  lat: number;
-  /** Longitude in decimal degrees. */
-  lng: number;
-  /** Temperature in degrees Fahrenheit. */
-  temperature: number;
-  /** Precipitation probability as a 0–100 percentage. */
-  precipitation: number;
-  /** Wind speed in miles per hour. */
-  windSpeed: number;
-  /** Short condition label (e.g. "Clear", "Overcast"). */
-  condition: string;
-  /** Longer human-readable weather description. */
-  description: string;
-}
-
-/**
- * The user's selected weather preferences, one coarse bucket per axis.
- * An empty string means "no preference" and is treated as a pass-through (no filtering on that axis).
- */
-export interface WeatherFilters {
-  /** Temperature bucket, or `''` for no temperature constraint. */
-  temperature?: 'cold' | 'mild' | 'hot' | '';
-  /** Precipitation bucket, or `''` for no precipitation constraint. */
-  precipitation?: 'none' | 'light' | 'heavy' | '';
-  /** Wind bucket, or `''` for no wind constraint. */
-  wind?: 'calm' | 'breezy' | 'windy' | '';
-}
-
-/** Map of filter-option key → number of locations that would match it, used for UI badge counts. */
-export interface FilterCounts {
-  [key: string]: number;
-}
-
-/** Absolute temperature cut points (°F) derived from the current dataset via {@link WEATHER_PERCENTILES}. */
-export interface WeatherThresholds {
-  /** Upper bound for the "cold" bucket. */
-  cold: number;
-  /** Lower bound for the "hot" bucket. */
-  hot: number;
-  /** Lower bound of the "mild" band. */
-  mildMin: number;
-  /** Upper bound of the "mild" band. */
-  mildMax: number;
-}
-
-/** Absolute precipitation cut points (% chance) derived from the current dataset. */
-export interface PrecipitationThresholds {
-  /** Upper bound for the "dry"/none bucket. */
-  dry: number;
-  /** Lower bound of the "light" precipitation band. */
-  lightMin: number;
-  /** Upper bound of the "light" precipitation band. */
-  lightMax: number;
-  /** Lower bound for the "heavy" precipitation bucket. */
-  heavy: number;
-}
-
-/** Absolute wind cut points (mph) derived from the current dataset. */
-export interface WindThresholds {
-  /** Upper bound for the "calm" bucket. */
-  calm: number;
-  /** Lower bound of the "breezy" band. */
-  breezyMin: number;
-  /** Upper bound of the "breezy" band. */
-  breezyMax: number;
-  /** Lower bound for the "windy" bucket. */
-  windy: number;
-}
-
-/**
- * Calculate distance between two geographic points using Haversine formula
- * @param point1 - First coordinate [latitude, longitude]
- * @param point2 - Second coordinate [latitude, longitude]
- * @returns Distance in miles
- */
-export function calculateDistance(point1: Coordinates, point2: Coordinates): number {
-  const [lat1, lng1] = point1;
-  const [lat2, lng2] = point2;
-
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return EARTH_RADIUS_MILES * c;
-}
+// Re-export shared types/constants and geographic helpers so callers can keep
+// importing the whole filtering surface from this module.
+export {
+  EARTH_RADIUS_MILES,
+  WEATHER_PERCENTILES,
+} from './weatherFilteringTypes';
+export type {
+  Coordinates,
+  Location,
+  WeatherFilters,
+  FilterCounts,
+  WeatherThresholds,
+  PrecipitationThresholds,
+  WindThresholds,
+} from './weatherFilteringTypes';
+export {
+  calculateDistance,
+  filterByDistance,
+  sortByDistance,
+  isValidCoordinates,
+  isWithinMinnesotaBounds,
+  getClosestLocation,
+  calculateLocationStats,
+} from './geoUtils';
 
 /**
  * Calculate temperature-based filtering thresholds from location data
@@ -320,41 +205,6 @@ export function applyWindFilter(
 }
 
 /**
- * Filter locations by distance from a user location
- * @param locations - Array of locations to filter
- * @param userLocation - User's current coordinates
- * @param maxDistance - Maximum distance in miles
- * @returns Locations within the specified distance
- */
-export function filterByDistance(
-  locations: Location[],
-  userLocation: Coordinates,
-  maxDistance: number
-): Location[] {
-  return locations.filter(loc => {
-    const distance = calculateDistance(userLocation, [loc.lat, loc.lng]);
-    return distance <= maxDistance;
-  });
-}
-
-/**
- * Sort locations by distance from user location
- * @param locations - Array of locations to sort
- * @param userLocation - User's current coordinates
- * @returns Locations sorted by distance (closest first)
- */
-export function sortByDistance(
-  locations: Location[],
-  userLocation: Coordinates
-): Location[] {
-  return [...locations].sort((a, b) => {
-    const distanceA = calculateDistance(userLocation, [a.lat, a.lng]);
-    const distanceB = calculateDistance(userLocation, [b.lat, b.lng]);
-    return distanceA - distanceB;
-  });
-}
-
-/**
  * Apply comprehensive weather filtering to locations
  * @param locations - Array of locations to filter
  * @param allLocations - All locations for threshold calculation
@@ -413,124 +263,4 @@ export function calculateFilterResultCounts(visiblePOIs: Location[]): FilterCoun
   });
 
   return counts;
-}
-
-/**
- * Validate geographic coordinates
- * @param coordinates - [latitude, longitude] pair
- * @returns True if coordinates are valid
- */
-export function isValidCoordinates(coordinates: Coordinates | null): boolean {
-  if (!coordinates || coordinates.length !== 2) {
-    return false;
-  }
-
-  const [lat, lng] = coordinates;
-
-  // Check for NaN or Infinity
-  if (!isFinite(lat) || !isFinite(lng)) {
-    return false;
-  }
-
-  // Valid latitude: -90 to 90
-  if (lat < -90 || lat > 90) {
-    return false;
-  }
-
-  // Valid longitude: -180 to 180
-  if (lng < -180 || lng > 180) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Check if coordinates are within reasonable bounds for Minnesota/Upper Midwest
- * @param coordinates - [latitude, longitude] pair
- * @returns True if coordinates are within expected regional bounds
- */
-export function isWithinMinnesotaBounds(coordinates: Coordinates): boolean {
-  if (!isValidCoordinates(coordinates)) {
-    return false;
-  }
-
-  const [lat, lng] = coordinates;
-
-  // Minnesota bounds (with some buffer)
-  const MINNESOTA_BOUNDS = {
-    north: 49.5,   // Canadian border
-    south: 43.0,   // Iowa border
-    east: -89.0,   // Wisconsin border
-    west: -97.5    // Dakotas border
-  };
-
-  return lat >= MINNESOTA_BOUNDS.south &&
-         lat <= MINNESOTA_BOUNDS.north &&
-         lng >= MINNESOTA_BOUNDS.west &&
-         lng <= MINNESOTA_BOUNDS.east;
-}
-
-/**
- * Get the closest location from an array of locations
- * @param locations - Array of locations to search
- * @param userLocation - User's current coordinates
- * @returns Closest location or null if no locations
- */
-export function getClosestLocation(
-  locations: Location[],
-  userLocation: Coordinates
-): Location | null {
-  if (locations.length === 0) return null;
-
-  return locations.reduce((closest, current) => {
-    const currentDistance = calculateDistance(userLocation, [current.lat, current.lng]);
-    const closestDistance = calculateDistance(userLocation, [closest.lat, closest.lng]);
-
-    return currentDistance < closestDistance ? current : closest;
-  });
-}
-
-/**
- * Calculate statistics about location distribution
- * @param locations - Array of locations to analyze
- * @param userLocation - User's current coordinates
- * @returns Statistics about distance distribution
- */
-export function calculateLocationStats(
-  locations: Location[],
-  userLocation: Coordinates
-): {
-  count: number;
-  averageDistance: number;
-  medianDistance: number;
-  closestDistance: number;
-  farthestDistance: number;
-} {
-  if (locations.length === 0) {
-    return {
-      count: 0,
-      averageDistance: 0,
-      medianDistance: 0,
-      closestDistance: 0,
-      farthestDistance: 0
-    };
-  }
-
-  const distances = locations.map(loc =>
-    calculateDistance(userLocation, [loc.lat, loc.lng])
-  ).sort((a, b) => a - b);
-
-  const averageDistance = distances.reduce((sum, dist) => sum + dist, 0) / distances.length;
-  const medianDistance = distances.length % 2 === 0
-    ? (distances[distances.length / 2 - 1] + distances[distances.length / 2]) / 2
-    : distances[Math.floor(distances.length / 2)];
-
-  return {
-    count: locations.length,
-    averageDistance,
-    medianDistance,
-    closestDistance: distances[0],
-    farthestDistance: distances[distances.length - 1]
-  };
 }

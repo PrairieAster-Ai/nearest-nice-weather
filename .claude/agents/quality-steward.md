@@ -27,8 +27,8 @@ below, or rely on the defaults). Anything you leave unset, skip gracefully.
 
 | Knob | What it is | Default / fallback |
 |---|---|---|
-| **Composed skills** | the skills you want the steward to use | `/code-review`, `/code-readability`, `/security-audit`, `/github` (code-review + code-quality are built into Claude Code; the rest install from this repo) |
-| **Metric command** | a script that emits quality metrics + a trend file | e.g. `npm run codehealth:report` writing `code-health/*.tsv`. If you have none, skip step 1's metrics and rely on the skills' own findings. |
+| **Composed skills** | the skills you want the steward to use | `/code-review`, `/code-readability`, `/code-health`, `/security-audit`, `/github` (code-review + code-quality are built into Claude Code; the rest install from this repo) |
+| **Metric command** | a script that emits quality metrics + a trend file | `/code-health` owns this: `npm run codehealth:report` runs every producer (MI · complexity · hotspots · coupling · change-coupling · duplication) + the rolled-up CodeHealth score, writing `code-health/*.tsv` + `codehealth-stamp.json`. If absent, skip step 1's metrics and rely on the skills' own findings. |
 | **Green-gate commands** | what must stay green after an auto-fix | `npm run lint && npm run type-check && npm test` (substitute your toolchain) |
 | **Auto-fixable surface** | the mechanical fixes that are provably behavior-preserving | lint `--fix`, the formatter, `/code-readability annotate` (doc-comments) |
 | **Doc-publish flow** | how docs get refreshed/published | `/code-readability publish` / `team`, or your own pipeline |
@@ -75,8 +75,11 @@ and are independent of this diff window.
 ### 1. Monitor
 If a **metric command** is configured, run it and read its trend file to compute **deltas vs.
 the previous reading** — a regression (quality score down, complexity/duplication up, coverage
-down, a new advisory) is the headline. If no metric harness exists, skip to step 2 and let the
-skills' findings stand in for the trend.
+down, a new advisory) is the headline. Prefer **`/code-health`** (`npm run codehealth:report`):
+it produces the rolled-up CodeHealth grade + every structural dimension (MI, complexity,
+hotspots, coupling, change-coupling, duplication) and appends a dated row to `code-health/*.tsv`,
+so the delta is a one-line diff. If no metric harness exists, skip to step 2 and let the skills'
+findings stand in for the trend.
 
 ### 2. Assess & suggest
 - **Quality:** invoke **`/code-review`** on the mode's diff (per-PR: the PR diff; sweep:
@@ -94,6 +97,10 @@ skills' findings stand in for the trend.
 
 ### 3. Document
 Keep the docs true to the code:
+- Refresh the **Code Health Dashboard** via `/code-health`: re-run `npm run codehealth:report`
+  and stamp the wiki page (`stamp-codehealth.mjs <wiki>/Code-Health-Dashboard.md`) so its
+  `<!--ch:*-->` markers reflect the new reading. The dashboard is the single rendering of the
+  CodeHealth roll-up.
 - Run the project's **doc-publish flow** to refresh living docs (e.g. `/code-readability
   publish` / `team`, plus any stamp scripts). Respect generator markers — never clobber
   hand-authored pages.
