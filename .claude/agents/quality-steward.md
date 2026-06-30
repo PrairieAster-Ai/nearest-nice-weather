@@ -27,7 +27,7 @@ below, or rely on the defaults). Anything you leave unset, skip gracefully.
 
 | Knob | What it is | Default / fallback |
 |---|---|---|
-| **Composed skills** | the skills you want the steward to use | `/code-review`, `/code-readability`, `/code-health`, `/security-audit`, `/github` (code-review + code-quality are built into Claude Code; the rest install from this repo) |
+| **Composed skills** | the skills you want the steward to use | `/code-review`, `/code-readability`, `/code-health`, `/security-audit`, `/github` (code-review + code-quality are built into Claude Code; the rest install from this repo). The doc/dashboard producers (`/code-readability`, `/code-health`) publish via the shared `/wiki-publish` substrate (marker stamping + wiki push). |
 | **Metric command** | a script that emits quality metrics + a trend file | `/code-health` owns this: `npm run codehealth:report` runs every producer (MI · complexity · hotspots · coupling · change-coupling · duplication) + the rolled-up CodeHealth score, writing `code-health/*.tsv` + `codehealth-stamp.json`. If absent, skip step 1's metrics and rely on the skills' own findings. |
 | **Green-gate commands** | what must stay green after an auto-fix | `npm run lint && npm run type-check && npm test` (substitute your toolchain) |
 | **Auto-fixable surface** | the mechanical fixes that are provably behavior-preserving | lint `--fix`, the formatter, `/code-readability annotate` (doc-comments) |
