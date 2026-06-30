@@ -101,7 +101,7 @@ jobs:
         # would let a compromised upstream execute inside it. Bump intentionally
         # after reviewing the upstream diff.
         env:
-          SKILLS_REF: a19d7c7d90cdbdd7213402c34c61c61fcf3323c1 # bump to a reviewed commit  # pragma: allowlist secret (git SHA, not a credential)
+          SKILLS_REF: efee0a608e10711359fb42180f2c7aba4b46fe21 # bump to a reviewed commit  # pragma: allowlist secret (git SHA, not a credential)
         run: |
           git clone --filter=blob:none https://github.com/PrairieAster-Ai/claude-code-skills.git /tmp/ccs
           git -C /tmp/ccs checkout --quiet "$SKILLS_REF"

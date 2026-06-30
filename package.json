@@ -113,6 +113,8 @@
     "type-check": "npm run type-check --workspace=@nearest-nice-weather/web",
     "codehealth:report": "node .claude/skills/code-health/scripts/run-all.mjs",
     "quality:checklist": "node .claude/skills/code-health/scripts/quality-checklist.mjs",
+    "lint:circular": "node .claude/skills/code-health/scripts/check-circular-deps.mjs",
+    "docs:gate": "node .claude/skills/code-health/scripts/check-doc-coverage.mjs --gate",
     "mi:report": "node .claude/skills/code-health/scripts/maintainability-report.mjs",
     "complexity:report": "node .claude/skills/code-health/scripts/complexity-report.mjs",
     "hotspot:report": "node .claude/skills/code-health/scripts/hotspot-report.mjs",

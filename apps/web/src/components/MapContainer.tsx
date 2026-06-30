@@ -102,8 +102,9 @@ interface MapContainerProps {
  *   onNavigateFarther={navigateFarther}
  * />
  * ```
+ *
+ * 🔗 INTEGRATION: the main map component consumed by `App.tsx`.
  */
-// 🔗 INTEGRATION: Main MapContainer component for App.tsx consumption
 export const MapContainer: React.FC<MapContainerProps> = ({
   center,
   zoom,

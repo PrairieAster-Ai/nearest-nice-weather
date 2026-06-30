@@ -124,5 +124,5 @@ export class WeatherFilteringService {
   }
 }
 
-// Singleton instance for app-wide use
+/** Shared app-wide {@link WeatherFilteringService} singleton. */
 export const weatherFilteringService = new WeatherFilteringService();

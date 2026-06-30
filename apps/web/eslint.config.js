@@ -4,6 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
+import sonarjs from 'eslint-plugin-sonarjs'
 
 export default [
   {
@@ -31,8 +32,14 @@ export default [
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       '@typescript-eslint': tseslint,
+      sonarjs,
     },
     rules: {
+      // Complexity ratchets — set at the current max so nothing breaks today; NEW
+      // code above the line fails CI. Tighten over time as the outliers
+      // (useMapPopupNavigation, usePOILocations) are refactored. (See Quality-Coverage.)
+      complexity: ['error', 18],
+      'sonarjs/cognitive-complexity': ['error', 30],
       // eslint-plugin-react-hooks v7. Classic rules stay on as errors:
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
