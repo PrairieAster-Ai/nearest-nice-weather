@@ -15,11 +15,13 @@
  * - User location marker supports proximity-based recommendations
  * - Navigation system connects to POI discovery algorithm
  *
- * TECHNICAL IMPLEMENTATION: React wrapper around Leaflet with performance optimization
- * - Incremental marker updates prevent full rebuilds on data changes
- * - Drag-enabled user location marker with persistence integration
- * - Event delegation for popup navigation prevents memory leaks
- * - Smart viewport management for optimal user experience
+ * TECHNICAL IMPLEMENTATION: thin React wrapper that composes four Leaflet hooks —
+ * the imperative map lifecycle lives in those hooks, keeping this component focused
+ * on wiring props/refs and rendering the container:
+ * - {@link useLeafletMap}: StrictMode-safe map init + recenter on prop change
+ * - {@link usePoiMarkers}: incremental POI marker updates + auto-open current popup
+ * - {@link useUserLocationMarker}: draggable user marker create + position sync
+ * - {@link useMapPopupNavigation}: popup closer/farther/directions event delegation
  *
  * 🏗️ ARCHITECTURAL DECISIONS:
  * - React StrictMode compatible with proper cleanup
@@ -36,47 +38,20 @@
  * Location detection → POI data loading → map marker rendering → user interaction → navigation
  * USER JOURNEY: Map load → marker discovery → popup interaction → navigation to other POIs
  * VALUE CHAIN: Spatial context → weather information → activity decision → location navigation
- *
- * 📚 DOCUMENTATION LINKS:
- * - Business Plan: /documentation/business-plan/master-plan.md
- * - Architecture: /documentation/architecture-overview.md
- * - Performance Config: /src/config/PERFORMANCE-REQUIREMENTS.json
- *
- * 🔗 COMPONENT INTEGRATIONS:
- * - App.tsx: Main consumer providing POI data and navigation callbacks
- * - LocationManager.tsx: Provides user location for centering and proximity
- * - POI Navigation: Handles distance-based POI discovery and filtering
- *
- * LAST UPDATED: 2025-08-08
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import L from 'leaflet';
-import { trackPOIInteraction, trackFeatureUsage } from '../utils/analytics';
 import { buildPoiPopupHtml } from '../utils/mapPopup';
 import { showEndOfResultsNotification as notifyEndOfResults } from '../utils/mapNotifications';
 // Import POI popup styles
 import '../styles/poi-popup.css';
 
-// 🔗 INTEGRATION: Import asterIcon for consistent branding
-import { asterIcon } from '../utils/mapIcons';
-
-// 🔗 INTEGRATION: TypeScript interfaces for POI data structure
-interface POILocation {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-  temperature: number;
-  condition: string;
-  description: string;
-  precipitation: number;
-  windSpeed: string;
-  distance?: number;
-  park_type?: string;
-  weather_station_name?: string;
-  weather_distance_miles?: string;
-}
+import type { POILocation } from './mapTypes';
+import { useLeafletMap } from '../hooks/useLeafletMap';
+import { usePoiMarkers } from '../hooks/usePoiMarkers';
+import { useUserLocationMarker } from '../hooks/useUserLocationMarker';
+import { useMapPopupNavigation } from '../hooks/useMapPopupNavigation';
 
 /** Props for {@link MapContainer}. */
 interface MapContainerProps {
@@ -106,10 +81,10 @@ interface MapContainerProps {
 
 /**
  * Interactive Leaflet map that renders POI markers with weather-rich popups plus
- * a draggable user-location marker. Wraps Leaflet imperatively with incremental
- * marker updates (no full rebuild on data change) and popup event delegation, so
- * it stays performant and StrictMode-safe. Popup "closer/farther" buttons drive
- * the distance-based POI navigation in the parent.
+ * a draggable user-location marker. The imperative Leaflet work is composed from
+ * four focused hooks (init, markers, user marker, popup navigation); this
+ * component owns the shared refs + popup builders and renders the container.
+ * Popup "closer/farther" buttons drive the distance-based POI navigation in the parent.
  *
  * @example
  * ```tsx
@@ -149,10 +124,9 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   const markersRef = useRef<L.Marker[]>([]);
   const [, setCurrentMarkerIndex] = useState(0);
 
-  // Popup builders — declared before the effects that use them (the marker
-  // effects below) so the React Compiler can preserve their memoization.
-  // The HTML/URL logic itself lives in ../utils/mapPopup (pure + tested); this
-  // is a thin wrapper supplying the current navigation state.
+  // Popup builders — the HTML/URL logic lives in ../utils/mapPopup (pure + tested);
+  // these thin wrappers supply the current navigation state, and are passed to the
+  // marker + navigation hooks.
   const createPopupContent = useCallback((location: POILocation): string => {
     return buildPoiPopupHtml(
       location,
@@ -176,328 +150,23 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   }, [locations, createPopupContent]);
 
   // End-of-results notification — the imperative DOM toast lives in
-  // ../utils/mapNotifications (self-contained); this is a stable callback wrapper
-  // so the navigation effect below keeps a steady dependency.
+  // ../utils/mapNotifications; this is a stable callback wrapper.
   const showEndOfResultsNotification = useCallback(() => {
     notifyEndOfResults();
   }, []);
 
-  // Map initialization with React StrictMode compatibility
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    // Clear any existing map instance
-    if (mapRef.current) {
-      mapRef.current.remove();
-      mapRef.current = null;
-    }
-
-    // Validate center and zoom before creating map
-    if (!center || isNaN(center[0]) || isNaN(center[1]) || !zoom || isNaN(zoom)) {
-      console.warn('Invalid center or zoom provided to MapContainer:', { center, zoom });
-      return;
-    }
-
-    // Create new map instance
-    const map = L.map(containerRef.current, {
-      center: center,
-      zoom: zoom,
-      scrollWheelZoom: true,
-      zoomControl: false
-    });
-
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    mapRef.current = map;
-
-    // Expose map instance for testing purposes
-    if (typeof window !== 'undefined') {
-      (window as any).leafletMapInstance = map;
-    }
-
-    // Cleanup function
-    return () => {
-      if (userMarkerRef.current) {
-        userMarkerRef.current = null;
-      }
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally empty - map initialization should only run once on component mount
-
-  // Update map center and zoom when props change
-  useEffect(() => {
-    if (mapRef.current && center && !isNaN(center[0]) && !isNaN(center[1]) && zoom && !isNaN(zoom)) {
-      mapRef.current.setView(center, zoom);
-    }
-  }, [center, zoom]);
-
-  // Incremental marker updates for performance optimization
-  useEffect(() => {
-    if (!mapRef.current) return;
-
-    console.log(`MapContainer received ${locations.length} locations`);
-    console.log(`Location IDs: [${locations.slice(0, 5).map(l => l.id).join(', ')}...]`);
-
-    // Optimized incremental marker updates (instead of full rebuild)
-    const existingMarkerCount = markersRef.current.length;
-    const newLocationCount = locations.length;
-
-    // If we have fewer locations now, remove excess markers
-    if (newLocationCount < existingMarkerCount) {
-      for (let i = newLocationCount; i < existingMarkerCount; i++) {
-        if (markersRef.current[i]) {
-          mapRef.current.removeLayer(markersRef.current[i]);
-        }
-      }
-      // Trim the array
-      markersRef.current = markersRef.current.slice(0, newLocationCount);
-    }
-
-    // If we have more locations now, expand the array
-    if (newLocationCount > existingMarkerCount) {
-      markersRef.current = [...markersRef.current, ...new Array(newLocationCount - existingMarkerCount)];
-    }
-
-    console.log(`🔍 MapContainer updating markers: ${existingMarkerCount} -> ${newLocationCount} locations`);
-
-    // Update existing markers and add new ones (incremental approach)
-    locations.forEach((location, index) => {
-      const existingMarker = markersRef.current[index];
-
-      // Check if we need to create a new marker or update existing
-      if (!existingMarker ||
-          existingMarker.getLatLng().lat !== location.lat ||
-          existingMarker.getLatLng().lng !== location.lng) {
-
-        // Remove old marker if it exists
-        if (existingMarker && mapRef.current) {
-          mapRef.current.removeLayer(existingMarker);
-        }
-
-        // Create new marker with branded icon
-        const marker = L.marker([location.lat, location.lng], { icon: asterIcon });
-
-        // Track which marker was clicked to sync currentMarkerIndex
-        marker.on('popupopen', () => {
-          setCurrentMarkerIndex(index);
-
-          // Track POI interaction for analytics
-          trackPOIInteraction('popup-opened', {
-            name: location.name,
-            temperature: location.temperature,
-            condition: location.condition,
-            distance: location.distance,
-            park_type: location.park_type
-          });
-        });
-
-        // Create sanitized popup content for marker
-        const popupContent = createPopupContent(location);
-
-        marker.bindPopup(popupContent, { maxWidth: 280, className: "custom-popup" });
-        marker.addTo(mapRef.current!);
-
-        // Store marker reference for direct popup access
-        markersRef.current[index] = marker;
-      } else {
-        // Marker exists and position hasn't changed - update popup if needed
-        const existingPopup = existingMarker.getPopup();
-        if (existingPopup) {
-          updatePopupContent(index);
-        }
-      }
-    });
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locations]); // canExpand, isAtClosest, isAtFarthest intentionally excluded
-
-  // User location marker creation and management
-  useEffect(() => {
-    if (!mapRef.current) return;
-    if (userMarkerRef.current) return; // Already created
-    if (!userLocation || userLocation[0] === undefined || userLocation[1] === undefined ||
-        isNaN(userLocation[0]) || isNaN(userLocation[1])) return;
-
-    console.log('🔧 Creating user location marker with drag handler');
-
-    // Create user location icon with branded styling
-    const coolGuyIcon = new L.Icon({
-      iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
-        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="20" r="15" fill="white" stroke="#ddd" stroke-width="1"/>
-          <text x="20" y="28" text-anchor="middle" font-size="24" font-family="Arial, sans-serif">😎</text>
-        </svg>
-      `),
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
-      popupAnchor: [0, -20]
-    });
-
-    const userMarker = L.marker(userLocation, {
-      draggable: true,
-      icon: coolGuyIcon
-    }) as any;
-    userMarker.options.isUserMarker = true;
-
-    // Attach drag handlers for location updates
-    userMarker.on('dragend', (e: L.LeafletEvent) => {
-      console.log('🎯 User marker dragend event triggered!');
-      const marker = (e as any).target;
-      const position = marker.getLatLng();
-      console.log('📍 New position from drag:', [position.lat, position.lng]);
-      if (position && !isNaN(position.lat) && !isNaN(position.lng)) {
-        onLocationChange([position.lat, position.lng]);
-      } else {
-        console.warn('❌ Invalid position from drag:', position);
-      }
-    });
-
-    // Add instructional popup
-    const popupContent = `
-      <div class="text-center p-2">
-        <div class="text-sm font-bold text-gray-800 mb-1">Our best guess at your location</div>
-        <div class="text-xs text-gray-600">Drag and drop for more accuracy</div>
-      </div>
-    `;
-
-    userMarker.bindPopup(popupContent, { className: "custom-popup" });
-    userMarker.addTo(mapRef.current!);
-
-    // Store reference to the marker
-    userMarkerRef.current = userMarker;
-  }, [onLocationChange, userLocation]); // Dependencies: callback and user location
-
-  // Update user marker position without recreating it
-  useEffect(() => {
-    if (!userMarkerRef.current) return;
-    if (!userLocation || userLocation[0] === undefined || userLocation[1] === undefined ||
-        isNaN(userLocation[0]) || isNaN(userLocation[1])) {
-      // Location became invalid - remove marker
-      if (mapRef.current && userMarkerRef.current) {
-        mapRef.current.removeLayer(userMarkerRef.current);
-        userMarkerRef.current = null;
-      }
-      return;
-    }
-
-    // Update position of existing marker (preserves drag handlers)
-    console.log('📍 Updating user marker position:', userLocation);
-    userMarkerRef.current.setLatLng(userLocation);
-  }, [userLocation]);
-
-  // Event delegation for popup navigation buttons and analytics tracking
-  useEffect(() => {
-    const handleNavigation = (event: Event) => {
-      const target = event.target as HTMLElement;
-
-      // Handle directions button analytics
-      if (target.matches('[data-analytics-action="directions-clicked"]')) {
-        const poiName = target.getAttribute('data-analytics-poi');
-        if (poiName) {
-          trackFeatureUsage('directions', { poi_name: poiName });
-        }
-        return; // Let the link work normally
-      }
-
-      // Handle navigation buttons
-      if (!target.matches('[data-nav-action]')) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      const action = target.getAttribute('data-nav-action');
-
-      if (action === 'closer') {
-        const result = onNavigateCloser();
-        if (result) {
-          console.log('Navigate closer result:', result);
-          const newPOIIndex = locations.findIndex(loc => loc.id === result.id);
-          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
-            updatePopupContent(newPOIIndex);
-            markersRef.current[newPOIIndex].openPopup();
-
-            // Smart centering: only pan if marker is outside viewport
-            const markerLatLng = L.latLng(result.lat, result.lng);
-            if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
-              mapRef.current.panTo(markerLatLng);
-            }
-          }
-        }
-      } else if (action === 'farther') {
-        const result = onNavigateFarther();
-        if (result && result !== 'NO_MORE_RESULTS') {
-          console.log('Navigate farther result:', result);
-          const newPOIIndex = locations.findIndex(loc => (loc as POILocation).id === (result as POILocation).id);
-          if (newPOIIndex >= 0 && markersRef.current[newPOIIndex]) {
-            updatePopupContent(newPOIIndex);
-            markersRef.current[newPOIIndex].openPopup();
-
-            // Smart centering: only pan if marker is outside viewport
-            const markerLatLng = L.latLng((result as POILocation).lat, (result as POILocation).lng);
-            if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
-              mapRef.current.panTo(markerLatLng);
-            }
-          }
-        } else if (result === 'NO_MORE_RESULTS') {
-          console.log('No more results available');
-          showEndOfResultsNotification();
-        }
-      }
-    };
-
-    // Add event listener to document for event delegation
-    document.addEventListener('click', handleNavigation);
-
-    // Cleanup
-    return () => {
-      document.removeEventListener('click', handleNavigation);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onNavigateCloser, onNavigateFarther, locations]);
-
-
-  // Auto-open popup for currentPOI
-  useEffect(() => {
-    if (currentPOI && markersRef.current.length > 0) {
-      const currentPOIIndex = locations.findIndex(loc => loc.id === currentPOI.id);
-
-      const openPopupAndCenter = () => {
-        if (currentPOIIndex >= 0 && markersRef.current[currentPOIIndex]) {
-          console.log(`🎯 Auto-opening popup for currentPOI: ${currentPOI.name} (index ${currentPOIIndex})`);
-
-          // Smart centering: check if marker is outside viewport
-          const markerLatLng = L.latLng(currentPOI.lat, currentPOI.lng);
-          if (mapRef.current && !mapRef.current.getBounds().contains(markerLatLng)) {
-            console.log(`📍 Centering map on ${currentPOI.name}`);
-            mapRef.current.panTo(markerLatLng);
-
-            // Wait for pan animation before opening popup
-            setTimeout(() => {
-              updatePopupContent(currentPOIIndex);
-              markersRef.current[currentPOIIndex].openPopup();
-            }, 300);
-          } else {
-            console.log(`📍 ${currentPOI.name} already in viewport`);
-            updatePopupContent(currentPOIIndex);
-            markersRef.current[currentPOIIndex].openPopup();
-          }
-        } else if (currentPOIIndex >= 0) {
-          // Marker not ready yet, retry after brief delay
-          console.log(`⏳ Marker ${currentPOIIndex} not ready, retrying...`);
-          setTimeout(openPopupAndCenter, 100);
-        }
-      };
-
-      openPopupAndCenter();
-    }
-  }, [currentPOI, locations, updatePopupContent]);
+  // Compose the Leaflet lifecycle from focused hooks (see each hook's docs).
+  useLeafletMap(containerRef, mapRef, userMarkerRef, center, zoom);
+  usePoiMarkers({
+    mapRef, markersRef, locations, currentPOI,
+    createPopupContent, updatePopupContent, setCurrentMarkerIndex,
+  });
+  useUserLocationMarker(mapRef, userMarkerRef, userLocation, onLocationChange);
+  useMapPopupNavigation({
+    mapRef, markersRef, locations,
+    onNavigateCloser, onNavigateFarther,
+    updatePopupContent, showEndOfResultsNotification,
+  });
 
   return (
     <div
