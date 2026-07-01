@@ -14,10 +14,10 @@
   ],
   "secrets": {
     "DATABASE_URL": { "profiles": ["team", "contributor"], "shape": "^postgres(ql)?://", "help": "Neon Postgres dev-branch URL — team: internal project; contributor: your own free Neon account (https://console.neon.tech)" },
-    "OPENWEATHER_API_KEY": { "profiles": ["team", "contributor"], "shape": "^[A-Za-z0-9]{20,}$", "mockToggle": "USE_MOCK_WEATHER", "help": "free OpenWeather key (https://openweathermap.org/api)" }
+    "OPENWEATHER_API_KEY": { "profiles": ["team", "contributor"], "shape": "^[A-Za-z0-9]{20,}$", "help": "free OpenWeather key (https://openweathermap.org/api)" }
   },
   "profiles": {
     "team": { "desc": "internal access to the Neon project + OpenWeather + Vercel" },
-    "contributor": { "desc": "own free-tier Neon + OpenWeather; no internal access", "seedCommand": "node scripts/seed-minnesota-parks.js", "mockEnv": ["USE_SEED_DATA=true"] }
+    "contributor": { "desc": "own free-tier Neon + OpenWeather; no internal access", "seedCommand": "node scripts/seed-minnesota-parks.js" }
   }
 }
