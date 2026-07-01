@@ -131,7 +131,7 @@
 - Database schema with geographic indexes and 638ms response times
 
 **Development Infrastructure**:
-- `dev-startup-optimized.sh` - Unified development startup script
+- `scripts/dev-start.mjs` - Unified cross-platform development startup script (Windows/macOS/Linux; `npm start`). Retired bash version: `dev-startup-optimized.sh` (`npm run start:legacy-bash`)
 - `scripts/service-monitor.sh` - Auto-restart service monitoring
 - `CLAUDE.md` - Updated with organized script references
 
