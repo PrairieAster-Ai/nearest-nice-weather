@@ -22,7 +22,7 @@ name: Quality & Docs Steward
 #     CI checks them out directly. (.claude/ is NOT gitignored here.) The install
 #     step below additionally refreshes code-readability/security-audit/github from
 #     the canonical repo at the pinned SKILLS_REF so they stay current.
-#  3. Stack: this repo is Node 20 + npm workspaces (apps/*, packages/*); steps below
+#  3. Stack: this repo is Node 24 + npm workspaces (apps/*, packages/*); steps below
 #     reflect that.
 #
 # `id-token: write` is REQUIRED — the action uses GitHub OIDC during auth.
@@ -82,10 +82,10 @@ jobs:
         with:
           fetch-depth: 0 # full history so the weekly sweep can diff <last-sweep-sha>...HEAD
 
-      # --- Stack setup: Node 20 + npm workspaces (apps/*, packages/*) -------------
+      # --- Stack setup: Node 24 + npm workspaces (apps/*, packages/*) -------------
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
       - run: npm ci
 
@@ -154,7 +154,7 @@ jobs:
           #   - green-gate runs in the apps/web workspace;
           #   - docs live in the GitHub Wiki, published via /code-readability + /github.
           PROJECT_CONFIG: >-
-            Project config — stack: Node 20 + npm workspaces (apps/* , packages/*); the React+Vite PWA lives in apps/web (workspace @nearest-nice-weather/web).
+            Project config — stack: Node 24 + npm workspaces (apps/* , packages/*); the React+Vite PWA lives in apps/web (workspace @nearest-nice-weather/web).
             Metric command: none configured — use the findings from /code-review, /security-audit, /code-quality, and /code-readability assess as the trend signal.
             Green-gate (must stay green after any auto-fix): `npm run lint --workspace=@nearest-nice-weather/web && npm run type-check --workspace=@nearest-nice-weather/web`.
             Auto-fixable surface (safe, behavior-preserving only): `/code-readability annotate`, `npm run lint:fix --workspace=@nearest-nice-weather/web`.

@@ -6,7 +6,7 @@ name: Performance Monitoring & Bundle Analysis
 on: workflow_dispatch # Manual triggers only until fixed
 
 env:
-  NODE_VERSION: '20'  # Updated to match main CI pipeline
+  NODE_VERSION: '24'  # Updated to match main CI pipeline
 
 jobs:
   lighthouse-ci:
@@ -66,7 +66,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '18'
+        node-version: '24'
         cache: 'npm'
 
     - name: Install dependencies
@@ -108,7 +108,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '18'
+        node-version: '24'
         cache: 'npm'
 
     - name: Install dependencies
