@@ -37,7 +37,7 @@ if ! curl -s "http://localhost:4000/api/poi-locations" | jq '.data' > "$TEMP_DIR
 fi
 
 echo "   - Fetching weather locations..."
-if ! curl -s "http://localhost:4000/api/weather-locations" | jq '.data' > "$TEMP_DIR/localhost-weather-data.json"; then
+if ! curl -s "http://localhost:4000/api/poi-locations-with-weather" | jq '.data' > "$TEMP_DIR/localhost-weather-data.json"; then
     echo "❌ Failed to fetch localhost weather data"
     exit 1
 fi
@@ -120,7 +120,7 @@ fi
 
 # Check record counts
 PREVIEW_POI_COUNT=$(curl -s "https://p.nearestniceweather.com/api/poi-locations" | jq '.count')
-PREVIEW_WEATHER_COUNT=$(curl -s "https://p.nearestniceweather.com/api/weather-locations" | jq '.count')
+PREVIEW_WEATHER_COUNT=$(curl -s "https://p.nearestniceweather.com/api/poi-locations-with-weather" | jq '.count')
 
 echo "   Record counts:"
 echo "   - POI locations: localhost=$POI_COUNT, preview=$PREVIEW_POI_COUNT"

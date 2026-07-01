@@ -176,7 +176,7 @@ async function debugPreviewEnvironment() {
     const endpoints = [
       '/api/health',
       '/api/poi-locations-with-weather?limit=5',
-      '/api/weather-locations?limit=5',
+      '/api/poi-locations-with-weather?limit=5',
       '/api/poi-locations?limit=5'
     ]
 
