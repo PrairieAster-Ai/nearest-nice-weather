@@ -7,7 +7,7 @@
   "envExample": ".env.example",
   "envFile": ".env",
   "requiredTools": [
-    { "name": "node", "versionFrom": ".nvmrc", "installHint": "nvm install (reads .nvmrc → Node 20)" },
+    { "name": "node", "versionFrom": ".nvmrc", "installHint": "nvm install (reads .nvmrc → Node 24)" },
     { "name": "npm", "range": ">=10.8.0" },
     { "name": "git" },
     { "name": "docker", "optional": true, "reason": "local Redis cache (optional; DB is cloud Neon)" }

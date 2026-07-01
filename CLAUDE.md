@@ -695,7 +695,7 @@ curl -s http://localhost:3050/health | jq '.'
 ### Daily Maintenance
 - **Health Check**: Run `./scripts/localhost-health-check.sh` when starting development work
 - **Docker Status**: Verify Docker networking with `./scripts/utilities/quick-docker-health.sh`
-- **Node.js Version**: Ensure LTS version (20.18.0) with `node --version`
+- **Node.js Version**: Ensure LTS version (24.x) with `node --version`
 - **Environment Validation**: Use `./scripts/development-dashboard.sh` for real-time status
 - **Blank Screen Check**: If preview shows blank screen, run `./scripts/blank-screen-diagnostic.sh preview`
 
