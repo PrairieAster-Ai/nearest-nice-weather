@@ -79,3 +79,4 @@ code-health/.jscpd-tmp/
 code-health/*-history.tsv
 code-health/*.json
 code-health/hotspot-table.md
+.vercel
