@@ -13,11 +13,12 @@
     "packages/*"
   ],
   "scripts": {
-    "start": "bash ./dev-startup-optimized.sh",
-    "start:quick": "bash ./dev-startup-optimized.sh --quick",
-    "start:clean": "bash ./dev-startup-optimized.sh --clean",
-    "start:verbose": "bash ./dev-startup-optimized.sh --verbose",
-    "start:no-monitor": "bash ./dev-startup-optimized.sh --no-monitor",
+    "start": "node scripts/dev-start.mjs",
+    "start:quick": "node scripts/dev-start.mjs --quick",
+    "start:clean": "node scripts/dev-start.mjs --clean",
+    "start:verbose": "node scripts/dev-start.mjs --verbose",
+    "start:no-monitor": "node scripts/dev-start.mjs --no-monitor",
+    "start:legacy-bash": "bash ./dev-startup-optimized.sh",
     "start:legacy": "bash ./scripts/unified-dev-start.sh",
     "start:pm2": "pm2 start ecosystem.config.js",
     "stop:pm2": "pm2 stop ecosystem.config.js",

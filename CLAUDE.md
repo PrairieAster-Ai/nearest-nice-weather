@@ -259,7 +259,7 @@ cp .env.example .env
 # Set environment variables in Vercel project settings
 
 # 3. Run development environment
-npm start                   # Uses dev-startup-optimized.sh
+npm start                   # Runs scripts/dev-start.mjs (cross-platform: Windows/macOS/Linux)
 # OR with options:
 npm run start:quick         # Fast startup
 npm run start:clean         # Clean restart
@@ -509,9 +509,10 @@ git push origin emergency-rollback --force
   - **UI Interaction Testing**: Automated clicking, form filling, and navigation testing
   - **MCP Integration**: Full Claude integration with `npm run test:mcp`, `npm run test:debug`, `npm run test:record`
 
-- **Use npm start to startup localhost** (dev-startup-optimized.sh) - single unified startup script
+- **Use npm start to startup localhost** (scripts/dev-start.mjs) - single cross-platform startup script (Windows/macOS/Linux)
   - **Enhanced with health checks**: Comprehensive monitoring and auto-restart capabilities
   - **Command options**: --quick, --clean, --verbose, --no-monitor for different scenarios
+  - **Legacy bash version**: `npm run start:legacy-bash` runs the retired dev-startup-optimized.sh (POSIX-only; kept for rollback)
   - **Automated diagnostics**: Reports issues with specific fix recommendations
 
 - **Daily workflow starts with health validation**:

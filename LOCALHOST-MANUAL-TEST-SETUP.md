@@ -105,7 +105,7 @@ curl -s http://localhost:3001 | head -20
 # Standard startup (requires configured .env)
 npm start
 
-# This runs dev-startup-optimized.sh which:
+# This runs scripts/dev-start.mjs (cross-platform: Windows/macOS/Linux) which:
 # - Validates environment
 # - Starts API server on port 4000
 # - Starts frontend server on port 3001
