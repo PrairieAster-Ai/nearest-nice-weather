@@ -388,7 +388,7 @@ describe('POI Locations with Weather API Endpoint', () => {
       expect(mockRes.body.data[0].temperature).toBe(72)
     })
 
-    it('should handle weather API failures gracefully', async () => {
+    it('should return null weather (not fabricated) on weather API failure', async () => {
       mockReq.query = {}
       mockSql.mockResolvedValue([mockPOIData[0]])
       global.fetch = vi.fn(() => Promise.reject(new Error('API error')))
@@ -397,14 +397,15 @@ describe('POI Locations with Weather API Endpoint', () => {
 
       await handler(mockReq, mockRes)
 
-      // Should still return success with fallback weather
+      // POIs still returned, but weather is explicitly unavailable — never faked
       expect(mockRes.body.success).toBe(true)
-      expect(mockRes.body.data[0]).toHaveProperty('temperature')
+      expect(mockRes.body.data[0].temperature).toBeNull()
+      expect(mockRes.body.data[0].weather_source).toBe('unavailable')
 
       consoleErrorSpy.mockRestore()
     })
 
-    it('should use fallback weather when API key missing', async () => {
+    it('should return null weather when API key missing (no mock fallback)', async () => {
       delete process.env.OPENWEATHER_API_KEY
       mockReq.query = {}
       mockSql.mockResolvedValue([mockPOIData[0]])
@@ -412,11 +413,12 @@ describe('POI Locations with Weather API Endpoint', () => {
       await handler(mockReq, mockRes)
 
       expect(mockRes.body.success).toBe(true)
-      expect(mockRes.body.data[0]).toHaveProperty('temperature')
-      expect(global.fetch).not.toHaveBeenCalled() // Should use fallback
+      expect(mockRes.body.data[0].temperature).toBeNull()
+      expect(mockRes.body.data[0].weather_source).toBe('unavailable')
+      expect(global.fetch).not.toHaveBeenCalled() // no key → no API call, no fabricated data
     })
 
-    it('should handle weather API non-ok response', async () => {
+    it('should return null weather on weather API non-ok response', async () => {
       mockReq.query = {}
       mockSql.mockResolvedValue([mockPOIData[0]])
 
@@ -432,9 +434,10 @@ describe('POI Locations with Weather API Endpoint', () => {
 
       await handler(mockReq, mockRes)
 
-      // Should use fallback weather
+      // Weather unavailable, not fabricated
       expect(mockRes.body.success).toBe(true)
-      expect(mockRes.body.data[0]).toHaveProperty('temperature')
+      expect(mockRes.body.data[0].temperature).toBeNull()
+      expect(mockRes.body.data[0].weather_source).toBe('unavailable')
 
       consoleErrorSpy.mockRestore()
     })

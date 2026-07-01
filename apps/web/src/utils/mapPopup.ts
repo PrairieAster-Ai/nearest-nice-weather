@@ -24,11 +24,12 @@ export interface PopupLocation {
   name: string
   lat: number
   lng: number
-  temperature: number
-  condition: string
+  /** Weather fields are null when real data is unavailable (no API key / API error) — never fabricated. */
+  temperature: number | null
+  condition: string | null
   description: string
-  precipitation: number
-  windSpeed: string
+  precipitation: number | null
+  windSpeed: string | null
   park_type?: string
   weather_station_name?: string
   weather_distance_miles?: string
@@ -86,6 +87,34 @@ function conditionEmoji(condition: string): string {
 }
 
 /**
+ * Weather block for the popup. Renders real values, or an explicit "Weather
+ * unavailable" state when no real data could be fetched (no API key / API
+ * error) — we never fabricate weather (project data-integrity rule).
+ */
+function weatherBlockHtml(location: PopupLocation): string {
+  if (location.temperature == null) {
+    return `<div class="text-xs text-gray-600 text-center">Weather unavailable</div>`
+  }
+  const safeCondition = location.condition ? escapeHtml(location.condition) : ''
+  const safeWindSpeed = location.windSpeed ? escapeHtml(location.windSpeed) : ''
+  const safeWeatherStation = location.weather_station_name ? escapeHtml(location.weather_station_name) : ''
+  const safeWeatherDistance = location.weather_distance_miles ? escapeHtml(location.weather_distance_miles) : ''
+  const station = safeWeatherStation
+    ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>`
+    : ''
+  return `
+          <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
+            <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
+            <span class="text-lg">
+              ${conditionEmoji(safeCondition)}
+            </span>
+            <span>💧 ${escapeHtml(location.precipitation as number)}%</span>
+            <span>💨 ${safeWindSpeed}</span>
+          </div>
+          ${station}`
+}
+
+/**
  * Build the sanitized HTML string for a POI marker popup.
  *
  * @param location POI to render
@@ -101,10 +130,6 @@ export function buildPoiPopupHtml(
   const safeName = escapeHtml(location.name)
   const safeParkType = location.park_type ? escapeHtml(location.park_type) : ''
   const safeDescription = escapeHtml(location.description)
-  const safeCondition = escapeHtml(location.condition)
-  const safeWindSpeed = escapeHtml(location.windSpeed)
-  const safeWeatherStation = location.weather_station_name ? escapeHtml(location.weather_station_name) : ''
-  const safeWeatherDistance = location.weather_distance_miles ? escapeHtml(location.weather_distance_miles) : ''
 
   const mapsUrl = sanitizeUrl(generateMappingUrl(location))
 
@@ -112,8 +137,8 @@ export function buildPoiPopupHtml(
   const adUtilsLocation = {
     id: location.id,
     name: location.name,
-    temperature: location.temperature,
-    precipitation: location.precipitation,
+    temperature: location.temperature ?? undefined,
+    precipitation: location.precipitation ?? undefined,
     latitude: location.lat,
     longitude: location.lng,
     park_type: location.park_type,
@@ -147,15 +172,7 @@ export function buildPoiPopupHtml(
 
         <!-- Weather Information -->
         <div class="bg-gray-100 rounded p-2 mb-2 border">
-          <div class="flex justify-between items-center text-xs text-black font-medium" style="gap: 5px">
-            <span class="font-bold text-lg text-black">${escapeHtml(location.temperature)}°F</span>
-            <span class="text-lg">
-              ${conditionEmoji(safeCondition)}
-            </span>
-            <span>💧 ${escapeHtml(location.precipitation)}%</span>
-            <span>💨 ${safeWindSpeed}</span>
-          </div>
-          ${safeWeatherStation ? `<div class="text-xs text-gray-600 mt-1">Weather from ${safeWeatherStation}${safeWeatherDistance ? ` (${safeWeatherDistance} mi)` : ''}</div>` : ''}
+          ${weatherBlockHtml(location)}
         </div>
 
         <!-- Navigation Controls -->

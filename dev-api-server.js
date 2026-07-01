@@ -605,12 +605,12 @@ app.get('/api/poi-locations', async (req, res) => {
 //
 // 📊 DATA SOURCES COMBINED:
 // 1. POI_LOCATIONS TABLE: Minnesota outdoor recreation destinations (parks, trails, forests)
-// 2. WEATHER SERVICE: Real-time weather data via OpenWeather API + fallback mock data
+// 2. WEATHER SERVICE: Real-time weather data via OpenWeather API (null when unavailable — no mock fallback)
 // 3. PROXIMITY CALCULATION: Haversine distance formula for user-based ranking
 //
 // 🌤️ WEATHER DATA INTEGRATION:
-// - Primary: Live weather from src/services/weatherService.js (OpenWeather API)
-// - Fallback: Pleasant mock weather data (temperature 50-80°F, varied conditions)
+// - Source: Live weather from apps/web/utils/weatherService.js (OpenWeather API)
+// - Unavailable: when no API key / API error, weather fields are null (weather_source:'unavailable') — never fabricated
 // - Cache: 5-minute weather data caching to prevent API rate limiting
 // - Format: temperature, condition, description, precipitation%, wind_speed
 //
@@ -642,7 +642,7 @@ app.get('/api/poi-locations', async (req, res) => {
 //   ],
 //   "debug": {
 //     "query_type": "proximity_with_weather",
-//     "data_source": "poi_with_mock_weather"
+//     "data_source": "poi_with_real_weather"
 //   }
 // }
 //
@@ -662,7 +662,7 @@ app.get('/api/poi-locations', async (req, res) => {
 // - limit: Max results (default 200, max 500)
 //
 app.get('/api/poi-locations-with-weather', async (req, res) => {
-  // SIMPLIFIED VERSION - Matching production with mock weather data
+  // Matches production: real OpenWeather data, null when unavailable (no mock fallback)
   // @SYNC_NOTE: Using same simplified approach as production until schema unified
   const client = await pool.connect()
 

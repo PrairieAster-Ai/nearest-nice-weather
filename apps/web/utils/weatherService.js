@@ -62,12 +62,11 @@ export async function fetchWeatherData(lat, lng) {
     cacheStatus = 'miss'
     console.log(`Cache MISS for weather at ${lat}, ${lng} - fetching from API`)
 
-    // Only proceed if API key is configured
+    // No API key configured — do NOT fabricate weather (project data-integrity rule).
     if (!process.env.OPENWEATHER_API_KEY || process.env.OPENWEATHER_API_KEY === 'your-openweather-api-key') {
-      console.log('OpenWeather API key not configured, using fallback data')
-      const fallbackWeather = getFallbackWeather(lat, lng)
+      console.log('OpenWeather API key not configured — weather unavailable (no mock fallback)')
       return {
-        ...fallbackWeather,
+        ...unavailableWeather(),
         cache_status: 'bypass',
         cache_timestamp: null
       }
@@ -117,9 +116,8 @@ export async function fetchWeatherData(lat, lng) {
 
   } catch (error) {
     console.error('Weather API error:', error.message)
-    const fallbackWeather = getFallbackWeather(lat, lng)
     return {
-      ...fallbackWeather,
+      ...unavailableWeather(),
       cache_status: 'error',
       cache_timestamp: null,
       error_message: error.message
@@ -165,18 +163,20 @@ function calculatePrecipitationChance(data) {
 }
 
 /**
- * Fallback weather data for when API fails or is not configured
+ * Weather placeholder for when real data is unavailable (no API key, or API
+ * error / rate-limit). Per the project's data-integrity rule we NEVER fabricate
+ * weather — every field is null and the source is explicitly 'unavailable' so
+ * callers/UI can label it rather than present fake values.
  */
-function getFallbackWeather(lat, lng) {
-  // Pleasant Minnesota weather defaults
+function unavailableWeather() {
   return {
-    temperature: 72,
-    condition: 'Partly Cloudy',
-    weather_description: 'Pleasant outdoor conditions',
-    precipitation: 15,
-    windSpeed: 8,
-    weather_source: 'fallback',
-    weather_timestamp: new Date().toISOString()
+    temperature: null,
+    condition: null,
+    weather_description: null,
+    precipitation: null,
+    windSpeed: null,
+    weather_source: 'unavailable',
+    weather_timestamp: null
   }
 }
 
@@ -286,7 +286,7 @@ export async function fetchBatchWeather(locations, maxConcurrent = 5) {
         console.error(`Failed to fetch weather for ${location.lat}, ${location.lng}:`, err)
         fallbackResults.push({
           ...location,
-          ...getFallbackWeather(location.lat, location.lng),
+          ...unavailableWeather(),
           cache_status: 'error'
         })
       }
