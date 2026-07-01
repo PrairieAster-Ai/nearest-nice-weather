@@ -189,8 +189,9 @@ main() {
     # Test 1: Health check - Most basic API test
     test_api_endpoint "/api/health" "Health Check" "success"
 
-    # Test 2: Weather locations - Database connectivity
-    test_api_endpoint "/api/weather-locations?limit=3" "Weather Locations" "data"
+    # Test 2: POI locations with weather - Database connectivity + weather integration
+    # (Replaces the retired /api/weather-locations endpoint from the POI-centric refactor.)
+    test_api_endpoint "/api/poi-locations-with-weather?limit=3" "POI Locations with Weather" "data"
 
     # Test 3: Feedback system - Database write operations (skip for production)
     if [[ "$ENVIRONMENT" != "production" && "$ENVIRONMENT" != "prod" ]]; then
