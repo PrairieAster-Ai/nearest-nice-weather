@@ -110,7 +110,7 @@ module.exports = {
   // Nearest Nice Weather specific monitoring
   weatherPlatformConfig: {
     apiEndpoints: [
-      '/api/weather-locations',
+      '/api/poi-locations-with-weather',
       '/api/feedback',
       '/api/health'
     ],

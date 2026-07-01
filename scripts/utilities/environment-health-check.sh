@@ -98,7 +98,7 @@ echo "=============================="
 # Check core services
 check_service "Frontend (Vite)" "http://localhost:3001/" 20
 check_service "API Server" "http://localhost:4000/api/health" 20
-check_service "API Proxy" "http://localhost:3001/api/weather-locations?limit=1" 15
+check_service "API Proxy" "http://localhost:3001/api/poi-locations-with-weather?limit=1" 15
 
 echo ""
 echo "🗄️ DATABASE SERVICES"

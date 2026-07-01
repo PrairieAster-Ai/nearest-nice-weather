@@ -311,7 +311,7 @@ else
 fi
 
 # Test API data endpoints (deeper validation)
-if curl -s "http://localhost:$API_PORT/api/weather-locations?limit=1" | grep -q "success"; then
+if curl -s "http://localhost:$API_PORT/api/poi-locations-with-weather?limit=1" | grep -q "success"; then
     success "API Data Endpoints: PASSED"
 else
     warning "API Data Endpoints: FAILED - Database connectivity issues"
@@ -353,7 +353,7 @@ if [[ -n $BROWSERTOOLS_PID && "$FRONTEND_CHECK_RESULT" == "PASSED" ]]; then
 fi
 
 # Test API proxy through frontend (critical integration test)
-if curl -s "http://localhost:$FRONTEND_PORT/api/weather-locations?limit=1" | grep -q "success"; then
+if curl -s "http://localhost:$FRONTEND_PORT/api/poi-locations-with-weather?limit=1" | grep -q "success"; then
     success "API Proxy Integration: PASSED"
 else
     warning "API Proxy Integration: FAILED - Frontend/API connection broken"

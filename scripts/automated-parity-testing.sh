@@ -113,14 +113,14 @@ compare_api_responses "/api/health" "Health endpoint comparison" ".status"
 # Test 2: POI locations count
 compare_api_responses "/api/poi-locations" "POI locations count" ".count"
 
-# Test 3: Weather locations count
-compare_api_responses "/api/weather-locations" "Weather locations count" ".count"
+# Test 3: POI locations count
+compare_api_responses "/api/poi-locations-with-weather" "POI locations count" ".count"
 
 # Test 4: POI data types (first record)
 compare_api_responses "/api/poi-locations?limit=1" "POI data types" ".data[0] | {name, lat: (.lat | type), lng: (.lng | type)}"
 
-# Test 5: Weather data types (first record)
-compare_api_responses "/api/weather-locations?limit=1" "Weather data types" ".data[0] | {name, lat: (.lat | type), lng: (.lng | type)}"
+# Test 5: POI data types (first record)
+compare_api_responses "/api/poi-locations-with-weather?limit=1" "POI data types" ".data[0] | {name, lat: (.lat | type), lng: (.lng | type)}"
 
 echo
 echo -e "${BLUE}🗺️  Geographic Data Consistency Tests${NC}"
@@ -163,7 +163,7 @@ echo
 # Test 8: Both APIs return successful responses
 run_test "POI locations API success" "curl -s '$LOCALHOST_URL/api/poi-locations' | jq -e '.success == true' && curl -s '$PREVIEW_URL/api/poi-locations' | jq -e '.success == true'"
 
-run_test "Weather locations API success" "curl -s '$LOCALHOST_URL/api/weather-locations' | jq -e '.success == true' && curl -s '$PREVIEW_URL/api/weather-locations' | jq -e '.success == true'"
+run_test "POI locations API success" "curl -s '$LOCALHOST_URL/api/poi-locations-with-weather' | jq -e '.success == true' && curl -s '$PREVIEW_URL/api/poi-locations-with-weather' | jq -e '.success == true'"
 
 # Test 9: Response time consistency (should be similar order of magnitude)
 echo -n "   Response time consistency... "

@@ -39,7 +39,7 @@ get_table_info() {
     curl -s "$api_url/api/poi-locations?limit=1" | jq '.data[0] // {}' > "${temp_file}_poi.json"
 
     # Get weather locations structure
-    curl -s "$api_url/api/weather-locations?limit=1" | jq '.data[0] // {}' > "${temp_file}_weather.json"
+    curl -s "$api_url/api/poi-locations-with-weather?limit=1" | jq '.data[0] // {}' > "${temp_file}_weather.json"
 
     # Get health check (includes environment info)
     curl -s "$api_url/api/health" | jq '.' > "${temp_file}_health.json" 2>/dev/null || echo '{}' > "${temp_file}_health.json"
