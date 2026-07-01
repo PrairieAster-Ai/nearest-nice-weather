@@ -320,7 +320,7 @@ main() {
 
     # Determine overall status
     if [[ $api_score -ge 80 && $frontend_score -ge 80 ]]; then
-        success "OVERALL STATUS: HEALTHY - Preview environment fully operational"
+        success "OVERALL STATUS: HEALTHY - $ENV_NAME fully operational"
         exit 0
     elif [[ $api_score -ge 80 && $frontend_score -lt 80 ]]; then
         error "OVERALL STATUS: FRONTEND ISSUES - API working but frontend problems detected"
