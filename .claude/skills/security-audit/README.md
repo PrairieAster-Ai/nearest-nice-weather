@@ -71,10 +71,10 @@ Six of seven are OSS and need no API key. Socket's `scan create` (the recommende
 The tool-driven portion of this workflow is also available as a standalone script:
 
 ```bash
-python3 scripts/security_audit.py scan
-python3 scripts/security_audit.py scan --base origin/main --deep
-python3 scripts/security_audit.py ci --base origin/main
-python3 scripts/security_audit.py comment --pr 123
+python3 <skill>/scripts/security_audit.py scan
+python3 <skill>/scripts/security_audit.py scan --base origin/main --deep
+python3 <skill>/scripts/security_audit.py ci --base origin/main
+python3 <skill>/scripts/security_audit.py comment --pr 123
 ```
 
 What the script owns:
@@ -187,7 +187,7 @@ See `references/threat-model.md` for the full list.
 
 ### Authoring custom rules for your repo
 
-The most common gap in `/security-audit` output is missing project-specific patterns. Semgrep's registry packs (`p/default`, `p/typescript`, `p/react`, etc.) catch the common classes but not your stack's idioms. For wsl-menu-app that means Drizzle ORM raw queries, Supabase service-role bypasses, the project's specific auth middleware shape. Generic rules miss these. Hand-rolled rules catch them and produce zero false positives because they encode actual project knowledge.
+The most common gap in `/security-audit` output is missing project-specific patterns. Semgrep's registry packs (`p/default`, `p/typescript`, `p/react`, etc.) catch the common classes but not your stack's idioms. For a typical stack that might mean your ORM's raw-query escape hatches, service-role/admin credential bypasses, and your app's auth middleware. Generic rules miss these. Hand-rolled rules catch them and produce zero false positives because they encode actual project knowledge.
 
 **Workflow:**
 
@@ -264,9 +264,9 @@ Both skills read CLAUDE.md and will respect this boundary.
 | File | Purpose |
 |---|---|
 | `SKILL.md` | Main skill prompt with full workflow |
-| `../../scripts/security_audit.py` | Deterministic CLI for scanners, artifacts, and CI integration |
+| `scripts/security_audit.py` | Deterministic CLI for scanners, artifacts, and CI integration |
 | `references/tools.md` | Tool-by-tool comparison + install + scope-to-diff commands |
-| `references/exclusions.md` | The 21-rule hard exclusion list with rationale |
+| `references/exclusions.md` | The 25-rule hard exclusion list with rationale |
 | `references/asvs-chapter-map.md` | Touched-chapter detection patterns |
 | `references/threat-model.md` | Threats against the skill |
 | `references/memories-template.md` | Starter `.claude/security-memories.md` |

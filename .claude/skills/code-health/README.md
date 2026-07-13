@@ -37,7 +37,7 @@ docs (`/code-readability`), and security (`/security-audit`).
 
 The scripts are repo-agnostic — all paths come from `code-health.config.json` /
 `process.cwd()`, and GitHub file links derive from the `origin` remote. The same
-skill drives WSL, nearest-nice-weather, and any TS/React repo.
+skill drives any TS/React repo.
 
 See `SKILL.md` for modes (`instrument` / `read` / `refresh`) and
 `references/methodology.md` for formulas, anchors, and the dashboard template.

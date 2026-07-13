@@ -10,7 +10,7 @@ Empirical findings from running `pip install semgrep-mcp` (v0.9.0) and `semgrep 
 | `semgrep mcp` (built into the binary) | **Pro Engine required.** Returns `MCP subcommand requires Pro Engine--make sure you are using the proprietary semgrep binary.` | OSS binary doesn't include the MCP subcommand. |
 | `mcp.semgrep.ai` hosted server | **Deprecated.** Same retirement notice as the standalone package. | — |
 
-**Net effect:** there's no working OSS Semgrep MCP server for this skill to use today. The subprocess path (the default in `scripts/security_audit.py`) is the only working option.
+**Net effect:** there's no working OSS Semgrep MCP server for this skill to use today. The subprocess path (the default in `<skill>/scripts/security_audit.py`) is the only working option.
 
 ### Validation snippet
 
@@ -37,7 +37,7 @@ semgrep mcp  # ERROR: MCP subcommand requires Pro Engine
 
 ## What this means for the skill
 
-- **`scripts/security_audit.py --use-mcp` will fall back to subprocess silently** because the MCP server can't be spawned (or returns no useful tools). That's the right behavior; no remediation needed at the script level.
+- **`<skill>/scripts/security_audit.py --use-mcp` will fall back to subprocess silently** because the MCP server can't be spawned (or returns no useful tools). That's the right behavior; no remediation needed at the script level.
 - **The `--use-mcp` flag stays in place** because Semgrep may re-publish an OSS path in the future, and users on Pro Engine *can* use it today via `semgrep mcp`.
 - **The subprocess path is the default and works fine** with `semgrep scan --config=p/default --metrics=off --sarif`. See SKILL.md Phase 2.
 
@@ -47,7 +47,7 @@ If you have a Pro Engine license, the integration pattern below remains the targ
 
 ## Original integration plan (target architecture, blocked on OSS MCP availability)
 
-The Semgrep MCP server, when available, would expose seven tools. Where the current `scripts/security_audit.py` invokes Semgrep via subprocess, the same operations could run through the MCP protocol with better error handling, typed responses, and access to capabilities that subprocess doesn't expose.
+The Semgrep MCP server, when available, would expose seven tools. Where the current `<skill>/scripts/security_audit.py` invokes Semgrep via subprocess, the same operations could run through the MCP protocol with better error handling, typed responses, and access to capabilities that subprocess doesn't expose.
 
 ### What the Semgrep MCP server exposes
 
@@ -87,7 +87,7 @@ Currently requires a Pro Engine license. The previous `uvx semgrep-mcp` invocati
 
 #### Tier 2: Script calls MCP server via stdio
 
-`scripts/security_audit.py --use-mcp` attempts to spawn the MCP server as a subprocess. The implementation in `scripts/mcp_client.py` correctly speaks the MCP wire protocol (including the `notifications/initialized` post-handshake notification — the bug we found and fixed during validation). On OSS setups today it falls back to subprocess transparently.
+`<skill>/scripts/security_audit.py --use-mcp` attempts to spawn the MCP server as a subprocess. The implementation in `<skill>/scripts/mcp_client.py` correctly speaks the MCP wire protocol (including the `notifications/initialized` post-handshake notification — the bug we found and fixed during validation). On OSS setups today it falls back to subprocess transparently.
 
 #### Tier 3: Plain subprocess (current default)
 
@@ -96,7 +96,7 @@ Works without any MCP server. This is the path everyone uses right now.
 ## Roadmap
 
 - [x] Document the integration pattern.
-- [x] Add `scripts/mcp_client.py` as a thin stdio JSON-RPC client.
+- [x] Add `<skill>/scripts/mcp_client.py` as a thin stdio JSON-RPC client.
 - [x] Add `--use-mcp` flag to `scan` subcommand; route through MCP when set.
 - [x] Validate the MCP path against a real server install (this discovered the OSS deprecation).
 - [ ] Re-validate when Semgrep re-publishes an OSS MCP path (track at https://mcp.semgrep.ai/).

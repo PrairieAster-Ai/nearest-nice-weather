@@ -75,9 +75,9 @@ Save matched chapters to `/tmp/sr-asvs.txt`. The verification prompt only loads 
 **Crucial:** read these files from the **PR base ref**, not the working tree's HEAD. A contributor controlling the PR head could add a malicious memory that suppresses their own backdoor (see `references/threat-model.md` T8).
 
 ```bash
-# Correct: load convention files from origin/$BASE_REF
-git show "origin/$BASE_REF:CLAUDE.md" 2>/dev/null > /tmp/sr-claude.md || true
-git show "origin/$BASE_REF:.claude/security-memories.md" 2>/dev/null > /tmp/sr-memories.md || true
+# Correct: load convention files from origin/$BASE
+git show "origin/$BASE:CLAUDE.md" 2>/dev/null > /tmp/sr-claude.md || true
+git show "origin/$BASE:.claude/security-memories.md" 2>/dev/null > /tmp/sr-memories.md || true
 ```
 
 Any diff to these files counts as a `review-policy-change` finding that requires human approval; it is never auto-dismissed.
@@ -88,7 +88,7 @@ Any diff to these files counts as a `review-policy-change` finding that requires
 
 Run language-and-context-appropriate scanners. **All run in parallel, all emit SARIF or JSON**, all are scoped to changed files / changed deps where possible. Skip categories that don't apply to this diff.
 
-**MCP-aware path (optional):** when the user has the Semgrep MCP server installed (via `pipx install uv && uvx semgrep-mcp` or `pipx install semgrep-mcp`), `scripts/security_audit.py scan --use-mcp` routes the Semgrep call through MCP for typed errors and access to extra tools (`get_abstract_syntax_tree`, `semgrep_rule_schema`). Falls back to subprocess on any MCP failure. See `references/mcp-integration.md` for the integration pattern and the migration roadmap. The legacy subprocess path remains the default.
+**MCP-aware path (optional):** when the user has the Semgrep MCP server installed (via `pipx install uv && uvx semgrep-mcp` or `pipx install semgrep-mcp`), `<skill>/scripts/security_audit.py scan --use-mcp` routes the Semgrep call through MCP for typed errors and access to extra tools (`get_abstract_syntax_tree`, `semgrep_rule_schema`). Falls back to subprocess on any MCP failure. See `references/mcp-integration.md` for the integration pattern and the migration roadmap. The legacy subprocess path remains the default.
 
 ### Always-on (default stack, ~25s on a 20-file PR)
 
@@ -433,7 +433,7 @@ Keep the higher-confidence one, merge file:line lists.
 
 ## FP: dangerouslySetInnerHTML in components/Markdown.tsx
 **Reason:** Input passes through DOMPurify in lib/sanitize.ts:42 before render.
-**Created:** 2026-05-13 by Robert Speer
+**Created:** 2026-05-13 by <your-name>
 **Scope:** rule=react-dangerouslysetinnerhtml file=components/Markdown.tsx
 
 ## FP: child_process.exec in scripts/release.mjs
@@ -491,12 +491,12 @@ echo "$VERIFICATION_JSON" >> .claude/security-audit/rule-stats.jsonl
 
 The ledger is intentionally append-only. No edits, no deletions. If a past verdict turns out to be wrong, the correction is recorded as a new row with `human_override: true` and a `corrects` field pointing at the prior ts.
 
-#### Aggregating: `python3 scripts/security_audit.py rule-stats`
+#### Aggregating: `python3 <skill>/scripts/security_audit.py rule-stats`
 
 Summarize the ledger to identify rules with poor signal-to-noise in this repo:
 
 ```bash
-python3 scripts/security_audit.py rule-stats --since=180d --threshold=0.2
+python3 <skill>/scripts/security_audit.py rule-stats --since=180d --threshold=0.2
 ```
 
 Output:
@@ -801,7 +801,7 @@ For each finding at confidence ≥ 0.9:
    **6b. Validate via the Autogrep filter (deterministic).** Invoke:
 
    ```bash
-   python3 scripts/security_audit.py validate-rule \
+   python3 <skill>/scripts/security_audit.py validate-rule \
      --rule /tmp/sr-candidate-rule-${N}.yml \
      --vuln /tmp/sr-vuln-snippet-${N}.txt \
      --fixed /tmp/sr-fixed-snippet-${N}.txt
@@ -832,7 +832,7 @@ For each finding at confidence ≥ 0.9:
    **6d. Append to `.semgrep/repo-rules.yml`.** If 6b + 6c pass, the skill appends the rule via:
 
    ```bash
-   python3 scripts/security_audit.py validate-rule \
+   python3 <skill>/scripts/security_audit.py validate-rule \
      --rule /tmp/sr-candidate-rule-${N}.yml \
      --vuln /tmp/sr-vuln-snippet-${N}.txt \
      --fixed /tmp/sr-fixed-snippet-${N}.txt \

@@ -28,7 +28,7 @@ Each memory is a markdown section. The header is the human-readable title; the b
 - **Rule:** semgrep:javascript.lang.security.audit.xss.template-injection
 - **Scope:** apps/web/src/components/Markdown.tsx
 - **Reason:** Input passes through DOMPurify in lib/sanitize.ts:42 before render. The pattern is enforced by the test in apps/web/src/components/Markdown.test.tsx.
-- **Created:** 2026-05-13 by Robert Speer
+- **Created:** 2026-05-13 by <your-name>
 - **Expires:** 2026-11-13
 
 ## FP: child_process.exec in release scripts
@@ -36,14 +36,14 @@ Each memory is a markdown section. The header is the human-readable title; the b
 - **Rule:** eslint:security/detect-child-process
 - **Scope:** scripts/**, packages/database/scripts/**
 - **Reason:** scripts/* runs only at release-time with developer-controlled input via npm scripts. No network exposure, no untrusted input path.
-- **Created:** 2026-05-13 by Robert Speer
+- **Created:** 2026-05-13 by <your-name>
 
 ## FP: hardcoded test API key
 
 - **Rule:** gitleaks:generic-api-key
 - **Scope:** apps/web/playwright/fixtures/test-stripe-key.ts
 - **Reason:** Documented Stripe test-mode publishable key (pk_test_*), safe to commit per Stripe's docs.
-- **Created:** 2026-05-13 by Robert Speer
+- **Created:** 2026-05-13 by <your-name>
 ```
 
 ## How the skill uses memories
@@ -52,7 +52,7 @@ Each memory is a markdown section. The header is the human-readable title; the b
 2. Matched alarms are auto-dismissed and counted in the report's "Auto-dismissed (memories: N)" line.
 3. **Memory creation is a triage byproduct.** Every LLM verification emits a `suggested_memory` field in its JSON output (see Phase 4 in `SKILL.md`). Suggested memories with `applies=true` are written to `.claude/security-audit/pending-memories.jsonl`.
 4. Pending memories are surfaced in the final report under "Proposed memories." The user reviews them.
-5. The user runs `python3 scripts/security_audit.py promote-memories` to apply the safety filters and append surviving memories to `.claude/security-memories.md`. The skill MUST NOT auto-append without this explicit user action.
+5. The user runs `python3 <skill>/scripts/security_audit.py promote-memories` to apply the safety filters and append surviving memories to `.claude/security-memories.md`. The skill MUST NOT auto-append without this explicit user action.
 
 ### Safety filters during promotion
 
