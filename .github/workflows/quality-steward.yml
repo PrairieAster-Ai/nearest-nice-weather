@@ -102,7 +102,7 @@ jobs:
         # would let a compromised upstream execute inside it. Bump intentionally
         # after reviewing the upstream diff.
         env:
-          SKILLS_REF: 56bf4c16f192168dad17abd6b6cb97173892251e # quality-steward v0.2.1  # pragma: allowlist secret (git SHA, not a credential)
+          SKILLS_REF: 0c8b24d42983e56a5fbff3b66d66296e4664edfe # quality-steward v0.2.2  # pragma: allowlist secret (git SHA, not a credential)
         run: |
           git clone --filter=blob:none https://github.com/PrairieAster-Ai/quality-steward.git /tmp/qs
           git -C /tmp/qs checkout --quiet "$SKILLS_REF"
@@ -139,6 +139,18 @@ jobs:
           echo "range=$RANGE" >> "$GITHUB_OUTPUT"
           echo "Sweep range: $RANGE"
 
+      # Deterministic metric reading: produce the CodeHealth roll-up + trend as a
+      # WORKFLOW step (not agent discretion) so the trend + ch:trend sparkline are always
+      # regenerated. Non-fatal if the analysis tools are absent.
+      - name: Take a code-health reading
+        if: github.event_name != 'pull_request'
+        run: |
+          if [ -f code-health.config.json ] && [ -f .claude/skills/code-health/scripts/run-all.mjs ]; then
+            node .claude/skills/code-health/scripts/run-all.mjs || echo "code-health reading failed (non-fatal)"
+          else
+            echo "no code-health config or skill — skipping the reading"
+          fi
+
       - name: Build the run instruction from the trigger
         id: mode
         # github/step context is passed via env (referenced as $VARS), never
@@ -159,7 +171,7 @@ jobs:
           #   - quality-gate + suggestion policies are enabled (gate Check Run + noise control).
           PROJECT_CONFIG: >-
             Project config — stack: Node 24 + npm workspaces (apps/* , packages/*); the React+Vite PWA lives in apps/web (workspace @nearest-nice-weather/web).
-            Metric command: `node .claude/skills/code-health/scripts/run-all.mjs` (the code-health roll-up — reads deltas vs the previous reading; writes code-health/*.tsv + codehealth-stamp.json). Config is code-health.config.json at the repo root.
+            Metric command: taken deterministically by the "Take a code-health reading" CI step below; read code-health/codehealth-stamp.json + code-health/*-history.tsv for the score and deltas vs the previous reading.
             Green-gate (must stay green after any auto-fix): `npm run lint --workspace=@nearest-nice-weather/web && npm run type-check --workspace=@nearest-nice-weather/web`.
             Auto-fixable surface (safe, behavior-preserving only): `/code-readability annotate`, `npm run lint:fix --workspace=@nearest-nice-weather/web`.
             Doc-publish flow: project docs live in the GitHub Wiki — refresh via `/code-readability publish` and the `/github` skill; respect generator markers and never clobber hand-authored wiki pages.
@@ -171,7 +183,7 @@ jobs:
           if [ "$EVENT_NAME" = "pull_request" ]; then
             echo "instruction=${PROJECT_CONFIG} Run as the quality-steward in PER-PR mode. Review the diff of PR #${PR_NUMBER} (origin/${BASE_REF}...HEAD). Post inline PR comments for non-trivial findings (apply the suggestion policy); open an auto-fix PR ONLY for safe, behavior-preserving mechanical fixes; evaluate the quality-gate policy and publish the quality-steward/gate Check Run against head_sha ${PR_HEAD_SHA} (the PR's real head commit — NOT git rev-parse HEAD, which is the merge commit). Never push to the default branch." >> "$GITHUB_OUTPUT"
           else
-            echo "instruction=${PROJECT_CONFIG} Run as the quality-steward in WEEKLY SWEEP mode. Review git diff ${SWEEP_RANGE} (the commits merged since the last sweep). Open GitHub issues for non-trivial findings (apply the suggestion policy; honor steward:wontfix / closed-as-not-planned dismissals), an auto-fix PR for safe mechanical fixes, and refresh the project docs via the configured doc-publish flow (publish only if the code surface changed). If .claude/steward/steward-metrics.mjs is available, record the steward's self-metrics into code-health/steward-metrics.tsv." >> "$GITHUB_OUTPUT"
+            echo "instruction=${PROJECT_CONFIG} Run as the quality-steward in WEEKLY SWEEP mode. Review git diff ${SWEEP_RANGE} (the commits merged since the last sweep). Open GitHub issues for non-trivial findings (apply the suggestion policy; honor steward:wontfix / closed-as-not-planned dismissals), an auto-fix PR for safe mechanical fixes, and refresh the project docs via the configured doc-publish flow (publish only if the code surface changed). Include the self-metrics summary (recorded by the CI step) in your report; don't re-run it." >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run the steward
@@ -189,6 +201,18 @@ jobs:
             --permission-mode acceptEdits
             --max-turns 80
             --allowedTools Bash,Read,Write,Edit,Grep,Glob,Skill
+
+      # Deterministic self-metrics: record the steward's own output (fixes merged,
+      # findings open vs resolved) AFTER the agent, so it always fires and counts what
+      # this sweep just produced. Rides on steward-state via the persist step.
+      - name: Record steward self-metrics
+        if: success() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -f .claude/steward/steward-metrics.mjs ]; then
+            node .claude/steward/steward-metrics.mjs --out code-health/steward-metrics.tsv || echo "self-metrics failed (non-fatal)"
+          fi
 
       # Persist the new marker only after a successful sweep, so the next run resumes
       # from here. Lives on a dedicated `steward-state` branch (never the default
