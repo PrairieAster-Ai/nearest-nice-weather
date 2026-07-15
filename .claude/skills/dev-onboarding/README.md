@@ -43,5 +43,5 @@ free-tier accounts / seed data). They differ only on **secrets and data** — ne
 or install. The contributor path must use real free-tier services or a *clearly-labeled*
 fixture, never silent mock data.
 
-Composes with the `code-readability` Getting-Started page (the docs) and `quality-steward`
+Composes with the `code-readability` Getting-Started page (the docs) and `quality-butler`
 (weekly freshness). See `SKILL.md` for modes, config schema, and design rationale.

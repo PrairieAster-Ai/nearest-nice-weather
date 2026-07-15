@@ -74,8 +74,8 @@ tests/reports/
 Thumbs.db
 *.swp
 code-health/.jscpd-tmp/
-# code-health: generated trend/output. The DURABLE trend lives on the steward-state
-# branch (restored/persisted by the quality-steward workflow); local runs are ephemeral.
+# code-health: generated trend/output. The DURABLE trend lives on the butler-state
+# branch (restored/persisted by the quality-butler workflow); local runs are ephemeral.
 code-health/*-history.tsv
 code-health/*.json
 code-health/hotspot-table.md

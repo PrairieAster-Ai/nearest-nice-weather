@@ -1,6 +1,6 @@
 ---
 name: dismissed-findings
-description: Findings the steward deliberately did NOT raise as GitHub issues — do not re-raise unless impact changes
+description: Findings the butler deliberately did NOT raise as GitHub issues — do not re-raise unless impact changes
 metadata:
   type: project
 ---

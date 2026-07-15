@@ -1,4 +1,4 @@
-# Quality Steward — Memory Index
+# Quality Butler — Memory Index
 
 - [Last sweep state](last-sweep-state.md) — last-sweep SHA + what the weekly sweep covered
 - [Tooling gotchas](tooling-gotchas.md) — composed-skill availability + script marker prefixes for this repo

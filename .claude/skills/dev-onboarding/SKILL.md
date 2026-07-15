@@ -55,7 +55,7 @@ Onboarding diverges almost entirely on **secrets and data**, never on tools/inst
   "Contributor (no internal access)" block to `.env.example`, and prints the npm
   aliases + Getting-Started wiring. Review the generated config before committing.
 - **`verify`** — `doctor --services` + the run command's smoke endpoints; report
-  green/red. Good for the steward's freshness sweep and for CI.
+  green/red. Good for the butler's freshness sweep and for CI.
 
 ## Configure for your project
 
@@ -92,7 +92,7 @@ like the other skills). The same config drives any repo.
 - **`code-readability team`** owns the *docs* (Getting-Started + Skill-Inventory pages);
   this skill is what those pages tell you to run. They read the same `package.json` +
   `.env.example`.
-- **`quality-steward`** keeps it honest: add `doctor`/the config to the weekly sweep so
+- **`quality-butler`** keeps it honest: add `doctor`/the config to the weekly sweep so
   the checks never drift from `package.json` (the exact failure mode that rots hand-
   maintained setup scripts).
 
