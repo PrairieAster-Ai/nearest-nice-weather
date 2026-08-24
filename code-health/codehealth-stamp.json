@@ -2,7 +2,7 @@
   "badge": "B · 84 / 100",
   "chart": "```text\n                            weight  score (0–100)\nDocumentation         20%   ████████████████████   100\nMaintainability       25%   ███████████████████░  97.4   63🟢 / 1🟡\nStructure             20%   ████████████████████   100\nResilience (worst)    10%   █████████████░░░░░░░    67   worst file MI 18.4\nType & size           15%   █████████████████░░░  86.7\nSecurity (deps)       10%   ░░░░░░░░░░░░░░░░░░░░     0   12 high · 2 moderate advisories\n                            ────────────────────\nCodeHealth                  █████████████████░░░    84   grade B\n```",
   "pie": "```mermaid\n%%{init: {\"theme\": \"base\", \"themeVariables\": {\"pie1\": \"#2e7d32\", \"pie2\": \"#f9a825\", \"pie3\": \"#c62828\"}}}%%\npie showData title Maintainability Index bands (64 files)\n  \"Green (>=20)\" : 63\n  \"Yellow (10-19)\" : 1\n```",
-  "trend": "```mermaid\nxychart-beta\n    title \"CodeHealth score — last 9 readings (Δ -10)\"\n    x-axis [\"06-30\", \"06-30\", \"07-14\", \"07-15\", \"07-20\", \"07-27\", \"08-03\", \"08-10\", \"08-17\"]\n    y-axis \"Score\" 0 --> 100\n    line [94, 94, 94, 94, 93, 85.8, 85.8, 84, 84]\n```",
+  "trend": "```mermaid\nxychart-beta\n    title \"CodeHealth score — last 10 readings (Δ -10)\"\n    x-axis [\"06-30\", \"06-30\", \"07-14\", \"07-15\", \"07-20\", \"07-27\", \"08-03\", \"08-10\", \"08-17\", \"08-24\"]\n    y-axis \"Score\" 0 --> 100\n    line [94, 94, 94, 94, 93, 85.8, 85.8, 84, 84, 84]\n```",
   "files": 64,
   "loc": "10.4k",
   "green": 63,

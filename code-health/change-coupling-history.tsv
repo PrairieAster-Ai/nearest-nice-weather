@@ -8,3 +8,4 @@ date	commits	coupled_pairs	cross_layer	top_pair	top_degree_pct
 2026-08-03	44	11	0	apps/web/src/components/ads/AdManager.tsx ⇄ apps/web/src/components/ads/AdUnit.tsx	83
 2026-08-10	34	6	0	apps/web/src/components/FabFilterSystem.tsx ⇄ apps/web/src/components/MapContainer.tsx	80
 2026-08-17	28	4	0	apps/web/src/components/MapContainer.tsx ⇄ apps/web/src/components/ads/AdUnit.tsx	80
+2026-08-24	28	4	0	apps/web/src/components/MapContainer.tsx ⇄ apps/web/src/components/ads/AdUnit.tsx	80
