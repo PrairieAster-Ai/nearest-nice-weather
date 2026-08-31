@@ -28,13 +28,13 @@
     "testTimeout": 30000
   },
   "dependencies": {
-    "jest": "^30.4.2",
+    "jest": "^30.5.0",
     "pg": "^8.16.3",
     "supertest": "^7.2.2"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/supertest": "^7.2.0",
+    "@types/supertest": "^7.2.1",
     "dotenv": "^17.4.2"
   }
 }
