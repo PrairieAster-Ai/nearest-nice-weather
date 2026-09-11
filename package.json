@@ -181,7 +181,7 @@
     "madge": "^8.0.0",
     "playwright": "^1.54.2",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
